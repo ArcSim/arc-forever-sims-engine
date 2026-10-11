@@ -161,3 +161,12 @@ func NewPaladin(character *core.Character, talentsStr string, _ *proto.PaladinOp
 
 	return paladin
 }
+
+// holdMeleeForCast is the Forever hard-cast rule for a Paladin's cast-time spells
+// (core.AutoAttacks.HoldMeleeForCast): the next swing comes a full weapon speed after the cast
+// completes. A cast made instant (Instrument of Law, a proc) leaves the swing timer alone.
+func (paladin *Paladin) holdMeleeForCast(sim *core.Simulation, spell *core.Spell, cast *core.Cast) {
+	if castTime := paladin.ApplyCastSpeedForSpell(cast.CastTime, spell); castTime > 0 {
+		paladin.AutoAttacks.HoldMeleeForCast(sim, sim.CurrentTime+castTime)
+	}
+}

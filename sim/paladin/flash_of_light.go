@@ -31,6 +31,7 @@ func (paladin *Paladin) registerFlashOfLight(_ int32, rank *spelldata.Spell) {
 				GCD:      rank.GCD(),
 				CastTime: rank.CastTime(),
 			},
+			ModifyCast: paladin.holdMeleeForCast,
 		},
 
 		DamageMultiplier: 1,

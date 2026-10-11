@@ -315,6 +315,10 @@ type WeaponAttack struct {
 	curSwingDuration time.Duration
 	enabled          bool
 
+	// The end of a hard cast in progress (HoldMeleeForCast): a swing landing before it puts the next
+	// one a full swing after it.
+	castResetAt time.Duration
+
 	// Extra attacks still owed after the one ExtraMHAttacks pulled to now.
 	extraAttacks int32
 
@@ -375,6 +379,10 @@ func (wa *WeaponAttack) swing(sim *Simulation) time.Duration {
 	// if the attack causes APL evaluations (e.g. from rage gain).
 	wa.previousSwing = wa.swingAt
 	wa.swingAt = sim.CurrentTime + wa.curSwingDuration
+	// A hard cast that started as this swing landed restarts the timer when it completes.
+	if wa.castResetAt > sim.CurrentTime {
+		wa.swingAt = max(wa.swingAt, wa.castResetAt+wa.curSwingDuration)
+	}
 	if wa.extraAttacks > 0 {
 		wa.extraAttacks--
 		wa.swingAt = sim.CurrentTime
@@ -616,8 +624,10 @@ func (aa *AutoAttacks) reset(sim *Simulation) {
 	aa.mh.swingAt = NeverExpires
 	aa.mh.extraAttacks = 0
 	aa.mh.extraSwings = 0
+	aa.mh.castResetAt = 0
 	aa.oh.previousSwing = -NeverExpires
 	aa.oh.swingAt = NeverExpires
+	aa.oh.castResetAt = 0
 
 	if aa.AutoSwingMelee {
 		aa.mh.updateSwingDuration(aa.mh.unit.TotalMeleeHasteMultiplier())
@@ -950,29 +960,27 @@ func (aa *AutoAttacks) StopMeleeUntil(sim *Simulation, readyAt time.Duration) {
 // but has not completed, and a new cast would replace it.
 const heldSwingLag = time.Nanosecond
 
-// HoldMeleeForCast is a hard cast against the melee swing timer in Forever: a swing that comes due
-// while the cast is going waits for it and lands as it completes, and a cast that completes first
-// resets the timer as if a swing had just landed. A swing landing now, such as one the previous
-// cast held, still lands. Instant casts should not call it.
+// HoldMeleeForCast is a hard cast against the melee swing timer in Forever: the next swing comes one
+// full weapon speed after the cast completes, whether or not a swing came due during the cast. Beta
+// logs 2701 and 2712 (foreverlogs.gg, upstream #681) show this after every completed hard cast, and
+// it is the Classic rule. A swing landing now, at the instant the cast starts, still lands; castResetAt
+// then pushes the swing after it past the cast. Instant casts should not call it.
 func (aa *AutoAttacks) HoldMeleeForCast(sim *Simulation, castEnd time.Duration) {
 	if !aa.AutoSwingMelee { // if not auto swinging, don't auto restart.
 		return
 	}
 
-	hold := func(wa *WeaponAttack) {
-		switch {
-		case wa.swingAt <= sim.CurrentTime+heldSwingLag:
+	reset := func(wa *WeaponAttack) {
+		wa.castResetAt = max(wa.castResetAt, castEnd)
+		if wa.swingAt <= sim.CurrentTime+heldSwingLag {
 			return
-		case wa.swingAt <= castEnd:
-			wa.swingAt = castEnd + heldSwingLag
-		default:
-			wa.swingAt = castEnd + wa.curSwingDuration
 		}
+		wa.swingAt = castEnd + wa.curSwingDuration
 		sim.rescheduleWeaponAttack(wa.swingAt)
 	}
-	hold(&aa.mh)
+	reset(&aa.mh)
 	if aa.IsDualWielding {
-		hold(&aa.oh)
+		reset(&aa.oh)
 	}
 }
 

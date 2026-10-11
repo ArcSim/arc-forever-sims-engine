@@ -37,12 +37,8 @@ func (paladin *Paladin) registerHolyWrath(_ int32, rank *spelldata.Spell) {
 				Timer:    paladin.sharedTimer(&paladin.holyWrathTimer),
 				Duration: cooldown(rank),
 			},
-			ModifyCast: func(sim *core.Simulation, spell *core.Spell, cast *core.Cast) {
-				// The Forever hard-cast rule (HoldMeleeForCast): a swing due mid-cast lands as the cast completes.
-				if castTime := paladin.ApplyCastSpeedForSpell(cast.CastTime, spell); castTime > 0 {
-					paladin.AutoAttacks.HoldMeleeForCast(sim, sim.CurrentTime+castTime)
-				}
-			},
+			// The Forever hard-cast rule: the swing timer restarts as the cast completes.
+			ModifyCast: paladin.holdMeleeForCast,
 		},
 
 		DamageMultiplier: 1,

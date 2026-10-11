@@ -39,14 +39,9 @@ func (paladin *Paladin) registerHammerOfWrath(_ int32, rank *spelldata.Spell) {
 				Timer:    paladin.sharedTimer(&paladin.hammerOfWrathTimer),
 				Duration: cooldown(rank),
 			},
-			ModifyCast: func(sim *core.Simulation, spell *core.Spell, cast *core.Cast) {
-				// Only a hard cast holds the swing (HoldMeleeForCast, the Forever rule the Shaman bolts
-				// follow): a swing due mid-cast lands as the cast completes. Once Instrument of Law makes
-				// it instant, the swing timer is left alone.
-				if castTime := paladin.ApplyCastSpeedForSpell(cast.CastTime, spell); castTime > 0 {
-					paladin.AutoAttacks.HoldMeleeForCast(sim, sim.CurrentTime+castTime)
-				}
-			},
+			// Only a hard cast restarts the swing timer (holdMeleeForCast). Once Instrument of Law makes
+			// it instant, the swing timer is left alone.
+			ModifyCast: paladin.holdMeleeForCast,
 		},
 
 		DamageMultiplier: 1,

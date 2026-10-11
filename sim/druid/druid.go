@@ -188,6 +188,11 @@ func (druid *Druid) RegisterSpell(formMask DruidForm, config core.SpellConfig) *
 		if prevModify != nil {
 			prevModify(sim, s, c)
 		}
+		// A hard cast restarts the swing timer as it completes (core.AutoAttacks.HoldMeleeForCast), as
+		// for a caster-form druid swinging a staff. A druid that doesn't auto attack is untouched.
+		if castTime := druid.ApplyCastSpeedForSpell(c.CastTime, s); castTime > 0 {
+			druid.AutoAttacks.HoldMeleeForCast(sim, sim.CurrentTime+castTime)
+		}
 	}
 
 	ds.Spell = druid.Unit.RegisterSpell(config)

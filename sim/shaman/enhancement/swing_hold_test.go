@@ -10,12 +10,12 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
-// On the Forever beta a hard-cast Lightning Bolt holds the melee swing: a swing that comes due
-// during the cast lands as the cast completes, and a cast that completes first resets the swing
-// timer. So no swing lands inside a cast, and the first swing after one lands either as it completes
-// or a full swing later. An untalented, unhasted Orc with a 3.8 s Arcanite Reaper chain-casts until
-// it runs out of mana, then melees.
-func TestLightningBoltHoldsTheSwing(t *testing.T) {
+// On the Forever beta a completed hard-cast Lightning Bolt restarts the melee swing timer: the next
+// swing comes one full weapon speed after the cast completes, even when a swing came due during the
+// cast (beta logs 2701 and 2712, upstream #681). So no swing lands inside a cast, and the first swing
+// after one comes at least a full swing after it completes. An untalented, unhasted Orc with a 3.8 s
+// Arcanite Reaper chain-casts until it runs out of mana, then melees.
+func TestLightningBoltRestartsTheSwing(t *testing.T) {
 	const swing = 3.8
 	rotation := core.APLRotationFromJsonString(`{"type":"TypeAPL","priorityList":[{"action":{"castSpell":{"spellId":{"spellId":15208}}}}]}`)
 	player := &proto.Player{
@@ -67,7 +67,7 @@ func TestLightningBoltHoldsTheSwing(t *testing.T) {
 	}
 
 	const eps = 0.011 // the log's two decimals
-	held, reset := 0, 0
+	reset := 0
 	previous := -swing
 	for _, at := range swings {
 		lastEnd := -1.0
@@ -79,11 +79,7 @@ func TestLightningBoltHoldsTheSwing(t *testing.T) {
 				lastEnd = c.end
 			}
 		}
-		switch {
-		case lastEnd >= 0 && at < lastEnd+eps:
-			held++ // waited out the cast and landed as it completed
-		case lastEnd > previous+eps:
-			// a cast completed since the last swing, before this one was due: it reset the timer
+		if lastEnd > previous+eps { // a cast completed since the last swing: it restarted the timer
 			if at < lastEnd+swing-eps {
 				t.Fatalf("the swing at %.2f came less than a swing after the cast completing at %.2f", at, lastEnd)
 			}
@@ -91,8 +87,8 @@ func TestLightningBoltHoldsTheSwing(t *testing.T) {
 		}
 		previous = at
 	}
-	if held == 0 || reset == 0 {
-		t.Fatalf("held %d and reset %d swings; want both", held, reset)
+	if reset < 5 {
+		t.Fatalf("%d swings followed a cast; the fight did not exercise the reset", reset)
 	}
 	if started != len(casts) {
 		t.Fatalf("%d bolts started, %d completed", started, len(casts))
