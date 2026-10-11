@@ -40,7 +40,7 @@ const (
 //
 // The damage and the heal are two spells that share the cast's cooldown: the damage carries the
 // cast's id so the rotation names it as the client does, the heal carries its own. Light's Vigil
-// on the enemy turns the damage into the vigil's strike, refunds the vigil, and skips the cooldown.
+// on the enemy adds the vigil's strike to the damage, refunds the vigil, and skips the cooldown.
 func (paladin *Paladin) registerHolyShock() {
 	for _, rank := range HolyShockRanks {
 		paladin.registerHolyShockRank(rank)
@@ -76,12 +76,14 @@ func (paladin *Paladin) registerHolyShockRank(rank holyShockRank) {
 		BonusCoefficient: holyShockCoefficient,
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			if vigil := paladin.activeLightsVigil(target); vigil != nil {
+			vigil := paladin.activeLightsVigil(target)
+			spell.CalcAndDealDamage(sim, target, sim.Roll(rank.damage[0], rank.damage[1]), spell.OutcomeMagicHitAndCrit)
+			if vigil != nil {
+				// The vigil adds its strike to the Holy Shock: the tooltip's damage is a separate
+				// spell (1311598 at rank 3), as the party heal is a separate heal beside Holy Shock's.
 				vigil.consume(sim, target)
 				spell.CD.Reset()
-				return
 			}
-			spell.CalcAndDealDamage(sim, target, sim.Roll(rank.damage[0], rank.damage[1]), spell.OutcomeMagicHitAndCrit)
 		},
 	})
 
