@@ -2474,3 +2474,43 @@ Goldens: none move (no preset casts Light's Vigil).
 
 Light's Vigil is a 1.5 sec hard cast (`CastTimeMs: 1500`, Spiritual Focus covers its pushback) with no
 swing hook yet; a hold or restart would go in its `Cast.ModifyCast`, as in `holy_wrath.go`.
+
+## 109. `rogue: one switch for Cold Blood and Mutilate`
+
+No behaviour change. Upstream #690 modelled what the beta logs (2701/2702) and the live client show:
+Mutilate's hand strikes take Cold Blood's crit without spending the charge, so Cold Blood stays up
+through every Mutilate until a Sinister Strike, Backstab, Ambush or Eviscerate. Players confirm it is a
+live bug (Ambiwar, Redfall and Dyst on the MythicSim Discord, 10 October), and the sim keeps modelling
+it until Blizzard fixes it.
+
+`ColdBloodSpentByMutilate` in `sim/rogue/talents_assassination.go` (default false, the live bug) is the
+one switch to flip when they do: set true, the Mutilate's off-hand strike spends Cold Blood, so both
+hands of one Mutilate keep the crit and the next Mutilate does not. Test:
+`TestColdBloodSpentByMutilateWhenFixed` (`sim/rogue/mutilate_test.go`); `TestColdBloodLastsThroughMutilate`
+still covers the default. Goldens: none move.
+
+Measured on the assassination-rogue reference (Venom 38/11/2, Ambiwar's rotation, which casts Cold
+Blood on cooldown and Eviscerate only in the last 10 s): with the bug Cold Blood is up 115 of 120 s and
+98.4% of Mutilate hand strikes crit; switched to the fix, 47% crit and the reference loses 8.9%.
+
+## 110. `hunter: Dust Cloud yields to Sunder Armor and Expose Armor`
+
+Players report that in Forever the physical armor reductions (Sunder Armor, Expose Armor, Dust Cloud)
+don't stack and only the strongest applies, as the magic ones (Faerie Fire, Curse of Recklessness,
+patch 16) don't. No combat log confirms it and the client rows carry no stacking rule. Sunder and Expose
+already share the single-aura `MajorArmorReduction` category; Dust Cloud had its own and stacked its 505
+on top of them.
+
+`DustCloudYieldsToSunderAndExpose` in `sim/hunter/pet_abilities.go` (default true): the Tallstrider
+holds Dust Cloud while anything in `MajorArmorReduction` is on the target. Both outweigh 505 (Sunder 450
+a stack from the raid's first global cooldown, 2250 at five; Expose 2250), so only the stronger applies
+and the pet keeps the focus for Bite. Dust Cloud does not join the category itself: the raid's Sunder
+ramps from 0 stacks and a single-aura category refuses a weaker newcomer, so a Dust Cloud cast first
+would shut Sunder out for the fight. False restores stacking.
+
+Test: `TestDustCloudYieldsToSunderAndExpose` (`sim/hunter/dust_cloud_test.go`): Dust Cloud never goes up
+beside Sunder Armor or Expose Armor, stays up beside Faerie Fire and Curse of Recklessness, and stacks
+again when switched off. Goldens: none move (no suite runs a Tallstrider beside Sunder or Expose). No
+reference build uses a Tallstrider.
+
+Drop it if a combat log shows Dust Cloud stacking with Sunder Armor or Expose Armor.

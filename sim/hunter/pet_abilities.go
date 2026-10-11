@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
@@ -365,10 +366,23 @@ func (hp *HunterPet) newPetStrike(rank *spelldata.Spell) *core.Spell {
 	})
 }
 
+// DustCloudYieldsToSunderAndExpose is the switch for Dust Cloud against the other physical armor
+// reductions. Players report (Redfall, MythicSim Discord, October 2026) that in Forever Sunder
+// Armor, Expose Armor and Dust Cloud don't stack, only the strongest applies; no combat log confirms
+// it yet. With it set (the default) the Tallstrider holds Dust Cloud while Sunder Armor or Expose
+// Armor is on the target. Both outweigh its 505 (Sunder 450 a stack, 2250 at five; Expose 2250), so
+// the target never carries Dust Cloud's armor on top of them and the pet keeps its focus for Bite.
+// Faerie Fire and Curse of Recklessness are magic and don't compete with it. Set it false to let
+// Dust Cloud stack with everything, as before.
+//
+// Dust Cloud doesn't join Sunder and Expose's single-aura category itself: Sunder's raid copy ramps
+// from 0 stacks, so there a Dust Cloud would shut Sunder out for the fight.
+var DustCloudYieldsToSunderAndExpose = true
+
 // Dust Cloud is new in Forever and the Tallstrider's alone (client SkillLineAbility, skill line 218):
 // the target's armor down by the client row's amount for 30 sec, 10 focus, no cooldown (rank 5 505,
-// rank 1 at level 12 65). The pet recasts it when it falls off. Whether it stacks with Faerie Fire or
-// Sunder Armor is unknown; it bids only against another Dust Cloud.
+// rank 1 at level 12 65). The pet recasts it when it falls off, unless Sunder Armor or Expose Armor
+// is up (DustCloudYieldsToSunderAndExpose). Faerie Fire and Curse of Recklessness stack with it.
 func (hp *HunterPet) newDustCloud() *core.Spell {
 	rank := spellData.DustCloudTriggered.Highest()
 	auras := hp.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
@@ -403,6 +417,9 @@ func (hp *HunterPet) newDustCloud() *core.Spell {
 		ThreatMultiplier: 1,
 
 		ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {
+			if DustCloudYieldsToSunderAndExpose && target.GetExclusiveEffectCategory(buffs.SunderArmorCategory).AnyActive() {
+				return false
+			}
 			return hp.IsEnabled() && !auras.Get(target).IsActive()
 		},
 
