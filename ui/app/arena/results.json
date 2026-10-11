@@ -1,7 +1,7 @@
 {
 	"sim": "forever-next",
-	"commit": "f7598154eb8a138831290b34d4d321a532295224",
-	"generated": "2026-10-10T18:56:44Z",
+	"commit": "290b0b61e392aa4090855358209e8b4b32ab0191",
+	"generated": "2026-10-11T18:56:51Z",
 	"iterations": 5000,
 	"host": "Tonberry",
 	"builds": [
@@ -548,25 +548,6 @@
 			"build": "MythicSim Demo 2/31/18",
 			"talents": "02-0025003231221001351-0550005003",
 			"gear": "mc",
-			"rotation": "ds_ruin",
-			"consumables": "Arena-Caster",
-			"dps": 698.5907885009643,
-			"rests": {
-				"assumed": 0,
-				"classic": 0,
-				"core": 0.0738,
-				"forever": 0.9262,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 66.5,
-			"slots": 17
-		},
-		{
-			"spec": "warlock",
-			"build": "MythicSim Demo 2/31/18",
-			"talents": "02-0025003231221001351-0550005003",
-			"gear": "mc",
 			"rotation": "destruction_conflag",
 			"consumables": "Arena-Caster",
 			"dps": 698.5907885009643,
@@ -586,7 +567,26 @@
 			"build": "MythicSim Demo 2/31/18",
 			"talents": "02-0025003231221001351-0550005003",
 			"gear": "mc",
-			"rotation": "demonic_pact",
+			"rotation": "ds_ruin",
+			"consumables": "Arena-Caster",
+			"dps": 698.5907885009643,
+			"rests": {
+				"assumed": 0,
+				"classic": 0,
+				"core": 0.0738,
+				"forever": 0.9262,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 66.5,
+			"slots": 17
+		},
+		{
+			"spec": "warlock",
+			"build": "MythicSim Demo 2/31/18",
+			"talents": "02-0025003231221001351-0550005003",
+			"gear": "mc",
+			"rotation": "affliction",
 			"consumables": "Arena-Caster",
 			"dps": 697.5562453613292,
 			"rests": {
@@ -605,7 +605,7 @@
 			"build": "MythicSim Demo 2/31/18",
 			"talents": "02-0025003231221001351-0550005003",
 			"gear": "mc",
-			"rotation": "affliction",
+			"rotation": "demonic_pact",
 			"consumables": "Arena-Caster",
 			"dps": 697.5562453613292,
 			"rests": {
@@ -800,7 +800,7 @@
 			"build": "MythicSim Demo 2/31/18",
 			"talents": "02-0025003231221001351-0550005003",
 			"gear": "launch",
-			"rotation": "destruction",
+			"rotation": "ds_ruin",
 			"consumables": "Arena-Caster",
 			"dps": 691.159818232763,
 			"rests": {
@@ -838,7 +838,7 @@
 			"build": "MythicSim Demo 2/31/18",
 			"talents": "02-0025003231221001351-0550005003",
 			"gear": "launch",
-			"rotation": "ds_ruin",
+			"rotation": "destruction",
 			"consumables": "Arena-Caster",
 			"dps": 691.159818232763,
 			"rests": {
@@ -870,6 +870,26 @@
 			},
 			"ilvl": 64.2,
 			"slots": 17
+		},
+		{
+			"spec": "warlock",
+			"build": "Demonic Pact 2/31/18, optimised",
+			"talents": "012-0005003221220311351-0550005002",
+			"gear": "launch",
+			"rotation": "affliction",
+			"consumables": "Arena-Caster",
+			"dps": 690.739327192265,
+			"rests": {
+				"assumed": 0.0002,
+				"classic": 0,
+				"core": 0.0747,
+				"forever": 0.9251,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 62.6,
+			"slots": 17,
+			"optimised": true
 		},
 		{
 			"spec": "warlock",
@@ -1106,7 +1126,7 @@
 			"build": "Demonic Pact 2/31/18",
 			"talents": "113-0005003221220311351-0550005",
 			"gear": "launch",
-			"rotation": "affliction",
+			"rotation": "demonic_pact",
 			"consumables": "Arena-Caster",
 			"dps": 671.5835527611905,
 			"rests": {
@@ -1125,7 +1145,7 @@
 			"build": "Demonic Pact 2/31/18",
 			"talents": "113-0005003221220311351-0550005",
 			"gear": "launch",
-			"rotation": "demonic_pact",
+			"rotation": "affliction",
 			"consumables": "Arena-Caster",
 			"dps": 671.5835527611905,
 			"rests": {
@@ -1805,7 +1825,7 @@
 			"build": "Combat Dual-Wield 15/33/3",
 			"talents": "1053231-22530300001515231-012",
 			"gear": "combat_backstab_p1_bis",
-			"rotation": "combat_backstab_sweaty",
+			"rotation": "combat_backstab_ghostly",
 			"consumables": "Arena-Melee+class",
 			"dps": 650.005678770403,
 			"rests": {
@@ -1824,7 +1844,7 @@
 			"build": "Combat Dual-Wield 15/33/3",
 			"talents": "1053231-22530300001515231-012",
 			"gear": "combat_backstab_p1_bis",
-			"rotation": "combat_backstab_ghostly",
+			"rotation": "combat_backstab_sweaty",
 			"consumables": "Arena-Melee+class",
 			"dps": 650.005678770403,
 			"rests": {
@@ -1977,7 +1997,7 @@
 			"build": "MythicSim MM 5/39/7",
 			"talents": "5-3050552011523151-5002",
 			"gear": "p1.bis",
-			"rotation": "sv",
+			"rotation": "bm_arcane",
 			"consumables": "Arena-Ranged",
 			"dps": 647.0473179964365,
 			"rests": {
@@ -1996,7 +2016,7 @@
 			"build": "MythicSim MM 5/39/7",
 			"talents": "5-3050552011523151-5002",
 			"gear": "p1.bis",
-			"rotation": "bm_arcane",
+			"rotation": "sv",
 			"consumables": "Arena-Ranged",
 			"dps": 647.0473179964365,
 			"rests": {
@@ -2207,7 +2227,7 @@
 			"build": "Marksmanship 0/39/12",
 			"talents": "-3050552301503151-50024001",
 			"gear": "p1.bis",
-			"rotation": "sv",
+			"rotation": "bm_arcane",
 			"consumables": "Arena-Ranged",
 			"dps": 634.6887914181798,
 			"rests": {
@@ -2226,7 +2246,7 @@
 			"build": "Marksmanship 0/39/12",
 			"talents": "-3050552301503151-50024001",
 			"gear": "p1.bis",
-			"rotation": "bm_arcane",
+			"rotation": "sv",
 			"consumables": "Arena-Ranged",
 			"dps": 634.6887914181798,
 			"rests": {
@@ -2607,6 +2627,26 @@
 			"optimised": true
 		},
 		{
+			"spec": "warlock",
+			"build": "Deep Affliction 35/0/16, optimised",
+			"talents": "2524000013511105--0550025103",
+			"gear": "launch",
+			"rotation": "ds_ruin",
+			"consumables": "Arena-Caster",
+			"dps": 626.1067548111741,
+			"rests": {
+				"assumed": 0,
+				"classic": 0,
+				"core": 0.0726,
+				"forever": 0.9274,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 62.6,
+			"slots": 17,
+			"optimised": true
+		},
+		{
 			"spec": "enhancement_shaman",
 			"build": "MythicSim Enh 17/34/0",
 			"talents": "2505131-055030031005112251",
@@ -2899,7 +2939,7 @@
 		},
 		{
 			"spec": "enhancement_shaman",
-			"build": "31 Enhancement",
+			"build": "best of every combination, optimised",
 			"talents": "050012-055030031005102051-05205",
 			"gear": "launch",
 			"rotation": "forever_flameshock",
@@ -2919,7 +2959,7 @@
 		},
 		{
 			"spec": "enhancement_shaman",
-			"build": "best of every combination, optimised",
+			"build": "31 Enhancement",
 			"talents": "050012-055030031005102051-05205",
 			"gear": "launch",
 			"rotation": "forever_flameshock",
@@ -3117,8 +3157,8 @@
 		},
 		{
 			"spec": "balance_druid",
-			"build": "Moonkin 38/0/13, optimised",
-			"talents": "5532220115501351--055",
+			"build": "MythicSim Balance 41/0/10",
+			"talents": "5532220115501351--505",
 			"gear": "launch",
 			"rotation": "launch",
 			"consumables": "Arena-Caster",
@@ -3132,8 +3172,7 @@
 				"unknown": 0
 			},
 			"ilvl": 63.3,
-			"slots": 16,
-			"optimised": true
+			"slots": 16
 		},
 		{
 			"spec": "balance_druid",
@@ -3156,8 +3195,8 @@
 		},
 		{
 			"spec": "balance_druid",
-			"build": "MythicSim Balance 41/0/10",
-			"talents": "5532220115501351--505",
+			"build": "Moonkin 38/0/13, optimised",
+			"talents": "5532220115501351--055",
 			"gear": "launch",
 			"rotation": "launch",
 			"consumables": "Arena-Caster",
@@ -3171,7 +3210,8 @@
 				"unknown": 0
 			},
 			"ilvl": 63.3,
-			"slots": 16
+			"slots": 16,
+			"optimised": true
 		},
 		{
 			"spec": "balance_druid",
@@ -3211,26 +3251,6 @@
 			},
 			"ilvl": 63.3,
 			"slots": 16,
-			"optimised": true
-		},
-		{
-			"spec": "warlock",
-			"build": "Deep Affliction 35/0/16, optimised",
-			"talents": "2524000013511105--0540035103",
-			"gear": "launch",
-			"rotation": "ds_ruin",
-			"consumables": "Arena-Caster",
-			"dps": 614.0957217944306,
-			"rests": {
-				"assumed": 0,
-				"classic": 0,
-				"core": 0.0741,
-				"forever": 0.9259,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 62.6,
-			"slots": 17,
 			"optimised": true
 		},
 		{
@@ -3276,7 +3296,7 @@
 			"spec": "balance_druid",
 			"build": "Moonkin 38/0/13",
 			"talents": "5502220115501351--055003",
-			"gear": "launch",
+			"gear": "p0.bis",
 			"rotation": "launch",
 			"consumables": "Arena-Caster",
 			"dps": 612.02872751429,
@@ -3295,7 +3315,7 @@
 			"spec": "balance_druid",
 			"build": "Moonkin 38/0/13",
 			"talents": "5502220115501351--055003",
-			"gear": "p0.bis",
+			"gear": "launch",
 			"rotation": "launch",
 			"consumables": "Arena-Caster",
 			"dps": 612.02872751429,
@@ -3689,7 +3709,7 @@
 			"build": "MythicSim Demo 2/31/18",
 			"talents": "02-0025003231221001351-0550005003",
 			"gear": "prebis",
-			"rotation": "demonic_pact",
+			"rotation": "affliction",
 			"consumables": "Arena-Caster",
 			"dps": 605.5995721984804,
 			"rests": {
@@ -3708,7 +3728,7 @@
 			"build": "MythicSim Demo 2/31/18",
 			"talents": "02-0025003231221001351-0550005003",
 			"gear": "prebis",
-			"rotation": "affliction",
+			"rotation": "demonic_pact",
 			"consumables": "Arena-Caster",
 			"dps": 605.5995721984804,
 			"rests": {
@@ -3941,7 +3961,7 @@
 			"build": "MythicSim Assassination 32/19/0",
 			"talents": "00530310551021051-302303202004",
 			"gear": "combat_backstab_p2_bis",
-			"rotation": "combat_backstab_sweaty",
+			"rotation": "combat_backstab",
 			"consumables": "Arena-Melee+class",
 			"dps": 602.4334557986257,
 			"rests": {
@@ -3979,7 +3999,7 @@
 			"build": "MythicSim Assassination 32/19/0",
 			"talents": "00530310551021051-302303202004",
 			"gear": "combat_backstab_p2_bis",
-			"rotation": "combat_backstab",
+			"rotation": "combat_backstab_sweaty",
 			"consumables": "Arena-Melee+class",
 			"dps": 602.4334557986257,
 			"rests": {
@@ -4284,6 +4304,26 @@
 			"slots": 17
 		},
 		{
+			"spec": "warlock",
+			"build": "Shadow and Flame 13/11/27, optimised",
+			"talents": "2530100003-0025003001-05503351031",
+			"gear": "launch",
+			"rotation": "ds_ruin_sacrifice_imp",
+			"consumables": "Arena-Caster",
+			"dps": 597.7901936625717,
+			"rests": {
+				"assumed": 0,
+				"classic": 0,
+				"core": 0,
+				"forever": 1,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 62.6,
+			"slots": 17,
+			"optimised": true
+		},
+		{
 			"spec": "rogue",
 			"build": "Combat Dual-Wield 15/33/3",
 			"talents": "1053231-22530300001515231-012",
@@ -4441,26 +4481,6 @@
 			"points": 49
 		},
 		{
-			"spec": "warlock",
-			"build": "Shadow and Flame 13/11/27, optimised",
-			"talents": "2530100002-0025003001-05503451031",
-			"gear": "launch",
-			"rotation": "affliction_sacrifice_imp",
-			"consumables": "Arena-Caster",
-			"dps": 596.0901874829176,
-			"rests": {
-				"assumed": 0,
-				"classic": 0,
-				"core": 0,
-				"forever": 1,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 62.6,
-			"slots": 17,
-			"optimised": true
-		},
-		{
 			"spec": "enhancement_shaman",
 			"build": "Enhancement 16/35/0, optimised",
 			"talents": "250133102-055030031205112051",
@@ -4499,6 +4519,26 @@
 			"ilvl": 61.8,
 			"slots": 17,
 			"points": 49
+		},
+		{
+			"spec": "mage",
+			"build": "21 Frost",
+			"talents": "21522022311001053--053500332",
+			"gear": "arcane_launch",
+			"rotation": "arcane",
+			"consumables": "Arena-Caster",
+			"dps": 595.6536933569517,
+			"rests": {
+				"assumed": 0,
+				"classic": 0,
+				"core": 0,
+				"forever": 1,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 61.9,
+			"slots": 17,
+			"optimised": true
 		},
 		{
 			"spec": "warlock",
@@ -4578,6 +4618,26 @@
 			"optimised": true
 		},
 		{
+			"spec": "warlock",
+			"build": "Deep Affliction 35/0/16, optimised",
+			"talents": "2534000013511105--0520045103",
+			"gear": "launch",
+			"rotation": "affliction",
+			"consumables": "Arena-Caster",
+			"dps": 595.0185079226371,
+			"rests": {
+				"assumed": 0,
+				"classic": 0,
+				"core": 0.0765,
+				"forever": 0.9235,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 62.6,
+			"slots": 17,
+			"optimised": true
+		},
+		{
 			"spec": "mage",
 			"build": "31 Frost",
 			"talents": "25400201300001-02-052500330100130125",
@@ -4653,6 +4713,26 @@
 				"unknown": 0
 			},
 			"ilvl": 61.9,
+			"slots": 17,
+			"optimised": true
+		},
+		{
+			"spec": "warlock",
+			"build": "Shadow and Flame 13/11/27, optimised",
+			"talents": "2540100001-0025003001-05503451031",
+			"gear": "launch",
+			"rotation": "destruction_sacrifice_imp",
+			"consumables": "Arena-Caster",
+			"dps": 594.0771523421504,
+			"rests": {
+				"assumed": 0,
+				"classic": 0,
+				"core": 0,
+				"forever": 1,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 62.6,
 			"slots": 17,
 			"optimised": true
 		},
@@ -4941,26 +5021,6 @@
 				"unknown": 0
 			},
 			"ilvl": 62.6,
-			"slots": 17,
-			"optimised": true
-		},
-		{
-			"spec": "mage",
-			"build": "21 Frost",
-			"talents": "24522022011001053--053500332",
-			"gear": "arcane_launch",
-			"rotation": "arcane",
-			"consumables": "Arena-Caster",
-			"dps": 589.9959279325391,
-			"rests": {
-				"assumed": 0,
-				"classic": 0,
-				"core": 0,
-				"forever": 1,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 61.9,
 			"slots": 17,
 			"optimised": true
 		},
@@ -5434,7 +5494,7 @@
 			"build": "Assassination Mutilate 31/20/0",
 			"talents": "02532010531201051-225303000005",
 			"gear": "combat_backstab_p2_bis",
-			"rotation": "combat_backstab_sweaty",
+			"rotation": "combat_backstab",
 			"consumables": "Arena-Melee+class",
 			"dps": 586.3525432682067,
 			"rests": {
@@ -5453,7 +5513,7 @@
 			"build": "Assassination Mutilate 31/20/0",
 			"talents": "02532010531201051-225303000005",
 			"gear": "combat_backstab_p2_bis",
-			"rotation": "combat_backstab",
+			"rotation": "combat_backstab_sweaty",
 			"consumables": "Arena-Melee+class",
 			"dps": 586.3525432682067,
 			"rests": {
@@ -6030,7 +6090,7 @@
 			"build": "Survival 0/15/36",
 			"talents": "-005055-550230031051220151",
 			"gear": "p1.bis",
-			"rotation": "bm_arcane",
+			"rotation": "mm",
 			"consumables": "Arena-Ranged",
 			"dps": 582.0595390014992,
 			"rests": {
@@ -6049,7 +6109,7 @@
 			"build": "Survival 0/15/36",
 			"talents": "-005055-550230031051220151",
 			"gear": "p1.bis",
-			"rotation": "mm",
+			"rotation": "bm_arcane",
 			"consumables": "Arena-Ranged",
 			"dps": 582.0595390014992,
 			"rests": {
@@ -6338,7 +6398,7 @@
 			"build": "Assassination Mutilate 31/20/0",
 			"talents": "02532010531201051-225303000005",
 			"gear": "combat_backstab_p1_bis",
-			"rotation": "combat_backstab_sweaty",
+			"rotation": "combat_backstab_ghostly",
 			"consumables": "Arena-Melee+class",
 			"dps": 577.8073671765197,
 			"rests": {
@@ -6357,7 +6417,7 @@
 			"build": "Assassination Mutilate 31/20/0",
 			"talents": "02532010531201051-225303000005",
 			"gear": "combat_backstab_p1_bis",
-			"rotation": "combat_backstab_ghostly",
+			"rotation": "combat_backstab_sweaty",
 			"consumables": "Arena-Melee+class",
 			"dps": 577.8073671765197,
 			"rests": {
@@ -6455,7 +6515,7 @@
 			"build": "Combat Dual-Wield 15/33/3",
 			"talents": "1053231-22530300001515231-012",
 			"gear": "combat_backstab_prebis",
-			"rotation": "combat_backstab_ghostly",
+			"rotation": "combat_backstab_sweaty",
 			"consumables": "Arena-Melee+class",
 			"dps": 576.67858471011,
 			"rests": {
@@ -6474,7 +6534,7 @@
 			"build": "Combat Dual-Wield 15/33/3",
 			"talents": "1053231-22530300001515231-012",
 			"gear": "combat_backstab_prebis",
-			"rotation": "combat_backstab_sweaty",
+			"rotation": "combat_backstab_ghostly",
 			"consumables": "Arena-Melee+class",
 			"dps": 576.67858471011,
 			"rests": {
@@ -6493,7 +6553,7 @@
 			"build": "MythicSim Combat 18/33/0",
 			"talents": "005322105-32103321001515231",
 			"gear": "combat_backstab_p1_bis",
-			"rotation": "combat_backstab_sweaty",
+			"rotation": "combat_backstab_ghostly",
 			"consumables": "Arena-Melee+class",
 			"dps": 575.9341486007409,
 			"rests": {
@@ -6512,7 +6572,7 @@
 			"build": "MythicSim Combat 18/33/0",
 			"talents": "005322105-32103321001515231",
 			"gear": "combat_backstab_p1_bis",
-			"rotation": "combat_backstab_ghostly",
+			"rotation": "combat_backstab_sweaty",
 			"consumables": "Arena-Melee+class",
 			"dps": 575.9341486007409,
 			"rests": {
@@ -6684,7 +6744,7 @@
 		},
 		{
 			"spec": "retribution_paladin",
-			"build": "21 Holy",
+			"build": "21 Holy / 30 Retribution",
 			"talents": "543232100000001--5022513020113032",
 			"gear": "launch",
 			"rotation": "default",
@@ -6704,7 +6764,7 @@
 		},
 		{
 			"spec": "retribution_paladin",
-			"build": "21 Holy / 30 Retribution",
+			"build": "21 Holy",
 			"talents": "543232100000001--5022513020113032",
 			"gear": "launch",
 			"rotation": "default",
@@ -6916,26 +6976,7 @@
 		},
 		{
 			"spec": "warlock",
-			"build": "Deep Affliction 35/0/16",
-			"talents": "2535002013521105--05000551",
-			"gear": "mc",
-			"rotation": "destruction",
-			"consumables": "Arena-Caster",
-			"dps": 570.9599224857175,
-			"rests": {
-				"assumed": 0,
-				"classic": 0,
-				"core": 0.0797,
-				"forever": 0.9203,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 66.5,
-			"slots": 17
-		},
-		{
-			"spec": "warlock",
-			"build": "Deep Affliction 35/0/16",
+			"build": "MythicSim Affliction 35/0/16",
 			"talents": "2535002013521105--05000551",
 			"gear": "mc",
 			"rotation": "destruction_conflag",
@@ -6973,10 +7014,29 @@
 		},
 		{
 			"spec": "warlock",
-			"build": "MythicSim Affliction 35/0/16",
+			"build": "Deep Affliction 35/0/16",
 			"talents": "2535002013521105--05000551",
 			"gear": "mc",
 			"rotation": "destruction_conflag",
+			"consumables": "Arena-Caster",
+			"dps": 570.9599224857175,
+			"rests": {
+				"assumed": 0,
+				"classic": 0,
+				"core": 0.0797,
+				"forever": 0.9203,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 66.5,
+			"slots": 17
+		},
+		{
+			"spec": "warlock",
+			"build": "Deep Affliction 35/0/16",
+			"talents": "2535002013521105--05000551",
+			"gear": "mc",
+			"rotation": "destruction",
 			"consumables": "Arena-Caster",
 			"dps": 570.9599224857175,
 			"rests": {
@@ -7051,7 +7111,7 @@
 			"spec": "balance_druid",
 			"build": "MythicSim Balance 41/0/10",
 			"talents": "5532220115501351--505",
-			"gear": "p1.bis",
+			"gear": "p2.bis",
 			"rotation": "default",
 			"consumables": "Arena-Caster",
 			"dps": 570.7028326587763,
@@ -7070,7 +7130,7 @@
 			"spec": "balance_druid",
 			"build": "MythicSim Balance 41/0/10",
 			"talents": "5532220115501351--505",
-			"gear": "p2.bis",
+			"gear": "p1.bis",
 			"rotation": "default",
 			"consumables": "Arena-Caster",
 			"dps": 570.7028326587763,
@@ -7144,7 +7204,7 @@
 		},
 		{
 			"spec": "warlock",
-			"build": "Deep Affliction 35/0/16",
+			"build": "MythicSim Affliction 35/0/16",
 			"talents": "2535002013521105--05000551",
 			"gear": "mc",
 			"rotation": "affliction",
@@ -7163,7 +7223,7 @@
 		},
 		{
 			"spec": "warlock",
-			"build": "MythicSim Affliction 35/0/16",
+			"build": "Deep Affliction 35/0/16",
 			"talents": "2535002013521105--05000551",
 			"gear": "mc",
 			"rotation": "affliction",
@@ -7318,25 +7378,6 @@
 		},
 		{
 			"spec": "mage",
-			"build": "MythicSim Fire 12/34/5",
-			"talents": "230205-03552020130133051-005",
-			"gear": "arcane_launch",
-			"rotation": "fire",
-			"consumables": "Arena-Caster",
-			"dps": 568.643477648458,
-			"rests": {
-				"assumed": 0,
-				"classic": 0,
-				"core": 0,
-				"forever": 1,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 61.9,
-			"slots": 17
-		},
-		{
-			"spec": "mage",
 			"build": "best of every combination",
 			"talents": "252005-23550000130133051-005",
 			"gear": "arcane_launch",
@@ -7354,6 +7395,25 @@
 			"ilvl": 61.9,
 			"slots": 17,
 			"optimised": true
+		},
+		{
+			"spec": "mage",
+			"build": "MythicSim Fire 12/34/5",
+			"talents": "230205-03552020130133051-005",
+			"gear": "arcane_launch",
+			"rotation": "fire",
+			"consumables": "Arena-Caster",
+			"dps": 568.643477648458,
+			"rests": {
+				"assumed": 0,
+				"classic": 0,
+				"core": 0,
+				"forever": 1,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 61.9,
+			"slots": 17
 		},
 		{
 			"spec": "mage",
@@ -7590,7 +7650,7 @@
 		},
 		{
 			"spec": "warlock",
-			"build": "MythicSim Affliction 35/0/16",
+			"build": "Deep Affliction 35/0/16",
 			"talents": "2535002013521105--05000551",
 			"gear": "mc",
 			"rotation": "ds_ruin",
@@ -7609,7 +7669,7 @@
 		},
 		{
 			"spec": "warlock",
-			"build": "Deep Affliction 35/0/16",
+			"build": "MythicSim Affliction 35/0/16",
 			"talents": "2535002013521105--05000551",
 			"gear": "mc",
 			"rotation": "ds_ruin",
@@ -7690,7 +7750,7 @@
 			"build": "Fire 0/35/16",
 			"talents": "-03552020130133151-005500033",
 			"gear": "arcane_launch",
-			"rotation": "fire",
+			"rotation": "fire_lowrank",
 			"consumables": "Arena-Caster",
 			"dps": 566.6842337165779,
 			"rests": {
@@ -7709,7 +7769,7 @@
 			"build": "Fire 0/35/16",
 			"talents": "-03552020130133151-005500033",
 			"gear": "arcane_launch",
-			"rotation": "fire_lowrank",
+			"rotation": "fire",
 			"consumables": "Arena-Caster",
 			"dps": 566.6842337165779,
 			"rests": {
@@ -8053,7 +8113,7 @@
 			"spec": "balance_druid",
 			"build": "Moonkin 38/0/13",
 			"talents": "5502220115501351--055003",
-			"gear": "p1.bis",
+			"gear": "p2.bis",
 			"rotation": "default_lowrank",
 			"consumables": "Arena-Caster",
 			"dps": 562.3793950421492,
@@ -8072,7 +8132,7 @@
 			"spec": "balance_druid",
 			"build": "Moonkin 38/0/13",
 			"talents": "5502220115501351--055003",
-			"gear": "p2.bis",
+			"gear": "p1.bis",
 			"rotation": "default_lowrank",
 			"consumables": "Arena-Caster",
 			"dps": 562.3793950421492,
@@ -8167,6 +8227,25 @@
 		},
 		{
 			"spec": "warlock",
+			"build": "Deep Affliction 35/0/16",
+			"talents": "2535002013521105--05000551",
+			"gear": "launch",
+			"rotation": "affliction",
+			"consumables": "Arena-Caster",
+			"dps": 560.9357734268988,
+			"rests": {
+				"assumed": 0,
+				"classic": 0,
+				"core": 0.0811,
+				"forever": 0.9189,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 62.6,
+			"slots": 17
+		},
+		{
+			"spec": "warlock",
 			"build": "MythicSim Affliction 35/0/16",
 			"talents": "2535002013521105--05000551",
 			"gear": "launch",
@@ -8186,29 +8265,10 @@
 		},
 		{
 			"spec": "warlock",
-			"build": "Deep Affliction 35/0/16",
+			"build": "MythicSim Affliction 35/0/16",
 			"talents": "2535002013521105--05000551",
 			"gear": "launch",
-			"rotation": "affliction",
-			"consumables": "Arena-Caster",
-			"dps": 560.9357734268988,
-			"rests": {
-				"assumed": 0,
-				"classic": 0,
-				"core": 0.0811,
-				"forever": 0.9189,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 62.6,
-			"slots": 17
-		},
-		{
-			"spec": "warlock",
-			"build": "Deep Affliction 35/0/16",
-			"talents": "2535002013521105--05000551",
-			"gear": "launch",
-			"rotation": "destruction",
+			"rotation": "destruction_conflag",
 			"consumables": "Arena-Caster",
 			"dps": 560.9079531602858,
 			"rests": {
@@ -8262,10 +8322,10 @@
 		},
 		{
 			"spec": "warlock",
-			"build": "MythicSim Affliction 35/0/16",
+			"build": "Deep Affliction 35/0/16",
 			"talents": "2535002013521105--05000551",
 			"gear": "launch",
-			"rotation": "destruction_conflag",
+			"rotation": "destruction",
 			"consumables": "Arena-Caster",
 			"dps": 560.9079531602858,
 			"rests": {
@@ -8609,7 +8669,7 @@
 		},
 		{
 			"spec": "warlock",
-			"build": "MythicSim Affliction 35/0/16",
+			"build": "Deep Affliction 35/0/16",
 			"talents": "2535002013521105--05000551",
 			"gear": "launch",
 			"rotation": "ds_ruin",
@@ -8628,7 +8688,7 @@
 		},
 		{
 			"spec": "warlock",
-			"build": "Deep Affliction 35/0/16",
+			"build": "MythicSim Affliction 35/0/16",
 			"talents": "2535002013521105--05000551",
 			"gear": "launch",
 			"rotation": "ds_ruin",
@@ -8844,7 +8904,7 @@
 			"spec": "balance_druid",
 			"build": "MythicSim Balance 41/0/10",
 			"talents": "5532220115501351--505",
-			"gear": "launch",
+			"gear": "p0.bis",
 			"rotation": "default",
 			"consumables": "Arena-Caster",
 			"dps": 555.2830403904097,
@@ -8863,7 +8923,7 @@
 			"spec": "balance_druid",
 			"build": "MythicSim Balance 41/0/10",
 			"talents": "5532220115501351--505",
-			"gear": "p0.bis",
+			"gear": "launch",
 			"rotation": "default",
 			"consumables": "Arena-Caster",
 			"dps": 555.2830403904097,
@@ -8938,7 +8998,7 @@
 		},
 		{
 			"spec": "warlock",
-			"build": "MythicSim Affliction 35/0/16",
+			"build": "Deep Affliction 35/0/16",
 			"talents": "2535002013521105--05000551",
 			"gear": "launch",
 			"rotation": "demonic_pact",
@@ -8957,7 +9017,7 @@
 		},
 		{
 			"spec": "warlock",
-			"build": "Deep Affliction 35/0/16",
+			"build": "MythicSim Affliction 35/0/16",
 			"talents": "2535002013521105--05000551",
 			"gear": "launch",
 			"rotation": "demonic_pact",
@@ -9248,7 +9308,7 @@
 		},
 		{
 			"spec": "feral_druid",
-			"build": "MythicSim Feral 9/35/7",
+			"build": "Feral Cat 9/35/7",
 			"talents": "050022-55000032121032212051-052",
 			"gear": "launch",
 			"rotation": "default",
@@ -9267,7 +9327,7 @@
 		},
 		{
 			"spec": "feral_druid",
-			"build": "Feral Cat 9/35/7",
+			"build": "MythicSim Feral 9/35/7",
 			"talents": "050022-55000032121032212051-052",
 			"gear": "launch",
 			"rotation": "default",
@@ -9305,7 +9365,7 @@
 		},
 		{
 			"spec": "balance_druid",
-			"build": "21 Restoration",
+			"build": "30 Balance / 21 Restoration",
 			"talents": "503222011500135--555303",
 			"gear": "launch",
 			"rotation": "launch",
@@ -9325,7 +9385,7 @@
 		},
 		{
 			"spec": "balance_druid",
-			"build": "30 Balance / 21 Restoration",
+			"build": "21 Restoration",
 			"talents": "503222011500135--555303",
 			"gear": "launch",
 			"rotation": "launch",
@@ -9537,7 +9597,7 @@
 			"spec": "balance_druid",
 			"build": "Moonkin 38/0/13",
 			"talents": "5502220115501351--055003",
-			"gear": "p0.bis",
+			"gear": "launch",
 			"rotation": "default",
 			"consumables": "Arena-Caster",
 			"dps": 547.082866936961,
@@ -9556,7 +9616,7 @@
 			"spec": "balance_druid",
 			"build": "Moonkin 38/0/13",
 			"talents": "5502220115501351--055003",
-			"gear": "launch",
+			"gear": "p0.bis",
 			"rotation": "default",
 			"consumables": "Arena-Caster",
 			"dps": 547.082866936961,
@@ -9653,7 +9713,7 @@
 			"spec": "balance_druid",
 			"build": "Moonkin 38/0/13",
 			"talents": "5502220115501351--055003",
-			"gear": "launch",
+			"gear": "p0.bis",
 			"rotation": "default_lowrank",
 			"consumables": "Arena-Caster",
 			"dps": 545.5566297691173,
@@ -9672,7 +9732,7 @@
 			"spec": "balance_druid",
 			"build": "Moonkin 38/0/13",
 			"talents": "5502220115501351--055003",
-			"gear": "p0.bis",
+			"gear": "launch",
 			"rotation": "default_lowrank",
 			"consumables": "Arena-Caster",
 			"dps": 545.5566297691173,
@@ -10038,7 +10098,7 @@
 			"build": "MythicSim Demo 2/31/18",
 			"talents": "02-0025003231221001351-0550005003",
 			"gear": "mc",
-			"rotation": "ds_ruin_sacrifice_imp",
+			"rotation": "destruction_sacrifice_imp",
 			"consumables": "Arena-Caster",
 			"dps": 539.8974825056657,
 			"rests": {
@@ -10057,7 +10117,7 @@
 			"build": "MythicSim Demo 2/31/18",
 			"talents": "02-0025003231221001351-0550005003",
 			"gear": "mc",
-			"rotation": "destruction_sacrifice_imp",
+			"rotation": "ds_ruin_sacrifice_imp",
 			"consumables": "Arena-Caster",
 			"dps": 539.8974825056657,
 			"rests": {
@@ -10209,7 +10269,7 @@
 		},
 		{
 			"spec": "enhancement_shaman",
-			"build": "31 Restoration",
+			"build": "20 Enhancement / 31 Restoration",
 			"talents": "-0520300212041-543352331101",
 			"gear": "launch",
 			"rotation": "forever",
@@ -10229,7 +10289,7 @@
 		},
 		{
 			"spec": "enhancement_shaman",
-			"build": "20 Enhancement / 31 Restoration",
+			"build": "31 Restoration",
 			"talents": "-0520300212041-543352331101",
 			"gear": "launch",
 			"rotation": "forever",
@@ -10700,7 +10760,7 @@
 			"build": "MythicSim Assassination 32/19/0",
 			"talents": "00530310551021051-302303202004",
 			"gear": "backstab_launch",
-			"rotation": "combat_backstab_sweaty",
+			"rotation": "combat_backstab_ghostly",
 			"consumables": "Arena-Melee+class",
 			"dps": 531.8792301097122,
 			"rests": {
@@ -10719,7 +10779,7 @@
 			"build": "MythicSim Assassination 32/19/0",
 			"talents": "00530310551021051-302303202004",
 			"gear": "backstab_launch",
-			"rotation": "combat_backstab_ghostly",
+			"rotation": "combat_backstab_sweaty",
 			"consumables": "Arena-Melee+class",
 			"dps": 531.8792301097122,
 			"rests": {
@@ -10852,7 +10912,7 @@
 		},
 		{
 			"spec": "tank_warrior",
-			"build": "21 Arms",
+			"build": "21 Arms / 30 Fury",
 			"talents": "33305013002001-551500001520105",
 			"gear": "launch",
 			"rotation": "dps_reck",
@@ -10872,7 +10932,7 @@
 		},
 		{
 			"spec": "tank_warrior",
-			"build": "21 Arms / 30 Fury",
+			"build": "21 Arms",
 			"talents": "33305013002001-551500001520105",
 			"gear": "launch",
 			"rotation": "dps_reck",
@@ -10914,7 +10974,7 @@
 			"build": "MythicSim Assassination 32/19/0",
 			"talents": "00530310551021051-302303202004",
 			"gear": "combat_backstab_prebis",
-			"rotation": "combat_backstab",
+			"rotation": "combat_backstab_sweaty",
 			"consumables": "Arena-Melee+class",
 			"dps": 529.4190933509739,
 			"rests": {
@@ -10933,7 +10993,7 @@
 			"build": "MythicSim Assassination 32/19/0",
 			"talents": "00530310551021051-302303202004",
 			"gear": "combat_backstab_prebis",
-			"rotation": "combat_backstab_sweaty",
+			"rotation": "combat_backstab",
 			"consumables": "Arena-Melee+class",
 			"dps": 529.4190933509739,
 			"rests": {
@@ -11184,7 +11244,7 @@
 			"build": "MythicSim MM 5/39/7",
 			"talents": "5-3050552011523151-5002",
 			"gear": "p0.bis",
-			"rotation": "bm_arcane",
+			"rotation": "sv",
 			"consumables": "Arena-Ranged",
 			"dps": 526.0497145624391,
 			"rests": {
@@ -11203,7 +11263,7 @@
 			"build": "MythicSim MM 5/39/7",
 			"talents": "5-3050552011523151-5002",
 			"gear": "p0.bis",
-			"rotation": "sv",
+			"rotation": "bm_arcane",
 			"consumables": "Arena-Ranged",
 			"dps": 526.0497145624391,
 			"rests": {
@@ -11417,7 +11477,7 @@
 			"build": "Demonic Pact 2/31/18",
 			"talents": "113-0005003221220311351-0550005",
 			"gear": "mc",
-			"rotation": "ds_ruin_sacrifice_imp",
+			"rotation": "destruction_sacrifice_imp",
 			"consumables": "Arena-Caster",
 			"dps": 523.5425513195952,
 			"rests": {
@@ -11436,7 +11496,7 @@
 			"build": "Demonic Pact 2/31/18",
 			"talents": "113-0005003221220311351-0550005",
 			"gear": "mc",
-			"rotation": "destruction_sacrifice_imp",
+			"rotation": "ds_ruin_sacrifice_imp",
 			"consumables": "Arena-Caster",
 			"dps": 523.5425513195952,
 			"rests": {
@@ -11567,7 +11627,7 @@
 		},
 		{
 			"spec": "warlock",
-			"build": "Deep Affliction 35/0/16",
+			"build": "MythicSim Affliction 35/0/16",
 			"talents": "2535002013521105--05000551",
 			"gear": "mc",
 			"rotation": "destruction_sacrifice_imp",
@@ -11586,7 +11646,7 @@
 		},
 		{
 			"spec": "warlock",
-			"build": "MythicSim Affliction 35/0/16",
+			"build": "Deep Affliction 35/0/16",
 			"talents": "2535002013521105--05000551",
 			"gear": "mc",
 			"rotation": "destruction_sacrifice_imp",
@@ -11855,7 +11915,7 @@
 		},
 		{
 			"spec": "warlock",
-			"build": "MythicSim Affliction 35/0/16",
+			"build": "Deep Affliction 35/0/16",
 			"talents": "2535002013521105--05000551",
 			"gear": "mc",
 			"rotation": "ds_ruin_sacrifice_imp",
@@ -11874,7 +11934,7 @@
 		},
 		{
 			"spec": "warlock",
-			"build": "Deep Affliction 35/0/16",
+			"build": "MythicSim Affliction 35/0/16",
 			"talents": "2535002013521105--05000551",
 			"gear": "mc",
 			"rotation": "ds_ruin_sacrifice_imp",
@@ -12012,7 +12072,7 @@
 			"build": "Marksmanship 0/39/12",
 			"talents": "-3050552301503151-50024001",
 			"gear": "p0.bis",
-			"rotation": "bm_arcane",
+			"rotation": "sv",
 			"consumables": "Arena-Ranged",
 			"dps": 517.208030943025,
 			"rests": {
@@ -12031,7 +12091,7 @@
 			"build": "Marksmanship 0/39/12",
 			"talents": "-3050552301503151-50024001",
 			"gear": "p0.bis",
-			"rotation": "sv",
+			"rotation": "bm_arcane",
 			"consumables": "Arena-Ranged",
 			"dps": 517.208030943025,
 			"rests": {
@@ -12089,7 +12149,7 @@
 			"build": "Assassination Mutilate 31/20/0",
 			"talents": "02532010531201051-225303000005",
 			"gear": "backstab_launch",
-			"rotation": "combat_backstab_ghostly",
+			"rotation": "combat_backstab_sweaty",
 			"consumables": "Arena-Melee+class",
 			"dps": 516.4083692494593,
 			"rests": {
@@ -12108,7 +12168,7 @@
 			"build": "Assassination Mutilate 31/20/0",
 			"talents": "02532010531201051-225303000005",
 			"gear": "backstab_launch",
-			"rotation": "combat_backstab_sweaty",
+			"rotation": "combat_backstab_ghostly",
 			"consumables": "Arena-Melee+class",
 			"dps": 516.4083692494593,
 			"rests": {
@@ -12242,6 +12302,25 @@
 			"build": "Assassination Mutilate 31/20/0",
 			"talents": "02532010531201051-225303000005",
 			"gear": "combat_backstab_prebis",
+			"rotation": "combat_backstab_sweaty",
+			"consumables": "Arena-Melee+class",
+			"dps": 514.339978476829,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.3556,
+				"core": 0.5241,
+				"forever": 0.1203,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 61.8,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "Assassination Mutilate 31/20/0",
+			"talents": "02532010531201051-225303000005",
+			"gear": "combat_backstab_prebis",
 			"rotation": "combat_backstab",
 			"consumables": "Arena-Melee+class",
 			"dps": 514.339978476829,
@@ -12262,25 +12341,6 @@
 			"talents": "02532010531201051-225303000005",
 			"gear": "combat_backstab_prebis",
 			"rotation": "combat_backstab_ghostly",
-			"consumables": "Arena-Melee+class",
-			"dps": 514.339978476829,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.3556,
-				"core": 0.5241,
-				"forever": 0.1203,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 61.8,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "Assassination Mutilate 31/20/0",
-			"talents": "02532010531201051-225303000005",
-			"gear": "combat_backstab_prebis",
-			"rotation": "combat_backstab_sweaty",
 			"consumables": "Arena-Melee+class",
 			"dps": 514.339978476829,
 			"rests": {
@@ -12375,7 +12435,7 @@
 		{
 			"spec": "smite_priest",
 			"build": "best of every combination, optimised",
-			"talents": "525020030305-32505000022-50002",
+			"talents": "515020030305-32505000032-50002",
 			"gear": "smite_launch",
 			"rotation": "smite_lowrank_mindblast",
 			"consumables": "Arena-Caster",
@@ -12395,7 +12455,7 @@
 		{
 			"spec": "smite_priest",
 			"build": "best of every combination, optimised",
-			"talents": "515020030305-32505000032-50002",
+			"talents": "525020030305-32505000022-50002",
 			"gear": "smite_launch",
 			"rotation": "smite_lowrank_mindblast",
 			"consumables": "Arena-Caster",
@@ -12414,7 +12474,7 @@
 		},
 		{
 			"spec": "warlock",
-			"build": "MythicSim Affliction 35/0/16",
+			"build": "Deep Affliction 35/0/16",
 			"talents": "2535002013521105--05000551",
 			"gear": "launch",
 			"rotation": "affliction_sacrifice_imp",
@@ -12433,7 +12493,7 @@
 		},
 		{
 			"spec": "warlock",
-			"build": "Deep Affliction 35/0/16",
+			"build": "MythicSim Affliction 35/0/16",
 			"talents": "2535002013521105--05000551",
 			"gear": "launch",
 			"rotation": "affliction_sacrifice_imp",
@@ -12511,16 +12571,16 @@
 		{
 			"spec": "hunter",
 			"build": "Beast Mastery 35/16/0, optimised",
-			"talents": "5520001505121231-00531510003",
+			"talents": "5520001505121241-00531510002",
 			"gear": "launch",
 			"rotation": "bm_arcane",
 			"consumables": "Arena-Ranged",
-			"dps": 511.4737189607461,
+			"dps": 511.02852207961644,
 			"rests": {
-				"assumed": 0.2685,
-				"classic": 0.0708,
-				"core": 0.5345,
-				"forever": 0.1262,
+				"assumed": 0.2676,
+				"classic": 0.0709,
+				"core": 0.5358,
+				"forever": 0.1258,
 				"measured": 0,
 				"unknown": 0
 			},
@@ -12586,26 +12646,6 @@
 			},
 			"ilvl": 67.2,
 			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "Subtlety Hemo 15/0/36, optimised",
-			"talents": "125323101001--5320003310013211151",
-			"gear": "backstab_launch",
-			"rotation": "forever_hemorrhage_ghostly",
-			"consumables": "Arena-Melee+class",
-			"dps": 510.462883407225,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0235,
-				"core": 0.5279,
-				"forever": 0.4487,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 62.6,
-			"slots": 17,
-			"optimised": true
 		},
 		{
 			"spec": "feral_druid",
@@ -12939,7 +12979,7 @@
 		},
 		{
 			"spec": "warlock",
-			"build": "Deep Affliction 35/0/16",
+			"build": "MythicSim Affliction 35/0/16",
 			"talents": "2535002013521105--05000551",
 			"gear": "launch",
 			"rotation": "ds_ruin_sacrifice_imp",
@@ -12958,7 +12998,7 @@
 		},
 		{
 			"spec": "warlock",
-			"build": "MythicSim Affliction 35/0/16",
+			"build": "Deep Affliction 35/0/16",
 			"talents": "2535002013521105--05000551",
 			"gear": "launch",
 			"rotation": "ds_ruin_sacrifice_imp",
@@ -12974,6 +13014,26 @@
 			},
 			"ilvl": 62.6,
 			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "Subtlety Hemo 15/0/36, optimised",
+			"talents": "125323101--5320003310013211251",
+			"gear": "backstab_launch",
+			"rotation": "forever_hemorrhage_ghostly",
+			"consumables": "Arena-Melee+class",
+			"dps": 507.8673697838298,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0236,
+				"core": 0.5305,
+				"forever": 0.4459,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 62.6,
+			"slots": 17,
+			"optimised": true
 		},
 		{
 			"spec": "rogue",
@@ -13229,7 +13289,7 @@
 		},
 		{
 			"spec": "warrior",
-			"build": "31 Protection",
+			"build": "20 Fury / 31 Protection",
 			"talents": "-05343003002-0555331232000002",
 			"gear": "launch",
 			"rotation": "dps_dance",
@@ -13249,7 +13309,7 @@
 		},
 		{
 			"spec": "warrior",
-			"build": "20 Fury / 31 Protection",
+			"build": "31 Protection",
 			"talents": "-05343003002-0555331232000002",
 			"gear": "launch",
 			"rotation": "dps_dance",
@@ -13443,26 +13503,6 @@
 		},
 		{
 			"spec": "hunter",
-			"build": "31 Beast Mastery",
-			"talents": "552000150512023-31530510002",
-			"gear": "launch",
-			"rotation": "bm_arcane",
-			"consumables": "Arena-Ranged",
-			"dps": 500.7496155741825,
-			"rests": {
-				"assumed": 0.2728,
-				"classic": 0.065,
-				"core": 0.5341,
-				"forever": 0.1282,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 60.5,
-			"slots": 17,
-			"optimised": true
-		},
-		{
-			"spec": "hunter",
 			"build": "31 Beast Mastery / 20 Marksmanship",
 			"talents": "552000150512023-31530510002",
 			"gear": "launch",
@@ -13482,11 +13522,31 @@
 			"optimised": true
 		},
 		{
+			"spec": "hunter",
+			"build": "31 Beast Mastery",
+			"talents": "552000150512023-31530510002",
+			"gear": "launch",
+			"rotation": "bm_arcane",
+			"consumables": "Arena-Ranged",
+			"dps": 500.7496155741825,
+			"rests": {
+				"assumed": 0.2728,
+				"classic": 0.065,
+				"core": 0.5341,
+				"forever": 0.1282,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 60.5,
+			"slots": 17,
+			"optimised": true
+		},
+		{
 			"spec": "warlock",
 			"build": "DS/Ruin Pandemic 24/11/16",
 			"talents": "25220010135201-0025003001-05500051",
 			"gear": "prebis",
-			"rotation": "destruction",
+			"rotation": "destruction_conflag",
 			"consumables": "Arena-Caster",
 			"dps": 500.25060098233587,
 			"rests": {
@@ -13505,7 +13565,7 @@
 			"build": "DS/Ruin Pandemic 24/11/16",
 			"talents": "25220010135201-0025003001-05500051",
 			"gear": "prebis",
-			"rotation": "destruction_conflag",
+			"rotation": "destruction",
 			"consumables": "Arena-Caster",
 			"dps": 500.25060098233587,
 			"rests": {
@@ -13598,7 +13658,7 @@
 		},
 		{
 			"spec": "hunter",
-			"build": "21 Marksmanship",
+			"build": "30 Beast Mastery / 21 Marksmanship",
 			"talents": "552000150512022-32530510002",
 			"gear": "launch",
 			"rotation": "bm_arcane",
@@ -13618,7 +13678,7 @@
 		},
 		{
 			"spec": "hunter",
-			"build": "30 Beast Mastery / 21 Marksmanship",
+			"build": "21 Marksmanship",
 			"talents": "552000150512022-32530510002",
 			"gear": "launch",
 			"rotation": "bm_arcane",
@@ -13677,7 +13737,7 @@
 		},
 		{
 			"spec": "mage",
-			"build": "31 Fire",
+			"build": "31 Fire / 20 Frost",
 			"talents": "-00512333121103051-05450033",
 			"gear": "arcane_launch",
 			"rotation": "fire",
@@ -13697,7 +13757,7 @@
 		},
 		{
 			"spec": "mage",
-			"build": "31 Fire / 20 Frost",
+			"build": "31 Fire",
 			"talents": "-00512333121103051-05450033",
 			"gear": "arcane_launch",
 			"rotation": "fire",
@@ -14300,7 +14360,7 @@
 		},
 		{
 			"spec": "warlock",
-			"build": "MythicSim Affliction 35/0/16",
+			"build": "Deep Affliction 35/0/16",
 			"talents": "2535002013521105--05000551",
 			"gear": "prebis",
 			"rotation": "affliction",
@@ -14319,7 +14379,7 @@
 		},
 		{
 			"spec": "warlock",
-			"build": "Deep Affliction 35/0/16",
+			"build": "MythicSim Affliction 35/0/16",
 			"talents": "2535002013521105--05000551",
 			"gear": "prebis",
 			"rotation": "affliction",
@@ -14358,6 +14418,25 @@
 		},
 		{
 			"spec": "warlock",
+			"build": "Deep Affliction 35/0/16",
+			"talents": "2535002013521105--05000551",
+			"gear": "prebis",
+			"rotation": "destruction",
+			"consumables": "Arena-Caster",
+			"dps": 492.11566087771484,
+			"rests": {
+				"assumed": 0,
+				"classic": 0,
+				"core": 0.0925,
+				"forever": 0.9075,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 60.4,
+			"slots": 17
+		},
+		{
+			"spec": "warlock",
 			"build": "MythicSim Affliction 35/0/16",
 			"talents": "2535002013521105--05000551",
 			"gear": "prebis",
@@ -14400,25 +14479,6 @@
 			"talents": "2535002013521105--05000551",
 			"gear": "prebis",
 			"rotation": "destruction_conflag",
-			"consumables": "Arena-Caster",
-			"dps": 492.11566087771484,
-			"rests": {
-				"assumed": 0,
-				"classic": 0,
-				"core": 0.0925,
-				"forever": 0.9075,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 60.4,
-			"slots": 17
-		},
-		{
-			"spec": "warlock",
-			"build": "Deep Affliction 35/0/16",
-			"talents": "2535002013521105--05000551",
-			"gear": "prebis",
-			"rotation": "destruction",
 			"consumables": "Arena-Caster",
 			"dps": 492.11566087771484,
 			"rests": {
@@ -14491,6 +14551,25 @@
 		},
 		{
 			"spec": "smite_priest",
+			"build": "Smite 31/17/3",
+			"talents": "515030031305001031-00505023002-003",
+			"gear": "smite_launch",
+			"rotation": "smite_lowrank_mindblast",
+			"consumables": "Arena-Caster",
+			"dps": 490.3983689692594,
+			"rests": {
+				"assumed": 0,
+				"classic": 0,
+				"core": 0,
+				"forever": 0.8178,
+				"measured": 0.1822,
+				"unknown": 0
+			},
+			"ilvl": 62.8,
+			"slots": 17
+		},
+		{
+			"spec": "smite_priest",
 			"build": "31 Discipline",
 			"talents": "515030031305001031-00505023002-003",
 			"gear": "smite_launch",
@@ -14528,25 +14607,6 @@
 			"ilvl": 62.8,
 			"slots": 17,
 			"optimised": true
-		},
-		{
-			"spec": "smite_priest",
-			"build": "Smite 31/17/3",
-			"talents": "515030031305001031-00505023002-003",
-			"gear": "smite_launch",
-			"rotation": "smite_lowrank_mindblast",
-			"consumables": "Arena-Caster",
-			"dps": 490.3983689692594,
-			"rests": {
-				"assumed": 0,
-				"classic": 0,
-				"core": 0,
-				"forever": 0.8178,
-				"measured": 0.1822,
-				"unknown": 0
-			},
-			"ilvl": 62.8,
-			"slots": 17
 		},
 		{
 			"spec": "warlock",
@@ -14703,8 +14763,8 @@
 		},
 		{
 			"spec": "smite_priest",
-			"build": "21 Discipline / 30 Holy",
-			"talents": "512020031304-33555133002",
+			"build": "21 Discipline",
+			"talents": "512020031304-33545023002-003",
 			"gear": "smite_launch",
 			"rotation": "smite_lowrank_mindblast",
 			"consumables": "Arena-Caster",
@@ -14723,8 +14783,8 @@
 		},
 		{
 			"spec": "smite_priest",
-			"build": "21 Discipline",
-			"talents": "512020031304-33545023002-003",
+			"build": "21 Discipline / 30 Holy",
+			"talents": "512020031304-33555133002",
 			"gear": "smite_launch",
 			"rotation": "smite_lowrank_mindblast",
 			"consumables": "Arena-Caster",
@@ -14877,7 +14937,7 @@
 		},
 		{
 			"spec": "tank_warrior",
-			"build": "20 Fury / 31 Protection",
+			"build": "31 Protection",
 			"talents": "-0505203005-250033120310021251",
 			"gear": "launch",
 			"rotation": "protection",
@@ -14897,7 +14957,7 @@
 		},
 		{
 			"spec": "tank_warrior",
-			"build": "31 Protection",
+			"build": "20 Fury / 31 Protection",
 			"talents": "-0505203005-250033120310021251",
 			"gear": "launch",
 			"rotation": "protection",
@@ -15360,7 +15420,7 @@
 		},
 		{
 			"spec": "retribution_paladin",
-			"build": "31 Holy",
+			"build": "31 Holy / 20 Retribution",
 			"talents": "5032321322300023--50125330001",
 			"gear": "launch",
 			"rotation": "default",
@@ -15380,7 +15440,7 @@
 		},
 		{
 			"spec": "retribution_paladin",
-			"build": "31 Holy / 20 Retribution",
+			"build": "31 Holy",
 			"talents": "5032321322300023--50125330001",
 			"gear": "launch",
 			"rotation": "default",
@@ -15555,26 +15615,6 @@
 			"slots": 17
 		},
 		{
-			"spec": "protection_paladin",
-			"build": "Protection 0/45/6, optimised",
-			"talents": "-5522013321301551-05214",
-			"gear": "launch",
-			"rotation": "default",
-			"consumables": "Arena-Melee",
-			"dps": 479.97372413041444,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.2413,
-				"core": 0.4584,
-				"forever": 0.3003,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 61.9,
-			"slots": 17,
-			"optimised": true
-		},
-		{
 			"spec": "rogue",
 			"build": "31 Assassination / 20 Subtlety",
 			"talents": "3253231200130105--5323223",
@@ -15657,7 +15697,7 @@
 			"build": "MythicSim MM 5/39/7",
 			"talents": "5-3050552011523151-5002",
 			"gear": "launch",
-			"rotation": "bm_arcane",
+			"rotation": "sv",
 			"consumables": "Arena-Ranged",
 			"dps": 478.76177297287063,
 			"rests": {
@@ -15676,7 +15716,7 @@
 			"build": "MythicSim MM 5/39/7",
 			"talents": "5-3050552011523151-5002",
 			"gear": "launch",
-			"rotation": "sv",
+			"rotation": "bm_arcane",
 			"consumables": "Arena-Ranged",
 			"dps": 478.76177297287063,
 			"rests": {
@@ -15846,6 +15886,26 @@
 			},
 			"ilvl": 60.4,
 			"slots": 17
+		},
+		{
+			"spec": "protection_paladin",
+			"build": "Protection 0/45/6, optimised",
+			"talents": "-5522113321301551-05213",
+			"gear": "launch",
+			"rotation": "default",
+			"consumables": "Arena-Melee",
+			"dps": 476.5126176532861,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.241,
+				"core": 0.4574,
+				"forever": 0.3016,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 61.9,
+			"slots": 17,
+			"optimised": true
 		},
 		{
 			"spec": "balance_druid",
@@ -16089,7 +16149,7 @@
 			"build": "Subtlety Hemo 15/0/36",
 			"talents": "125320101--5320003310013211551",
 			"gear": "combat_backstab_p2_bis",
-			"rotation": "combat_backstab",
+			"rotation": "combat_backstab_sweaty",
 			"consumables": "Arena-Melee+class",
 			"dps": 474.325167136498,
 			"rests": {
@@ -16108,7 +16168,7 @@
 			"build": "Subtlety Hemo 15/0/36",
 			"talents": "125320101--5320003310013211551",
 			"gear": "combat_backstab_p2_bis",
-			"rotation": "combat_backstab_sweaty",
+			"rotation": "combat_backstab",
 			"consumables": "Arena-Melee+class",
 			"dps": 474.325167136498,
 			"rests": {
@@ -16494,7 +16554,7 @@
 			"build": "Subtlety Hemo 15/0/36",
 			"talents": "125320101--5320003310013211551",
 			"gear": "combat_backstab_p1_bis",
-			"rotation": "combat_backstab_sweaty",
+			"rotation": "combat_backstab",
 			"consumables": "Arena-Melee+class",
 			"dps": 466.4503935621414,
 			"rests": {
@@ -16513,7 +16573,7 @@
 			"build": "Subtlety Hemo 15/0/36",
 			"talents": "125320101--5320003310013211551",
 			"gear": "combat_backstab_p1_bis",
-			"rotation": "combat_backstab",
+			"rotation": "combat_backstab_sweaty",
 			"consumables": "Arena-Melee+class",
 			"dps": 466.4503935621414,
 			"rests": {
@@ -16957,7 +17017,7 @@
 		},
 		{
 			"spec": "feral_druid",
-			"build": "Feral Cat 9/35/7",
+			"build": "MythicSim Feral 9/35/7",
 			"talents": "050022-55000032121032212051-052",
 			"gear": "launch",
 			"rotation": "simple_vael",
@@ -16976,7 +17036,7 @@
 		},
 		{
 			"spec": "feral_druid",
-			"build": "MythicSim Feral 9/35/7",
+			"build": "Feral Cat 9/35/7",
 			"talents": "050022-55000032121032212051-052",
 			"gear": "launch",
 			"rotation": "simple_vael",
@@ -17304,25 +17364,6 @@
 		},
 		{
 			"spec": "feral_tank_druid",
-			"build": "Bear Tank 0/31/20",
-			"talents": "-50032302120132010501-0550325",
-			"gear": "launch",
-			"rotation": "default",
-			"consumables": "Arena-Melee",
-			"dps": 452.67714991961515,
-			"rests": {
-				"assumed": 0.4163,
-				"classic": 0.1905,
-				"core": 0.3535,
-				"forever": 0.0397,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 63.6,
-			"slots": 16
-		},
-		{
-			"spec": "feral_tank_druid",
 			"build": "31 Feral Combat",
 			"talents": "-50032302120132010501-0550325",
 			"gear": "launch",
@@ -17360,6 +17401,25 @@
 			"ilvl": 63.6,
 			"slots": 16,
 			"optimised": true
+		},
+		{
+			"spec": "feral_tank_druid",
+			"build": "Bear Tank 0/31/20",
+			"talents": "-50032302120132010501-0550325",
+			"gear": "launch",
+			"rotation": "default",
+			"consumables": "Arena-Melee",
+			"dps": 452.67714991961515,
+			"rests": {
+				"assumed": 0.4163,
+				"classic": 0.1905,
+				"core": 0.3535,
+				"forever": 0.0397,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 63.6,
+			"slots": 16
 		},
 		{
 			"spec": "feral_tank_druid",
@@ -17924,7 +17984,7 @@
 		},
 		{
 			"spec": "feral_druid",
-			"build": "Feral Cat 9/35/7",
+			"build": "MythicSim Feral 9/35/7",
 			"talents": "050022-55000032121032212051-052",
 			"gear": "p2.pre-bis",
 			"rotation": "simple_vael",
@@ -17943,7 +18003,7 @@
 		},
 		{
 			"spec": "feral_druid",
-			"build": "MythicSim Feral 9/35/7",
+			"build": "Feral Cat 9/35/7",
 			"talents": "050022-55000032121032212051-052",
 			"gear": "p2.pre-bis",
 			"rotation": "simple_vael",
@@ -18502,8 +18562,8 @@
 		},
 		{
 			"spec": "smite_priest",
-			"build": "30 Holy / 21 Shadow",
-			"talents": "-33555133002-2553210000003",
+			"build": "31 Holy / 20 Shadow",
+			"talents": "-33555133102-2553200000003",
 			"gear": "smite_launch",
 			"rotation": "smite_lowrank_mindblast",
 			"consumables": "Arena-Caster",
@@ -18522,8 +18582,8 @@
 		},
 		{
 			"spec": "smite_priest",
-			"build": "31 Holy / 20 Shadow",
-			"talents": "-33555133102-2553200000003",
+			"build": "30 Holy / 21 Shadow",
+			"talents": "-33555133002-2553210000003",
 			"gear": "smite_launch",
 			"rotation": "smite_lowrank_mindblast",
 			"consumables": "Arena-Caster",
@@ -19223,8 +19283,8 @@
 		},
 		{
 			"spec": "elemental_shaman",
-			"build": "20 Elemental / 31 Enhancement",
-			"talents": "55003013201-253232331320002",
+			"build": "21 Elemental / 30 Enhancement",
+			"talents": "550030132011-253232331310002",
 			"gear": "launch",
 			"rotation": "forever_lowrank",
 			"consumables": "Arena-Caster",
@@ -19243,8 +19303,8 @@
 		},
 		{
 			"spec": "elemental_shaman",
-			"build": "21 Elemental / 30 Enhancement",
-			"talents": "550030132011-253232331310002",
+			"build": "20 Elemental / 31 Enhancement",
+			"talents": "55003013201-253232331320002",
 			"gear": "launch",
 			"rotation": "forever_lowrank",
 			"consumables": "Arena-Caster",
@@ -19344,7 +19404,7 @@
 			"build": "Subtlety Hemo 15/0/36",
 			"talents": "125320101--5320003310013211551",
 			"gear": "backstab_launch",
-			"rotation": "combat_backstab_sweaty",
+			"rotation": "combat_backstab",
 			"consumables": "Arena-Melee+class",
 			"dps": 422.1764303337039,
 			"rests": {
@@ -19363,7 +19423,7 @@
 			"build": "Subtlety Hemo 15/0/36",
 			"talents": "125320101--5320003310013211551",
 			"gear": "backstab_launch",
-			"rotation": "combat_backstab",
+			"rotation": "combat_backstab_sweaty",
 			"consumables": "Arena-Melee+class",
 			"dps": 422.1764303337039,
 			"rests": {
@@ -20057,8 +20117,8 @@
 		},
 		{
 			"spec": "tank_warrior",
-			"build": "31 Arms / 20 Protection",
-			"talents": "30325213132105--25003312031",
+			"build": "30 Arms / 21 Protection",
+			"talents": "30325213132005--25003312031001",
 			"gear": "launch",
 			"rotation": "dps_reck",
 			"consumables": "Arena-Melee",
@@ -20077,8 +20137,8 @@
 		},
 		{
 			"spec": "tank_warrior",
-			"build": "30 Arms / 21 Protection",
-			"talents": "30325213132005--25003312031001",
+			"build": "31 Arms / 20 Protection",
+			"talents": "30325213132105--25003312031",
 			"gear": "launch",
 			"rotation": "dps_reck",
 			"consumables": "Arena-Melee",
@@ -20345,8 +20405,8 @@
 		},
 		{
 			"spec": "elemental_shaman",
-			"build": "20 Elemental / 31 Restoration",
-			"talents": "55003013201--543352331101",
+			"build": "21 Elemental / 30 Restoration",
+			"talents": "550030132011--543352331001",
 			"gear": "launch",
 			"rotation": "forever_lowrank",
 			"consumables": "Arena-Caster",
@@ -20365,8 +20425,8 @@
 		},
 		{
 			"spec": "elemental_shaman",
-			"build": "21 Elemental / 30 Restoration",
-			"talents": "550030132011--543352331001",
+			"build": "20 Elemental / 31 Restoration",
+			"talents": "55003013201--543352331101",
 			"gear": "launch",
 			"rotation": "forever_lowrank",
 			"consumables": "Arena-Caster",
@@ -20772,7 +20832,7 @@
 			"build": "MythicSim Arcane 35/11/5",
 			"talents": "055205003100311531-230500001-005",
 			"gear": "arcane_launch",
-			"rotation": "fire",
+			"rotation": "fire_lowrank",
 			"consumables": "Arena-Caster",
 			"dps": 388.8922042451057,
 			"rests": {
@@ -20791,7 +20851,7 @@
 			"build": "MythicSim Arcane 35/11/5",
 			"talents": "055205003100311531-230500001-005",
 			"gear": "arcane_launch",
-			"rotation": "fire_lowrank",
+			"rotation": "fire",
 			"consumables": "Arena-Caster",
 			"dps": 388.8922042451057,
 			"rests": {
@@ -21248,7 +21308,7 @@
 		},
 		{
 			"spec": "shadow_priest",
-			"build": "31 Holy",
+			"build": "31 Holy / 20 Shadow",
 			"talents": "-3355513321-5500220012003",
 			"gear": "launch",
 			"rotation": "shadow",
@@ -21268,7 +21328,7 @@
 		},
 		{
 			"spec": "shadow_priest",
-			"build": "31 Holy / 20 Shadow",
+			"build": "31 Holy",
 			"talents": "-3355513321-5500220012003",
 			"gear": "launch",
 			"rotation": "shadow",
@@ -21464,7 +21524,7 @@
 			"build": "MythicSim Arcane 35/11/5",
 			"talents": "055205003100311531-230500001-005",
 			"gear": "frost_launch",
-			"rotation": "fire",
+			"rotation": "fire_lowrank",
 			"consumables": "Arena-Caster",
 			"dps": 369.7450883222451,
 			"rests": {
@@ -21483,7 +21543,7 @@
 			"build": "MythicSim Arcane 35/11/5",
 			"talents": "055205003100311531-230500001-005",
 			"gear": "frost_launch",
-			"rotation": "fire_lowrank",
+			"rotation": "fire",
 			"consumables": "Arena-Caster",
 			"dps": 369.7450883222451,
 			"rests": {
@@ -21978,6 +22038,46 @@
 		},
 		{
 			"spec": "feral_tank_druid",
+			"build": "20 Balance / 31 Restoration",
+			"talents": "5532221--555333511",
+			"gear": "launch",
+			"rotation": "default",
+			"consumables": "Arena-Melee",
+			"dps": 353.0967991778588,
+			"rests": {
+				"assumed": 0.357,
+				"classic": 0.084,
+				"core": 0.5021,
+				"forever": 0.0569,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 63.6,
+			"slots": 16,
+			"optimised": true
+		},
+		{
+			"spec": "feral_tank_druid",
+			"build": "31 Balance",
+			"talents": "55322231152--0550325",
+			"gear": "launch",
+			"rotation": "default",
+			"consumables": "Arena-Melee",
+			"dps": 353.0967991778588,
+			"rests": {
+				"assumed": 0.357,
+				"classic": 0.084,
+				"core": 0.5021,
+				"forever": 0.0569,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 63.6,
+			"slots": 16,
+			"optimised": true
+		},
+		{
+			"spec": "feral_tank_druid",
 			"build": "30 Balance / 21 Restoration",
 			"talents": "55322231151--1550325",
 			"gear": "launch",
@@ -22020,46 +22120,6 @@
 			"spec": "feral_tank_druid",
 			"build": "31 Balance / 20 Restoration",
 			"talents": "55322231152--0550325",
-			"gear": "launch",
-			"rotation": "default",
-			"consumables": "Arena-Melee",
-			"dps": 353.0967991778588,
-			"rests": {
-				"assumed": 0.357,
-				"classic": 0.084,
-				"core": 0.5021,
-				"forever": 0.0569,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 63.6,
-			"slots": 16,
-			"optimised": true
-		},
-		{
-			"spec": "feral_tank_druid",
-			"build": "31 Balance",
-			"talents": "55322231152--0550325",
-			"gear": "launch",
-			"rotation": "default",
-			"consumables": "Arena-Melee",
-			"dps": 353.0967991778588,
-			"rests": {
-				"assumed": 0.357,
-				"classic": 0.084,
-				"core": 0.5021,
-				"forever": 0.0569,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 63.6,
-			"slots": 16,
-			"optimised": true
-		},
-		{
-			"spec": "feral_tank_druid",
-			"build": "20 Balance / 31 Restoration",
-			"talents": "5532221--555333511",
 			"gear": "launch",
 			"rotation": "default",
 			"consumables": "Arena-Melee",
@@ -22273,7 +22333,7 @@
 			"build": "Arcane 35/0/16",
 			"talents": "055005023100311531--005500033",
 			"gear": "fire_launch",
-			"rotation": "fire",
+			"rotation": "fire_lowrank",
 			"consumables": "Arena-Caster",
 			"dps": 347.65360383126114,
 			"rests": {
@@ -22292,7 +22352,7 @@
 			"build": "Arcane 35/0/16",
 			"talents": "055005023100311531--005500033",
 			"gear": "fire_launch",
-			"rotation": "fire_lowrank",
+			"rotation": "fire",
 			"consumables": "Arena-Caster",
 			"dps": 347.65360383126114,
 			"rests": {
@@ -22445,7 +22505,7 @@
 			"build": "Arcane 35/0/16",
 			"talents": "055005023100311531--005500033",
 			"gear": "arcane_launch",
-			"rotation": "fire",
+			"rotation": "fire_lowrank",
 			"consumables": "Arena-Caster",
 			"dps": 337.04388222043775,
 			"rests": {
@@ -22464,7 +22524,7 @@
 			"build": "Arcane 35/0/16",
 			"talents": "055005023100311531--005500033",
 			"gear": "arcane_launch",
-			"rotation": "fire_lowrank",
+			"rotation": "fire",
 			"consumables": "Arena-Caster",
 			"dps": 337.04388222043775,
 			"rests": {
@@ -22540,7 +22600,7 @@
 			"build": "Arcane 35/0/16",
 			"talents": "055005023100311531--005500033",
 			"gear": "p1.bis",
-			"rotation": "fire_lowrank",
+			"rotation": "fire",
 			"consumables": "Arena-Caster",
 			"dps": 331.84727586625604,
 			"rests": {
@@ -22559,7 +22619,7 @@
 			"build": "Arcane 35/0/16",
 			"talents": "055005023100311531--005500033",
 			"gear": "p1.bis",
-			"rotation": "fire",
+			"rotation": "fire_lowrank",
 			"consumables": "Arena-Caster",
 			"dps": 331.84727586625604,
 			"rests": {
@@ -22571,25 +22631,6 @@
 				"unknown": 0
 			},
 			"ilvl": 65.3,
-			"slots": 17
-		},
-		{
-			"spec": "tank_warrior",
-			"build": "MythicSim Prot 0/20/31",
-			"talents": "-0505203005-250033120310021251",
-			"gear": "preraid",
-			"rotation": "dps_reck",
-			"consumables": "Arena-Melee",
-			"dps": 331.295510700011,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.6522,
-				"core": 0.2937,
-				"forever": 0.0541,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 59,
 			"slots": 17
 		},
 		{
@@ -22612,11 +22653,30 @@
 			"slots": 17
 		},
 		{
+			"spec": "tank_warrior",
+			"build": "MythicSim Prot 0/20/31",
+			"talents": "-0505203005-250033120310021251",
+			"gear": "preraid",
+			"rotation": "dps_reck",
+			"consumables": "Arena-Melee",
+			"dps": 331.295510700011,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.6522,
+				"core": 0.2937,
+				"forever": 0.0541,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 59,
+			"slots": 17
+		},
+		{
 			"spec": "mage",
 			"build": "MythicSim Frost 10/3/38",
 			"talents": "050005-03-0555000331001331251",
 			"gear": "fire_launch",
-			"rotation": "fire_lowrank",
+			"rotation": "fire",
 			"consumables": "Arena-Caster",
 			"dps": 330.05601343489127,
 			"rests": {
@@ -22635,7 +22695,7 @@
 			"build": "MythicSim Frost 10/3/38",
 			"talents": "050005-03-0555000331001331251",
 			"gear": "fire_launch",
-			"rotation": "fire",
+			"rotation": "fire_lowrank",
 			"consumables": "Arena-Caster",
 			"dps": 330.05601343489127,
 			"rests": {
@@ -22997,48 +23057,28 @@
 		},
 		{
 			"spec": "feral_druid",
-			"build": "30 Balance / 21 Restoration",
-			"talents": "55322231151--55533",
-			"gear": "launch",
-			"rotation": "default",
-			"consumables": "Arena-Melee",
-			"dps": 314.4292538620663,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0285,
-				"core": 0.5553,
-				"forever": 0.4162,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 61.6,
-			"slots": 16,
-			"optimised": true
-		},
-		{
-			"spec": "feral_druid",
-			"build": "31 Balance / 20 Restoration",
-			"talents": "55322231152--555302",
-			"gear": "launch",
-			"rotation": "default",
-			"consumables": "Arena-Melee",
-			"dps": 314.4292538620663,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0285,
-				"core": 0.5553,
-				"forever": 0.4162,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 61.6,
-			"slots": 16,
-			"optimised": true
-		},
-		{
-			"spec": "feral_druid",
 			"build": "21 Balance / 30 Restoration",
 			"talents": "5532222--55533351",
+			"gear": "launch",
+			"rotation": "default",
+			"consumables": "Arena-Melee",
+			"dps": 314.4292538620663,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0285,
+				"core": 0.5553,
+				"forever": 0.4162,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 61.6,
+			"slots": 16,
+			"optimised": true
+		},
+		{
+			"spec": "feral_druid",
+			"build": "30 Balance / 21 Restoration",
+			"talents": "55322231151--55533",
 			"gear": "launch",
 			"rotation": "default",
 			"consumables": "Arena-Melee",
@@ -23076,11 +23116,31 @@
 			"optimised": true
 		},
 		{
+			"spec": "feral_druid",
+			"build": "31 Balance / 20 Restoration",
+			"talents": "55322231152--555302",
+			"gear": "launch",
+			"rotation": "default",
+			"consumables": "Arena-Melee",
+			"dps": 314.4292538620663,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0285,
+				"core": 0.5553,
+				"forever": 0.4162,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 61.6,
+			"slots": 16,
+			"optimised": true
+		},
+		{
 			"spec": "mage",
 			"build": "MythicSim Frost 10/3/38",
 			"talents": "050005-03-0555000331001331251",
 			"gear": "p1.bis",
-			"rotation": "fire",
+			"rotation": "fire_lowrank",
 			"consumables": "Arena-Caster",
 			"dps": 313.56065800366184,
 			"rests": {
@@ -23099,7 +23159,7 @@
 			"build": "MythicSim Frost 10/3/38",
 			"talents": "050005-03-0555000331001331251",
 			"gear": "p1.bis",
-			"rotation": "fire_lowrank",
+			"rotation": "fire",
 			"consumables": "Arena-Caster",
 			"dps": 313.56065800366184,
 			"rests": {
@@ -23174,8 +23234,8 @@
 		},
 		{
 			"spec": "rogue",
-			"build": "MythicSim Combat 18/33/0",
-			"talents": "005322105-32103321001515231",
+			"build": "Combat Dual-Wield 15/33/3",
+			"talents": "1053231-22530300001515231-012",
 			"gear": "combat_sinister_strike_p2_bis",
 			"rotation": "combat_backstab_ghostly",
 			"consumables": "Arena-Melee+class",
@@ -23195,6 +23255,25 @@
 			"spec": "rogue",
 			"build": "MythicSim Combat 18/33/0",
 			"talents": "005322105-32103321001515231",
+			"gear": "combat_sinister_strike_p2_bis",
+			"rotation": "combat_backstab_ghostly",
+			"consumables": "Arena-Melee+class",
+			"dps": 308.48764008809144,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0063,
+				"core": 0.9221,
+				"forever": 0.0716,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 68.2,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "Combat Dual-Wield 15/33/3",
+			"talents": "1053231-22530300001515231-012",
 			"gear": "combat_sinister_strike_p2_bis",
 			"rotation": "combat_backstab_sweaty",
 			"consumables": "Arena-Melee+class",
@@ -23212,27 +23291,8 @@
 		},
 		{
 			"spec": "rogue",
-			"build": "Combat Dual-Wield 15/33/3",
-			"talents": "1053231-22530300001515231-012",
-			"gear": "combat_sinister_strike_p2_bis",
-			"rotation": "combat_backstab_ghostly",
-			"consumables": "Arena-Melee+class",
-			"dps": 308.48764008809144,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0063,
-				"core": 0.9221,
-				"forever": 0.0716,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 68.2,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "Combat Dual-Wield 15/33/3",
-			"talents": "1053231-22530300001515231-012",
+			"build": "MythicSim Combat 18/33/0",
+			"talents": "005322105-32103321001515231",
 			"gear": "combat_sinister_strike_p2_bis",
 			"rotation": "combat_backstab_sweaty",
 			"consumables": "Arena-Melee+class",
@@ -23252,7 +23312,7 @@
 			"spec": "tank_warrior",
 			"build": "MythicSim Prot 0/20/31",
 			"talents": "-0505203005-250033120310021251",
-			"gear": "preraid",
+			"gear": "p1_bis",
 			"rotation": "dps_no_reck",
 			"consumables": "Arena-Melee",
 			"dps": 307.98921128402174,
@@ -23271,7 +23331,7 @@
 			"spec": "tank_warrior",
 			"build": "MythicSim Prot 0/20/31",
 			"talents": "-0505203005-250033120310021251",
-			"gear": "p1_bis",
+			"gear": "preraid",
 			"rotation": "dps_no_reck",
 			"consumables": "Arena-Melee",
 			"dps": 307.98921128402174,
@@ -23310,7 +23370,7 @@
 			"build": "MythicSim Frost 10/3/38",
 			"talents": "050005-03-0555000331001331251",
 			"gear": "frost_launch",
-			"rotation": "fire",
+			"rotation": "fire_lowrank",
 			"consumables": "Arena-Caster",
 			"dps": 306.0040552893246,
 			"rests": {
@@ -23329,7 +23389,7 @@
 			"build": "MythicSim Frost 10/3/38",
 			"talents": "050005-03-0555000331001331251",
 			"gear": "frost_launch",
-			"rotation": "fire_lowrank",
+			"rotation": "fire",
 			"consumables": "Arena-Caster",
 			"dps": 306.0040552893246,
 			"rests": {
@@ -23348,7 +23408,7 @@
 			"build": "Frost 14/0/37",
 			"talents": "050005013--0555003301001301251",
 			"gear": "p1.bis",
-			"rotation": "fire_lowrank",
+			"rotation": "fire",
 			"consumables": "Arena-Caster",
 			"dps": 305.24585695528395,
 			"rests": {
@@ -23368,7 +23428,7 @@
 			"build": "Frost 14/0/37",
 			"talents": "050005013--0555003301001301251",
 			"gear": "p1.bis",
-			"rotation": "fire",
+			"rotation": "fire_lowrank",
 			"consumables": "Arena-Caster",
 			"dps": 305.24585695528395,
 			"rests": {
@@ -23423,6 +23483,44 @@
 		},
 		{
 			"spec": "rogue",
+			"build": "MythicSim Combat 18/33/0",
+			"talents": "005322105-32103321001515231",
+			"gear": "combat_sinister_strike_p2_bis",
+			"rotation": "combat_backstab",
+			"consumables": "Arena-Melee+class",
+			"dps": 303.5158555120616,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0063,
+				"core": 0.9221,
+				"forever": 0.0716,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 68.2,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "Combat Dual-Wield 15/33/3",
+			"talents": "1053231-22530300001515231-012",
+			"gear": "combat_sinister_strike_p2_bis",
+			"rotation": "combat_backstab",
+			"consumables": "Arena-Melee+class",
+			"dps": 303.5158555120616,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0063,
+				"core": 0.9221,
+				"forever": 0.0716,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 68.2,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
 			"build": "Combat Dual-Wield 15/33/3",
 			"talents": "1053231-22530300001515231-012",
 			"gear": "combat_sinister_strike_p2_bis",
@@ -23444,6 +23542,44 @@
 			"spec": "rogue",
 			"build": "Combat Dual-Wield 15/33/3",
 			"talents": "1053231-22530300001515231-012",
+			"gear": "combat_sinister_strike_p2_bis",
+			"rotation": "forever_hemorrhage_ghostly",
+			"consumables": "Arena-Melee+class",
+			"dps": 303.5158555120616,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0063,
+				"core": 0.9221,
+				"forever": 0.0716,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 68.2,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "MythicSim Combat 18/33/0",
+			"talents": "005322105-32103321001515231",
+			"gear": "combat_sinister_strike_p2_bis",
+			"rotation": "forever_hemorrhage",
+			"consumables": "Arena-Melee+class",
+			"dps": 303.5158555120616,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0063,
+				"core": 0.9221,
+				"forever": 0.0716,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 68.2,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "MythicSim Combat 18/33/0",
+			"talents": "005322105-32103321001515231",
 			"gear": "combat_sinister_strike_p2_bis",
 			"rotation": "forever_hemorrhage_ghostly",
 			"consumables": "Arena-Melee+class",
@@ -23483,83 +23619,7 @@
 			"build": "MythicSim Combat 18/33/0",
 			"talents": "005322105-32103321001515231",
 			"gear": "combat_sinister_strike_p2_bis",
-			"rotation": "combat_backstab",
-			"consumables": "Arena-Melee+class",
-			"dps": 303.5158555120616,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0063,
-				"core": 0.9221,
-				"forever": 0.0716,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 68.2,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "MythicSim Combat 18/33/0",
-			"talents": "005322105-32103321001515231",
-			"gear": "combat_sinister_strike_p2_bis",
-			"rotation": "forever_hemorrhage",
-			"consumables": "Arena-Melee+class",
-			"dps": 303.5158555120616,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0063,
-				"core": 0.9221,
-				"forever": 0.0716,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 68.2,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "MythicSim Combat 18/33/0",
-			"talents": "005322105-32103321001515231",
-			"gear": "combat_sinister_strike_p2_bis",
-			"rotation": "forever_hemorrhage_ghostly",
-			"consumables": "Arena-Melee+class",
-			"dps": 303.5158555120616,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0063,
-				"core": 0.9221,
-				"forever": 0.0716,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 68.2,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "MythicSim Combat 18/33/0",
-			"talents": "005322105-32103321001515231",
-			"gear": "combat_sinister_strike_p2_bis",
 			"rotation": "forever_mutilate",
-			"consumables": "Arena-Melee+class",
-			"dps": 303.5158555120616,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0063,
-				"core": 0.9221,
-				"forever": 0.0716,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 68.2,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "Combat Dual-Wield 15/33/3",
-			"talents": "1053231-22530300001515231-012",
-			"gear": "combat_sinister_strike_p2_bis",
-			"rotation": "combat_backstab",
 			"consumables": "Arena-Melee+class",
 			"dps": 303.5158555120616,
 			"rests": {
@@ -23651,25 +23711,6 @@
 		},
 		{
 			"spec": "rogue",
-			"build": "Combat Dual-Wield 15/33/3",
-			"talents": "1053231-22530300001515231-012",
-			"gear": "combat_sinister_strike_p1_bis",
-			"rotation": "combat_backstab_sweaty",
-			"consumables": "Arena-Melee+class",
-			"dps": 301.65973707459176,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0063,
-				"core": 0.9225,
-				"forever": 0.0712,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 67.2,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
 			"build": "MythicSim Combat 18/33/0",
 			"talents": "005322105-32103321001515231",
 			"gear": "combat_sinister_strike_p1_bis",
@@ -23693,6 +23734,25 @@
 			"talents": "005322105-32103321001515231",
 			"gear": "combat_sinister_strike_p1_bis",
 			"rotation": "combat_backstab_ghostly",
+			"consumables": "Arena-Melee+class",
+			"dps": 301.65973707459176,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0063,
+				"core": 0.9225,
+				"forever": 0.0712,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 67.2,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "Combat Dual-Wield 15/33/3",
+			"talents": "1053231-22530300001515231-012",
+			"gear": "combat_sinister_strike_p1_bis",
+			"rotation": "combat_backstab_sweaty",
 			"consumables": "Arena-Melee+class",
 			"dps": 301.65973707459176,
 			"rests": {
@@ -23805,6 +23865,25 @@
 		},
 		{
 			"spec": "rogue",
+			"build": "Combat Dual-Wield 15/33/3",
+			"talents": "1053231-22530300001515231-012",
+			"gear": "combat_backstab_p2_bis",
+			"rotation": "forever_hemorrhage_ghostly",
+			"consumables": "Arena-Melee+class",
+			"dps": 297.7909359253034,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0081,
+				"core": 0.8786,
+				"forever": 0.1134,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 65.8,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
 			"build": "MythicSim Combat 18/33/0",
 			"talents": "005322105-32103321001515231",
 			"gear": "combat_backstab_p2_bis",
@@ -23846,25 +23925,6 @@
 			"build": "Combat Dual-Wield 15/33/3",
 			"talents": "1053231-22530300001515231-012",
 			"gear": "combat_backstab_p2_bis",
-			"rotation": "forever_hemorrhage_ghostly",
-			"consumables": "Arena-Melee+class",
-			"dps": 297.7909359253034,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0081,
-				"core": 0.8786,
-				"forever": 0.1134,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 65.8,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "Combat Dual-Wield 15/33/3",
-			"talents": "1053231-22530300001515231-012",
-			"gear": "combat_backstab_p2_bis",
 			"rotation": "forever_mutilate",
 			"consumables": "Arena-Melee+class",
 			"dps": 297.7909359253034,
@@ -23921,25 +23981,6 @@
 			"spec": "rogue",
 			"build": "Combat Dual-Wield 15/33/3",
 			"talents": "1053231-22530300001515231-012",
-			"gear": "combat_sinister_strike_p1_bis",
-			"rotation": "forever_hemorrhage",
-			"consumables": "Arena-Melee+class",
-			"dps": 296.8022973032906,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0064,
-				"core": 0.9229,
-				"forever": 0.0707,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 67.2,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "MythicSim Combat 18/33/0",
-			"talents": "005322105-32103321001515231",
 			"gear": "combat_sinister_strike_p1_bis",
 			"rotation": "forever_mutilate",
 			"consumables": "Arena-Melee+class",
@@ -23979,7 +24020,7 @@
 			"build": "Combat Dual-Wield 15/33/3",
 			"talents": "1053231-22530300001515231-012",
 			"gear": "combat_sinister_strike_p1_bis",
-			"rotation": "forever_hemorrhage_ghostly",
+			"rotation": "forever_hemorrhage",
 			"consumables": "Arena-Melee+class",
 			"dps": 296.8022973032906,
 			"rests": {
@@ -23998,26 +24039,7 @@
 			"build": "Combat Dual-Wield 15/33/3",
 			"talents": "1053231-22530300001515231-012",
 			"gear": "combat_sinister_strike_p1_bis",
-			"rotation": "forever_mutilate",
-			"consumables": "Arena-Melee+class",
-			"dps": 296.8022973032906,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0064,
-				"core": 0.9229,
-				"forever": 0.0707,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 67.2,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "MythicSim Combat 18/33/0",
-			"talents": "005322105-32103321001515231",
-			"gear": "combat_sinister_strike_p1_bis",
-			"rotation": "combat_backstab",
+			"rotation": "forever_hemorrhage_ghostly",
 			"consumables": "Arena-Melee+class",
 			"dps": 296.8022973032906,
 			"rests": {
@@ -24067,6 +24089,63 @@
 				"unknown": 0
 			},
 			"ilvl": 67.2,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "MythicSim Combat 18/33/0",
+			"talents": "005322105-32103321001515231",
+			"gear": "combat_sinister_strike_p1_bis",
+			"rotation": "combat_backstab",
+			"consumables": "Arena-Melee+class",
+			"dps": 296.8022973032906,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0064,
+				"core": 0.9229,
+				"forever": 0.0707,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 67.2,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "MythicSim Combat 18/33/0",
+			"talents": "005322105-32103321001515231",
+			"gear": "combat_sinister_strike_p1_bis",
+			"rotation": "forever_mutilate",
+			"consumables": "Arena-Melee+class",
+			"dps": 296.8022973032906,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0064,
+				"core": 0.9229,
+				"forever": 0.0707,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 67.2,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "Assassination Mutilate 31/20/0",
+			"talents": "02532010531201051-225303000005",
+			"gear": "combat_sinister_strike_p2_bis",
+			"rotation": "combat_backstab",
+			"consumables": "Arena-Melee+class",
+			"dps": 293.2064944228474,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0063,
+				"core": 0.8996,
+				"forever": 0.0941,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 68.2,
 			"slots": 17
 		},
 		{
@@ -24093,26 +24172,7 @@
 			"build": "Assassination Mutilate 31/20/0",
 			"talents": "02532010531201051-225303000005",
 			"gear": "combat_sinister_strike_p2_bis",
-			"rotation": "combat_backstab",
-			"consumables": "Arena-Melee+class",
-			"dps": 293.2064944228474,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0063,
-				"core": 0.8996,
-				"forever": 0.0941,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 68.2,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "Assassination Mutilate 31/20/0",
-			"talents": "02532010531201051-225303000005",
-			"gear": "combat_sinister_strike_p2_bis",
-			"rotation": "combat_backstab_ghostly",
+			"rotation": "forever_mutilate",
 			"consumables": "Arena-Melee+class",
 			"dps": 293.2064944228474,
 			"rests": {
@@ -24169,7 +24229,7 @@
 			"build": "Assassination Mutilate 31/20/0",
 			"talents": "02532010531201051-225303000005",
 			"gear": "combat_sinister_strike_p2_bis",
-			"rotation": "forever_mutilate",
+			"rotation": "combat_backstab_ghostly",
 			"consumables": "Arena-Melee+class",
 			"dps": 293.2064944228474,
 			"rests": {
@@ -24204,10 +24264,10 @@
 		},
 		{
 			"spec": "rogue",
-			"build": "MythicSim Combat 18/33/0",
-			"talents": "005322105-32103321001515231",
+			"build": "Combat Dual-Wield 15/33/3",
+			"talents": "1053231-22530300001515231-012",
 			"gear": "combat_backstab_p1_bis",
-			"rotation": "forever_mutilate",
+			"rotation": "forever_hemorrhage_ghostly",
 			"consumables": "Arena-Melee+class",
 			"dps": 291.409800247473,
 			"rests": {
@@ -24223,10 +24283,29 @@
 		},
 		{
 			"spec": "rogue",
-			"build": "MythicSim Combat 18/33/0",
-			"talents": "005322105-32103321001515231",
+			"build": "Combat Dual-Wield 15/33/3",
+			"talents": "1053231-22530300001515231-012",
 			"gear": "combat_backstab_p1_bis",
-			"rotation": "forever_hemorrhage_ghostly",
+			"rotation": "forever_hemorrhage",
+			"consumables": "Arena-Melee+class",
+			"dps": 291.409800247473,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.008,
+				"core": 0.88,
+				"forever": 0.112,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 64.7,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "Combat Dual-Wield 15/33/3",
+			"talents": "1053231-22530300001515231-012",
+			"gear": "combat_backstab_p1_bis",
+			"rotation": "forever_mutilate",
 			"consumables": "Arena-Melee+class",
 			"dps": 291.409800247473,
 			"rests": {
@@ -24261,8 +24340,8 @@
 		},
 		{
 			"spec": "rogue",
-			"build": "Combat Dual-Wield 15/33/3",
-			"talents": "1053231-22530300001515231-012",
+			"build": "MythicSim Combat 18/33/0",
+			"talents": "005322105-32103321001515231",
 			"gear": "combat_backstab_p1_bis",
 			"rotation": "forever_mutilate",
 			"consumables": "Arena-Melee+class",
@@ -24280,29 +24359,10 @@
 		},
 		{
 			"spec": "rogue",
-			"build": "Combat Dual-Wield 15/33/3",
-			"talents": "1053231-22530300001515231-012",
+			"build": "MythicSim Combat 18/33/0",
+			"talents": "005322105-32103321001515231",
 			"gear": "combat_backstab_p1_bis",
 			"rotation": "forever_hemorrhage_ghostly",
-			"consumables": "Arena-Melee+class",
-			"dps": 291.409800247473,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.008,
-				"core": 0.88,
-				"forever": 0.112,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 64.7,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "Combat Dual-Wield 15/33/3",
-			"talents": "1053231-22530300001515231-012",
-			"gear": "combat_backstab_p1_bis",
-			"rotation": "forever_hemorrhage",
 			"consumables": "Arena-Melee+class",
 			"dps": 291.409800247473,
 			"rests": {
@@ -24340,6 +24400,25 @@
 			"build": "MythicSim Assassination 32/19/0",
 			"talents": "00530310551021051-302303202004",
 			"gear": "combat_sinister_strike_p2_bis",
+			"rotation": "combat_backstab_sweaty",
+			"consumables": "Arena-Melee+class",
+			"dps": 287.2853825024229,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0064,
+				"core": 0.9074,
+				"forever": 0.0862,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 68.2,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "MythicSim Assassination 32/19/0",
+			"talents": "00530310551021051-302303202004",
+			"gear": "combat_sinister_strike_p2_bis",
 			"rotation": "forever_mutilate",
 			"consumables": "Arena-Melee+class",
 			"dps": 287.2853825024229,
@@ -24359,26 +24438,7 @@
 			"build": "MythicSim Assassination 32/19/0",
 			"talents": "00530310551021051-302303202004",
 			"gear": "combat_sinister_strike_p2_bis",
-			"rotation": "combat_backstab",
-			"consumables": "Arena-Melee+class",
-			"dps": 287.2853825024229,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0064,
-				"core": 0.9074,
-				"forever": 0.0862,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 68.2,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "MythicSim Assassination 32/19/0",
-			"talents": "00530310551021051-302303202004",
-			"gear": "combat_sinister_strike_p2_bis",
-			"rotation": "combat_backstab_sweaty",
+			"rotation": "forever_hemorrhage_ghostly",
 			"consumables": "Arena-Melee+class",
 			"dps": 287.2853825024229,
 			"rests": {
@@ -24416,7 +24476,7 @@
 			"build": "MythicSim Assassination 32/19/0",
 			"talents": "00530310551021051-302303202004",
 			"gear": "combat_sinister_strike_p2_bis",
-			"rotation": "forever_hemorrhage_ghostly",
+			"rotation": "combat_backstab",
 			"consumables": "Arena-Melee+class",
 			"dps": 287.2853825024229,
 			"rests": {
@@ -24428,6 +24488,44 @@
 				"unknown": 0
 			},
 			"ilvl": 68.2,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "Assassination Mutilate 31/20/0",
+			"talents": "02532010531201051-225303000005",
+			"gear": "combat_sinister_strike_p1_bis",
+			"rotation": "forever_hemorrhage_ghostly",
+			"consumables": "Arena-Melee+class",
+			"dps": 287.05448884959173,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0063,
+				"core": 0.9012,
+				"forever": 0.0924,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 67.2,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "Assassination Mutilate 31/20/0",
+			"talents": "02532010531201051-225303000005",
+			"gear": "combat_sinister_strike_p1_bis",
+			"rotation": "forever_mutilate",
+			"consumables": "Arena-Melee+class",
+			"dps": 287.05448884959173,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0063,
+				"core": 0.9012,
+				"forever": 0.0924,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 67.2,
 			"slots": 17
 		},
 		{
@@ -24493,44 +24591,6 @@
 			"talents": "02532010531201051-225303000005",
 			"gear": "combat_sinister_strike_p1_bis",
 			"rotation": "forever_hemorrhage",
-			"consumables": "Arena-Melee+class",
-			"dps": 287.05448884959173,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0063,
-				"core": 0.9012,
-				"forever": 0.0924,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 67.2,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "Assassination Mutilate 31/20/0",
-			"talents": "02532010531201051-225303000005",
-			"gear": "combat_sinister_strike_p1_bis",
-			"rotation": "forever_hemorrhage_ghostly",
-			"consumables": "Arena-Melee+class",
-			"dps": 287.05448884959173,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0063,
-				"core": 0.9012,
-				"forever": 0.0924,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 67.2,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "Assassination Mutilate 31/20/0",
-			"talents": "02532010531201051-225303000005",
-			"gear": "combat_sinister_strike_p1_bis",
-			"rotation": "forever_mutilate",
 			"consumables": "Arena-Melee+class",
 			"dps": 287.05448884959173,
 			"rests": {
@@ -24663,6 +24723,44 @@
 			"build": "MythicSim Assassination 32/19/0",
 			"talents": "00530310551021051-302303202004",
 			"gear": "combat_sinister_strike_p1_bis",
+			"rotation": "combat_backstab",
+			"consumables": "Arena-Melee+class",
+			"dps": 280.925857464246,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0065,
+				"core": 0.9084,
+				"forever": 0.0852,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 67.2,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "MythicSim Assassination 32/19/0",
+			"talents": "00530310551021051-302303202004",
+			"gear": "combat_sinister_strike_p1_bis",
+			"rotation": "combat_backstab_sweaty",
+			"consumables": "Arena-Melee+class",
+			"dps": 280.925857464246,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0065,
+				"core": 0.9084,
+				"forever": 0.0852,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 67.2,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "MythicSim Assassination 32/19/0",
+			"talents": "00530310551021051-302303202004",
+			"gear": "combat_sinister_strike_p1_bis",
 			"rotation": "combat_backstab_ghostly",
 			"consumables": "Arena-Melee+class",
 			"dps": 280.925857464246,
@@ -24735,41 +24833,22 @@
 			"slots": 17
 		},
 		{
-			"spec": "rogue",
-			"build": "MythicSim Assassination 32/19/0",
-			"talents": "00530310551021051-302303202004",
-			"gear": "combat_sinister_strike_p1_bis",
-			"rotation": "combat_backstab_sweaty",
-			"consumables": "Arena-Melee+class",
-			"dps": 280.925857464246,
+			"spec": "tank_warrior",
+			"build": "Protection 1/0/50",
+			"talents": "1--255533123331221351",
+			"gear": "preraid",
+			"rotation": "dps_no_reck",
+			"consumables": "Arena-Melee",
+			"dps": 279.946299974609,
 			"rests": {
 				"assumed": 0,
-				"classic": 0.0065,
-				"core": 0.9084,
-				"forever": 0.0852,
+				"classic": 0.6535,
+				"core": 0.2845,
+				"forever": 0.0621,
 				"measured": 0,
 				"unknown": 0
 			},
-			"ilvl": 67.2,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "MythicSim Assassination 32/19/0",
-			"talents": "00530310551021051-302303202004",
-			"gear": "combat_sinister_strike_p1_bis",
-			"rotation": "combat_backstab",
-			"consumables": "Arena-Melee+class",
-			"dps": 280.925857464246,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0065,
-				"core": 0.9084,
-				"forever": 0.0852,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 67.2,
+			"ilvl": 59,
 			"slots": 17
 		},
 		{
@@ -24792,25 +24871,6 @@
 			"slots": 17
 		},
 		{
-			"spec": "tank_warrior",
-			"build": "Protection 1/0/50",
-			"talents": "1--255533123331221351",
-			"gear": "preraid",
-			"rotation": "dps_no_reck",
-			"consumables": "Arena-Melee",
-			"dps": 279.946299974609,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.6535,
-				"core": 0.2845,
-				"forever": 0.0621,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 59,
-			"slots": 17
-		},
-		{
 			"spec": "rogue",
 			"build": "Assassination Mutilate 31/20/0",
 			"talents": "02532010531201051-225303000005",
@@ -24888,8 +24948,8 @@
 		},
 		{
 			"spec": "balance_druid",
-			"build": "20 Feral Combat / 31 Restoration",
-			"talents": "-552323-555333511",
+			"build": "21 Feral Combat / 30 Restoration",
+			"talents": "-5523231-55533351",
 			"gear": "launch",
 			"rotation": "launch",
 			"consumables": "Arena-Caster",
@@ -24908,8 +24968,8 @@
 		},
 		{
 			"spec": "balance_druid",
-			"build": "21 Feral Combat / 30 Restoration",
-			"talents": "-5523231-55533351",
+			"build": "20 Feral Combat / 31 Restoration",
+			"talents": "-552323-555333511",
 			"gear": "launch",
 			"rotation": "launch",
 			"consumables": "Arena-Caster",
@@ -24990,7 +25050,7 @@
 			"build": "MythicSim Assassination 32/19/0",
 			"talents": "00530310551021051-302303202004",
 			"gear": "combat_backstab_p1_bis",
-			"rotation": "forever_hemorrhage_ghostly",
+			"rotation": "forever_hemorrhage",
 			"consumables": "Arena-Melee+class",
 			"dps": 273.4520641515438,
 			"rests": {
@@ -25009,7 +25069,7 @@
 			"build": "MythicSim Assassination 32/19/0",
 			"talents": "00530310551021051-302303202004",
 			"gear": "combat_backstab_p1_bis",
-			"rotation": "forever_hemorrhage",
+			"rotation": "forever_hemorrhage_ghostly",
 			"consumables": "Arena-Melee+class",
 			"dps": 273.4520641515438,
 			"rests": {
@@ -25028,26 +25088,7 @@
 			"build": "MythicSim Combat 18/33/0",
 			"talents": "005322105-32103321001515231",
 			"gear": "backstab_launch",
-			"rotation": "forever_mutilate",
-			"consumables": "Arena-Melee+class",
-			"dps": 269.4673352795819,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0094,
-				"core": 0.8591,
-				"forever": 0.1314,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 62.6,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "Combat Dual-Wield 15/33/3",
-			"talents": "1053231-22530300001515231-012",
-			"gear": "backstab_launch",
-			"rotation": "forever_mutilate",
+			"rotation": "forever_hemorrhage_ghostly",
 			"consumables": "Arena-Melee+class",
 			"dps": 269.4673352795819,
 			"rests": {
@@ -25101,10 +25142,10 @@
 		},
 		{
 			"spec": "rogue",
-			"build": "MythicSim Combat 18/33/0",
-			"talents": "005322105-32103321001515231",
+			"build": "Combat Dual-Wield 15/33/3",
+			"talents": "1053231-22530300001515231-012",
 			"gear": "backstab_launch",
-			"rotation": "forever_hemorrhage_ghostly",
+			"rotation": "forever_mutilate",
 			"consumables": "Arena-Melee+class",
 			"dps": 269.4673352795819,
 			"rests": {
@@ -25124,6 +25165,25 @@
 			"talents": "005322105-32103321001515231",
 			"gear": "backstab_launch",
 			"rotation": "forever_hemorrhage",
+			"consumables": "Arena-Melee+class",
+			"dps": 269.4673352795819,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0094,
+				"core": 0.8591,
+				"forever": 0.1314,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 62.6,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "MythicSim Combat 18/33/0",
+			"talents": "005322105-32103321001515231",
+			"gear": "backstab_launch",
+			"rotation": "forever_mutilate",
 			"consumables": "Arena-Melee+class",
 			"dps": 269.4673352795819,
 			"rests": {
@@ -25180,7 +25240,7 @@
 			"build": "Arcane 35/0/16",
 			"talents": "055005023100311531--005500033",
 			"gear": "p0.bis",
-			"rotation": "fire_lowrank",
+			"rotation": "fire",
 			"consumables": "Arena-Caster",
 			"dps": 264.7206449758775,
 			"rests": {
@@ -25199,7 +25259,7 @@
 			"build": "Arcane 35/0/16",
 			"talents": "055005023100311531--005500033",
 			"gear": "p0.bis",
-			"rotation": "fire",
+			"rotation": "fire_lowrank",
 			"consumables": "Arena-Caster",
 			"dps": 264.7206449758775,
 			"rests": {
@@ -25292,29 +25352,10 @@
 		},
 		{
 			"spec": "rogue",
-			"build": "MythicSim Subtlety 20/0/31",
-			"talents": "005323115--0321203310213211501",
+			"build": "Subtlety Hemo 15/0/36",
+			"talents": "125320101--5320003310013211551",
 			"gear": "combat_sinister_strike_p2_bis",
 			"rotation": "combat_backstab_sweaty",
-			"consumables": "Arena-Melee+class",
-			"dps": 261.3801054167802,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0066,
-				"core": 0.9213,
-				"forever": 0.0721,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 68.2,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "MythicSim Subtlety 20/0/31",
-			"talents": "005323115--0321203310213211501",
-			"gear": "combat_sinister_strike_p2_bis",
-			"rotation": "forever_mutilate",
 			"consumables": "Arena-Melee+class",
 			"dps": 261.3801054167802,
 			"rests": {
@@ -25349,10 +25390,10 @@
 		},
 		{
 			"spec": "rogue",
-			"build": "Subtlety Hemo 15/0/36",
-			"talents": "125320101--5320003310013211551",
+			"build": "MythicSim Subtlety 20/0/31",
+			"talents": "005323115--0321203310213211501",
 			"gear": "combat_sinister_strike_p2_bis",
-			"rotation": "combat_backstab_sweaty",
+			"rotation": "forever_mutilate",
 			"consumables": "Arena-Melee+class",
 			"dps": 261.3801054167802,
 			"rests": {
@@ -25406,21 +25447,21 @@
 		},
 		{
 			"spec": "rogue",
-			"build": "Combat Dual-Wield 15/33/3",
-			"talents": "1053231-22530300001515231-012",
-			"gear": "sinister_strike_launch",
+			"build": "MythicSim Subtlety 20/0/31",
+			"talents": "005323115--0321203310213211501",
+			"gear": "combat_sinister_strike_p2_bis",
 			"rotation": "combat_backstab_sweaty",
 			"consumables": "Arena-Melee+class",
-			"dps": 261.1515731372992,
+			"dps": 261.3801054167802,
 			"rests": {
 				"assumed": 0,
-				"classic": 0.0081,
-				"core": 0.8946,
-				"forever": 0.0972,
+				"classic": 0.0066,
+				"core": 0.9213,
+				"forever": 0.0721,
 				"measured": 0,
 				"unknown": 0
 			},
-			"ilvl": 62.6,
+			"ilvl": 68.2,
 			"slots": 17
 		},
 		{
@@ -25448,6 +25489,25 @@
 			"talents": "005322105-32103321001515231",
 			"gear": "sinister_strike_launch",
 			"rotation": "combat_backstab_ghostly",
+			"consumables": "Arena-Melee+class",
+			"dps": 261.1515731372992,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0081,
+				"core": 0.8946,
+				"forever": 0.0972,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 62.6,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "Combat Dual-Wield 15/33/3",
+			"talents": "1053231-22530300001515231-012",
+			"gear": "sinister_strike_launch",
+			"rotation": "combat_backstab_sweaty",
 			"consumables": "Arena-Melee+class",
 			"dps": 261.1515731372992,
 			"rests": {
@@ -25501,48 +25561,10 @@
 		},
 		{
 			"spec": "rogue",
-			"build": "Combat Dual-Wield 15/33/3",
-			"talents": "1053231-22530300001515231-012",
-			"gear": "combat_backstab_prebis",
-			"rotation": "forever_hemorrhage_ghostly",
-			"consumables": "Arena-Melee+class",
-			"dps": 257.68810383109275,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0097,
-				"core": 0.8426,
-				"forever": 0.1477,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 61.8,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "Combat Dual-Wield 15/33/3",
-			"talents": "1053231-22530300001515231-012",
-			"gear": "combat_backstab_prebis",
-			"rotation": "forever_hemorrhage",
-			"consumables": "Arena-Melee+class",
-			"dps": 257.68810383109275,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0097,
-				"core": 0.8426,
-				"forever": 0.1477,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 61.8,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
 			"build": "MythicSim Combat 18/33/0",
 			"talents": "005322105-32103321001515231",
 			"gear": "combat_backstab_prebis",
-			"rotation": "forever_mutilate",
+			"rotation": "forever_hemorrhage",
 			"consumables": "Arena-Melee+class",
 			"dps": 257.68810383109275,
 			"rests": {
@@ -25580,7 +25602,7 @@
 			"build": "MythicSim Combat 18/33/0",
 			"talents": "005322105-32103321001515231",
 			"gear": "combat_backstab_prebis",
-			"rotation": "forever_hemorrhage",
+			"rotation": "forever_mutilate",
 			"consumables": "Arena-Melee+class",
 			"dps": 257.68810383109275,
 			"rests": {
@@ -25600,6 +25622,44 @@
 			"talents": "1053231-22530300001515231-012",
 			"gear": "combat_backstab_prebis",
 			"rotation": "forever_mutilate",
+			"consumables": "Arena-Melee+class",
+			"dps": 257.68810383109275,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0097,
+				"core": 0.8426,
+				"forever": 0.1477,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 61.8,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "Combat Dual-Wield 15/33/3",
+			"talents": "1053231-22530300001515231-012",
+			"gear": "combat_backstab_prebis",
+			"rotation": "forever_hemorrhage_ghostly",
+			"consumables": "Arena-Melee+class",
+			"dps": 257.68810383109275,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0097,
+				"core": 0.8426,
+				"forever": 0.1477,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 61.8,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "Combat Dual-Wield 15/33/3",
+			"talents": "1053231-22530300001515231-012",
+			"gear": "combat_backstab_prebis",
+			"rotation": "forever_hemorrhage",
 			"consumables": "Arena-Melee+class",
 			"dps": 257.68810383109275,
 			"rests": {
@@ -25637,6 +25697,25 @@
 			"build": "MythicSim Combat 18/33/0",
 			"talents": "005322105-32103321001515231",
 			"gear": "sinister_strike_launch",
+			"rotation": "forever_mutilate",
+			"consumables": "Arena-Melee+class",
+			"dps": 257.13262010548533,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0081,
+				"core": 0.8943,
+				"forever": 0.0976,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 62.6,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "MythicSim Combat 18/33/0",
+			"talents": "005322105-32103321001515231",
+			"gear": "sinister_strike_launch",
 			"rotation": "forever_hemorrhage_ghostly",
 			"consumables": "Arena-Melee+class",
 			"dps": 257.13262010548533,
@@ -25767,17 +25846,17 @@
 		},
 		{
 			"spec": "rogue",
-			"build": "MythicSim Combat 18/33/0",
-			"talents": "005322105-32103321001515231",
-			"gear": "sinister_strike_launch",
-			"rotation": "forever_mutilate",
+			"build": "MythicSim Assassination 32/19/0",
+			"talents": "00530310551021051-302303202004",
+			"gear": "backstab_launch",
+			"rotation": "forever_hemorrhage",
 			"consumables": "Arena-Melee+class",
-			"dps": 257.13262010548533,
+			"dps": 256.37133871548866,
 			"rests": {
 				"assumed": 0,
-				"classic": 0.0081,
-				"core": 0.8943,
-				"forever": 0.0976,
+				"classic": 0.0098,
+				"core": 0.8285,
+				"forever": 0.1617,
 				"measured": 0,
 				"unknown": 0
 			},
@@ -25805,21 +25884,21 @@
 		},
 		{
 			"spec": "rogue",
-			"build": "MythicSim Assassination 32/19/0",
-			"talents": "00530310551021051-302303202004",
-			"gear": "backstab_launch",
-			"rotation": "forever_hemorrhage",
+			"build": "MythicSim Subtlety 20/0/31",
+			"talents": "005323115--0321203310213211501",
+			"gear": "combat_sinister_strike_p1_bis",
+			"rotation": "forever_mutilate",
 			"consumables": "Arena-Melee+class",
-			"dps": 256.37133871548866,
+			"dps": 255.03149405343822,
 			"rests": {
 				"assumed": 0,
-				"classic": 0.0098,
-				"core": 0.8285,
-				"forever": 0.1617,
+				"classic": 0.0066,
+				"core": 0.9221,
+				"forever": 0.0713,
 				"measured": 0,
 				"unknown": 0
 			},
-			"ilvl": 62.6,
+			"ilvl": 67.2,
 			"slots": 17
 		},
 		{
@@ -25904,25 +25983,6 @@
 			"talents": "005323115--0321203310213211501",
 			"gear": "combat_sinister_strike_p1_bis",
 			"rotation": "combat_backstab_sweaty",
-			"consumables": "Arena-Melee+class",
-			"dps": 255.03149405343822,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0066,
-				"core": 0.9221,
-				"forever": 0.0713,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 67.2,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "MythicSim Subtlety 20/0/31",
-			"talents": "005323115--0321203310213211501",
-			"gear": "combat_sinister_strike_p1_bis",
-			"rotation": "forever_mutilate",
 			"consumables": "Arena-Melee+class",
 			"dps": 255.03149405343822,
 			"rests": {
@@ -26033,8 +26093,8 @@
 		},
 		{
 			"spec": "rogue",
-			"build": "Subtlety Hemo 15/0/36",
-			"talents": "125320101--5320003310013211551",
+			"build": "MythicSim Subtlety 20/0/31",
+			"talents": "005323115--0321203310213211501",
 			"gear": "combat_backstab_p2_bis",
 			"rotation": "forever_mutilate",
 			"consumables": "Arena-Melee+class",
@@ -26052,8 +26112,8 @@
 		},
 		{
 			"spec": "rogue",
-			"build": "MythicSim Subtlety 20/0/31",
-			"talents": "005323115--0321203310213211501",
+			"build": "Subtlety Hemo 15/0/36",
+			"talents": "125320101--5320003310013211551",
 			"gear": "combat_backstab_p2_bis",
 			"rotation": "forever_mutilate",
 			"consumables": "Arena-Melee+class",
@@ -26094,7 +26154,7 @@
 			"build": "Assassination Mutilate 31/20/0",
 			"talents": "02532010531201051-225303000005",
 			"gear": "sinister_strike_launch",
-			"rotation": "forever_mutilate",
+			"rotation": "forever_hemorrhage",
 			"consumables": "Arena-Melee+class",
 			"dps": 251.6930529695213,
 			"rests": {
@@ -26132,26 +26192,7 @@
 			"build": "Assassination Mutilate 31/20/0",
 			"talents": "02532010531201051-225303000005",
 			"gear": "sinister_strike_launch",
-			"rotation": "forever_hemorrhage_ghostly",
-			"consumables": "Arena-Melee+class",
-			"dps": 251.6930529695213,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0082,
-				"core": 0.8636,
-				"forever": 0.1281,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 62.6,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "Assassination Mutilate 31/20/0",
-			"talents": "02532010531201051-225303000005",
-			"gear": "sinister_strike_launch",
-			"rotation": "forever_hemorrhage",
+			"rotation": "combat_backstab_ghostly",
 			"consumables": "Arena-Melee+class",
 			"dps": 251.6930529695213,
 			"rests": {
@@ -26189,7 +26230,26 @@
 			"build": "Assassination Mutilate 31/20/0",
 			"talents": "02532010531201051-225303000005",
 			"gear": "sinister_strike_launch",
-			"rotation": "combat_backstab_ghostly",
+			"rotation": "forever_hemorrhage_ghostly",
+			"consumables": "Arena-Melee+class",
+			"dps": 251.6930529695213,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0082,
+				"core": 0.8636,
+				"forever": 0.1281,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 62.6,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "Assassination Mutilate 31/20/0",
+			"talents": "02532010531201051-225303000005",
+			"gear": "sinister_strike_launch",
+			"rotation": "forever_mutilate",
 			"consumables": "Arena-Melee+class",
 			"dps": 251.6930529695213,
 			"rests": {
@@ -26286,6 +26346,25 @@
 			"build": "Combat Dual-Wield 15/33/3",
 			"talents": "1053231-22530300001515231-012",
 			"gear": "combat_sinister_strike_prebis",
+			"rotation": "forever_hemorrhage",
+			"consumables": "Arena-Melee+class",
+			"dps": 250.48804275598536,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0078,
+				"core": 0.8888,
+				"forever": 0.1034,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 61.3,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "MythicSim Combat 18/33/0",
+			"talents": "005322105-32103321001515231",
+			"gear": "combat_sinister_strike_prebis",
 			"rotation": "forever_mutilate",
 			"consumables": "Arena-Melee+class",
 			"dps": 250.48804275598536,
@@ -26323,44 +26402,6 @@
 			"spec": "rogue",
 			"build": "Combat Dual-Wield 15/33/3",
 			"talents": "1053231-22530300001515231-012",
-			"gear": "combat_sinister_strike_prebis",
-			"rotation": "forever_hemorrhage",
-			"consumables": "Arena-Melee+class",
-			"dps": 250.48804275598536,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0078,
-				"core": 0.8888,
-				"forever": 0.1034,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 61.3,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "MythicSim Combat 18/33/0",
-			"talents": "005322105-32103321001515231",
-			"gear": "combat_sinister_strike_prebis",
-			"rotation": "forever_hemorrhage_ghostly",
-			"consumables": "Arena-Melee+class",
-			"dps": 250.48804275598536,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0078,
-				"core": 0.8888,
-				"forever": 0.1034,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 61.3,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "MythicSim Combat 18/33/0",
-			"talents": "005322105-32103321001515231",
 			"gear": "combat_sinister_strike_prebis",
 			"rotation": "forever_mutilate",
 			"consumables": "Arena-Melee+class",
@@ -26401,6 +26442,25 @@
 			"talents": "005322105-32103321001515231",
 			"gear": "combat_sinister_strike_prebis",
 			"rotation": "forever_hemorrhage",
+			"consumables": "Arena-Melee+class",
+			"dps": 250.48804275598536,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0078,
+				"core": 0.8888,
+				"forever": 0.1034,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 61.3,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "MythicSim Combat 18/33/0",
+			"talents": "005322105-32103321001515231",
+			"gear": "combat_sinister_strike_prebis",
+			"rotation": "forever_hemorrhage_ghostly",
 			"consumables": "Arena-Melee+class",
 			"dps": 250.48804275598536,
 			"rests": {
@@ -26435,8 +26495,8 @@
 		},
 		{
 			"spec": "shadow_priest",
-			"build": "21 Discipline / 30 Holy",
-			"talents": "5253100113-335551332",
+			"build": "20 Discipline / 31 Holy",
+			"talents": "5253000113-3355513321",
 			"gear": "launch",
 			"rotation": "shadow",
 			"consumables": "Arena-Caster",
@@ -26455,8 +26515,8 @@
 		},
 		{
 			"spec": "shadow_priest",
-			"build": "20 Discipline / 31 Holy",
-			"talents": "5253000113-3355513321",
+			"build": "21 Discipline / 30 Holy",
+			"talents": "5253100113-335551332",
 			"gear": "launch",
 			"rotation": "shadow",
 			"consumables": "Arena-Caster",
@@ -26593,6 +26653,44 @@
 			"build": "MythicSim Assassination 32/19/0",
 			"talents": "00530310551021051-302303202004",
 			"gear": "sinister_strike_launch",
+			"rotation": "combat_backstab_sweaty",
+			"consumables": "Arena-Melee+class",
+			"dps": 245.79572662512976,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0083,
+				"core": 0.8738,
+				"forever": 0.1178,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 62.6,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "MythicSim Assassination 32/19/0",
+			"talents": "00530310551021051-302303202004",
+			"gear": "sinister_strike_launch",
+			"rotation": "forever_hemorrhage",
+			"consumables": "Arena-Melee+class",
+			"dps": 245.79572662512976,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0083,
+				"core": 0.8738,
+				"forever": 0.1178,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 62.6,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "MythicSim Assassination 32/19/0",
+			"talents": "00530310551021051-302303202004",
+			"gear": "sinister_strike_launch",
 			"rotation": "forever_hemorrhage_ghostly",
 			"consumables": "Arena-Melee+class",
 			"dps": 245.79572662512976,
@@ -26631,25 +26729,6 @@
 			"build": "MythicSim Assassination 32/19/0",
 			"talents": "00530310551021051-302303202004",
 			"gear": "sinister_strike_launch",
-			"rotation": "combat_backstab",
-			"consumables": "Arena-Melee+class",
-			"dps": 245.79572662512976,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0083,
-				"core": 0.8738,
-				"forever": 0.1178,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 62.6,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "MythicSim Assassination 32/19/0",
-			"talents": "00530310551021051-302303202004",
-			"gear": "sinister_strike_launch",
 			"rotation": "combat_backstab_ghostly",
 			"consumables": "Arena-Melee+class",
 			"dps": 245.79572662512976,
@@ -26669,7 +26748,7 @@
 			"build": "MythicSim Assassination 32/19/0",
 			"talents": "00530310551021051-302303202004",
 			"gear": "sinister_strike_launch",
-			"rotation": "combat_backstab_sweaty",
+			"rotation": "combat_backstab",
 			"consumables": "Arena-Melee+class",
 			"dps": 245.79572662512976,
 			"rests": {
@@ -26682,45 +26761,6 @@
 			},
 			"ilvl": 62.6,
 			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "MythicSim Assassination 32/19/0",
-			"talents": "00530310551021051-302303202004",
-			"gear": "sinister_strike_launch",
-			"rotation": "forever_hemorrhage",
-			"consumables": "Arena-Melee+class",
-			"dps": 245.79572662512976,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0083,
-				"core": 0.8738,
-				"forever": 0.1178,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 62.6,
-			"slots": 17
-		},
-		{
-			"spec": "mage",
-			"build": "Frost 14/0/37",
-			"talents": "050005013--0555003301001301251",
-			"gear": "p0.bis",
-			"rotation": "fire_lowrank",
-			"consumables": "Arena-Caster",
-			"dps": 244.83735818100985,
-			"rests": {
-				"assumed": 0,
-				"classic": 0,
-				"core": 0,
-				"forever": 1,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 59.3,
-			"slots": 17,
-			"points": 49
 		},
 		{
 			"spec": "mage",
@@ -26743,11 +26783,31 @@
 			"points": 49
 		},
 		{
+			"spec": "mage",
+			"build": "Frost 14/0/37",
+			"talents": "050005013--0555003301001301251",
+			"gear": "p0.bis",
+			"rotation": "fire_lowrank",
+			"consumables": "Arena-Caster",
+			"dps": 244.83735818100985,
+			"rests": {
+				"assumed": 0,
+				"classic": 0,
+				"core": 0,
+				"forever": 1,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 59.3,
+			"slots": 17,
+			"points": 49
+		},
+		{
 			"spec": "rogue",
 			"build": "MythicSim Assassination 32/19/0",
 			"talents": "00530310551021051-302303202004",
 			"gear": "combat_backstab_prebis",
-			"rotation": "forever_hemorrhage_ghostly",
+			"rotation": "forever_hemorrhage",
 			"consumables": "Arena-Melee+class",
 			"dps": 243.9673737898835,
 			"rests": {
@@ -26766,7 +26826,7 @@
 			"build": "MythicSim Assassination 32/19/0",
 			"talents": "00530310551021051-302303202004",
 			"gear": "combat_backstab_prebis",
-			"rotation": "forever_hemorrhage",
+			"rotation": "forever_hemorrhage_ghostly",
 			"consumables": "Arena-Melee+class",
 			"dps": 243.9673737898835,
 			"rests": {
@@ -26805,7 +26865,7 @@
 			"build": "Assassination Mutilate 31/20/0",
 			"talents": "02532010531201051-225303000005",
 			"gear": "combat_sinister_strike_prebis",
-			"rotation": "combat_backstab",
+			"rotation": "combat_backstab_sweaty",
 			"consumables": "Arena-Melee+class",
 			"dps": 242.961336564341,
 			"rests": {
@@ -26862,7 +26922,7 @@
 			"build": "Assassination Mutilate 31/20/0",
 			"talents": "02532010531201051-225303000005",
 			"gear": "combat_sinister_strike_prebis",
-			"rotation": "combat_backstab_sweaty",
+			"rotation": "combat_backstab",
 			"consumables": "Arena-Melee+class",
 			"dps": 242.961336564341,
 			"rests": {
@@ -26935,7 +26995,7 @@
 		},
 		{
 			"spec": "rogue",
-			"build": "20 Combat / 31 Subtlety",
+			"build": "31 Subtlety",
 			"talents": "-225303000005-5323223312212",
 			"gear": "backstab_launch",
 			"rotation": "forever_hemorrhage",
@@ -26955,7 +27015,7 @@
 		},
 		{
 			"spec": "rogue",
-			"build": "31 Subtlety",
+			"build": "20 Combat / 31 Subtlety",
 			"talents": "-225303000005-5323223312212",
 			"gear": "backstab_launch",
 			"rotation": "forever_hemorrhage",
@@ -27055,7 +27115,26 @@
 			"build": "MythicSim Assassination 32/19/0",
 			"talents": "00530310551021051-302303202004",
 			"gear": "combat_sinister_strike_prebis",
-			"rotation": "forever_hemorrhage_ghostly",
+			"rotation": "combat_backstab",
+			"consumables": "Arena-Melee+class",
+			"dps": 237.2609804283122,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0079,
+				"core": 0.8675,
+				"forever": 0.1246,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 61.3,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "MythicSim Assassination 32/19/0",
+			"talents": "00530310551021051-302303202004",
+			"gear": "combat_sinister_strike_prebis",
+			"rotation": "forever_hemorrhage",
 			"consumables": "Arena-Melee+class",
 			"dps": 237.2609804283122,
 			"rests": {
@@ -27112,26 +27191,7 @@
 			"build": "MythicSim Assassination 32/19/0",
 			"talents": "00530310551021051-302303202004",
 			"gear": "combat_sinister_strike_prebis",
-			"rotation": "forever_hemorrhage",
-			"consumables": "Arena-Melee+class",
-			"dps": 237.2609804283122,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0079,
-				"core": 0.8675,
-				"forever": 0.1246,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 61.3,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "MythicSim Assassination 32/19/0",
-			"talents": "00530310551021051-302303202004",
-			"gear": "combat_sinister_strike_prebis",
-			"rotation": "combat_backstab",
+			"rotation": "forever_hemorrhage_ghostly",
 			"consumables": "Arena-Melee+class",
 			"dps": 237.2609804283122,
 			"rests": {
@@ -27223,8 +27283,8 @@
 		},
 		{
 			"spec": "rogue",
-			"build": "Subtlety Hemo 15/0/36",
-			"talents": "125320101--5320003310013211551",
+			"build": "MythicSim Subtlety 20/0/31",
+			"talents": "005323115--0321203310213211501",
 			"gear": "backstab_launch",
 			"rotation": "forever_mutilate",
 			"consumables": "Arena-Melee+class",
@@ -27242,8 +27302,8 @@
 		},
 		{
 			"spec": "rogue",
-			"build": "MythicSim Subtlety 20/0/31",
-			"talents": "005323115--0321203310213211501",
+			"build": "Subtlety Hemo 15/0/36",
+			"talents": "125320101--5320003310013211551",
 			"gear": "backstab_launch",
 			"rotation": "forever_mutilate",
 			"consumables": "Arena-Melee+class",
@@ -27343,25 +27403,6 @@
 			"build": "Subtlety Hemo 15/0/36",
 			"talents": "125320101--5320003310013211551",
 			"gear": "sinister_strike_launch",
-			"rotation": "forever_mutilate",
-			"consumables": "Arena-Melee+class",
-			"dps": 223.89645792433214,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0089,
-				"core": 0.888,
-				"forever": 0.1031,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 62.6,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "MythicSim Subtlety 20/0/31",
-			"talents": "005323115--0321203310213211501",
-			"gear": "sinister_strike_launch",
 			"rotation": "combat_backstab",
 			"consumables": "Arena-Melee+class",
 			"dps": 223.89645792433214,
@@ -27416,10 +27457,29 @@
 		},
 		{
 			"spec": "rogue",
+			"build": "MythicSim Subtlety 20/0/31",
+			"talents": "005323115--0321203310213211501",
+			"gear": "sinister_strike_launch",
+			"rotation": "combat_backstab",
+			"consumables": "Arena-Melee+class",
+			"dps": 223.89645792433214,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0089,
+				"core": 0.888,
+				"forever": 0.1031,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 62.6,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
 			"build": "Subtlety Hemo 15/0/36",
 			"talents": "125320101--5320003310013211551",
 			"gear": "sinister_strike_launch",
-			"rotation": "combat_backstab",
+			"rotation": "forever_mutilate",
 			"consumables": "Arena-Melee+class",
 			"dps": 223.89645792433214,
 			"rests": {
@@ -27514,6 +27574,25 @@
 			"build": "Subtlety Hemo 15/0/36",
 			"talents": "125320101--5320003310013211551",
 			"gear": "combat_sinister_strike_prebis",
+			"rotation": "combat_backstab_sweaty",
+			"consumables": "Arena-Melee+class",
+			"dps": 214.35484181269788,
+			"rests": {
+				"assumed": 0,
+				"classic": 0.0081,
+				"core": 0.8868,
+				"forever": 0.1051,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 61.3,
+			"slots": 17
+		},
+		{
+			"spec": "rogue",
+			"build": "Subtlety Hemo 15/0/36",
+			"talents": "125320101--5320003310013211551",
+			"gear": "combat_sinister_strike_prebis",
 			"rotation": "combat_backstab",
 			"consumables": "Arena-Melee+class",
 			"dps": 214.35484181269788,
@@ -27591,25 +27670,6 @@
 			"talents": "125320101--5320003310013211551",
 			"gear": "combat_sinister_strike_prebis",
 			"rotation": "forever_mutilate",
-			"consumables": "Arena-Melee+class",
-			"dps": 214.35484181269788,
-			"rests": {
-				"assumed": 0,
-				"classic": 0.0081,
-				"core": 0.8868,
-				"forever": 0.1051,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 61.3,
-			"slots": 17
-		},
-		{
-			"spec": "rogue",
-			"build": "Subtlety Hemo 15/0/36",
-			"talents": "125320101--5320003310013211551",
-			"gear": "combat_sinister_strike_prebis",
-			"rotation": "combat_backstab_sweaty",
 			"consumables": "Arena-Melee+class",
 			"dps": 214.35484181269788,
 			"rests": {
@@ -27741,6 +27801,25 @@
 			"spec": "warlock",
 			"build": "Demonic Pact 2/31/18",
 			"talents": "113-0005003221220311351-0550005",
+			"gear": "mc",
+			"rotation": "default",
+			"consumables": "Arena-Caster",
+			"dps": 58.85507369774119,
+			"rests": {
+				"assumed": 0,
+				"classic": 0,
+				"core": 0.8748,
+				"forever": 0.1252,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 66.5,
+			"slots": 17
+		},
+		{
+			"spec": "warlock",
+			"build": "Demonic Pact 2/31/18",
+			"talents": "113-0005003221220311351-0550005",
 			"gear": "prebis",
 			"rotation": "default",
 			"consumables": "Arena-Caster",
@@ -27777,44 +27856,6 @@
 		},
 		{
 			"spec": "warlock",
-			"build": "Demonic Pact 2/31/18",
-			"talents": "113-0005003221220311351-0550005",
-			"gear": "mc",
-			"rotation": "default",
-			"consumables": "Arena-Caster",
-			"dps": 58.85507369774119,
-			"rests": {
-				"assumed": 0,
-				"classic": 0,
-				"core": 0.8748,
-				"forever": 0.1252,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 66.5,
-			"slots": 17
-		},
-		{
-			"spec": "warlock",
-			"build": "Shadow and Flame 13/11/27",
-			"talents": "25501-0025003001-055035510010002",
-			"gear": "mc",
-			"rotation": "default",
-			"consumables": "Arena-Caster",
-			"dps": 53.563490859056174,
-			"rests": {
-				"assumed": 0,
-				"classic": 0,
-				"core": 0.9332,
-				"forever": 0.0668,
-				"measured": 0,
-				"unknown": 0
-			},
-			"ilvl": 66.5,
-			"slots": 17
-		},
-		{
-			"spec": "warlock",
 			"build": "Shadow and Flame 13/11/27",
 			"talents": "25501-0025003001-055035510010002",
 			"gear": "prebis",
@@ -27830,6 +27871,25 @@
 				"unknown": 0
 			},
 			"ilvl": 60.4,
+			"slots": 17
+		},
+		{
+			"spec": "warlock",
+			"build": "DS/Ruin Pandemic 24/11/16",
+			"talents": "25220010135201-0025003001-05500051",
+			"gear": "launch",
+			"rotation": "default",
+			"consumables": "Arena-Caster",
+			"dps": 53.563490859056174,
+			"rests": {
+				"assumed": 0,
+				"classic": 0,
+				"core": 0.9332,
+				"forever": 0.0668,
+				"measured": 0,
+				"unknown": 0
+			},
+			"ilvl": 62.6,
 			"slots": 17
 		},
 		{
@@ -27891,9 +27951,9 @@
 		},
 		{
 			"spec": "warlock",
-			"build": "DS/Ruin Pandemic 24/11/16",
-			"talents": "25220010135201-0025003001-05500051",
-			"gear": "launch",
+			"build": "Shadow and Flame 13/11/27",
+			"talents": "25501-0025003001-055035510010002",
+			"gear": "mc",
 			"rotation": "default",
 			"consumables": "Arena-Caster",
 			"dps": 53.563490859056174,
@@ -27905,7 +27965,7 @@
 				"measured": 0,
 				"unknown": 0
 			},
-			"ilvl": 62.6,
+			"ilvl": 66.5,
 			"slots": 17
 		},
 		{
