@@ -555,8 +555,8 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-GiftoftheGatheringStorm"
  value: {
-  dps: 135.75589
-  tps: 86.69282
+  dps: 176.10502
+  tps: 110.02367
  }
 }
 dps_results: {

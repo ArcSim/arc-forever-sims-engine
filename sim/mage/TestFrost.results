@@ -149,8 +149,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-ColdflameSaber-276631"
  value: {
-  dps: 277.48208
-  tps: 161.53376
+  dps: 289.36185
+  tps: 168.94199
  }
 }
 dps_results: {

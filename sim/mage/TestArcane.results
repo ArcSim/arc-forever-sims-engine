@@ -149,8 +149,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-ColdflameSaber-276631"
  value: {
-  dps: 283.75698
-  tps: 204.75064
+  dps: 296.73813
+  tps: 213.39715
  }
 }
 dps_results: {

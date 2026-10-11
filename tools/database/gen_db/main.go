@@ -206,6 +206,8 @@ func main() {
 	filled := mergeForeverSimDB(db, fmt.Sprintf("%s/forever_sim_db.json", inputsDir))
 	dropClassicBonusDamage(db, filled, fmt.Sprintf("%s/wowhead_gearplannerdb.txt", inputsDir))
 	fillPlannerArmor(db, fmt.Sprintf("%s/wowhead_forever_gearplanner.txt", inputsDir))
+	fillPlannerSpellPower(db, fmt.Sprintf("%s/wowhead_forever_gearplanner.txt", inputsDir))
+	fillClassicHealing(db, filled, fmt.Sprintf("%s/wowhead_gearplannerdb.txt", inputsDir), fmt.Sprintf("%s/wowhead_forever_gearplanner.txt", inputsDir))
 	leftovers := db.Clone()
 	ApplyNonSimmableFilters(leftovers)
 	leftovers.WriteBinaryAndJson(fmt.Sprintf("%s/leftover_db.bin", dbDir), fmt.Sprintf("%s/leftover_db.json", dbDir))

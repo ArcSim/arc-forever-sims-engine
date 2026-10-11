@@ -1091,8 +1091,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-SymbolsofUnendingLife"
  value: {
-  dps: 284.28406
-  tps: 688.65037
+  dps: 288.92238
+  tps: 694.68018
   dtps: 1543.48322
  }
 }

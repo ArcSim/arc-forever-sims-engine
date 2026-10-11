@@ -926,8 +926,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-SymbolsofUnendingLife"
  value: {
-  dps: 196.36674
-  tps: 102.39012
+  dps: 246.7025
+  tps: 127.05464
  }
 }
 dps_results: {

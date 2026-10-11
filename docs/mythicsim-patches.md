@@ -434,7 +434,7 @@ after a cast that completed first comes at least a full swing later, and that ev
 bolt started also completes. It fails on the unpatched source. The Enhancement suite
 goldens move.
 
-Drop this patch when upstream models a hard cast resetting the swing timer.
+Drop this patch when upstream models a hard cast resetting the swing timer. Superseded in part by patch 105 (2026-10-11): a swing due mid-cast no longer lands as the cast completes.
 
 ## 18. Windfury Totem leaves the main-hand stone or oil alone (dropped, upstream #665)
 
@@ -2351,7 +2351,32 @@ Goldens: none move (Retribution and Protection paladin read the same with and wi
 Paladin heals (`flash_of_light.go`, `holy_light.go`, `lights_vigil.go`) still have no swing hook. No
 preset heals while meleeing; add the same hold if one does.
 
-## 105+. `hunter: Mongoose Bite is a main-hand attack`
+## 105. `core: a completed hard cast restarts the melee swing timer`
+
+Patch 17 held a swing that came due during a hard cast and let it land as the cast completed. Upstream
+#681 (beta logs 2701 and 2712 on foreverlogs.gg) shows the next swing one full weapon speed after every
+completed hard cast, even when a swing came due during it, which is also the Classic rule. Redfall
+(MythicSim Discord, 10 and 11 October) saw the Elemental with melee buffs "autoing right after spells
+finished casting" in the combat log and expected the reset.
+
+`AutoAttacks.HoldMeleeForCast` now puts the next swing at cast end plus a full swing. A swing landing at
+the instant the cast starts still lands, and `castResetAt` pushes the one after it past the cast.
+Callers: Shaman Lightning Bolt, Chain Lightning and Lava Burst (patch 17), Paladin Hammer of Wrath and
+Holy Wrath (patch 104), and now Light's Vigil, Flash of Light and Holy Light, and druid cast-time spells
+through `RegisterSpell`. Hunter shots have a minimum range, so a hunter never hard-casts in melee. Instant
+casts leave the timer alone.
+
+Test: `TestLightningBoltRestartsTheSwing` (`sim/shaman/enhancement/swing_hold_test.go`) reads the log of an
+Orc chain-casting Lightning Bolt and checks that no swing lands inside a cast and that the first swing after
+one comes at least a full swing after it completes. Goldens: `TestProtection` (paladin), -0.0% to -1.5%.
+
+References (default path, 10,000 iterations, board seed, board length): Elemental with Melee buffs 531.27 to
+461.03 (-13.2%); Shockadin 885.03 to 867.93, Protection Paladin 560.82 to 555.76, Holy-Protection 567.00 to
+559.96, each back to the live pin's value (patch 104 had raised them); every other reference unchanged.
+
+Patch 17's "held swing" no longer applies; its test is replaced by this one.
+
+## 106. `hunter: Mongoose Bite is a main-hand attack`
 
 Mongoose Bite carried `ProcMaskMeleeSpecial` (main-hand and off-hand special). Predator's Edge's "+50%
 Off Hand weapon damage" (1310627, `A_MOD_OFFHAND_DAMAGE_PCT`) is a `ProcMaskMeleeOH` damage mod, so a
@@ -2369,3 +2394,62 @@ Raptor Strike, Mongoose Bite, Strider Kick, Wing Clip and the bleed: a Discord r
 from the per-attempt crit column, where a yellow hit's separate crit roll only runs on a landed hit, so
 the boss's 6.5% dodge dilutes it. Goldens: `TestSurvival` and `TestSurvivalMelee` `AllItems-*` rows for
 one-handed weapons (dual wield) move down; two-hander rows do not.
+
+## 107. `items: Forever's caster weapon spell power and master's missing healing`
+
+Redfall on the MythicSim Discord: swapping a Warlock's Rod of the Ogre Magi (23 spell damage) for
+Crackling Staff, which shows 99 spell damage in game, gained 2 spell damage and 25 healing in the sim.
+Crackling Staff's row here was Intellect 25 and spell power 25 (`ItemSparse` 45). Wowhead's Forever
+planner (`assets/db_inputs/wowhead_forever_gearplanner.txt`) has `splpwr` 25 plus `spldmg` 74 and
+`splheal` 74, and the three add up: the client rows that carry them agree (Earthen Silk Slippers,
+`splpwr` 18 and `spldmg` 6, is 24 SpellDamage and 18 HealingPower here; Ogre Loincloth, `splpwr` 6
+and `splheal` 12, is 6 and 18). The 74 is Forever's caster weapon spell power: it goes with the lower
+caster weapon damage (102 - 154 in the planner), scales with item level and quality (74 on an item
+level 65 rare, 94 on a 65 epic, 106 on a 78 epic) and a healer's weapon gets a third of it as damage and
+three times that as healing (Benediction 65 and 195). Neither the client rows nor master's database
+carry it, so 159 weapons had no weapon spell power at all: Jin'do's Judgement, Ironbark Staff,
+Sageblade, the Grand Marshal's and High Warlord's caster weapons, Benediction, the AQ staves.
+
+Separately, master's database (`forever_sim_db.json`, the items `mergeForeverSimDB` fills in) states
+"damage and healing" as SpellDamage alone, and the engine heals off HealingPower only
+(`Spell.HealingPower`), so those items gave casters no healing: Rod of the Ogre Magi, the Tier 1 and 2
+caster sets, Spellweaver's Turban.
+
+`tools/database/gen_db/planner_spell_power.go`, after `fillPlannerArmor`:
+
+- `fillPlannerSpellPower` raises each item's SpellDamage to `splpwr + spldmg`, HealingPower to
+  `splpwr + splheal` and the school stats to `arcsplpwr` and the rest, where the planner's is higher.
+  It never lowers a stat. Items with area stats are skipped, as the planner adds those in (Jewel of the
+  Guard Captain: 8 everywhere and 16 more in the open world, planner 24). 205 items move: the 159
+  caster weapons; the four Atiesh variants, which had little or no spell power; Soul Harvester's 73
+  Shadow; 36 armor pieces and held items with healing that master's rows lacked (Orb of Lorica among
+  them); and five school rows (Bad Mojo Mask, Robes of the Lich, Nature's Embrace, Robes of Servitude,
+  Pyric Caduceus). On spell power the planner never has less than the database.
+- `fillClassicHealing` gives the filled-in items the Forever planner does not list their healing from
+  the Wowhead Classic planner's `splheal`, when they have none: 141 items, Rod of the Ogre Magi 23.
+
+Spell crit and hit need nothing: Forever states gear crit and hit as the generic rating, which the
+database reads as melee (Ironbark Staff's 2% is 28 melee crit rating, as on all 512 crit items in the
+planner), and `UnifyGearHitAndCrit` (`sim/core/forever_rules.go`) pays it into the spell pool too.
+Planner and database agree on crit and hit for every item but the Atiesh variants. Redfall's 1% crit
+loss is Rod of the Ogre Magi's own spell crit (13: 14).
+
+Not changed: these weapons keep Classic's weapon damage (Crackling Staff 138 - 207, the planner 102 -
+154), which only matters to a caster who melees.
+
+`assets/database/db.json` carries the same 346 edits, made by the two functions above run on the
+committed JSON (the filled-in set taken as the items in `forever_sim_db.json` whose stats match it and
+that client 69893's `ItemSparse` lacks), applied line by line so no other record moves; a rerun changes
+nothing. `go run ./tools/sync_db_binary` rebuilt `db.bin` (run on the unedited JSON first, it reproduced
+the old binary byte for byte). `leftover_db` has no affected item. A full `make db` was not run, as it
+needs `tools/database/wowsims.db`. The site's `scripts/forever-merge-db.py` raises planner spell power
+on a merge the way it re-applies planner armor.
+
+Tests: `TestFillPlannerSpellPower`, `TestFillPlannerSpellPowerKeepsHigherValues` and
+`TestFillClassicHealing` (`tools/database/gen_db`); `TestForeverItemSpellPower` and
+`TestIronbarkStaffCritCountsForSpells` (`sim/core`, with_db, on the embedded binary; the first fails on
+the old one). Goldens: one AllItems row each in Balance and Bear (Symbols of Unending Life), Arcane, Fire
+and Frost (Coldflame Saber), Elemental and Enhancement (Gift of the Gathering Storm).
+
+Drop it when the client rows or upstream's database carry Forever's weapon spell power, and master's
+rows their healing.
