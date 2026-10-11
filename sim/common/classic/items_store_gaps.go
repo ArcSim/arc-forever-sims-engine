@@ -12,7 +12,9 @@ import (
 //   - Iceblade Hacker and Warblade of Caer Darrow: Forever's proc masks set word-1 bit 37, which the
 //     decoder does not model yet; the rest of the mask is plain melee hits. The hand holding the
 //     weapon is the DPM's to pick, as for every generated weapon proc: with the mask alone, an
-//     Iceblade Hacker in the main hand also procced off every off-hand swing.
+//     Iceblade Hacker in the main hand also procced off every off-hand swing. Their Frost spells
+//     (1298414, 1298499) carry the client's always-hit attribute, so the swing that landed is the
+//     only roll to land: the Frost can crit but never misses, is dodged or is parried.
 //
 // Remove an entry once the generated files register it (core.NewItemEffect panics on a second one).
 func init() {
@@ -45,6 +47,7 @@ func init() {
 		SpellID:     1298414,
 		School:      core.SpellSchoolFrost,
 		DefenseType: core.DefenseTypeMelee,
+		Outcome:     shared.OutcomeMeleeCritOnly,
 		MinDmg:      40.70000076293945,
 		MaxDmg:      40.70000076293945,
 		Flags:       core.SpellFlagNoOnCastComplete | core.SpellFlagPassiveSpell | core.SpellFlagNoOnDamageDealt | core.SpellFlagProc | core.SpellFlagSuppressWeaponProcs,
@@ -70,6 +73,7 @@ func init() {
 		SpellID:     1298499,
 		School:      core.SpellSchoolFrost,
 		DefenseType: core.DefenseTypeMelee,
+		Outcome:     shared.OutcomeMeleeCritOnly,
 		MinDmg:      27.719999313354492,
 		MaxDmg:      27.719999313354492,
 		Flags:       core.SpellFlagNoOnCastComplete | core.SpellFlagPassiveSpell | core.SpellFlagNoOnDamageDealt | core.SpellFlagProc | core.SpellFlagSuppressWeaponProcs,

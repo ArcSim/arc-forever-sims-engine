@@ -759,8 +759,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-IcebladeHacker-13952"
  value: {
-  dps: 288.39022
-  tps: 166.75359
+  dps: 299.38172
+  tps: 172.28419
  }
 }
 dps_results: {
@@ -1389,8 +1389,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-WarbladeofCaerDarrow-13982"
  value: {
-  dps: 377.47771
-  tps: 219.84228
+  dps: 378.14784
+  tps: 220.90384
  }
 }
 dps_results: {

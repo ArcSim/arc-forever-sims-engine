@@ -2527,3 +2527,41 @@ potion use no longer waits for caster form. Conjured items and explosives still 
 Goblin Sapper Charge relies on it).
 
 Test: `TestBearDrinksMightyRageInForm` (`sim/druid/feralbear`). Goldens: none move.
+
+## 112. `items: Iceblade Hacker and Warblade of Caer Darrow Frost always hits`
+
+The two hand-written weapon procs in `sim/common/classic/items_store_gaps.go` rolled their Frost
+(1298414 and 1298499) on the full melee special table: miss, dodge, parry, block and crit. They only
+fire off a swing that already landed, so every swing was rolled for avoidance twice. A player on the
+MythicSim Discord (12 October 2026) asked why Iceblade Hacker's Frost showed dodges like a swing. Both
+spells carry the client's always-hit attribute (`ATTR_EX_3_ALWAYS_HIT`, 0x40000 in attribute word 3,
+`Attr: {3: 0x40070000}`), which the hand-written entries ignored.
+
+The server honours that attribute on a physical attack: Forever Logs report 2701 has Trapz's Summon
+Hawk dive (1293241, always-hit, ranged defense) landing 20 of 20 while the same hunter's Auto Shot
+missed 7 of 75 in the same fights. No log has either weapon yet; both drop at level 57 and up.
+
+The Frost now uses `shared.OutcomeMeleeCritOnly`, a new `OutcomeType` mapped to
+`spell.OutcomeMeleeSpecialCritOnly`: it never misses, is dodged, parried or blocked, and still rolls
+to crit, as Summon Hawk's dive does. Before the fix the rogue test below saw 171 of 1,165 procs
+avoided (14.7%).
+
+Test: `TestIcebladeHackerFrostAlwaysHits` (`sim/rogue/weapon_proc_hand_test.go`). Goldens: only the
+AllItems rows for the two weapons move.
+
+| Row | Before | After |
+| --- | ---: | ---: |
+| TestArms Iceblade Hacker | 288.39 | 299.38 |
+| TestArms Warblade of Caer Darrow | 377.48 | 378.15 |
+| TestFury Iceblade Hacker | 347.77 | 355.45 |
+| TestProtectionWarrior Iceblade Hacker | 264.23 | 274.89 |
+| TestProtection Iceblade Hacker | 288.45 | 298.55 |
+| TestEnhancement Iceblade Hacker | 324.67 | 323.22 |
+| TestSurvivalMelee Iceblade Hacker | 387.38 | 388.83 |
+| TestSurvivalMelee Warblade of Caer Darrow | 471.40 | 472.24 |
+| TestSurvival Iceblade Hacker | 329.36 | 331.15 |
+| TestSurvival Warblade of Caer Darrow | 414.70 | 410.47 |
+
+The two small drops are the random stream shifting: the proc no longer draws its avoidance roll.
+
+Drop this when the store generates these procs and honours the always-hit attribute.

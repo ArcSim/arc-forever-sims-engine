@@ -891,9 +891,9 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-IcebladeHacker-13952"
  value: {
-  dps: 264.22873
-  tps: 558.97127
-  dtps: 1142.63392
+  dps: 274.88994
+  tps: 578.28243
+  dtps: 1143.55046
  }
 }
 dps_results: {

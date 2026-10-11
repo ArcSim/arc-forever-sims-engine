@@ -731,8 +731,8 @@ dps_results: {
 dps_results: {
  key: "TestSurvivalMelee-AllItems-IcebladeHacker-13952"
  value: {
-  dps: 387.37759
-  tps: 239.07727
+  dps: 388.83003
+  tps: 239.85873
  }
 }
 dps_results: {
@@ -1277,8 +1277,8 @@ dps_results: {
 dps_results: {
  key: "TestSurvivalMelee-AllItems-WarbladeofCaerDarrow-13982"
  value: {
-  dps: 471.39895
-  tps: 297.55189
+  dps: 472.2412
+  tps: 297.6685
  }
 }
 dps_results: {

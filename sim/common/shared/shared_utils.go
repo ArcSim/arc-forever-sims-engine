@@ -1504,6 +1504,9 @@ const (
 	OutcomeRangedCanCrit
 	OutcomeRangedNoCrit
 	OutcomeAlwaysHit
+	// A melee proc whose client row carries the always-hit attribute: no miss, dodge, parry or block,
+	// but it still rolls to crit.
+	OutcomeMeleeCritOnly
 )
 
 type ProcDamageEffect struct {
@@ -1548,6 +1551,8 @@ func GetOutcome(spell *core.Spell, outcome OutcomeType) core.OutcomeApplier {
 		return spell.OutcomeRangedHit
 	case OutcomeAlwaysHit:
 		return spell.OutcomeAlwaysHit
+	case OutcomeMeleeCritOnly:
+		return spell.OutcomeMeleeSpecialCritOnly
 	default:
 		return spell.OutcomeMagicHitAndCrit
 	}
