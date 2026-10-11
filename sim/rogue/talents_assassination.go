@@ -147,6 +147,13 @@ func (rogue *Rogue) registerVilePoisons() {
 	})
 }
 
+// ColdBloodSpentByMutilate is the switch for the live Cold Blood bug. In the Forever client today
+// Mutilate's hand strikes take Cold Blood's crit without spending the charge, so Cold Blood stays up
+// through every Mutilate until a Sinister Strike, Backstab, Ambush or Eviscerate (false, the default).
+// When Blizzard fixes it, set this true: the Mutilate cast then spends Cold Blood once both hands
+// have struck, so one Mutilate gets the crit and the next does not.
+var ColdBloodSpentByMutilate = false
+
 func (rogue *Rogue) registerColdBlood() {
 	if !rogue.Talents.ColdBlood {
 		return
@@ -167,6 +174,11 @@ func (rogue *Rogue) registerColdBlood() {
 		// was blocked), and the buff dropped on the next Eviscerate.
 		OnSpellHitDealt: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			if spell.Matches(RogueSpellColdBlooded &^ RogueSpellMutilateHit) {
+				aura.Deactivate(sim)
+			}
+			// Fixed-client behaviour: the off-hand strike lands after the main hand, so both
+			// hands keep the crit and the charge goes with the second.
+			if ColdBloodSpentByMutilate && spell == rogue.MutilateOH {
 				aura.Deactivate(sim)
 			}
 		},

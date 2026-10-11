@@ -76,3 +76,28 @@ func TestColdBloodLastsThroughMutilate(t *testing.T) {
 		t.Error("Cold Blood survived Eviscerate")
 	}
 }
+
+// With ColdBloodSpentByMutilate (the client once Blizzard fixes the bug), one Mutilate crits with
+// both hands and spends Cold Blood.
+func TestColdBloodSpentByMutilateWhenFixed(t *testing.T) {
+	ColdBloodSpentByMutilate = true
+	defer func() { ColdBloodSpentByMutilate = false }()
+
+	sim, rogue := kidneyShotSim(AssassinationTalents)
+	target := rogue.CurrentTarget
+	coldBlood := rogue.GetAura("Cold Blood")
+
+	rogue.ColdBlood.SkipCastAndApplyEffects(sim, target)
+	for i := 0; i < 20 && coldBlood.IsActive(); i++ {
+		rogue.Mutilate.SkipCastAndApplyEffects(sim, target)
+	}
+	if coldBlood.IsActive() {
+		t.Fatal("Cold Blood survived Mutilate with ColdBloodSpentByMutilate set")
+	}
+	for _, hand := range []*core.Spell{rogue.MutilateMH, rogue.MutilateOH} {
+		m := hand.SpellMetrics[target.UnitIndex]
+		if m.Crits != 1 || m.Hits != 0 {
+			t.Errorf("%v under Cold Blood: %d crits, %d hits; want 1 crit", hand.ActionID, m.Crits, m.Hits)
+		}
+	}
+}
