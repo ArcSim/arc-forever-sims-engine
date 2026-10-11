@@ -2454,7 +2454,9 @@ and Frost (Coldflame Saber), Elemental and Enhancement (Gift of the Gathering St
 Drop it when the client rows or upstream's database carry Forever's weapon spell power, and master's
 rows their healing.
 
-## 108. `paladin: Light's Vigil adds its strike to Holy Shock instead of replacing it`
+## 108. `paladin: Light's Vigil adds its strike to Holy Shock instead of replacing it` (reverted)
+
+Reverted on 11 October 2026: a vigiled Holy Shock again deals only the vigil's strike (upstream's behaviour). Redfall asked on the MythicSim Discord (#mythic) not to change Light's Vigil until it is seen in game, and the only requests came from the discussion he named; there is no beta log either way. Redo this from a combat log. The text below records what the patch did.
 
 A Holy Shock on a target carrying the paladin's Light's Vigil dealt only the vigil's strike (395 at
 rank 3) and none of its own damage (334 to 362 at rank 4). The client ships the strike as a damage

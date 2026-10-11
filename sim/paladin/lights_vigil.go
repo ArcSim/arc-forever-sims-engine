@@ -36,11 +36,8 @@ type lightsVigil struct {
 // Holy damage and refund 75% of Light's Vigil's Mana cost. You may only have 1 Light's Vigil
 // active per Paladin, per party.
 //
-// The sim casts it on enemies: Holy Shock on a vigiled enemy deals its own damage, then fires the
-// strike and the refund. The strike is a separate client spell (1310914, 1311592, 1311598), as the
-// party heal is a separate heal on top of Holy Shock's own, so it adds to Holy Shock rather than
-// replacing it. The friendly path, a party heal off a Holy Shock heal, has no target model here and
-// is not built.
+// The sim casts it on enemies: Holy Shock on a vigiled enemy fires the strike and the refund. The
+// friendly path, a party heal off a Holy Shock heal, has no target model here and is not built.
 func (paladin *Paladin) registerLightsVigil() {
 	LightsVigilRankMap.Each(paladin.registerLightsVigilRank)
 }
