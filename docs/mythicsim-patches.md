@@ -2453,3 +2453,24 @@ and Frost (Coldflame Saber), Elemental and Enhancement (Gift of the Gathering St
 
 Drop it when the client rows or upstream's database carry Forever's weapon spell power, and master's
 rows their healing.
+
+## 108. `paladin: Light's Vigil adds its strike to Holy Shock instead of replacing it`
+
+A Holy Shock on a target carrying the paladin's Light's Vigil dealt only the vigil's strike (395 at
+rank 3) and none of its own damage (334 to 362 at rank 4). The client ships the strike as a damage
+spell of its own (1310914, 1311592, 1311598, 0.429 coefficient), as the friendly path's party heal
+(1310912, 1311591, 1311596) is a heal of its own beside Holy Shock's, and 1311595's tooltip reads as
+an addition: the next Holy Shock "triggers no cooldown and causes ... enemy targets to suffer
+$1311598s1 Holy damage and refund $s2% of Light's Vigil's Mana cost". The behaviour is server
+scripted (Holy Shock 1311606 and the vigil cast are `E_DUMMY`), so no client row settles it
+directly; no beta log has been checked. Raised by ShinShimon on the MythicSim Discord
+(#tier-list-feedback, 10 October).
+
+`holy_shock.go` now deals Holy Shock's damage, then consumes the vigil (strike and refund) and resets
+the cooldown, as before. Test: `TestLightsVigilAddsToHolyShock` (`sim/paladin/retribution`), all
+three ranks: every Holy Shock cast has a damage outcome, and each vigiled one a strike.
+
+Goldens: none move (no preset casts Light's Vigil).
+
+Light's Vigil is a 1.5 sec hard cast (`CastTimeMs: 1500`, Spiritual Focus covers its pushback) with no
+swing hook yet; a hold or restart would go in its `Cast.ModifyCast`, as in `holy_wrath.go`.
