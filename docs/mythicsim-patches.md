@@ -2350,3 +2350,22 @@ Goldens: none move (Retribution and Protection paladin read the same with and wi
 
 Paladin heals (`flash_of_light.go`, `holy_light.go`, `lights_vigil.go`) still have no swing hook. No
 preset heals while meleeing; add the same hold if one does.
+
+## 105+. `hunter: Mongoose Bite is a main-hand attack`
+
+Mongoose Bite carried `ProcMaskMeleeSpecial` (main-hand and off-hand special). Predator's Edge's "+50%
+Off Hand weapon damage" (1310627, `A_MOD_OFFHAND_DAMAGE_PCT`) is a `ProcMaskMeleeOH` damage mod, so a
+dual-wielding hunter's bite, which deals main-hand weapon damage, took the +50% too and rolled the
+off-hand weapon's procs. A two-hander was unaffected (the off-hand mod needs dual wield). Now
+`ProcMaskMeleeMHSpecial`, like Raptor Strike, Strider Kick and Wing Clip. Raised by ShinShimon on the
+MythicSim Discord (Mongoose Bite averaging 851 a hit against 300 for the main-hand swing).
+
+Survival reference (dual wield, 10,000 iterations, board seed, board length): 880.75 to 835.88 DPS
+(-5.1%); Mongoose Bite 847 to 568 a cast, the Lacerating Strikes bleed (40% of the bite) with it.
+
+Tests: `TestPredatorsEdgeOffHandBonusSkipsMongooseBite` and `TestSavageStrikesRank2OnEveryMeleeAbility`
+(`sim/hunter/dual_wield_melee_test.go`, `with_db`). The second pins Savage Strikes rank 2 at +4% crit on
+Raptor Strike, Mongoose Bite, Strider Kick, Wing Clip and the bleed: a Discord report read it as +2%
+from the per-attempt crit column, where a yellow hit's separate crit roll only runs on a landed hit, so
+the boss's 6.5% dodge dilutes it. Goldens: `TestSurvival` and `TestSurvivalMelee` `AllItems-*` rows for
+one-handed weapons (dual wield) move down; two-hander rows do not.

@@ -28,12 +28,15 @@ func (hunter *Hunter) registerMongooseBiteSpell() {
 		},
 	})
 
+	// A main-hand attack: it deals the main-hand weapon's damage. ProcMaskMeleeSpecial also named the
+	// off hand, so a dual-wielding hunter's bite took Predator's Edge's +50% off-hand damage and
+	// rolled the off-hand weapon's procs.
 	hunter.MongooseBite = hunter.RegisterSpell(core.SpellConfig{
 		ActionID:       core.ActionID{SpellID: rank.ID},
 		SpellSchool:    rank.SpellSchool(),
 		DefenseType:    rank.DefenseTypeCore(),
 		ClassSpellMask: HunterSpellMongooseBite,
-		ProcMask:       core.ProcMaskMeleeSpecial,
+		ProcMask:       core.ProcMaskMeleeMHSpecial,
 		Flags:          core.SpellFlagMeleeMetrics | core.SpellFlagAPL,
 		MaxRange:       float64(rank.MaxRange),
 
