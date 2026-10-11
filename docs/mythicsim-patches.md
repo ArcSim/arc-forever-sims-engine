@@ -2516,3 +2516,14 @@ again when switched off. Goldens: none move (no suite runs a Tallstrider beside 
 reference build uses a Tallstrider.
 
 Drop it if a combat log shows Dust Cloud stacking with Sunder Armor or Expose Armor.
+
+## 111. `druid: a potion no longer drops Bear or Cat Form`
+
+`registerFormBreakingConsumes` (upstream 0677650f4a) dropped a druid out of Bear or Cat Form after any
+potion, conjured item or explosive, and the automatic use of each waited for caster form. In Forever a
+druid drinks a potion in form and stays in it (Redfall, MythicSim Discord, 11 October 2026), so potions
+leave the list: a bear's Mighty Rage Potion lands its rage and Strength in Bear Form, and the automatic
+potion use no longer waits for caster form. Conjured items and explosives still drop the form (the cat's
+Goblin Sapper Charge relies on it).
+
+Test: `TestBearDrinksMightyRageInForm` (`sim/druid/feralbear`). Goldens: none move.

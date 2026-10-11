@@ -225,13 +225,17 @@ func (druid *Druid) RegisterBaselineSpells() {
 	druid.registerFormBreakingConsumes()
 }
 
-// registerFormBreakingConsumes patches ApplyEffects on potions, conjured items,
-// and engineering explosives to drop Bear/Cat form when used. These spells all
+// registerFormBreakingConsumes patches ApplyEffects on conjured items and
+// engineering explosives to drop Bear/Cat form when used. These spells all
 // carry SpellFlagNoOnCastComplete, so OnCastComplete aura hooks never fire for
 // them - we must wrap ApplyEffects directly instead.
+//
+// Potions are not on the list: in Forever a druid drinks a potion in Bear or Cat
+// Form and stays in form (Redfall, MythicSim Discord, 11 October 2026), so a bear's
+// Mighty Rage Potion lands its rage and Strength in form.
 func (druid *Druid) registerFormBreakingConsumes() {
 	druid.Env.RegisterPostFinalizeEffect(func() {
-		breakFlags := core.SpellFlagPotion | core.SpellFlagConjured | core.SpellFlagExplosive
+		breakFlags := core.SpellFlagConjured | core.SpellFlagExplosive
 		for _, spell := range druid.Spellbook {
 			if !spell.Flags.Matches(breakFlags) {
 				continue
@@ -243,10 +247,9 @@ func (druid *Druid) registerFormBreakingConsumes() {
 					druid.ClearForm(sim)
 				}
 			}
-			// Nobody pots out of form on a timer: left to fire on cooldown, Mighty Rage Potion
-			// dropped the bear out of form every two minutes and cut it from 410 DPS to 153.
-			// The automatic use waits for caster form; a rotation can still drink one in form on
-			// purpose, as the cat's powershifting does.
+			// Nobody shifts out of form on a timer: the automatic use of a conjured item or an
+			// explosive waits for caster form; a rotation can still use one in form on purpose, as
+			// the cat's Goblin Sapper Charge does.
 			druid.AddActivationCondition(spell.ActionID, func(_ *core.Simulation, _ *core.Character) bool {
 				return !druid.InForm(Bear) && !druid.InForm(Cat)
 			})
