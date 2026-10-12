@@ -2565,3 +2565,32 @@ AllItems rows for the two weapons move.
 The two small drops are the random stream shifting: the proc no longer draws its avoidance roll.
 
 Drop this when the store generates these procs and honours the always-hit attribute.
+
+## 125. `core: a switch for the boss's 1% hit suppression`
+
+No behaviour change by default. Against a level 63 target the attack table subtracts
+`HitSuppression` (1%) from melee and ranged hit before the 8% base miss, so a single-handed yellow
+attack needs 9% hit to never miss (`NewAttackTable`, `sim/core/target.go`). Magey's Forever warrior
+test (github.com/magey/forever-warrior issue 1, 4,259 attacks, 25.08% observed against 24.78%
+expected without it) concludes the suppression is gone in Forever and the yellow cap is 8%; the 1.8%
+crit suppression remains. Đegausser raised it on the MythicSim Discord (#bugs, 12 October 2026). The
+developers have not confirmed it, so the default keeps the beta's 9%.
+
+`Encounter.no_hit_suppression` (`proto/common.proto`, field 13; `Encounter.NoHitSuppression` in
+`sim/core/target.go`) is the switch, read per request so the site can offer it as an Advanced choice:
+true zeroes `HitSuppression` on every attack table against an enemy (`setupAttackTables`,
+`sim/core/environment.go`). The dual-wield 19% penalty is unchanged. Spells never had a suppression:
+the spell table is a 17% base miss against a level 63 target with spell hit counted in full (16% at
+most), and the switch does not touch it.
+
+Test: `TestNoHitSuppressionSwitch` (`sim/core/hit_suppression_test.go`): 8% hit leaves a 1% miss with
+the suppression and none without; the spell base miss stays 17%. Goldens: none move (no test sets the
+field).
+
+Measured on the physical reference builds (MythicSim site, 12 October 2026, 10,000 iterations, board
+and alt seed at the board length and 120 s, switch off against on, same binary): +0.45% to +1.46% for
+the references below the 9% cap or dual wielding (Protection Warrior +1.46%, Bear +0.98%, Subtlety
++0.98%, Warrior +0.95%, Marksmanship +0.89%); 0.00% for the four already at 9% with one weapon
+(Arms, Feral, Enhancement, Protection Paladin). Details in the site's `docs/forever-oct12-gear.md`.
+
+Drop the switch (and make it the only behaviour) once Blizzard confirms the 8% cap.

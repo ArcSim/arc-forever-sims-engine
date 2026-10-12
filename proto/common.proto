@@ -599,6 +599,11 @@ message Encounter {
 
 	// The zone the area set came from, for the UI only; 0 once edited by hand.
 	int32 zone_id = 12;
+
+	// Drops the extra 1% hit suppression a level 63 target puts on melee and ranged attacks, so the
+	// physical hit cap against a boss is 8% instead of 9% (Magey's Forever warrior test, 12 October
+	// 2026). Spells are unaffected either way. Mythicsim patch 125; off keeps the suppression.
+	bool no_hit_suppression = 13;
 }
 
 message PresetTarget {

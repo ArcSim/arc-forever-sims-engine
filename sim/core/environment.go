@@ -259,6 +259,9 @@ func (env *Environment) setupAttackTables() {
 		attacker.AttackTables = make([]*AttackTable, len(env.AllUnits))
 		for idx, defender := range env.AllUnits {
 			attacker.AttackTables[idx] = NewAttackTable(attacker, defender)
+			if env.Encounter.NoHitSuppression {
+				attacker.AttackTables[idx].HitSuppression = 0
+			}
 		}
 	}
 }
