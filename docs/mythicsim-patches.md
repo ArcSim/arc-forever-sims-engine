@@ -2610,3 +2610,16 @@ Test: `TestWolfFuriousHowl` (`sim/hunter/pet_pool_test.go`): the buff is up all 
 never on one 30 yards out, and the melee Hunter does more damage than beside a Bite-only Wolf.
 Goldens: none move (no golden tames a Wolf).
 
+## 120. `hunter: Strider Kick speeds the Hunter up 30% for 3 sec`
+
+Strider Kick (1317257) registered only its damage. Its third effect is `A_MOD_INCREASE_SPEED` 30 on the
+caster for the spell's 3 sec, and the 24 September beta notes say so ("Strider Kick now increases
+movement speed by 30% for 3 seconds."). The kick now activates a "Strider Kick" aura (action ID 1317257,
+so a rotation can check `auraIsActive` on it) with an active movement speed effect of 30%. It only matters
+to a rotation that moves after a kick, such as a melee weave stepping out to shoot. Switch:
+`StriderKickSpeedsUp` (`sim/hunter/strider_kick.go`, default true).
+
+Test: `TestStriderKickSpeedsUp` (`sim/hunter/pet_pool_test.go`). Goldens: `TestSurvival` moves (176 of
+193 rows, Average 352.97 to 352.96, rows -3.6 to +4.4). That suite starts 30 yards out and walks to the
+target; the first kick lands as the Hunter reaches 5 yards, so the rest of the walk to 0 runs faster and
+re-times the opener. `TestSurvivalMelee` starts in melee and does not move.

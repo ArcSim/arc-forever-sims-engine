@@ -103,3 +103,20 @@ func TestWolfFuriousHowl(t *testing.T) {
 		t.Errorf("melee Hunter beside a howling Wolf %.1f DPS, want more than without %.1f", melee.RaidMetrics.Dps.Avg, without.RaidMetrics.Dps.Avg)
 	}
 }
+
+// Patch 120: Strider Kick (1317257) speeds the Hunter up 30% for 3 sec after each kick. The weapons-only
+// Hunter runs short of mana, so it kicks less than every 8 sec: the buff is up a sixth to 3/8 of the fight.
+func TestStriderKickSpeedsUp(t *testing.T) {
+	res := petSim(t, proto.HunterOptions_PetNone, SurvivalTalents, "sv_melee", core.MaxMeleeRange)
+	var up float64
+	for _, aura := range res.RaidMetrics.Parties[0].Players[0].Auras {
+		if aura.Id.GetSpellId() == 1317257 {
+			up = aura.UptimeSecondsAvg
+		}
+	}
+	fight := float64(core.LongDuration)
+	t.Logf("Strider Kick speed up %.0f s of %.0f", up, fight)
+	if up < 0.15*fight || up > 0.4*fight {
+		t.Errorf("Strider Kick speed up %.0f s of %.0f, want a sixth to 3/8", up, fight)
+	}
+}
