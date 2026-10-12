@@ -117,8 +117,8 @@ func rageFromAutoAttack(sim *Simulation, fw *FakeRageWarrior, spell *Spell, outc
 }
 
 func TestAutoAttackRageGeneration(t *testing.T) {
-	// A one-hand MH swing at 2.6 speed: 2.6 * 3.46 = 8.996, whatever it dealt. A critical strike pays 75%
-	// more (client 70170): 8.996 * 1.75 = 15.743.
+	// A one-hand MH swing at 2.6 speed: 2.6 * 3.46 = 8.996, whatever it dealt. A critical strike pays
+	// 100% more (beta development notes, 1 and 8 October 2026): 8.996 * 2 = 17.992.
 	const swingDamage = 500.0
 
 	tests := []struct {
@@ -134,12 +134,12 @@ func TestAutoAttackRageGeneration(t *testing.T) {
 		{
 			name:     "crit",
 			outcome:  OutcomeCrit,
-			wantRage: 15.743,
+			wantRage: 17.992,
 		},
 		{
 			name:     "blocked crit",
 			outcome:  OutcomeBlock | OutcomeCrit,
-			wantRage: 15.743,
+			wantRage: 17.992,
 		},
 		{
 			name:     "glance",

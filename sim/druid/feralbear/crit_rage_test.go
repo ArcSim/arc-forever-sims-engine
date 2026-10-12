@@ -45,9 +45,11 @@ func bearRageFromSwing(sim *core.Simulation, d *druid.Druid, outcome core.HitOut
 
 // Client 1.60.1.70170: "Bear Form and Dire Bear Form now generate 75% increased Rage when landing a
 // Critical Strike". The client has no row for the number (only a melee-auto proc flag on the form
-// passives 1178 and 9635), so it is the patch note's 75%. A Bear's critical auto attack gives 1.75 times
-// the Rage of the same swing as a plain hit, whatever damage it dealt.
-func TestBearCritAutoAttackGivesOneAndThreeQuartersTheRage(t *testing.T) {
+// passives 1178 and 9635), so it was the patch note's 75%. The Druid development notes of 8 October 2026
+// raise it: "Additional Rage generated from landing Critical Strikes increased to 100% increased Rage
+// (was 75%)". A Bear's critical auto attack gives twice the Rage of the same swing as a plain hit,
+// whatever damage it dealt.
+func TestBearCritAutoAttackGivesTwiceTheRage(t *testing.T) {
 	sim, d := newBearInForm(t)
 	want := core.BaseRageHitFactor * d.AutoAttacks.MH().SwingSpeed
 
@@ -58,11 +60,11 @@ func TestBearCritAutoAttackGivesOneAndThreeQuartersTheRage(t *testing.T) {
 	if !core.WithinToleranceFloat64(want, hit, 0.000001) {
 		t.Errorf("hit gave %0.5f Rage, want %0.5f", hit, want)
 	}
-	if !core.WithinToleranceFloat64(want*1.75, crit, 0.000001) {
-		t.Errorf("crit gave %0.5f Rage, want %0.5f", crit, want*1.75)
+	if !core.WithinToleranceFloat64(want*2, crit, 0.000001) {
+		t.Errorf("crit gave %0.5f Rage, want %0.5f", crit, want*2)
 	}
-	if !core.WithinToleranceFloat64(1.75, crit/hit, 0.0000001) {
-		t.Errorf("crit gave %0.6f times a hit, want 1.75", crit/hit)
+	if !core.WithinToleranceFloat64(2, crit/hit, 0.0000001) {
+		t.Errorf("crit gave %0.6f times a hit, want 2", crit/hit)
 	}
 	if glance != hit {
 		t.Errorf("glance gave %0.5f Rage, want the hit's %0.5f", glance, hit)

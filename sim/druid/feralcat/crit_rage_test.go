@@ -11,10 +11,10 @@ import (
 )
 
 // Client 1.60.1.70170: "Bear Form and Dire Bear Form now generate 75% increased Rage when landing a
-// Critical Strike". The Cat registers the Bear Form aura without the spell, so its Rage bar is only ever
+// Critical Strike"; the Druid development notes of 8 October 2026 raise it to 100%. The Cat registers the Bear Form aura without the spell, so its Rage bar is only ever
 // fed in that form; the bonus is on the same bar every Warrior and Bear uses (core.CritRageMultiplier) and
 // applies exactly once.
-func TestCatsBearFormCritAutoAttackGivesOneAndThreeQuartersTheRage(t *testing.T) {
+func TestCatsBearFormCritAutoAttackGivesTwiceTheRage(t *testing.T) {
 	player := &proto.Player{Name: "Cat", Class: proto.Class_ClassDruid, Race: proto.Race_RaceNightElf,
 		TalentsString: DefaultTalents, Equipment: &proto.EquipmentSpec{}, Buffs: &proto.IndividualBuffs{},
 		Spec: DefaultSpecOptions, Rotation: &proto.APLRotation{Type: proto.APLRotation_TypeAPL}}
@@ -44,8 +44,8 @@ func TestCatsBearFormCritAutoAttackGivesOneAndThreeQuartersTheRage(t *testing.T)
 	if want := core.BaseRageHitFactor * cat.AutoAttacks.MH().SwingSpeed; !core.WithinToleranceFloat64(want, hit, 0.000001) {
 		t.Errorf("hit gave %0.5f Rage, want %0.5f", hit, want)
 	}
-	if !core.WithinToleranceFloat64(1.75, crit/hit, 0.0000001) {
-		t.Errorf("crit gave %0.6f times a hit in Bear Form, want 1.75", crit/hit)
+	if !core.WithinToleranceFloat64(2, crit/hit, 0.0000001) {
+		t.Errorf("crit gave %0.6f times a hit in Bear Form, want 2", crit/hit)
 	}
 	if glance != hit {
 		t.Errorf("glance gave %0.5f Rage, want the hit's %0.5f", glance, hit)

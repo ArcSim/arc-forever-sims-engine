@@ -160,7 +160,7 @@ func TestFlurryAxeAndElectrifiedDagger(t *testing.T) {
 		}, DefaultOptions)
 		raid := core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{})
 		result := core.RunRaidSim(&proto.RaidSimRequest{Raid: raid, Encounter: core.MakeSingleTargetEncounter(0),
-			SimOptions: &proto.SimOptions{Iterations: 1, RandomSeed: 101, Debug: true}})
+			SimOptions: &proto.SimOptions{Iterations: 5, RandomSeed: 101, Debug: true}})
 		if result.Error != nil {
 			t.Fatal(result.Error.Message)
 		}

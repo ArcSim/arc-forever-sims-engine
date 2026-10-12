@@ -41,10 +41,11 @@ func rageFromSwing(sim *core.Simulation, war *DpsWarrior, spell *core.Spell, out
 	return war.CurrentRage()
 }
 
-// Client 1.60.1.70170: "Players now generate 75% increased Rage when landing a critical strike with a
-// basic attack". A Warrior's critical auto attack, in either hand, gives 1.75 times the Rage of the same
-// swing as a plain hit, and a crit that deals twice the damage still gives 1.75 times.
-func TestCritAutoAttackGivesAWarriorOneAndThreeQuartersTheRage(t *testing.T) {
+// Client 1.60.1.70170 brought the crit bonus back at 75%; the Warrior development notes of 1 October
+// 2026 raise it: "Additional Rage generated from landing Critical Strikes increased to 100% increased
+// Rage (was 75%)". A Warrior's critical auto attack, in either hand, gives twice the Rage of the same
+// swing as a plain hit, and a crit that deals twice the damage still gives twice.
+func TestCritAutoAttackGivesAWarriorTwiceTheRage(t *testing.T) {
 	sim, war := newRageWarrior(t, DualWieldGear.GearSet, FuryTalents)
 	mhSpeed := war.AutoAttacks.MH().SwingSpeed
 	ohSpeed := war.AutoAttacks.OH().SwingSpeed
@@ -64,16 +65,16 @@ func TestCritAutoAttackGivesAWarriorOneAndThreeQuartersTheRage(t *testing.T) {
 		if !core.WithinToleranceFloat64(tc.wantHit, hit, 0.000001) {
 			t.Errorf("%s hit gave %0.5f Rage, want %0.5f", tc.name, hit, tc.wantHit)
 		}
-		if !core.WithinToleranceFloat64(tc.wantHit*1.75, crit, 0.000001) {
-			t.Errorf("%s crit gave %0.5f Rage, want %0.5f", tc.name, crit, tc.wantHit*1.75)
+		if !core.WithinToleranceFloat64(tc.wantHit*2, crit, 0.000001) {
+			t.Errorf("%s crit gave %0.5f Rage, want %0.5f", tc.name, crit, tc.wantHit*2)
 		}
-		if !core.WithinToleranceFloat64(1.75, crit/hit, 0.0000001) {
-			t.Errorf("%s crit gave %0.6f times a hit, want 1.75", tc.name, crit/hit)
+		if !core.WithinToleranceFloat64(2, crit/hit, 0.0000001) {
+			t.Errorf("%s crit gave %0.6f times a hit, want 2", tc.name, crit/hit)
 		}
 	}
 }
 
-func TestCritAutoAttackGivesATwoHanderOneAndThreeQuartersTheRage(t *testing.T) {
+func TestCritAutoAttackGivesATwoHanderTwiceTheRage(t *testing.T) {
 	sim, war := newRageWarrior(t, TwoHandGear.GearSet, ArmsTalents)
 	speed := war.AutoAttacks.MH().SwingSpeed
 	want := core.TwoHandRageHitFactor * speed
@@ -84,8 +85,8 @@ func TestCritAutoAttackGivesATwoHanderOneAndThreeQuartersTheRage(t *testing.T) {
 	if !core.WithinToleranceFloat64(want, hit, 0.000001) {
 		t.Errorf("2H hit gave %0.5f Rage, want %0.5f", hit, want)
 	}
-	if !core.WithinToleranceFloat64(want*1.75, crit, 0.000001) {
-		t.Errorf("2H crit gave %0.5f Rage, want %0.5f", crit, want*1.75)
+	if !core.WithinToleranceFloat64(want*2, crit, 0.000001) {
+		t.Errorf("2H crit gave %0.5f Rage, want %0.5f", crit, want*2)
 	}
 }
 

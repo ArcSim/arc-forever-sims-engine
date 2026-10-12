@@ -6,10 +6,11 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// Client 1.60.1.70170: a critical strike with an auto attack gives 75% more Rage, 1.75 times what the
-// same swing gives as a plain hit, and the damage it dealt does not matter: a crit that deals double a
-// hit's damage still pays 1.75 times, not 2.
-func TestCritAutoAttackRageIsOneAndThreeQuartersOfAHit(t *testing.T) {
+// Beta development notes, 1 October (Warrior) and 8 October 2026 (Druid): "Additional Rage generated
+// from landing Critical Strikes increased to 100% increased Rage (was 75%)". A critical strike with an
+// auto attack gives twice what the same swing gives as a plain hit, and the damage it dealt does not
+// matter: a crit that deals three times a hit's damage still pays twice.
+func TestCritAutoAttackRageIsTwiceAHit(t *testing.T) {
 	const hitDamage = 500.0
 
 	for _, tc := range []struct {
@@ -23,8 +24,8 @@ func TestCritAutoAttackRageIsOneAndThreeQuartersOfAHit(t *testing.T) {
 			name:    "one-hand main hand",
 			prepare: func(fw *FakeRageWarrior) {},
 			spell:   func(fw *FakeRageWarrior) *Spell { return fw.AutoAttacks.MHAuto() },
-			// 2.6 * 3.46, then times 1.75
-			wantHit: 8.996, wantCrit: 15.743,
+			// 2.6 * 3.46, then times 2
+			wantHit: 8.996, wantCrit: 17.992,
 		},
 		{
 			name: "two-hand main hand",
@@ -33,21 +34,21 @@ func TestCritAutoAttackRageIsOneAndThreeQuartersOfAHit(t *testing.T) {
 			},
 			spell: func(fw *FakeRageWarrior) *Spell { return fw.AutoAttacks.MHAuto() },
 			// 2.6 * 4.5
-			wantHit: 11.7, wantCrit: 20.475,
+			wantHit: 11.7, wantCrit: 23.4,
 		},
 		{
 			name:    "off hand",
 			prepare: func(fw *FakeRageWarrior) {},
 			spell:   func(fw *FakeRageWarrior) *Spell { return fw.AutoAttacks.OHAuto() },
 			// 1.8 * 3.46 * 0.5
-			wantHit: 3.114, wantCrit: 5.4495,
+			wantHit: 3.114, wantCrit: 6.228,
 		},
 		{
 			name:    "multiplied off hand",
 			prepare: func(fw *FakeRageWarrior) { fw.SetOffHandRageMultiplier(1.5) },
 			spell:   func(fw *FakeRageWarrior) *Spell { return fw.AutoAttacks.OHAuto() },
 			// 1.8 * 3.46 * 0.5 * 1.5
-			wantHit: 4.671, wantCrit: 8.17425,
+			wantHit: 4.671, wantCrit: 9.342,
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -58,7 +59,7 @@ func TestCritAutoAttackRageIsOneAndThreeQuartersOfAHit(t *testing.T) {
 
 			hit := rageFromAutoAttack(sim, fw, spell, OutcomeHit, hitDamage)
 			fw.ResetRageBar(sim, 0)
-			crit := rageFromAutoAttack(sim, fw, spell, OutcomeCrit, 2*hitDamage)
+			crit := rageFromAutoAttack(sim, fw, spell, OutcomeCrit, 3*hitDamage)
 
 			if !WithinToleranceFloat64(tc.wantHit, hit, 0.0005) {
 				t.Fatalf("hit paid %0.4f Rage, want %0.4f", hit, tc.wantHit)
@@ -66,10 +67,26 @@ func TestCritAutoAttackRageIsOneAndThreeQuartersOfAHit(t *testing.T) {
 			if !WithinToleranceFloat64(tc.wantCrit, crit, 0.0005) {
 				t.Fatalf("crit paid %0.4f Rage, want %0.4f", crit, tc.wantCrit)
 			}
-			if !WithinToleranceFloat64(1.75, crit/hit, 0.0000001) {
-				t.Fatalf("crit paid %0.6f times a hit, want 1.75", crit/hit)
+			if !WithinToleranceFloat64(2, crit/hit, 0.0000001) {
+				t.Fatalf("crit paid %0.6f times a hit, want 2", crit/hit)
 			}
 		})
+	}
+}
+
+// CritRageMultiplier set back to client 70170's 1.75 pays the 75% bonus again.
+func TestCritRageMultiplierSwitchesBackToSeventyFivePercent(t *testing.T) {
+	defer func(old float64) { CritRageMultiplier = old }(CritRageMultiplier)
+	CritRageMultiplier = 1.75
+
+	sim := SetupFakeRageSim()
+	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
+	spell := fw.AutoAttacks.MHAuto()
+	hit := rageFromAutoAttack(sim, fw, spell, OutcomeHit, 500)
+	fw.ResetRageBar(sim, 0)
+	crit := rageFromAutoAttack(sim, fw, spell, OutcomeCrit, 1000)
+	if !WithinToleranceFloat64(1.75, crit/hit, 0.0000001) {
+		t.Fatalf("crit paid %0.6f times a hit, want 1.75", crit/hit)
 	}
 }
 

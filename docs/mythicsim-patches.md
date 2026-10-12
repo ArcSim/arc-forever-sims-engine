@@ -2565,3 +2565,40 @@ AllItems rows for the two weapons move.
 The two small drops are the random stream shifting: the proc no longer draws its avoidance roll.
 
 Drop this when the store generates these procs and honours the always-hit attribute.
+
+## 113. `core: a critical auto attack gives twice the rage`
+
+Client 70170 brought back extra rage on a critical auto attack at 75% (WoW: Forever Podcast episode 2), and
+`CritRageMultiplier` in `sim/core/rage.go` was 1.75. The beta development notes raise it to 100% for both
+classes that use rage: the Warrior notes of 1 October 2026 (https://us.forums.blizzard.com/en/wow/t/2360696)
+and the Druid notes of 8 October 2026 (https://eu.forums.blizzard.com/en/wow/t/631316/5) both read
+"Additional Rage generated from landing Critical Strikes increased to 100% increased Rage (was 75%)". The
+number is server side; no client row carries it.
+
+`CritRageMultiplier` is now a variable, 2.0 by default; 1.75 restores the 70170 value. Every rage bar reads
+it: Warriors, Bear Form, and the Cat's bar (fed only if a custom rotation puts the Cat in Bear Form, so the
+Cat reference doesn't move). Đegausser (MythicSim Discord, #bugs) saw 8.30 x 1.75 on crits: 8.30 is
+3.46 x 2.4, a 2.4 speed one-hander's main-hand swing, so that was either a log from before the 1 October
+build or a MythicSim log from the 1.75 engine; it says nothing against the notes.
+
+Tests: `TestCritAutoAttackRageIsTwiceAHit` and `TestCritRageMultiplierSwitchesBackToSeventyFivePercent`
+(`sim/core/rage_crit_test.go`), `TestAutoAttackRageGeneration` (`sim/core/rage_test.go`),
+`TestCritAutoAttackGivesAWarriorTwiceTheRage` and `TestCritAutoAttackGivesATwoHanderTwiceTheRage`
+(`sim/warrior/dps`), `TestBearCritAutoAttackGivesTwiceTheRage` (`sim/druid/feralbear`) and
+`TestCatsBearFormCritAutoAttackGivesTwiceTheRage` (`sim/druid/feralcat`). `TestFlurryAxeAndElectrifiedDagger`
+now runs 5 iterations: its single iteration's only Electrified Dagger bolt was resisted once the rage stream
+shifted.
+
+Goldens: every row of TestFury (Average-Default 320.36 to 325.59), TestArms (329.21 to 331.77),
+TestProtectionWarrior (252.06 to 252.24) and TestFeralBear (177.43 to 178.44).
+
+Measured on the references (10,000 iterations, empty trinket slots, production default rotation):
+
+| Reference | Board seed, board length | Board seed, 120 s | Alt seed, board length | Alt seed, 120 s |
+| --- | ---: | ---: | ---: | ---: |
+| arms-warrior | 741.15 → 747.20 (+0.82%) | 735.38 → 741.80 (+0.87%) | 740.37 → 746.72 (+0.86%) | 736.01 → 741.69 (+0.77%) |
+| warrior (Fury) | 950.76 → 961.37 (+1.12%) | 950.44 → 962.87 (+1.31%) | 950.38 → 962.07 (+1.23%) | 948.46 → 959.21 (+1.13%) |
+| protection-warrior | 479.21 → 480.68 (+0.31%) | 476.33 → 478.34 (+0.42%) | 478.61 → 480.11 (+0.31%) | 476.39 → 477.23 (+0.18%) |
+| fury-protection-warrior | 516.86 → 518.92 (+0.40%) | 509.42 → 512.20 (+0.55%) | 516.81 → 519.89 (+0.60%) | 509.65 → 512.45 (+0.55%) |
+| feral-bear-druid | 505.52 → 507.75 (+0.44%) | 499.52 → 502.54 (+0.60%) | 506.02 → 508.33 (+0.46%) | 499.29 → 502.81 (+0.71%) |
+| feral-druid | 724.47 → 724.47 (+0.00%) | 723.61 → 723.61 (+0.00%) | 724.57 → 724.57 (+0.00%) | 724.20 → 724.20 (+0.00%) |
