@@ -246,7 +246,7 @@ var DefaultPetConfigs = [...]PetConfig{
 		Health: 1.00, Armor: 1.00, Damage: 1.07,
 	},
 	proto.HunterOptions_Wolf: {
-		Name: "Wolf", FocusDump: Bite,
+		Name: "Wolf", FocusDump: Bite, ExtraAbility: FuriousHowl,
 		Health: 1.00, Armor: 1.05, Damage: 1.00,
 	},
 	proto.HunterOptions_Bat: {

@@ -2592,3 +2592,21 @@ Adds `CurrentFocus` and `FocusRegenPerSecond` to the focus bar (`sim/core/focus.
 Test: `TestCatBitesOnCooldown` (`sim/hunter/pet_pool_test.go`): one Bite a fight unpooled, at least one
 every 11 seconds pooled, and the pet still spends about 10 focus a second. Goldens: none move (off).
 
+## 119. `hunter: the Wolf casts Furious Howl`
+
+The Wolf only Bit; its Furious Howl, the reason to pick a Wolf for a melee Hunter (Kragtor, 12 October
+2026), was not registered. In Forever it is an attack power aura on the party around the pet: client
+row 24597 (rank 4) is `A_MOD_ATTACK_POWER` 82 plus 0.4 a level from 56, so 84 at 60, implicit target
+20 (party within 15 yards), 60 sec duration, 30 sec cooldown, 60 focus. The 24 September beta notes cut
+it ("Furious Howl Attack Power bonus reduced 40%"); the 70334 row is the cut value. It carries no
+`SPELL_ATTR3_ONLY_TARGET_PLAYERS`, so unlike Battle Shout it reaches pets too.
+
+The Wolf (`ExtraAbility: FuriousHowl`) howls whenever the buff is not up on it; the Hunter takes the
+same aura while within 15 yards of the target the Wolf stands at. Melee attack power only, so it pays a
+melee Hunter and the Wolf, not Auto Shot. Other party members are not simulated. Switch:
+`WolfCastsFuriousHowl` (`sim/hunter/pet_abilities.go`, default true).
+
+Test: `TestWolfFuriousHowl` (`sim/hunter/pet_pool_test.go`): the buff is up all fight on a melee Hunter,
+never on one 30 yards out, and the melee Hunter does more damage than beside a Bite-only Wolf.
+Goldens: none move (no golden tames a Wolf).
+

@@ -64,3 +64,42 @@ func TestCatBitesOnCooldown(t *testing.T) {
 		t.Errorf("pooled Cat spent %.0f focus in %d s, want about 10 a second", spent, fight)
 	}
 }
+
+// Patch 119: the Wolf howls (client 24597), keeping the buff up, and the melee Hunter beside it gains its
+// attack power; a ranged Hunter at 30 yards is out of its 15 yard reach.
+func TestWolfFuriousHowl(t *testing.T) {
+	defer func(old bool) { WolfCastsFuriousHowl = old }(WolfCastsFuriousHowl)
+	howl := spellData.FuriousHowlTriggered.Highest()
+	fight := core.LongDuration
+
+	ownerUptime := func(res *proto.RaidSimResult) float64 {
+		for _, aura := range res.RaidMetrics.Parties[0].Players[0].Auras {
+			if aura.Id.GetSpellId() == howl.ID {
+				return aura.UptimeSecondsAvg
+			}
+		}
+		return 0
+	}
+
+	WolfCastsFuriousHowl = true
+	melee := petSim(t, proto.HunterOptions_Wolf, SurvivalTalents, "sv_melee", core.MaxMeleeRange)
+	ranged := petSim(t, proto.HunterOptions_Wolf, MarksmanshipTalents, "mm", 30)
+	WolfCastsFuriousHowl = false
+	without := petSim(t, proto.HunterOptions_Wolf, SurvivalTalents, "sv_melee", core.MaxMeleeRange)
+
+	casts, up := petCasts(melee, howl.ID), ownerUptime(melee)
+	t.Logf("Furious Howl: %.1f casts, up %.0f s of %d on the melee Hunter, %.0f s on the ranged one; DPS %.1f with, %.1f without",
+		casts, up, fight, ownerUptime(ranged), melee.RaidMetrics.Dps.Avg, without.RaidMetrics.Dps.Avg)
+	if casts < float64(fight)/60 {
+		t.Errorf("Wolf howled %.1f times in %d s, want the 60 s buff kept up", casts, fight)
+	}
+	if up < 0.9*float64(fight) {
+		t.Errorf("Furious Howl up %.0f s of %d on the melee Hunter, want nearly all", up, fight)
+	}
+	if r := ownerUptime(ranged); r != 0 {
+		t.Errorf("Furious Howl up %.0f s on a Hunter 30 yards out, want none", r)
+	}
+	if melee.RaidMetrics.Dps.Avg <= without.RaidMetrics.Dps.Avg {
+		t.Errorf("melee Hunter beside a howling Wolf %.1f DPS, want more than without %.1f", melee.RaidMetrics.Dps.Avg, without.RaidMetrics.Dps.Avg)
+	}
+}
