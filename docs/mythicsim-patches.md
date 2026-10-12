@@ -2584,7 +2584,8 @@ ability with a cooldown is ready, would not pay for that ability. Abilities with
 or that could not be cast for another reason (Swipe on fewer than three targets, Furious Howl while it
 is up) are not pooled for. It models a Hunter who manages Claw's autocast around Bite. Bite and Claw do
 about the same damage per focus (90 for 35, 51 for 25), so it is worth little: on the 12 October
-references the Cat Bites 11 times in 120 seconds instead of once and the Hunter gains 0.1 to 1.7 DPS
+references (10,000 iterations, four cells) the Cat Bites about 11 times in 120 seconds instead of once
+and the Hunter gains 0.5 to 2.7 DPS with a Cat or a Raptor, nothing with the other pets
 (docs/forever-oct12-hunter.md in the site repo).
 
 Adds `CurrentFocus` and `FocusRegenPerSecond` to the focus bar (`sim/core/focus.go`).
