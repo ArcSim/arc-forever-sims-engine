@@ -51,7 +51,8 @@ func (hunter *Hunter) getImmolationTrapConfig(rank int, timer *core.Timer) core.
 			TickLength:    time.Millisecond * 1500,
 
 			OnSnapshot: func(sim *core.Simulation, target *core.Unit, dot *core.Dot, isRollover bool) {
-				tickDamage := dotDamage / float64(dot.NumberOfTicks)
+				ap := dot.Spell.RangedAttackPower(target, false)
+				tickDamage := (dotDamage + ap*0.15) / float64(dot.NumberOfTicks)
 				dot.Snapshot(target, tickDamage, isRollover)
 				dot.SnapshotCritChance = dot.Spell.SpellCritChance(target)
 			},
