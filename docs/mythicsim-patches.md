@@ -2672,3 +2672,45 @@ four paladins: one weapon or a shield):
 
 Elemental with Melee buffs does not move in either table: it swings a staff (the totem still procs off its
 autos) and has no melee special.
+
+## 115. `items: switches for Ironfoe's proc rate and hand` (default unchanged)
+
+A player report (MythicSim Discord, 12 October 2026): Ironfoe procs about 6% of hits, twice Era's 0.8 PPM
+(3.2% a swing on its 2.4 sec speed), and procs off off-hand hits. That is what the engine does, and it is what
+the client says. In Forever Ironfoe (11684) no longer has a chance-on-hit spell: its ItemEffect is
+TriggerType 1 (on equip) for Fury of Forgewright 1301046, an A_PROC_TRIGGER_SPELL aura for 15494 ("Grants 2
+extra attacks on your next swing") with ProcChance 6, ProcsPerMinuteID 0, a 100 ms ProcCategoryRecovery and
+ProcTypeMask 0x14 (melee autos and specials). No SpellEquippedItems row ties it to a weapon, so the off hand
+and specials roll it too. Its tooltip: "Attacks have a chance to grant 2 extra attacks on your next swing.
+Attacks against Orcs are 2 times as likely to activate this effect." Nothing in the client says main hand or
+0.8 PPM; those are Era's chance-on-hit rules and the Classic sim's number.
+
+So the default stays the client's. Two switches in `sim/common/classic/items_weapons.go` give the report's
+reading for Sage to decide: `IronfoeMainHandOnly` (default false) drops the off-hand weapon's rolls (a shield
+strike still rolls, as for Windfury Totem in patch 114), and `IronfoePPM` (default 0) replaces the 6% with a
+rate per minute (0.8 for Era's).
+
+Test: `TestIronfoeProcRateAndHands` (`sim/warrior/dps/ironfoe_test.go`): 6% on main-hand autos, off-hand
+autos and main-hand specials; switched, 3.2% on main-hand autos and none off the off hand. Goldens: none move.
+
+Measured on every reference that wields Ironfoe (10,000 iterations, after patch 114), main hand only at 6%:
+
+| Reference | Board seed, board length | Board seed, 120 s | Alt seed, board length | Alt seed, 120 s |
+| --- | ---: | ---: | ---: | ---: |
+| warrior | 867.58 → 823.48 (-5.08%) | 866.48 → 823.80 (-4.93%) | 866.76 → 823.84 (-4.95%) | 866.28 → 822.90 (-5.01%) |
+| protection-warrior | 480.68 → 480.68 (+0.00%) | 478.34 → 478.34 (+0.00%) | 480.11 → 480.11 (+0.00%) | 477.23 → 477.23 (+0.00%) |
+| fury-protection-warrior | 518.92 → 518.92 (+0.00%) | 512.20 → 512.20 (+0.00%) | 519.89 → 519.89 (+0.00%) | 512.45 → 512.45 (+0.00%) |
+| subtlety-rogue | 618.50 → 598.03 (-3.31%) | 618.57 → 597.18 (-3.46%) | 618.87 → 598.74 (-3.25%) | 619.02 → 597.97 (-3.40%) |
+| protection-paladin | 551.38 → 551.38 (+0.00%) | 547.86 → 547.86 (+0.00%) | 551.48 → 551.48 (+0.00%) | 546.95 → 546.95 (+0.00%) |
+| ret-protection-paladin | 569.42 → 569.42 (+0.00%) | 563.74 → 563.74 (+0.00%) | 568.71 → 568.71 (+0.00%) | 564.07 → 564.07 (+0.00%) |
+
+Main hand only at 0.8 PPM:
+
+| Reference | Board seed, board length | Board seed, 120 s | Alt seed, board length | Alt seed, 120 s |
+| --- | ---: | ---: | ---: | ---: |
+| warrior | 867.58 → 799.64 (-7.83%) | 866.48 → 799.18 (-7.77%) | 866.76 → 799.63 (-7.74%) | 866.28 → 798.86 (-7.78%) |
+| protection-warrior | 480.68 → 465.53 (-3.15%) | 478.34 → 463.44 (-3.11%) | 480.11 → 465.77 (-2.99%) | 477.23 → 462.36 (-3.12%) |
+| fury-protection-warrior | 518.92 → 502.54 (-3.16%) | 512.20 → 493.85 (-3.58%) | 519.89 → 502.58 (-3.33%) | 512.45 → 494.72 (-3.46%) |
+| subtlety-rogue | 618.50 → 583.53 (-5.65%) | 618.57 → 583.17 (-5.72%) | 618.87 → 583.88 (-5.65%) | 619.02 → 583.60 (-5.72%) |
+| protection-paladin | 551.38 → 535.16 (-2.94%) | 547.86 → 531.32 (-3.02%) | 551.48 → 535.83 (-2.84%) | 546.95 → 531.70 (-2.79%) |
+| ret-protection-paladin | 569.42 → 553.27 (-2.84%) | 563.74 → 548.17 (-2.76%) | 568.71 → 552.99 (-2.76%) | 564.07 → 547.92 (-2.86%) |

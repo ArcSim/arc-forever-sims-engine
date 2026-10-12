@@ -9,6 +9,17 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
+// IronfoeMainHandOnly and IronfoePPM are the switches for Ironfoe's Fury of Forgewright. The client
+// row is the default: 1301046 is an equip aura (ItemEffect TriggerType 1 on Ironfoe, 11684) with
+// ProcChance 6, ProcsPerMinuteID 0, a 100 ms ProcCategoryRecovery and ProcTypeMask 0x14 (melee autos
+// and specials), and no SpellEquippedItems row ties it to the weapon, so off-hand hits and specials
+// roll it at 6%. Its tooltip reads "Attacks have a chance to grant 2 extra attacks on your next
+// swing". A player report (MythicSim Discord, 12 October 2026) wants Era's rate instead: 0.8 PPM off
+// the main hand (3.2% a swing on its 2.4 sec speed). Set IronfoeMainHandOnly to drop the off-hand
+// weapon's rolls and IronfoePPM above 0 to replace the 6% with that rate.
+var IronfoeMainHandOnly = false
+var IronfoePPM = 0.0
+
 func init() {
 	// Thunderfury, Blessed Blade of the Windseeker
 	itemhelpers.CreateWeaponProcTrigger(itemhelpers.WeaponProcTrigger{
@@ -117,7 +128,7 @@ func init() {
 	// hits. The "twice as likely against Orcs" part is not modelled.
 	core.NewItemEffect(11684, func(agent core.Agent) {
 		character := agent.GetCharacter()
-		aura := character.MakeProcTriggerAura(core.ProcTrigger{
+		trigger := core.ProcTrigger{
 			Name:               "Fury of Forgewright",
 			ActionID:           core.ActionID{SpellID: 15494},
 			Callback:           core.CallbackOnSpellHitDealt,
@@ -129,7 +140,20 @@ func init() {
 			Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 				character.AutoAttacks.ExtraMHAttacks(sim, 2)
 			},
-		})
+		}
+		if IronfoeMainHandOnly {
+			// A shield strike (an off-hand special with no off-hand weapon) is a main-hand attack to
+			// the server, as for Windfury Totem (buffs.NarrowWindfuryProc).
+			trigger.ProcMask = core.ProcMaskMeleeMH | core.ProcMaskMeleeOHSpecial
+			trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+				return !spell.ProcMask.Matches(core.ProcMaskMeleeOHSpecial) || !character.HasOHWeapon()
+			}
+		}
+		if IronfoePPM > 0 {
+			trigger.ProcChance = 0
+			trigger.DPM = character.NewLegacyPPMManager(IronfoePPM, trigger.ProcMask)
+		}
+		aura := character.MakeProcTriggerAura(trigger)
 		character.ItemSwap.RegisterProc(11684, aura)
 	})
 
