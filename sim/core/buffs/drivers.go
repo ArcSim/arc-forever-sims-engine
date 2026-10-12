@@ -126,9 +126,54 @@ func driveManaTideTotems(char *core.Character, party *proto.PartyBuffs) {
 // 70009 the totem hands the proc out as a party aura (10612, an area
 // A_PROC_TRIGGER_SPELL) rather than Era's main-hand enchant 564, which nothing
 // in the client applies any more; its row states the 20%, the 100 ms internal
-// cooldown and what hears it: every melee auto and special, off-hand included.
-// The extra attack 10610 grants is always a main-hand one.
+// cooldown and what hears it: melee autos and specials (ProcTypeMask 0x14).
+// The mask has no hand bit, so the hand comes from the tooltip (see
+// WindfuryTotemMainHandOnly). The extra attack 10610 grants is always a
+// main-hand one.
 var windfuryTotemPartyAura = spelldata.MustFind(10612)
+
+// WindfuryTotemMainHandOnly keeps Windfury Totem's proc to main-hand attacks.
+// The party aura's ProcTypeMask (0x14) names no hand and no SpellEquippedItems
+// row restricts it, but every Forever totem tooltip reads "Each main hand hit
+// has a 20% chance" (8512, 10613, 10614), as Era's main-hand enchant did, and
+// players report off-hand procs as a bug (MythicSim Discord, 12 October 2026).
+// False lets off-hand autos and specials roll it too, as before.
+var WindfuryTotemMainHandOnly = true
+
+// WindfuryProcsFromSpecials lets Windfury Totem and Windfury Weapon proc off
+// melee specials (yellow hits) as well as autos. Both client rows say so:
+// ProcTypeMask 0x14 is melee autos (0x4) and melee specials (0x10), on the
+// totem's party aura 10612 and on Windfury Weapon's enchant aura 439431. Against
+// it there is only word of mouth: a WoW: Forever discussion that Windfury no
+// longer procs off yellow hits, and a player's test in which Stormstrike did
+// not trigger Windfury Weapon (Redfall, MythicSim Discord, 12 October 2026).
+// False restricts both to auto attacks.
+var WindfuryProcsFromSpecials = true
+
+// NarrowWindfuryProc applies the two switches above to a Windfury trigger
+// decoded from its client row.
+//
+// Main hand only still lets a shield strike roll it. Shield Slam and Shield
+// Bash are off-hand specials in the engine, so a main-hand weapon's chance on
+// hit stays off them (upstream b6ce30c972), but their client rows carry no
+// off-hand attribute (Attributes[3] 0x1000000, which the off-hand Windfury
+// Weapon strike 439441 has), so the server swings them as main-hand attacks.
+// With no off-hand weapon an off-hand special can only be one of those.
+func NarrowWindfuryProc(character *core.Character, trigger *core.ProcTrigger, mainHandOnly bool) {
+	if mainHandOnly {
+		trigger.ProcMask &= core.ProcMaskMeleeMH | core.ProcMaskMeleeOHSpecial
+		extra := trigger.ExtraCondition
+		trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
+			if spell.ProcMask.Matches(core.ProcMaskMeleeOHSpecial) && character.HasOHWeapon() {
+				return false
+			}
+			return extra == nil || extra(sim, spell, result)
+		}
+	}
+	if !WindfuryProcsFromSpecials {
+		trigger.ProcMask &^= core.ProcMaskMeleeSpecial
+	}
+}
 
 // Since build 70009 Tranquil Air, Windfury and Grace of Air totems no longer
 // stack, even from different shamans in the group (Forever beta development
@@ -173,6 +218,7 @@ func driveWindfuryTotem(char *core.Character, _ *proto.PartyBuffs) {
 		procAura.SetStacks(sim, charges)
 		char.AutoAttacks.MaybeReplaceMHSwing(sim, windfurySpell).Cast(sim, result.Target)
 	})
+	NarrowWindfuryProc(char, &trigger, WindfuryTotemMainHandOnly)
 	trigger.Name = "Windfury Totem Trigger"
 	trigger.ActionID = core.ActionID{}
 	trigger.MetricsActionID = core.ActionID{SpellID: 25580, Tag: -1}

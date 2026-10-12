@@ -4,7 +4,9 @@ import (
 	"testing"
 
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/simsignals"
 )
 
 // Windfury Weapon strikes twice with 439440, a weapon-damage special hit, and leaves the swing timer
@@ -98,5 +100,60 @@ func TestWindfuryTotemSelfProcs(t *testing.T) {
 	}
 	if procs == 0 || extra == 0 {
 		t.Fatalf("Windfury Totem: %.1f buff procs a fight, %d extra swings; want both above 0", procs, extra)
+	}
+}
+
+// Windfury Weapon's enchant aura (439431) rolls on melee autos and specials (ProcTypeMask 0x14), so a
+// Stormstrike can proc it; buffs.WindfuryProcsFromSpecials set false leaves only the auto attacks.
+func TestWindfuryWeaponProcsOffSpecialsUnlessSwitchedOff(t *testing.T) {
+	procsOff := func(t *testing.T, procMask core.ProcMask) bool {
+		t.Helper()
+		player := &proto.Player{
+			Name: "enh", Class: proto.Class_ClassShaman, Race: proto.Race_RaceOrc, TalentsString: DefaultTalents,
+			Equipment: &proto.EquipmentSpec{Items: []*proto.ItemSpec{
+				{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+				{Id: 17182}, // Sulfuras, Hand of Ragnaros
+			}},
+			Spec: &proto.Player_EnhancementShaman{EnhancementShaman: &proto.EnhancementShaman{Options: &proto.EnhancementShaman_Options{
+				ClassOptions: &proto.ShamanOptions{ImbueMh: proto.ShamanImbue_WindfuryWeapon},
+			}}},
+			Rotation: &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
+		}
+		sim := core.NewSim(&proto.RaidSimRequest{
+			Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+			Encounter:  core.MakeSingleTargetEncounter(0),
+			SimOptions: &proto.SimOptions{RandomSeed: 1},
+		}, simsignals.CreateSignals())
+		sim.Reset()
+		unit := &sim.Raid.Parties[0].Players[0].GetCharacter().Unit
+		trigger := unit.GetAura("Windfury Imbue")
+		if trigger == nil || !trigger.IsActive() {
+			t.Fatal("the Windfury Imbue trigger is not up")
+		}
+		spell := &core.Spell{ProcMask: procMask}
+		target := sim.Encounter.ActiveTargetUnits[0]
+		for i := 0; i < 200; i++ {
+			trigger.OnSpellHitDealt(trigger, sim, spell, &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100})
+			if !trigger.Icd.IsReady(sim) {
+				return true
+			}
+		}
+		return false
+	}
+
+	if !procsOff(t, core.ProcMaskMeleeMHSpecial) {
+		t.Error("200 landed main-hand specials never procced Windfury Weapon")
+	}
+	if !procsOff(t, core.ProcMaskMeleeMHAuto) {
+		t.Error("200 landed main-hand autos never procced Windfury Weapon")
+	}
+
+	defer func(old bool) { buffs.WindfuryProcsFromSpecials = old }(buffs.WindfuryProcsFromSpecials)
+	buffs.WindfuryProcsFromSpecials = false
+	if procsOff(t, core.ProcMaskMeleeMHSpecial) {
+		t.Error("switched to autos only, a main-hand special procced Windfury Weapon")
+	}
+	if !procsOff(t, core.ProcMaskMeleeMHAuto) {
+		t.Error("switched to autos only, 200 landed main-hand autos never procced Windfury Weapon")
 	}
 }

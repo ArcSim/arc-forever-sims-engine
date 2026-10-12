@@ -2602,3 +2602,73 @@ Measured on the references (10,000 iterations, empty trinket slots, production d
 | fury-protection-warrior | 516.86 → 518.92 (+0.40%) | 509.42 → 512.20 (+0.55%) | 516.81 → 519.89 (+0.60%) | 509.65 → 512.45 (+0.55%) |
 | feral-bear-druid | 505.52 → 507.75 (+0.44%) | 499.52 → 502.54 (+0.60%) | 506.02 → 508.33 (+0.46%) | 499.29 → 502.81 (+0.71%) |
 | feral-druid | 724.47 → 724.47 (+0.00%) | 723.61 → 723.61 (+0.00%) | 724.57 → 724.57 (+0.00%) | 724.20 → 724.20 (+0.00%) |
+
+## 114. `buffs: Windfury Totem procs off the main hand only`
+
+Windfury Totem's party aura 10612 rolls 20% on ProcTypeMask 0x14, melee autos (0x4) and melee specials
+(0x10), with a 100 ms internal cooldown. The mask names no hand and no SpellEquippedItems row restricts it,
+so the engine let off-hand autos and specials roll it. Every Forever totem tooltip names the main hand: "Each
+main hand hit has a 20% chance of granting the attacker 1 extra attack" (8512, 10613, 10614), as Era's
+main-hand enchant 564 did, and players report off-hand procs as a bug (MythicSim Discord, 12 October 2026).
+
+`WindfuryTotemMainHandOnly` in `sim/core/buffs/drivers.go` (default true) narrows the party trigger and the
+shaman's own cast totem (`sim/shaman/totems.go`) to main-hand autos and specials. A shield strike still rolls
+it: Shield Slam and Shield Bash are off-hand specials in the engine so a main-hand weapon's chance on hit
+stays off them (upstream b6ce30c972), but their client rows carry no off-hand attribute (Attributes[3]
+0x1000000, which the off-hand Windfury Weapon strike 439441 has), so the server swings them as main-hand
+attacks; with no off-hand weapon, an off-hand special is one of those. False restores both hands.
+
+Windfury Weapon is an enchant on the weapon (439431 through SpellItemEnchantment), so only that weapon's hits
+roll it; Forever shamans cannot dual wield, so that is the main hand already and nothing changes.
+
+Yellow hits are a separate switch, `WindfuryProcsFromSpecials` (default true, unchanged behaviour). Both
+client rows include melee specials: 0x14 on the totem's 10612 and on Windfury Weapon's 439431. Against it is
+only word of mouth: a WoW: Forever discussion that Windfury no longer procs off yellow hits and a player's
+test in which Stormstrike did not trigger Windfury Weapon (Redfall, MythicSim Discord, 12 October 2026). No
+log shows it either way at level 60 (beta log 2708, level 30, is the source of the two-strike model in
+`weapon_imbues.go`). False leaves only auto attacks rolling the totem and the imbue.
+
+Tests: `TestWindfuryTotemProcsOffMeleeHitsWithTheChargesTheTriggerLeaves` (`sim/warrior/dps/windfury_test.go`:
+main-hand autos and specials proc, off-hand autos and specials with an off-hand weapon don't, a shield strike
+does, either hand with `WindfuryTotemMainHandOnly` false, autos only with `WindfuryProcsFromSpecials` false)
+and `TestWindfuryWeaponProcsOffSpecialsUnlessSwitchedOff` (`sim/shaman/enhancement/windfury_test.go`).
+
+Goldens: TestFury (Average-Default 325.59 to 302.51), TestAssassination (333.58 to 315.49), TestCombat
+(319.95 to 303.41), TestSubtlety (288.48 to 275.02), and the dual-wield rows of TestArms (29), TestSurvival
+and TestSurvivalMelee (25 each) and TestProtectionWarrior (2).
+
+Measured on the references (10,000 iterations, after patch 113). Every reference not listed is unchanged in
+all four cells (Arms, the two Protection Warriors, Enhancement, Elemental with Melee buffs, both ferals and the
+four paladins: one weapon or a shield):
+
+| Reference | Board seed, board length | Board seed, 120 s | Alt seed, board length | Alt seed, 120 s |
+| --- | ---: | ---: | ---: | ---: |
+| warrior | 961.37 → 867.58 (-9.76%) | 962.87 → 866.48 (-10.01%) | 962.07 → 866.76 (-9.91%) | 959.21 → 866.28 (-9.69%) |
+| assassination-rogue | 645.75 → 595.15 (-7.84%) | 645.93 → 596.05 (-7.72%) | 645.38 → 595.62 (-7.71%) | 645.69 → 595.40 (-7.79%) |
+| combat-rogue | 682.26 → 640.21 (-6.16%) | 683.07 → 640.90 (-6.17%) | 683.13 → 639.97 (-6.32%) | 682.51 → 640.80 (-6.11%) |
+| subtlety-rogue | 666.54 → 618.50 (-7.21%) | 666.45 → 618.57 (-7.18%) | 666.57 → 618.87 (-7.16%) | 666.56 → 619.02 (-7.13%) |
+| survival-hunter | 841.87 → 781.36 (-7.19%) | 839.22 → 778.67 (-7.22%) | 840.88 → 781.66 (-7.04%) | 838.32 → 778.74 (-7.11%) |
+
+`WindfuryProcsFromSpecials` false, on top of the default (not shipped, for the decision):
+
+| Reference | Board seed, board length | Board seed, 120 s | Alt seed, board length | Alt seed, 120 s |
+| --- | ---: | ---: | ---: | ---: |
+| arms-warrior | 747.20 → 661.11 (-11.52%) | 741.80 → 656.75 (-11.47%) | 746.72 → 660.43 (-11.56%) | 741.69 → 655.59 (-11.61%) |
+| warrior | 867.58 → 822.32 (-5.22%) | 866.48 → 822.24 (-5.11%) | 866.76 → 823.62 (-4.98%) | 866.28 → 821.79 (-5.14%) |
+| protection-warrior | 480.68 → 459.63 (-4.38%) | 478.34 → 457.46 (-4.37%) | 480.11 → 459.58 (-4.28%) | 477.23 → 457.63 (-4.11%) |
+| fury-protection-warrior | 518.92 → 493.35 (-4.93%) | 512.20 → 485.78 (-5.16%) | 519.89 → 493.12 (-5.15%) | 512.45 → 484.98 (-5.36%) |
+| assassination-rogue | 595.15 → 583.76 (-1.91%) | 596.05 → 583.81 (-2.05%) | 595.62 → 583.70 (-2.00%) | 595.40 → 584.16 (-1.89%) |
+| combat-rogue | 640.21 → 625.19 (-2.35%) | 640.90 → 625.96 (-2.33%) | 639.97 → 625.54 (-2.25%) | 640.80 → 625.77 (-2.35%) |
+| subtlety-rogue | 618.50 → 592.27 (-4.24%) | 618.57 → 592.57 (-4.20%) | 618.87 → 592.61 (-4.24%) | 619.02 → 592.57 (-4.27%) |
+| enhancement-shaman | 712.68 → 691.26 (-3.01%) | 708.55 → 688.84 (-2.78%) | 711.50 → 691.27 (-2.84%) | 709.63 → 688.60 (-2.96%) |
+| feral-bear-druid | 507.75 → 430.16 (-15.28%) | 502.54 → 426.07 (-15.22%) | 508.33 → 430.33 (-15.34%) | 502.81 → 426.01 (-15.27%) |
+| feral-druid | 724.47 → 707.64 (-2.32%) | 723.61 → 706.72 (-2.33%) | 724.57 → 707.10 (-2.41%) | 724.20 → 706.51 (-2.44%) |
+| holy-protection-paladin | 563.30 → 547.71 (-2.77%) | 559.73 → 544.80 (-2.67%) | 563.44 → 547.67 (-2.80%) | 560.43 → 544.64 (-2.82%) |
+| protection-paladin | 551.38 → 530.69 (-3.75%) | 547.86 → 527.17 (-3.78%) | 551.48 → 530.84 (-3.74%) | 546.95 → 526.60 (-3.72%) |
+| ret-protection-paladin | 569.42 → 546.31 (-4.06%) | 563.74 → 541.48 (-3.95%) | 568.71 → 546.04 (-3.99%) | 564.07 → 541.41 (-4.02%) |
+| retribution-paladin | 791.81 → 737.03 (-6.92%) | 789.44 → 736.31 (-6.73%) | 791.34 → 737.49 (-6.80%) | 789.60 → 735.79 (-6.81%) |
+| shockadin-paladin | 927.14 → 894.24 (-3.55%) | 926.89 → 894.99 (-3.44%) | 927.40 → 894.60 (-3.54%) | 926.91 → 894.37 (-3.51%) |
+| survival-hunter | 781.36 → 718.33 (-8.07%) | 778.67 → 715.69 (-8.09%) | 781.66 → 718.20 (-8.12%) | 778.74 → 715.44 (-8.13%) |
+
+Elemental with Melee buffs does not move in either table: it swings a staff (the totem still procs off its
+autos) and has no melee special.

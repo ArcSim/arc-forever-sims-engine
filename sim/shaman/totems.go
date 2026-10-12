@@ -61,8 +61,9 @@ func (shaman *Shaman) registerWindfuryTotemSpell() {
 
 	config := shaman.newTotemSpellConfig(int32(windfuryTotemRank.Cost()), windfuryTotemRank.ID, SpellMaskBasicTotem, windfuryTotemRank.GCD())
 
-	// The party aura's own row (see buffs.driveWindfuryTotem): 20% on any melee auto or special, a
-	// 100 ms internal cooldown, and the extra attack is always a main-hand one.
+	// The party aura's own row (see buffs.driveWindfuryTotem): 20% on a melee auto or special, a
+	// 100 ms internal cooldown, and the extra attack is always a main-hand one. The tooltip's main hand
+	// and the yellow-hit question are buffs' switches.
 	var windfurySpell *core.Spell
 	trigger := spelldata.ProcTrigger(&shaman.Character, windfuryTotemPartyAura, func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 		wfProcAura.Activate(sim)
@@ -74,6 +75,7 @@ func (shaman *Shaman) registerWindfuryTotemSpell() {
 		wfProcAura.SetStacks(sim, charges)
 		shaman.AutoAttacks.MaybeReplaceMHSwing(sim, windfurySpell).Cast(sim, result.Target)
 	})
+	buffs.NarrowWindfuryProc(&shaman.Character, &trigger, buffs.WindfuryTotemMainHandOnly)
 	trigger.Name = "Windfury Totem Trigger (Self)"
 	trigger.ActionID = core.ActionID{}
 	trigger.MetricsActionID = core.ActionID{SpellID: windfuryTotemRank.ID}

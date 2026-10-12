@@ -77,14 +77,21 @@ func (shaman *Shaman) newWindfuryAttackSpell(isMH bool) *core.Spell {
 
 // The enchant's equip aura (439431 in every rank's SpellItemEnchantment) rolls 20% on landed melee
 // autos and abilities (ProcTypeMask 20) with a 1.5 sec ProcCategoryRecovery and strikes twice with
-// the proc's weapon.
+// the proc's weapon. It is an enchant on the weapon, so only that weapon's hits roll it; Forever
+// shamans cannot dual wield, so in practice that is the main hand. buffs.WindfuryProcsFromSpecials
+// set false leaves only the weapon's auto attacks.
 func (shaman *Shaman) makeWFProcTriggerAura(dpm *core.DynamicProcManager, procMask *core.ProcMask) *core.Aura {
 	mhAttack := shaman.newWindfuryAttackSpell(true)
 	ohAttack := shaman.newWindfuryAttackSpell(false)
+	var excludeSpecials core.ProcMask
+	if !buffs.WindfuryProcsFromSpecials {
+		excludeSpecials = core.ProcMaskMeleeSpecial
+	}
 	aura := shaman.MakeProcTriggerAura(core.ProcTrigger{
 		Name:               "Windfury Imbue",
 		Callback:           core.CallbackOnSpellHitDealt,
 		ProcMask:           *procMask,
+		ProcMaskExclude:    excludeSpecials,
 		IsWeaponProc:       true,
 		Outcome:            core.OutcomeLanded,
 		ICD:                time.Millisecond * 1500,
