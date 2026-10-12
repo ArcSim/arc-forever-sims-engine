@@ -117,6 +117,10 @@ message Party {
 	repeated Player players = 1;
 
 	PartyBuffs buffs = 2;
+
+	// Battle Squawk stacks on the party's players: each of the party's engineers' Battle Chickens
+	// adds one, 5% melee attack speed apiece, 0 to 5 (mythicsim patch 127).
+	int32 battle_squawks = 3;
 }
 
 message Raid {

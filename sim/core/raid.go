@@ -338,6 +338,7 @@ func (raid *Raid) applyCharacterEffects(raidConfig *proto.Raid) *proto.RaidStats
 			char.EnableHealthBar()
 			char.trackChanceOfDeath(playerConfig.HealingModel)
 			partyStats.Players[char.PartyIndex] = char.applyAllEffects(player, raidBuffs, partyBuffs, individualBuffs)
+			registerBattleSquawk(char, partyConfig.BattleSquawks)
 
 			for _, pet := range char.Pets {
 				pet.EnableHealthBar()

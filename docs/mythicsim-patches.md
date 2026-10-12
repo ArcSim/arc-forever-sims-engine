@@ -2848,3 +2848,62 @@ the references below the 9% cap or dual wielding (Protection Warrior +1.46%, Bea
 (Arms, Feral, Enhancement, Protection Paladin). Details in the site's `docs/forever-oct12-gear.md`.
 
 Drop the switch (and make it the only behaviour) once Blizzard confirms the 8% cap.
+
+## 126. `items: Frost Oil as a weapon imbue`
+
+Frost Oil (item 3829, use spell 3595) puts temporary enchantment 26 on a melee weapon, and the engine
+registered nothing for it: an imbue ID of 3595 or 3829 did nothing. The client's enchant row casts
+350025, a Frostbolt that rolls 33 + 0.7 a level (levels 8 to 12, 12% variance) with 0.269 of spell
+power, at the 10% chance the client states (`EnchantChances` 350025: 10% for enchant 26; tooltip "a
+10% chance of casting Frostbolt at the opponent when it hits"). It is a flat chance on each landed hit
+of the oiled weapon, not a rate per minute. MythicSim offers it beside the stones for the Shockadin
+(Redfall, MythicSim Discord, 12 October 2026), whose spell power makes the bolt worth ~200 a hit.
+
+`registerStaticImbue` now takes the hand's mask and runs `core.StaticImbueProcs[imbueID]`, a hook
+`sim/common/forever/frost_oil.go` fills for 3595 and 3829: a weapon proc (`IsWeaponProc`) on that hand's
+landed hits that casts 350025 through `shared.SpellDataProcDamageSpell`. Like every other weapon proc
+it also rolls on a Seal of Righteousness hit (patch notes in `seal_of_righteousness.go`): the Shockadin
+reference casts about 15.8 bolts in 120 seconds, 10% of its swings and seal hits.
+
+Switch: `forever.EnableFrostOil` (default on). Test: `TestFrostOilProcsOffItsHand` (`sim/rogue`): 1,306
+bolts off 13,322 main-hand hits (9.8%), none off the off hand, none with the switch off. Goldens: none
+move (no default carries Frost Oil).
+
+| Shockadin reference (10,000 iterations) | Elemental Sharpening Stone | Frost Oil |
+| --- | ---: | ---: |
+| board seed, board length | 927.14 | 942.68 |
+| board seed, 120 s | 926.89 | 941.65 |
+| alt seed, board length | 927.40 | 942.27 |
+| alt seed, 120 s | 926.91 | 941.21 |
+
+Drop it when the store registers temporary enchantment combat procs itself.
+
+## 127. `core: Party.battle_squawks, Battle Squawk stacks from the party's engineers`
+
+Battle Squawk (23060) is the buff a Gnomish Battle Chicken (item 10725, summon 13166) gives its party:
+"Attack speed increased by 5%" for 4 minutes. Forever's client states it as melee haste (SpellEffect
+699978, client 1.60.1.69893: aura 319, 5 points; Era 1.15.9 had aura 138, 4 + 1 die), the aura MCP's
+Haste (13494) uses. Several engineers' chickens stack, one aura each, which multiply as separate
+haste auras do. The engine had no way to assume it.
+
+`Party` (api.proto, hand-written, not the buff manifest) gains `int32 battle_squawks = 3`, 0 to 5.
+`registerBattleSquawk` (`sim/core/battle_squawk.go`) gives each of the party's players a "Battle Squawk"
+aura (23060) at that many stacks from the pull, `MultiplyMeleeSpeed(1.05)` a stack, lasting its 4
+minutes: a fight longer than that runs its end without it. It is off unless a request sets the field.
+
+Switch: `core.EnableBattleSquawk` (default on). Test: `TestBattleSquawkStacksMeleeSpeed` (`sim/rogue`): 1
+and 5 stacks give 1.05x and 1.05^5 the main-hand swings over 120 seconds, 9 stacks are held to 5, an
+8 minute fight gets the bonus for half of it, and the switch off changes nothing. Goldens: none move.
+
+| 10,000 iterations, 5 stacks | Without | With |
+| --- | ---: | ---: |
+| Shockadin, board seed, board length | 927.14 | 1033.43 |
+| Shockadin, board seed, 120 s | 926.89 | 1024.56 |
+| Shockadin, alt seed, board length | 927.40 | 1034.05 |
+| Shockadin, alt seed, 120 s | 926.91 | 1025.50 |
+| Fury Warrior, board seed, board length | 950.76 | 1126.78 |
+| Fury Warrior, board seed, 120 s | 950.44 | 1124.86 |
+| Fury Warrior, alt seed, board length | 950.38 | 1128.12 |
+| Fury Warrior, alt seed, 120 s | 948.46 | 1125.59 |
+
+Drop it when upstream carries a Battle Squawk party option.
