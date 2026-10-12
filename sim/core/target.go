@@ -26,6 +26,10 @@ type Encounter struct {
 	// Every kind of area the fight is in, deduplicated.
 	AreaTypes []proto.AreaType
 
+	// NoHitSuppression drops the boss's 1% hit suppression on melee and ranged attacks (MythicSim
+	// patch 125, the request's Encounter.no_hit_suppression).
+	NoHitSuppression bool
+
 	EndFightAtHealth float64
 	// DamageTaken is used to track health fights instead of duration fights.
 	//  Once primary target has taken its health worth of damage, fight ends.
@@ -66,6 +70,7 @@ func NewEncounter(options *proto.Encounter) Encounter {
 		ExecuteProportion_45: max(options.ExecuteProportion_45, 0),
 		ExecuteProportion_90: max(options.ExecuteProportion_90, 0),
 		AreaTypes:            areaTypeSet(options.AreaTypes),
+		NoHitSuppression:     options.NoHitSuppression,
 		AllTargets:           make([]*Target, 0, totalTargetCount),
 		ActiveTargets:        make([]*Target, 0, totalTargetCount),
 		AllTargetUnits:       make([]*Unit, 0, totalTargetCount),
@@ -422,6 +427,8 @@ func NewAttackTable(attacker *Unit, defender *Unit) *AttackTable {
 		// 91-99% against +0 and +1, 80-90% against +2, 55-75% against a boss.
 		table.GlanceMultiplier = UnitLevelFloat64(defender.Level, 0.95, 0.95, 0.95, 0.85, 0.65)
 		table.GlanceSpread = UnitLevelFloat64(defender.Level, 0.04, 0.04, 0.04, 0.05, 0.10)
+		// A boss suppresses the first 1% of melee and ranged hit (a 9% cap); Encounter.NoHitSuppression
+		// drops it (MythicSim patch 125, see setupAttackTables).
 		table.HitSuppression = UnitLevelFloat64(defender.Level, 0, 0, 0, 0, 0.01)
 		table.MeleeCritSuppression = UnitLevelFloat64(defender.Level, 0, 0, 0.01, 0.02, 0.048)
 		// No spell crit suppression against a higher level target: that is TBC's (0.3%/2.1%). A
