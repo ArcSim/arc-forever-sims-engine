@@ -2939,6 +2939,37 @@ Tests: `TestCritAutoAttackRageIsTwiceAHit` (`sim/core/rage_crit_test.go`, two-ha
 (`sim/warrior/dps/crit_rage_test.go`). Goldens: the two-hand rows of TestArms, TestFury and
 TestProtectionWarrior.
 
+## 129. `paladin: Seal of Righteousness takes its coefficient from the weapon in the hand`
+
+Seal of Righteousness's hit is the value per hundred times the swing speed times 0.85 for a one-hander
+or 1.2 for a two-hander, plus spell power at the judgement dummy's 0.185, times 1.2 for a two-hander
+(see the comment in `seal_of_righteousness.go`). The weapon-speed part read the main hand at each hit;
+the spell power share was fixed when the seal registered, from the weapon worn at the pull. A fight
+that swaps a two-hander for a one-hander (MythicSim's Manual Crowd Pummeler opener: MCP's Haste for
+30 s, then the player's own weapon through `Player.item_swap`) kept the two-hander's 0.222 on the
+one-hander for the rest of the fight, and the reverse kept 0.185 on a two-hander.
+
+`SealOfRighteousnessFollowsSwappedWeapon` in `sim/paladin/seal_of_righteousness.go` (default true) sets
+the coefficient from the main hand at each hit. False keeps the registration-time value. Nothing
+changes for a fight without a swap.
+
+Checked for the same problem across a two-hand/one-hand swap, nothing else needed: the paladin and
+warrior weapon specializations (`applyWeaponSpecialization`, `registerTwoHandedWeaponSpecialization`,
+Weaponmaster) and the racial weapon specializations re-read the weapon in an item swap callback; rage
+reads `AutoAttacks.MH()`/`OH()` and the weapon's normalized speed at each swing (`core/rage.go`);
+Seal of Command's PPM manager (`NewLegacyPPMManager`) rebuilds on a swap and its hit reads
+`MHWeaponDamage`; Hammer of the Righteous and Holy Strike read the main hand at the hit; Windfury
+Totem's proc is per attack; weapon-effect and enchant PPMs (`NewDynamicLegacyProcFor*`) rebuild on a
+swap; the shaman imbues follow `imbueMhSwap`. Not fixed, so MythicSim only offers the opener to a
+main hand with nothing in the off hand: Whirlwind registers its off-hand strike only when the off hand
+is equipped at the pull (`sim/warrior/whirlwind.go`), so a dual wielder who opened with a two-hander
+would never get it back.
+
+Test: `TestSealOfRighteousnessFollowsASwappedWeapon` (`sim/paladin/retribution`): with 1000 spell
+power, Arcanite Reaper swapped for Mass of McGowan at the pull hits for 289.3 a non-critical hit
+against 289.1 for Mass of McGowan worn all fight; switched off, 336.9. Goldens: none move (no suite
+swaps weapons).
+
 ## Note on 127 (Battle Squawk), 12 October review
 
 In Forever, 23060's effect targets the pet's master and the caster (ImplicitTarget 27 and 1, builds 69893

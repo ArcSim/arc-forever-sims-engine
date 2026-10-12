@@ -9,6 +9,12 @@ import (
 // The damage spell each rank fires on a hit. They carry no rank subtext, so no ladder holds them.
 var sealOfRighteousnessProcIDs = map[int32]int32{1: 25742, 2: 25740, 3: 25739, 4: 25738, 5: 25737, 6: 25736, 7: 25735, 8: 25713}
 
+// SealOfRighteousnessFollowsSwappedWeapon reads the main hand at each hit for the spell power share,
+// as the base damage already does, so a swap between a two-hander and a one-hander (a Manual Crowd
+// Pummeler opener) changes the coefficient with the weapon. False keeps the coefficient of the
+// weapon worn at the pull for the whole fight, as it was registered before (MythicSim patch 129).
+var SealOfRighteousnessFollowsSwappedWeapon = true
+
 // Seal of Righteousness
 // https://www.wowhead.com/forever/spell=20293
 //
@@ -32,6 +38,7 @@ var sealOfRighteousnessProcIDs = map[int32]int32{1: 25742, 2: 25740, 3: 25739, 4
 // 6.5. Their Judgement of Righteousness rose 17.9 on the same debuff, the 0.5 it should. Jack's ~3.4
 // two-hander (2670) also hit 25s on top of 16-18, the same step. No one-hander has been logged
 // under the debuff, so a one-hander keeps the bare 0.185 (Ms's 1.7 one-hander fits it).
+
 func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spell) {
 	judgeRank := spellData.JudgementOfRighteousness.ByID(int32(rank.EffectN(2).BaseValue()))
 	judgeDamage := judgeRank.DamageEffect()
@@ -58,8 +65,11 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 
 	value := perHit.Average(core.CharacterLevel)
 	coefficient := perHit.Coeff()
-	if paladin.GetMainHandType() == proto.HandType_HandTypeTwoHand {
-		coefficient *= 1.2
+	twoHandCoefficient := func() float64 {
+		if paladin.GetMainHandType() == proto.HandType_HandTypeTwoHand {
+			return coefficient * 1.2
+		}
+		return coefficient
 	}
 	procSpell := paladin.RegisterSpell(core.SpellConfig{
 		ActionID:    core.ActionID{SpellID: sealOfRighteousnessProcIDs[rank.RankNumber()]},
@@ -74,9 +84,12 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
-		BonusCoefficient: coefficient,
+		BonusCoefficient: twoHandCoefficient(),
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			if SealOfRighteousnessFollowsSwappedWeapon {
+				spell.BonusCoefficient = twoHandCoefficient()
+			}
 			mh := paladin.MainHand()
 			handMultiplier := core.TernaryFloat64(mh.HandType == proto.HandType_HandTypeTwoHand, 1.2, 0.85)
 			baseDamage := value / 100 * handMultiplier * mh.SwingSpeed
