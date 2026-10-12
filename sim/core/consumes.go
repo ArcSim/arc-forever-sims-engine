@@ -107,17 +107,17 @@ func applyConsumeEffects(agent Agent, _ *proto.PartyBuffs) {
 	// Static Imbues. Forever's Windfury Totem is a party aura, not Era's main-hand enchant (#550), so
 	// it no longer displaces a main-hand stone or oil.
 	if consumables.MhImbueId != 0 {
-		registerStaticImbue(agent, consumables.MhImbueId, character.AutoAttacks.MH())
+		registerStaticImbue(agent, consumables.MhImbueId, character.AutoAttacks.MH(), ProcMaskMeleeMH)
 	}
 	if consumables.OhImbueId != 0 {
-		registerStaticImbue(agent, consumables.OhImbueId, character.AutoAttacks.OH())
+		registerStaticImbue(agent, consumables.OhImbueId, character.AutoAttacks.OH(), ProcMaskMeleeOH)
 	}
 	// A stone or oil beside a class imbue on the same hand (mythicsim patch 100).
 	if consumables.MhTempEnchantId != 0 {
-		registerStaticImbue(agent, consumables.MhTempEnchantId, character.AutoAttacks.MH())
+		registerStaticImbue(agent, consumables.MhTempEnchantId, character.AutoAttacks.MH(), ProcMaskMeleeMH)
 	}
 	if consumables.OhTempEnchantId != 0 {
-		registerStaticImbue(agent, consumables.OhTempEnchantId, character.AutoAttacks.OH())
+		registerStaticImbue(agent, consumables.OhTempEnchantId, character.AutoAttacks.OH(), ProcMaskMeleeOH)
 	}
 
 	// Scrolls
@@ -713,8 +713,16 @@ func (character *Character) MHImbueFlatWeaponDamage() float64 {
 	return imbueFlatWeaponDamage(character.Consumables.MhImbueId) + imbueFlatWeaponDamage(character.Consumables.MhTempEnchantId)
 }
 
-func registerStaticImbue(agent Agent, imbueId int32, weapon *Weapon) {
+// StaticImbueProcs are the temporary weapon enchantments whose effect is a combat proc, by imbue ID
+// (the item's use spell, or its item ID). sim/common registers them, since the proc's spell is built
+// from the client row there; hand is the hand the imbue is on (ProcMaskMeleeMH or ProcMaskMeleeOH).
+var StaticImbueProcs = map[int32]func(agent Agent, hand ProcMask){}
+
+func registerStaticImbue(agent Agent, imbueId int32, weapon *Weapon, hand ProcMask) {
 	character := agent.GetCharacter()
+	if proc, ok := StaticImbueProcs[imbueId]; ok {
+		proc(agent, hand)
+	}
 	switch imbueId {
 	case 25123: // Mana Oil
 		character.AddStat(stats.HealingPower, 30)

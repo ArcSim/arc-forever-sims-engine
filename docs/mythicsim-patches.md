@@ -2565,3 +2565,32 @@ AllItems rows for the two weapons move.
 The two small drops are the random stream shifting: the proc no longer draws its avoidance roll.
 
 Drop this when the store generates these procs and honours the always-hit attribute.
+
+## 126. `items: Frost Oil as a weapon imbue`
+
+Frost Oil (item 3829, use spell 3595) puts temporary enchantment 26 on a melee weapon, and the engine
+registered nothing for it: an imbue ID of 3595 or 3829 did nothing. The client's enchant row casts
+350025, a Frostbolt that rolls 33 + 0.7 a level (levels 8 to 12, 12% variance) with 0.269 of spell
+power, at the 10% chance the client states (`EnchantChances` 350025: 10% for enchant 26; tooltip "a
+10% chance of casting Frostbolt at the opponent when it hits"). It is a flat chance on each landed hit
+of the oiled weapon, not a rate per minute. MythicSim offers it beside the stones for the Shockadin
+(Redfall, MythicSim Discord, 12 October 2026), whose spell power makes the bolt worth ~200 a hit.
+
+`registerStaticImbue` now takes the hand's mask and runs `core.StaticImbueProcs[imbueID]`, a hook
+`sim/common/forever/frost_oil.go` fills for 3595 and 3829: a weapon proc (`IsWeaponProc`) on that hand's
+landed hits that casts 350025 through `shared.SpellDataProcDamageSpell`. Like every other weapon proc
+it also rolls on a Seal of Righteousness hit (patch notes in `seal_of_righteousness.go`): the Shockadin
+reference casts about 15.8 bolts in 120 seconds, 10% of its swings and seal hits.
+
+Switch: `forever.EnableFrostOil` (default on). Test: `TestFrostOilProcsOffItsHand` (`sim/rogue`): 1,306
+bolts off 13,322 main-hand hits (9.8%), none off the off hand, none with the switch off. Goldens: none
+move (no default carries Frost Oil).
+
+| Shockadin reference (10,000 iterations) | Elemental Sharpening Stone | Frost Oil |
+| --- | ---: | ---: |
+| board seed, board length | 927.14 | 942.68 |
+| board seed, 120 s | 926.89 | 941.65 |
+| alt seed, board length | 927.40 | 942.27 |
+| alt seed, 120 s | 926.91 | 941.21 |
+
+Drop it when the store registers temporary enchantment combat procs itself.
