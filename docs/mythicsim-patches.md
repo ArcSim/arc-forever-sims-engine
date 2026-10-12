@@ -2592,11 +2592,12 @@ shifted.
 Goldens: every row of TestFury (Average-Default 320.36 to 325.59), TestArms (329.21 to 331.77),
 TestProtectionWarrior (252.06 to 252.24) and TestFeralBear (177.43 to 178.44).
 
-Measured on the references (10,000 iterations, empty trinket slots, production default rotation):
+Measured on the references (10,000 iterations, empty trinket slots, production default rotation), against
+the branch base `bde2043eab` (patch 112 moves Arms's Warblade of Caer Darrow, so the live pin reads 741.15):
 
 | Reference | Board seed, board length | Board seed, 120 s | Alt seed, board length | Alt seed, 120 s |
 | --- | ---: | ---: | ---: | ---: |
-| arms-warrior | 741.15 → 747.20 (+0.82%) | 735.38 → 741.80 (+0.87%) | 740.37 → 746.72 (+0.86%) | 736.01 → 741.69 (+0.77%) |
+| arms-warrior | 743.93 → 747.20 (+0.44%) | 738.25 → 741.80 (+0.48%) | 742.42 → 746.72 (+0.58%) | 737.87 → 741.69 (+0.52%) |
 | warrior (Fury) | 950.76 → 961.37 (+1.12%) | 950.44 → 962.87 (+1.31%) | 950.38 → 962.07 (+1.23%) | 948.46 → 959.21 (+1.13%) |
 | protection-warrior | 479.21 → 480.68 (+0.31%) | 476.33 → 478.34 (+0.42%) | 478.61 → 480.11 (+0.31%) | 476.39 → 477.23 (+0.18%) |
 | fury-protection-warrior | 516.86 → 518.92 (+0.40%) | 509.42 → 512.20 (+0.55%) | 516.81 → 519.89 (+0.60%) | 509.65 → 512.45 (+0.55%) |
