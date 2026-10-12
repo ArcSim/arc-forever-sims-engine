@@ -8,6 +8,7 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
+	warrior_pkg "github.com/wowsims/forever/sim/warrior"
 )
 
 // Deep Wound's tick (412613) ignores caster damage modifiers (client Attributes[6] 0x20000000):
@@ -99,5 +100,59 @@ func TestDeepWoundsRefreshKeepsItsTickTimer(t *testing.T) {
 	want := []time.Duration{3 * time.Second, 6 * time.Second, 9 * time.Second, 12 * time.Second, 15 * time.Second}
 	if !slices.Equal(ticks, want) {
 		t.Errorf("ticks at %v, want %v", ticks, want)
+	}
+}
+
+// An off-hand crit's Deep Wounds is a share of the off-hand weapon's average damage, without attack
+// power (Forever: "Fixed a bug where Deep Wounds was scaling with attack power for your Offhand weapon"),
+// and a main-hand crit's of the main hand's. DeepWoundsUsesStrikingWeapon false sizes both off the main
+// hand.
+func TestDeepWoundsFromAnOffHandCritUsesTheOffHand(t *testing.T) {
+	bleedAfterCrit := func(t *testing.T, procMask core.ProcMask) (tick, mhAvg, ohAvg float64) {
+		t.Helper()
+		sim := core.NewSim(&proto.RaidSimRequest{
+			Raid: core.SinglePlayerRaidProto(&proto.Player{
+				Race: proto.Race_RaceHuman, Class: proto.Class_ClassWarrior,
+				Equipment: DualWieldGear.GearSet, TalentsString: FuryTalents, Spec: DefaultOptions,
+				Rotation: &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
+			}, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+			Encounter:  core.MakeSingleTargetEncounter(0),
+			SimOptions: &proto.SimOptions{RandomSeed: 1},
+		}, simsignals.CreateSignals())
+		sim.Reset()
+		warrior := sim.Raid.Parties[0].Players[0].(*DpsWarrior)
+		trigger := warrior.GetAura("Deep Wounds - Trigger")
+		if trigger == nil {
+			t.Fatal("Deep Wounds trigger not registered")
+		}
+		target := warrior.CurrentTarget
+		spell := &core.Spell{ProcMask: procMask, SpellSchool: core.SpellSchoolPhysical}
+		trigger.OnSpellHitDealt(trigger, sim, spell, &core.SpellResult{Target: target, Outcome: core.OutcomeCrit, Damage: 100})
+		dot := warrior.DeepWounds.Dot(target)
+		if !dot.IsActive() || dot.RemainingTicks() != 4 {
+			t.Fatalf("the crit left Deep Wounds active %v with %d ticks, want 4", dot.IsActive(), dot.RemainingTicks())
+		}
+		return dot.SnapshotBaseDamage, warrior.AutoAttacks.MH().AverageDamage(), warrior.AutoAttacks.OH().AverageDamage()
+	}
+	const share = 0.6 // 3 points
+
+	tick, mhAvg, ohAvg := bleedAfterCrit(t, core.ProcMaskMeleeOHAuto)
+	if mhAvg == ohAvg {
+		t.Fatalf("the test gear's hands average the same, %.1f", mhAvg)
+	}
+	if want := ohAvg * share / 4; !core.WithinToleranceFloat64(want, tick, 1e-9) {
+		t.Errorf("an off-hand auto crit ticks %.3f, want the off hand's %.3f", tick, want)
+	}
+	if tick, _, _ = bleedAfterCrit(t, core.ProcMaskMeleeOHSpecial); !core.WithinToleranceFloat64(ohAvg*share/4, tick, 1e-9) {
+		t.Errorf("an off-hand special crit ticks %.3f, want the off hand's %.3f", tick, ohAvg*share/4)
+	}
+	if tick, _, _ = bleedAfterCrit(t, core.ProcMaskMeleeMHAuto); !core.WithinToleranceFloat64(mhAvg*share/4, tick, 1e-9) {
+		t.Errorf("a main-hand auto crit ticks %.3f, want the main hand's %.3f", tick, mhAvg*share/4)
+	}
+
+	defer func(old bool) { warrior_pkg.DeepWoundsUsesStrikingWeapon = old }(warrior_pkg.DeepWoundsUsesStrikingWeapon)
+	warrior_pkg.DeepWoundsUsesStrikingWeapon = false
+	if tick, _, _ = bleedAfterCrit(t, core.ProcMaskMeleeOHAuto); !core.WithinToleranceFloat64(mhAvg*share/4, tick, 1e-9) {
+		t.Errorf("switched off, an off-hand auto crit ticks %.3f, want the main hand's %.3f", tick, mhAvg*share/4)
 	}
 }

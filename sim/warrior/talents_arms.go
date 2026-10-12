@@ -113,6 +113,15 @@ func (warrior *Warrior) registerAngerManagement() {
 	})
 }
 
+// DeepWoundsUsesStrikingWeapon makes an off-hand crit's Deep Wounds a share of the off-hand weapon's
+// average damage. Forever's beta development notes: "Fixed a bug where Deep Wounds was scaling with
+// attack power for your Offhand weapon", with the dev note "Deep Wounds does not scale with Attack Power
+// but is a rolling DoT compared to Classic/Vanilla". So an off-hand crit's bleed is sized off the off
+// hand, without attack power, as the main hand's is. False sizes every crit's bleed off the main hand,
+// as before. A shield strike (Shield Slam, Shield Bash) is a main-hand attack to the server and stays
+// on the main hand.
+var DeepWoundsUsesStrikingWeapon = true
+
 func (warrior *Warrior) registerDeepWounds() {
 	if warrior.Talents.DeepWounds == 0 {
 		return
@@ -130,6 +139,8 @@ func (warrior *Warrior) registerDeepWounds() {
 	// the same warrior's ticks hold ~19.3 in Defensive Stance while Thunder Clap and Rend lose their 10% there.
 	// A refresh keeps the bleed's tick timer (Zirene on forever-bugs #234): the 12 sec start over, the
 	// next tick lands when it was due, and the owed and new damage spread over the ticks left (patch 89).
+	// An off-hand crit sizes its share off the off-hand weapon (DeepWoundsUsesStrikingWeapon).
+	var struck *core.Weapon
 	warrior.DeepWounds = warrior.RegisterSpell(core.SpellConfig{
 		ActionID:       core.ActionID{SpellID: deepWoundsBleed.ID},
 		SpellSchool:    core.SpellSchoolPhysical,
@@ -157,7 +168,11 @@ func (warrior *Warrior) registerDeepWounds() {
 			dot := spell.Dot(target)
 			owed := dot.OutstandingDmg()
 			dot.ApplyKeepingTickTimer(sim)
-			dot.SnapshotBaseDamage = (owed + warrior.AutoAttacks.MH().AverageDamage()*share) / float64(dot.RemainingTicks())
+			weapon := warrior.AutoAttacks.MH()
+			if struck != nil {
+				weapon, struck = struck, nil
+			}
+			dot.SnapshotBaseDamage = (owed + weapon.AverageDamage()*share) / float64(dot.RemainingTicks())
 		},
 	})
 
@@ -171,7 +186,11 @@ func (warrior *Warrior) registerDeepWounds() {
 			return spell.SpellSchool.Matches(core.SpellSchoolPhysical)
 		},
 		Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+			if DeepWoundsUsesStrikingWeapon && spell.ProcMask.Matches(core.ProcMaskMeleeOH) && warrior.AutoAttacks.IsDualWielding {
+				struck = warrior.AutoAttacks.OH()
+			}
 			warrior.DeepWounds.Cast(sim, result.Target)
+			struck = nil
 		},
 	})
 

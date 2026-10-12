@@ -2714,3 +2714,31 @@ Main hand only at 0.8 PPM:
 | subtlety-rogue | 618.50 → 583.53 (-5.65%) | 618.57 → 583.17 (-5.72%) | 618.87 → 583.88 (-5.65%) | 619.02 → 583.60 (-5.72%) |
 | protection-paladin | 551.38 → 535.16 (-2.94%) | 547.86 → 531.32 (-3.02%) | 551.48 → 535.83 (-2.84%) | 546.95 → 531.70 (-2.79%) |
 | ret-protection-paladin | 569.42 → 553.27 (-2.84%) | 563.74 → 548.17 (-2.76%) | 568.71 → 552.99 (-2.76%) | 564.07 → 547.92 (-2.86%) |
+
+## 116. `warrior: Deep Wounds from an off-hand crit uses the off-hand weapon`
+
+`registerDeepWounds` sized every crit's bleed off the main hand's average weapon damage, an off-hand crit's
+too. Forever's beta development notes: "Fixed a bug where Deep Wounds was scaling with attack power for your
+Offhand weapon", and the developers' note "Deep Wounds does not scale with Attack Power but is a rolling DoT
+compared to Classic/Vanilla". So the server sizes an off-hand crit's bleed off the off-hand weapon (the bug
+was that its off-hand figure carried attack power, as the TrinityCore lineage's UNIT_FIELD_MINOFFHANDDAMAGE
+does), and since the fix neither hand adds attack power.
+
+`DeepWoundsUsesStrikingWeapon` in `sim/warrior/talents_arms.go` (default true): an off-hand crit (auto or
+special, while dual wielding) takes its share of the off-hand weapon's average damage; a main-hand crit, a
+shield strike and anything else keep the main hand. False sizes every crit off the main hand, as before.
+Attack power is unchanged: the engine already leaves it out of both hands (beta logs 33/35 and 2705: a tick
+is share x the weapon's average damage / 4). Whether the off-hand figure carries the off-hand 50% penalty is
+not stated; the tooltip reads "your melee weapon's average damage", so it is the weapon's own average here.
+
+Test: `TestDeepWoundsFromAnOffHandCritUsesTheOffHand` (`sim/warrior/dps/deep_wounds_test.go`). Goldens:
+TestFury (244 of 245 rows, Average-Default 302.51 to 302.16) and the 28 dual-wield AllItems rows of TestArms.
+
+Measured (10,000 iterations, after patch 115); only Fury dual wields:
+
+| Reference | Board seed, board length | Board seed, 120 s | Alt seed, board length | Alt seed, 120 s |
+| --- | ---: | ---: | ---: | ---: |
+| warrior | 867.58 → 857.39 (-1.17%) | 866.48 → 856.38 (-1.17%) | 866.76 → 856.56 (-1.18%) | 866.28 → 856.16 (-1.17%) |
+| arms-warrior | 747.20 → 747.20 (+0.00%) | 741.80 → 741.80 (+0.00%) | 746.72 → 746.72 (+0.00%) | 741.69 → 741.69 (+0.00%) |
+| protection-warrior | 480.68 → 480.68 (+0.00%) | 478.34 → 478.34 (+0.00%) | 480.11 → 480.11 (+0.00%) | 477.23 → 477.23 (+0.00%) |
+| fury-protection-warrior | 518.92 → 518.92 (+0.00%) | 512.20 → 512.20 (+0.00%) | 519.89 → 519.89 (+0.00%) | 512.45 → 512.45 (+0.00%) |
