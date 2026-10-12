@@ -164,6 +164,11 @@ func (unit *Unit) OnMovement(sim *Simulation, position float64, kind MovementUpd
 	}
 }
 
+// MidMoveSpeedChangeKeepsDestination (MythicSim patch 121): a movement speed change during a move
+// re-plans the rest of the move to the same destination. Set it false for upstream's re-plan, which
+// passed the move's length to MoveTo as if it were the destination.
+var MidMoveSpeedChangeKeepsDestination = true
+
 func (unit *Unit) MultiplyMovementSpeed(sim *Simulation, amount float64) {
 	oldMultiplier := unit.PseudoStats.MovementSpeedMultiplier
 	oldSpeed := unit.GetMovementSpeed()
@@ -174,7 +179,17 @@ func (unit *Unit) MultiplyMovementSpeed(sim *Simulation, amount float64) {
 
 	// we have a pending movement action that depends on our movement speed
 	if unit.movementAction != nil && unit.movementAction.speed != 0 {
-		dest := unit.movementAction.speed * float64(unit.movementAction.NextActionAt-unit.movementAction.startTime) / float64(time.Second)
+		// MoveTo takes the distance from the target to end at, so add the move to where it started
+		// (MythicSim patch 121: this passed the move's length, ending a mid-move speed change at the
+		// wrong distance, below zero on a walk in).
+		dest := unit.movementAction.srcPosition + unit.movementAction.speed*float64(unit.movementAction.NextActionAt-unit.movementAction.startTime)/float64(time.Second)
+		if MidMoveSpeedChangeKeepsDestination {
+			if unit.movementAction.moveDistance != 0 {
+				dest = unit.movementAction.srcPosition + unit.movementAction.moveDistance
+			}
+		} else {
+			dest -= unit.movementAction.srcPosition
+		}
 		unit.MoveTo(dest, sim)
 	}
 }

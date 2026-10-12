@@ -2620,7 +2620,24 @@ so a rotation can check `auraIsActive` on it) with an active movement speed effe
 to a rotation that moves after a kick, such as a melee weave stepping out to shoot. Switch:
 `StriderKickSpeedsUp` (`sim/hunter/strider_kick.go`, default true).
 
-Test: `TestStriderKickSpeedsUp` (`sim/hunter/pet_pool_test.go`). Goldens: `TestSurvival` moves (176 of
-193 rows, Average 352.97 to 352.96, rows -3.6 to +4.4). That suite starts 30 yards out and walks to the
-target; the first kick lands as the Hunter reaches 5 yards, so the rest of the walk to 0 runs faster and
-re-times the opener. `TestSurvivalMelee` starts in melee and does not move.
+Test: `TestStriderKickSpeedsUp` (`sim/hunter/pet_pool_test.go`). Goldens: with patch 121 none move. On
+its own this patch moved `TestSurvival` (176 of 193 rows, -4.4 to +3.6, Average 352.97 to 352.96): that
+suite walks in from 30 yards, the first kick lands at 5 yards mid-walk, and the speed change hit the
+movement bug patch 121 fixes.
+
+## 121. `core: a speed change mid-move keeps the move's destination`
+
+`MultiplyMovementSpeed` re-plans a move in progress when the unit's speed changes, but passed `MoveTo`
+the move's length (speed times planned duration) where `MoveTo` takes the distance from the target to
+end at. A Hunter walking from 5 to 12 yards who sped up mid-walk stopped at 7, inside the Auto Shot dead
+zone; one walking in from 30 to 0 went to -30. Nothing in the fork changed speed mid-move until patch
+120, so it never showed. The re-plan now ends where the move was going (start plus the move's distance).
+Switch: `MidMoveSpeedChangeKeepsDestination` (`sim/core/movement.go`, default true).
+
+Effect, Survival reference with the Experimental melee weave (patches 118 to 120, 10,000 iterations,
+board seed): 692.8 before patch 120, 664.7 with it, back to the value in docs/forever-oct12-hunter.md
+(site repo) with this patch.
+
+Test: `TestSpeedChangeMidMoveKeepsDestination` (`sim/core/movement_speed_test.go`): a walk from 5 to 12
+yards sped up 30% half a second in stops at 12, and at 7 with the switch off. Goldens: `TestSurvival`
+returns to its pre-120 values; the full `sim/...` suite passes.
