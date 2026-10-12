@@ -2594,3 +2594,33 @@ move (no default carries Frost Oil).
 | alt seed, 120 s | 926.91 | 941.21 |
 
 Drop it when the store registers temporary enchantment combat procs itself.
+
+## 127. `core: Party.battle_squawks, Battle Squawk stacks from the party's engineers`
+
+Battle Squawk (23060) is the buff a Gnomish Battle Chicken (item 10725, summon 13166) gives its party:
+"Attack speed increased by 5%" for 4 minutes. Forever's client states it as melee haste (SpellEffect
+699978, client 1.60.1.69893: aura 319, 5 points; Era 1.15.9 had aura 138, 4 + 1 die), the aura MCP's
+Haste (13494) uses. Several engineers' chickens stack, one aura each, which multiply as separate
+haste auras do. The engine had no way to assume it.
+
+`Party` (api.proto, hand-written, not the buff manifest) gains `int32 battle_squawks = 3`, 0 to 5.
+`registerBattleSquawk` (`sim/core/battle_squawk.go`) gives each of the party's players a "Battle Squawk"
+aura (23060) at that many stacks from the pull, `MultiplyMeleeSpeed(1.05)` a stack, lasting its 4
+minutes: a fight longer than that runs its end without it. It is off unless a request sets the field.
+
+Switch: `core.EnableBattleSquawk` (default on). Test: `TestBattleSquawkStacksMeleeSpeed` (`sim/rogue`): 1
+and 5 stacks give 1.05x and 1.05^5 the main-hand swings over 120 seconds, 9 stacks are held to 5, an
+8 minute fight gets the bonus for half of it, and the switch off changes nothing. Goldens: none move.
+
+| 10,000 iterations, 5 stacks | Without | With |
+| --- | ---: | ---: |
+| Shockadin, board seed, board length | 927.14 | 1033.43 |
+| Shockadin, board seed, 120 s | 926.89 | 1024.56 |
+| Shockadin, alt seed, board length | 927.40 | 1034.05 |
+| Shockadin, alt seed, 120 s | 926.91 | 1025.50 |
+| Fury Warrior, board seed, board length | 950.76 | 1126.78 |
+| Fury Warrior, board seed, 120 s | 950.44 | 1124.86 |
+| Fury Warrior, alt seed, board length | 950.38 | 1128.12 |
+| Fury Warrior, alt seed, 120 s | 948.46 | 1125.59 |
+
+Drop it when upstream carries a Battle Squawk party option.
