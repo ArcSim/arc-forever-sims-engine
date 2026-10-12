@@ -2606,16 +2606,14 @@ the branch base `bde2043eab` (patch 112 moves Arms's Warblade of Caer Darrow, so
 
 ## 114. `buffs: Windfury Totem procs off the main hand only`
 
-**Default off since the 12 October review.** This client marks a main-hand-only proc on the aura itself:
-Bloodthrill's proc aura 1289682 carries ATTR_EX_3_REQ_MAIN_HAND (Attributes[3] 0x400) on the same mask and
-the development notes say "Bloodthrill only activates off of Main Hand melee attacks"; Dual Wield
-Specialization 23584 marks its off-hand proc with flag 0x800000 and Attributes[3] 0x1000000. 10612 and the
-extra attack 10610 carry neither, and no SpellEquippedItems row, so the data says either hand; only the
-tooltip says main hand, and no log shows it. `WindfuryTotemMainHandOnly` stays as a switch (default false);
-turn it on if a log shows off-hand swings never proc the totem. Yellow hits keep proccing: beta log 2708
-(ElliotWood/Forever #644) has 16 of 62 Windfury Weapon procs off Stormstrike, on the same 0x14 mask. With the
-default off, the goldens and the reference DPS below are back where they were before this patch (the rogue
-and Survival suites match patch 113's exactly); the tables record the switch.
+**Default true, the tooltip as the source of truth (decided 12 October 2026).** The 12 October review
+turned it off for a few hours: this client marks a main-hand-only proc on the aura itself (Bloodthrill's
+1289682 carries ATTR_EX_3_REQ_MAIN_HAND, Attributes[3] 0x400; Dual Wield Specialization 23584 marks its
+off-hand proc with flag 0x800000 and Attributes[3] 0x1000000), and 10612 and 10610 carry neither and no
+SpellEquippedItems row. Blizzard added "main hand" to all three tooltips in build 70009, when the totem became
+the party aura (Era's read "Each hit"), so the tooltip is taken over the missing attribute until a combat log
+of a dual-wielder shows otherwise. Yellow hits keep proccing: beta log 2708 (ElliotWood/Forever #644) has 16
+of 62 Windfury Weapon procs off Stormstrike, on the same 0x14 mask.
 
 Windfury Totem's party aura 10612 rolls 20% on ProcTypeMask 0x14, melee autos (0x4) and melee specials
 (0x10), with a 100 ms internal cooldown. The mask names no hand and no SpellEquippedItems row restricts it,

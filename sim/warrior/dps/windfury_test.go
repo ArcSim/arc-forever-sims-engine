@@ -13,10 +13,10 @@ import (
 // Windfury Totem's proc is a party aura since build 70009 (10612): a melee hit
 // that lands and deals damage can fire it, auto or special (the row's
 // ProcTypeMask 0x14); nothing ranged and no spell can. With
-// buffs.WindfuryTotemMainHandOnly on (the tooltip's "Each main hand hit") no
+// buffs.WindfuryTotemMainHandOnly on (the tooltip's "Each main hand hit", the default) no
 // off-hand weapon's hit can, though a shield strike (an off-hand special with a
-// shield) still can: the client swings it as a main-hand attack. Off, the
-// default, either hand rolls it as the row alone has it. An auto that procs it has spent the first
+// shield) still can: the client swings it as a main-hand attack. That is the
+// default; off, either hand rolls it as the row alone has it. An auto that procs it has spent the first
 // charge itself and leaves one for the extra attack; a special leaves both.
 // Its internal cooldown is the row's 100 ms, not Era's 1.5 sec.
 func TestWindfuryTotemProcsOffMeleeHitsWithTheChargesTheTriggerLeaves(t *testing.T) {

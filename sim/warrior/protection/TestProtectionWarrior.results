@@ -354,9 +354,9 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Dal'Rend'sArms"
  value: {
-  dps: 194.81283
-  tps: 331.33828
-  dtps: 1535.63321
+  dps: 180.40462
+  tps: 305.75902
+  dtps: 1523.12397
  }
 }
 dps_results: {
@@ -1355,9 +1355,9 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-SpiritofEskhandar"
  value: {
-  dps: 205.33629
-  tps: 370.73545
-  dtps: 1589.39875
+  dps: 197.91922
+  tps: 357.46407
+  dtps: 1592.00104
  }
 }
 dps_results: {
