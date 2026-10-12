@@ -2565,3 +2565,30 @@ AllItems rows for the two weapons move.
 The two small drops are the random stream shifting: the proc no longer draws its avoidance roll.
 
 Drop this when the store generates these procs and honours the always-hit attribute.
+
+## 118. `hunter: a switch for pets pooling focus for Bite and their other cooldowns` (off)
+
+Kragtor's Survival sim (MythicSim Discord, 12 October 2026, 6/10/35 with a Cat, 240 seconds) cast Bite
+once. The Cat's rotation (`DefaultPetConfigs`, `pet.go`) casts Bite when it can and Claw otherwise, and
+Claw (client 3009: 25 focus, no cooldown) fires the moment focus reaches 25. Focus regenerates 10 a
+second, so after the opener it never climbs to Bite's 35 (17261: 35 focus, 10 sec category cooldown)
+while Bite is off cooldown: the one Bite is the opener, off the full bar the pet starts with. The same
+starves every pet ability that costs more than the pet's focus dump: the Raptor's Savage Rend (50), the
+Gorilla's Thunderstomp (60), the Crab's Pinch (50). Upstream's `TestPetStrikes` says beta logs show the
+same ("long-cooldown strikes land about once a fight, Claw spending the focus first"), which is the
+game's autocast with both abilities on.
+
+`PetPoolsFocusForCooldowns` (`sim/hunter/pet.go`, default **false**, so nothing changes) makes the pet
+hold its focus dump while the focus left after it, plus what it regenerates before a higher priority
+ability with a cooldown is ready, would not pay for that ability. Abilities with no cooldown (Dust Cloud)
+or that could not be cast for another reason (Swipe on fewer than three targets, Furious Howl while it
+is up) are not pooled for. It models a Hunter who manages Claw's autocast around Bite. Bite and Claw do
+about the same damage per focus (90 for 35, 51 for 25), so it is worth little: on the 12 October
+references the Cat Bites 11 times in 120 seconds instead of once and the Hunter gains 0.1 to 1.7 DPS
+(docs/forever-oct12-hunter.md in the site repo).
+
+Adds `CurrentFocus` and `FocusRegenPerSecond` to the focus bar (`sim/core/focus.go`).
+
+Test: `TestCatBitesOnCooldown` (`sim/hunter/pet_pool_test.go`): one Bite a fight unpooled, at least one
+every 11 seconds pooled, and the pet still spends about 10 focus a second. Goldens: none move (off).
+

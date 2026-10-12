@@ -161,9 +161,50 @@ func (hp *HunterPet) ExecuteCustomRotation(sim *core.Simulation) {
 		return
 	}
 
-	if !tryCast(hp.extraAbility) && !tryCast(hp.specialAbility) && !tryCast(hp.focusDump) && hp.GCD.IsReady(sim) {
+	if !tryCast(hp.extraAbility) && !tryCast(hp.specialAbility) && !hp.tryFocusDump(sim, tryCast) && hp.GCD.IsReady(sim) {
 		hp.WaitUntil(sim, sim.CurrentTime+time.Millisecond*500)
 	}
+}
+
+// PetPoolsFocusForCooldowns (MythicSim patch 118) makes a pet hold its focus dump while that would leave
+// it short of a higher priority ability with a cooldown: the Cat Claws only when the focus left after Claw,
+// plus what it regenerates before Bite is ready, still pays for Bite, so Bite goes on cooldown. Off by
+// default: the pet's autocast spends Claw (25 focus, no cooldown) the moment it has 25, so focus never
+// climbs to Bite's 35 once Bite is off cooldown and Bite lands once, off the full bar the pet starts
+// with (Kragtor, Discord, 12 October 2026: one Bite in 240 seconds), and upstream modelled that from beta
+// logs (TestPetStrikes: long-cooldown strikes land about once a fight, Claw spending the focus first).
+// The Raptor's Savage Rend (50) and the Gorilla's Thunderstomp (60) starve the same way. Set it true for
+// a pet whose Claw autocast the Hunter manages around Bite.
+var PetPoolsFocusForCooldowns = false
+
+// tryFocusDump casts the focus dump unless it would starve the pet's extra or special ability.
+func (hp *HunterPet) tryFocusDump(sim *core.Simulation, tryCast func(*core.Spell) bool) bool {
+	if hp.focusDump == nil {
+		return false
+	}
+	if PetPoolsFocusForCooldowns {
+		left := hp.CurrentFocus() - hp.focusDump.Cost.GetCurrentCost()
+		for _, ability := range []*core.Spell{hp.extraAbility, hp.specialAbility} {
+			if hp.starves(sim, ability, left) {
+				return false
+			}
+		}
+	}
+	return tryCast(hp.focusDump)
+}
+
+// starves reports whether a pet left with focus left could not pay for ability when its cooldown ends.
+// Abilities without a cooldown (Dust Cloud), or that could not be cast now for another reason (Swipe on
+// fewer than three targets, Furious Howl while it is up), are not pooled for.
+func (hp *HunterPet) starves(sim *core.Simulation, ability *core.Spell, left float64) bool {
+	if ability == nil || ability == hp.focusDump || ability.CD.Timer == nil {
+		return false
+	}
+	if ability.ExtraCastCondition != nil && !ability.ExtraCastCondition(sim, hp.CurrentTarget) {
+		return false
+	}
+	regen := hp.FocusRegenPerSecond() * max(ability.TimeToReady(sim), hp.GCD.TimeToReady(sim)+PetGCD).Seconds()
+	return left+regen < ability.Cost.GetCurrentCost()
 }
 
 // Forever is a Classic-era realm: the pet takes none of its owner's stats, where TBC's does.
@@ -195,7 +236,7 @@ var DefaultPetConfigs = [...]PetConfig{
 		Health: 0.98, Armor: 1.00, Damage: 1.10,
 		// Bite is worth more per Focus than Claw, so it goes on cooldown and Claw fills in.
 		CustomRotation: func(sim *core.Simulation, hp *HunterPet, tryCast func(*core.Spell) bool) {
-			if !tryCast(hp.specialAbility) && !tryCast(hp.focusDump) && hp.GCD.IsReady(sim) {
+			if !tryCast(hp.specialAbility) && !hp.tryFocusDump(sim, tryCast) && hp.GCD.IsReady(sim) {
 				hp.WaitUntil(sim, sim.CurrentTime+time.Millisecond*500)
 			}
 		},
