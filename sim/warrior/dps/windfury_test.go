@@ -10,11 +10,13 @@ import (
 	"github.com/wowsims/forever/sim/core/simsignals"
 )
 
-// Windfury Totem's proc is a party aura since build 70009 (10612): a main-hand
-// melee hit that lands and deals damage can fire it, auto or special (the row's
-// ProcTypeMask 0x14, and the tooltip's "Each main hand hit"); no off-hand
-// weapon's hit, nothing ranged and no spell can. A shield strike (an off-hand
-// special with a shield) still can: the client swings it as a main-hand attack. An auto that procs it has spent the first
+// Windfury Totem's proc is a party aura since build 70009 (10612): a melee hit
+// that lands and deals damage can fire it, auto or special (the row's
+// ProcTypeMask 0x14); nothing ranged and no spell can. With
+// buffs.WindfuryTotemMainHandOnly on (the tooltip's "Each main hand hit") no
+// off-hand weapon's hit can, though a shield strike (an off-hand special with a
+// shield) still can: the client swings it as a main-hand attack. Off, the
+// default, either hand rolls it as the row alone has it. An auto that procs it has spent the first
 // charge itself and leaves one for the extra attack; a special leaves both.
 // Its internal cooldown is the row's 100 ms, not Era's 1.5 sec.
 func TestWindfuryTotemProcsOffMeleeHitsWithTheChargesTheTriggerLeaves(t *testing.T) {
@@ -100,6 +102,10 @@ func TestWindfuryTotemProcsOffMeleeHitsWithTheChargesTheTriggerLeaves(t *testing
 		{"a spell", core.ProcMaskSpellDamage},
 	} {
 		t.Run(row.name+" never procs it", func(t *testing.T) {
+			if row.procMask&core.ProcMaskMeleeOH != 0 {
+				defer func(old bool) { buffs.WindfuryTotemMainHandOnly = old }(buffs.WindfuryTotemMainHandOnly)
+				buffs.WindfuryTotemMainHandOnly = true
+			}
 			sim, target, trigger, started := setup(t)
 			if offer(sim, target, trigger, started, row.procMask, 100) {
 				t.Errorf("%s procced the totem", row.name)

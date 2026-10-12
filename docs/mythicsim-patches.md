@@ -2606,6 +2606,17 @@ the branch base `bde2043eab` (patch 112 moves Arms's Warblade of Caer Darrow, so
 
 ## 114. `buffs: Windfury Totem procs off the main hand only`
 
+**Default off since the 12 October review.** This client marks a main-hand-only proc on the aura itself:
+Bloodthrill's proc aura 1289682 carries ATTR_EX_3_REQ_MAIN_HAND (Attributes[3] 0x400) on the same mask and
+the development notes say "Bloodthrill only activates off of Main Hand melee attacks"; Dual Wield
+Specialization 23584 marks its off-hand proc with flag 0x800000 and Attributes[3] 0x1000000. 10612 and the
+extra attack 10610 carry neither, and no SpellEquippedItems row, so the data says either hand; only the
+tooltip says main hand, and no log shows it. `WindfuryTotemMainHandOnly` stays as a switch (default false);
+turn it on if a log shows off-hand swings never proc the totem. Yellow hits keep proccing: beta log 2708
+(ElliotWood/Forever #644) has 16 of 62 Windfury Weapon procs off Stormstrike, on the same 0x14 mask. With the
+default off, the goldens and the reference DPS below are back where they were before this patch (the rogue
+and Survival suites match patch 113's exactly); the tables record the switch.
+
 Windfury Totem's party aura 10612 rolls 20% on ProcTypeMask 0x14, melee autos (0x4) and melee specials
 (0x10), with a 100 ms internal cooldown. The mask names no hand and no SpellEquippedItems row restricts it,
 so the engine let off-hand autos and specials roll it. Every Forever totem tooltip names the main hand: "Each
@@ -2907,3 +2918,31 @@ and 5 stacks give 1.05x and 1.05^5 the main-hand swings over 120 seconds, 9 stac
 | Fury Warrior, alt seed, 120 s | 948.46 | 1125.59 |
 
 Drop it when upstream carries a Battle Squawk party option.
+
+## 128. `core: a crit's extra rage leaves out the two-hander's factor`
+
+Patch 113 doubled a critical auto attack's whole rage. Magey's beta logs on client 70170 (after the 1
+October notes; github.com/magey/forever-warrior/issues/3) fit `crit = swing + 3.46 x speed x hand`: the
+extra leaves out the two-hander's 1.3 (`TwoHandRageMultiplier`), so a one-hander doubles and a two-hander gets
+about 1.77 times its swing (2H warrior bonus 11.3 to 11.5 measured, 11.42 predicted). Yellow crits add
+nothing, as the engine already has it. The client's hook, Rule of Rage (DND) 1322574, is an A_DUMMY of 100
+on melee auto attacks (mask 0x4).
+
+`CritRageBonusSkipsTwoHand` in `sim/core/rage.go` (default true) pays the crit's extra on the swing's rage
+before the two-hand factor. False multiplies the whole swing by `CritRageMultiplier`, as patch 113 did.
+Bear Form's weapon is normalized to 2.5 and never gets the two-hand factor in the engine, so the Bear is
+unchanged. (Magey measured the bear swing at 3.46 x 2.5 x 1.3, about 23% above the engine's; not changed
+here.)
+
+Tests: `TestCritAutoAttackRageIsTwiceAHit` (`sim/core/rage_crit_test.go`, two-hand case 11.7 to 20.696) and
+`TestCritRageBonusOnTheWholeTwoHandSwingWhenSwitchedOff`, `TestCritAutoAttackGivesATwoHanderItsSwingPlusTheOneHandRage`
+(`sim/warrior/dps/crit_rage_test.go`). Goldens: the two-hand rows of TestArms, TestFury and
+TestProtectionWarrior.
+
+## Note on 127 (Battle Squawk), 12 October review
+
+In Forever, 23060's effect targets the pet's master and the caster (ImplicitTarget 27 and 1, builds 69893
+and 70338); Era's targeted the caster's party (20). A Battle Chicken buffs only its engineer, so one stack on
+the engineer is what the game can give. `Party.battle_squawks` stays 0 to 5 in the engine; MythicSim offers
+one stack on the player.
+

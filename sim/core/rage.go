@@ -19,6 +19,13 @@ const DamageTakenRageFactor = 10
 // and the Cat's Bear Form. Set 1.75 for the 70170 value.
 var CritRageMultiplier = 2.0
 
+// CritRageBonusSkipsTwoHand pays a critical auto attack's extra rage on the swing's rage before the
+// two-hander's factor (TwoHandRageMultiplier). Magey's beta logs on client 70170
+// (github.com/magey/forever-warrior/issues/3): a crit pays the swing plus 3.46 x speed x hand, without
+// the 1.3, so a one-hander doubles and a two-hander gets about 1.77 times its swing (2H warrior
+// bonus 11.3 to 11.5 measured, 11.42 predicted). False multiplies the whole swing.
+var CritRageBonusSkipsTwoHand = true
+
 const (
 	BaseRageHitFactor     = 3.46
 	TwoHandRageHitFactor  = 4.5
@@ -79,14 +86,18 @@ func (unit *Unit) EnableRageBar(options RageBarOptions) {
 				return
 			}
 
-			if weapon.NormalizedSwingSpeed == TwoHandNormalizedSwingSpeed {
-				hitFactor *= TwoHandRageMultiplier
-			}
-
 			// rage is normalized so it only depends on weapon swing speed and some multipliers
-			generatedRage := hitFactor * weapon.SwingSpeed * options.BaseRageMultiplier * handMultiplier
+			baseRage := hitFactor * weapon.SwingSpeed * options.BaseRageMultiplier * handMultiplier
+			generatedRage := baseRage
+			if weapon.NormalizedSwingSpeed == TwoHandNormalizedSwingSpeed {
+				generatedRage *= TwoHandRageMultiplier
+			}
 			if result.DidCrit() {
-				generatedRage *= CritRageMultiplier
+				if CritRageBonusSkipsTwoHand {
+					generatedRage += baseRage * (CritRageMultiplier - 1)
+				} else {
+					generatedRage *= CritRageMultiplier
+				}
 			}
 
 			var metrics *ResourceMetrics

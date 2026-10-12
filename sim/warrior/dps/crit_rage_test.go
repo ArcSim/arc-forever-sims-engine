@@ -74,10 +74,13 @@ func TestCritAutoAttackGivesAWarriorTwiceTheRage(t *testing.T) {
 	}
 }
 
-func TestCritAutoAttackGivesATwoHanderTwiceTheRage(t *testing.T) {
+// A two-hander's crit pays its swing plus the swing's rage before the two-hand factor (Magey, client
+// 70170): 4.5 x speed on a hit, 4.5 x speed + 3.46 x speed on a crit, about 1.77 times.
+func TestCritAutoAttackGivesATwoHanderItsSwingPlusTheOneHandRage(t *testing.T) {
 	sim, war := newRageWarrior(t, TwoHandGear.GearSet, ArmsTalents)
 	speed := war.AutoAttacks.MH().SwingSpeed
 	want := core.TwoHandRageHitFactor * speed
+	wantCrit := want + core.BaseRageHitFactor*speed
 
 	hit := rageFromSwing(sim, war, war.AutoAttacks.MHAuto(), core.OutcomeHit, 1000)
 	crit := rageFromSwing(sim, war, war.AutoAttacks.MHAuto(), core.OutcomeCrit, 2000)
@@ -85,8 +88,8 @@ func TestCritAutoAttackGivesATwoHanderTwiceTheRage(t *testing.T) {
 	if !core.WithinToleranceFloat64(want, hit, 0.000001) {
 		t.Errorf("2H hit gave %0.5f Rage, want %0.5f", hit, want)
 	}
-	if !core.WithinToleranceFloat64(want*2, crit, 0.000001) {
-		t.Errorf("2H crit gave %0.5f Rage, want %0.5f", crit, want*2)
+	if !core.WithinToleranceFloat64(wantCrit, crit, 0.000001) {
+		t.Errorf("2H crit gave %0.5f Rage, want %0.5f", crit, wantCrit)
 	}
 }
 

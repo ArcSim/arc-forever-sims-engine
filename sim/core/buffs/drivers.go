@@ -135,10 +135,12 @@ var windfuryTotemPartyAura = spelldata.MustFind(10612)
 // WindfuryTotemMainHandOnly keeps Windfury Totem's proc to main-hand attacks.
 // The party aura's ProcTypeMask (0x14) names no hand and no SpellEquippedItems
 // row restricts it, but every Forever totem tooltip reads "Each main hand hit
-// has a 20% chance" (8512, 10613, 10614), as Era's main-hand enchant did, and
-// players report off-hand procs as a bug (MythicSim Discord, 12 October 2026).
-// False lets off-hand autos and specials roll it too, as before.
-var WindfuryTotemMainHandOnly = true
+// has a 20% chance" (8512, 10613, 10614), and players report off-hand procs as a
+// bug (MythicSim Discord, 12 October 2026). Off by default: this client marks a
+// main-hand-only proc on the aura itself, as Bloodthrill's 1289682 does with
+// ATTR_EX_3_REQ_MAIN_HAND (0x400), and 10612 carries no such attribute, so the
+// data says either hand. Turn it on if a log shows off-hand swings never proc it.
+var WindfuryTotemMainHandOnly = false
 
 // WindfuryProcsFromSpecials lets Windfury Totem and Windfury Weapon proc off
 // melee specials (yellow hits) as well as autos. Both client rows say so:
