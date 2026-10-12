@@ -5,6 +5,7 @@ import (
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/buffs"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
@@ -30,6 +31,7 @@ const (
 	Thunderstomp
 	Swipe
 	Web
+	FuriousHowl
 )
 
 func (hp *HunterPet) NewPetAbility(abilityType PetAbilityType) *core.Spell {
@@ -64,6 +66,11 @@ func (hp *HunterPet) NewPetAbility(abilityType PetAbilityType) *core.Spell {
 		return hp.newThunderstomp()
 	case Swipe:
 		return hp.newSwipe()
+	case FuriousHowl:
+		if !WolfCastsFuriousHowl {
+			return nil
+		}
+		return hp.newFuriousHowl()
 	case Unknown:
 		return nil
 	default:
@@ -517,6 +524,69 @@ func (hp *HunterPet) newSwipe() *core.Spell {
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealCleaveDamageWithVariance(sim, target, int32(damage.ChainTargets), spell.OutcomeMeleeSpecialHitAndCrit,
 				func(sim *core.Simulation, _ *core.Spell) float64 { return damage.Roll(sim, core.CharacterLevel) })
+		},
+	})
+}
+
+// WolfCastsFuriousHowl (MythicSim patch 119) gives the Wolf its Furious Howl. Without it the Wolf only
+// Bites, and its party buff, the reason to pick a Wolf for a melee Hunter (Kragtor, Discord, 12 October
+// 2026), is missing. Set it false for the Bite-only Wolf.
+var WolfCastsFuriousHowl = true
+
+// Furious Howl is the Wolf's: in Forever an attack power aura on the party around the pet (client row
+// 24597, rank 4: A_MOD_ATTACK_POWER 82 + 0.4 a level from 56, so 84 at 60; implicit target 20, party
+// within 15 yards; 60 sec duration, 30 sec cooldown, 60 focus). The Sep 24 beta notes cut it 40%
+// ("Furious Howl Attack Power bonus reduced 40%"); 70334's row is the cut value. Melee attack power only,
+// so it pays a melee Hunter and the Wolf itself, not Auto Shot. The Wolf howls when the buff is not up on
+// it; the Hunter takes it while within 15 yards of the pet, which stands at the target. Other party
+// members are not simulated.
+func (hp *HunterPet) newFuriousHowl() *core.Spell {
+	rank := spellData.FuriousHowlTriggered.Highest()
+	radius := 15.0
+	if e := rank.Effect(dbcenums.A_MOD_ATTACK_POWER, 0); e != nil && e.RadiusMax > 0 {
+		radius = float64(e.RadiusMax)
+	}
+	register := func(unit *core.Unit) *core.Aura {
+		aura := unit.GetOrRegisterAura(core.Aura{
+			Label:    rank.Name,
+			ActionID: core.ActionID{SpellID: rank.ID},
+			Duration: rank.Duration(),
+		})
+		spelldata.ParseEffects(nil, aura, rank, spelldata.Level(core.CharacterLevel))
+		return aura
+	}
+	petAura := register(&hp.Unit)
+	ownerAura := register(&hp.hunterOwner.Unit)
+
+	return hp.RegisterSpell(core.SpellConfig{
+		ActionID:    core.ActionID{SpellID: rank.ID},
+		SpellSchool: rank.SpellSchool(),
+		ProcMask:    core.ProcMaskEmpty,
+		Flags:       core.SpellFlagAPL,
+
+		FocusCost: core.FocusCostOptions{
+			Cost: int32(rank.Cost()),
+		},
+		Cast: core.CastConfig{
+			DefaultCast: core.Cast{
+				GCD: PetGCD,
+			},
+			IgnoreHaste: true,
+			CD: core.Cooldown{
+				Timer:    hp.NewTimer(),
+				Duration: rank.Cooldown(),
+			},
+		},
+
+		ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {
+			return hp.IsEnabled() && !petAura.IsActive()
+		},
+
+		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			petAura.Activate(sim)
+			if hp.hunterOwner.DistanceFromTarget <= radius {
+				ownerAura.Activate(sim)
+			}
 		},
 	})
 }

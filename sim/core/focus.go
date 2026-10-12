@@ -38,6 +38,19 @@ func (unit *Unit) EnableFocusBar(focusRegenMultiplier float64) {
 	}
 }
 
+// CurrentFocus is the unit's focus now.
+func (fb *focusBar) CurrentFocus() float64 {
+	return fb.currentFocus
+}
+
+// FocusRegenPerSecond is the focus the bar refills a second.
+func (fb *focusBar) FocusRegenPerSecond() float64 {
+	if fb.focusTickDuration <= 0 {
+		return 0
+	}
+	return fb.focusRegenPerTick * float64(time.Second) / float64(fb.focusTickDuration)
+}
+
 func (unit *Unit) HasFocusBar() bool {
 	return unit.focusBar.unit != nil
 }

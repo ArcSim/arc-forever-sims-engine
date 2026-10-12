@@ -2743,3 +2743,79 @@ Measured (10,000 iterations, after patch 115); only Fury dual wields:
 | arms-warrior | 747.20 → 747.20 (+0.00%) | 741.80 → 741.80 (+0.00%) | 746.72 → 746.72 (+0.00%) | 741.69 → 741.69 (+0.00%) |
 | protection-warrior | 480.68 → 480.68 (+0.00%) | 478.34 → 478.34 (+0.00%) | 480.11 → 480.11 (+0.00%) | 477.23 → 477.23 (+0.00%) |
 | fury-protection-warrior | 518.92 → 518.92 (+0.00%) | 512.20 → 512.20 (+0.00%) | 519.89 → 519.89 (+0.00%) | 512.45 → 512.45 (+0.00%) |
+
+## 118. `hunter: a switch for pets pooling focus for Bite and their other cooldowns` (off)
+
+Kragtor's Survival sim (MythicSim Discord, 12 October 2026, 6/10/35 with a Cat, 240 seconds) cast Bite
+once. The Cat's rotation (`DefaultPetConfigs`, `pet.go`) casts Bite when it can and Claw otherwise, and
+Claw (client 3009: 25 focus, no cooldown) fires the moment focus reaches 25. Focus regenerates 10 a
+second, so after the opener it never climbs to Bite's 35 (17261: 35 focus, 10 sec category cooldown)
+while Bite is off cooldown: the one Bite is the opener, off the full bar the pet starts with. The same
+starves every pet ability that costs more than the pet's focus dump: the Raptor's Savage Rend (50), the
+Gorilla's Thunderstomp (60), the Crab's Pinch (50). Upstream's `TestPetStrikes` says beta logs show the
+same ("long-cooldown strikes land about once a fight, Claw spending the focus first"), which is the
+game's autocast with both abilities on.
+
+`PetPoolsFocusForCooldowns` (`sim/hunter/pet.go`, default **false**, so nothing changes) makes the pet
+hold its focus dump while the focus left after it, plus what it regenerates before a higher priority
+ability with a cooldown is ready, would not pay for that ability. Abilities with no cooldown (Dust Cloud)
+or that could not be cast for another reason (Swipe on fewer than three targets, Furious Howl while it
+is up) are not pooled for. It models a Hunter who manages Claw's autocast around Bite. Bite and Claw do
+about the same damage per focus (90 for 35, 51 for 25), so it is worth little: on the 12 October
+references (10,000 iterations, four cells) the Cat Bites about 11 times in 120 seconds instead of once
+and the Hunter gains 0.5 to 2.7 DPS with a Cat or a Raptor, nothing with the other pets
+(docs/forever-oct12-hunter.md in the site repo).
+
+Adds `CurrentFocus` and `FocusRegenPerSecond` to the focus bar (`sim/core/focus.go`).
+
+Test: `TestCatBitesOnCooldown` (`sim/hunter/pet_pool_test.go`): one Bite a fight unpooled, at least one
+every 11 seconds pooled, and the pet still spends about 10 focus a second. Goldens: none move (off).
+
+## 119. `hunter: the Wolf casts Furious Howl`
+
+The Wolf only Bit; its Furious Howl, the reason to pick a Wolf for a melee Hunter (Kragtor, 12 October
+2026), was not registered. In Forever it is an attack power aura on the party around the pet: client
+row 24597 (rank 4) is `A_MOD_ATTACK_POWER` 82 plus 0.4 a level from 56, so 84 at 60, implicit target
+20 (party within 15 yards), 60 sec duration, 30 sec cooldown, 60 focus. The 24 September beta notes cut
+it ("Furious Howl Attack Power bonus reduced 40%"); the 70334 row is the cut value. It carries no
+`SPELL_ATTR3_ONLY_TARGET_PLAYERS`, so unlike Battle Shout it reaches pets too.
+
+The Wolf (`ExtraAbility: FuriousHowl`) howls whenever the buff is not up on it; the Hunter takes the
+same aura while within 15 yards of the target the Wolf stands at. Melee attack power only, so it pays a
+melee Hunter and the Wolf, not Auto Shot. Other party members are not simulated. Switch:
+`WolfCastsFuriousHowl` (`sim/hunter/pet_abilities.go`, default true).
+
+Test: `TestWolfFuriousHowl` (`sim/hunter/pet_pool_test.go`): the buff is up all fight on a melee Hunter,
+never on one 30 yards out, and the melee Hunter does more damage than beside a Bite-only Wolf.
+Goldens: none move (no golden tames a Wolf).
+
+## 120. `hunter: Strider Kick speeds the Hunter up 30% for 3 sec`
+
+Strider Kick (1317257) registered only its damage. Its third effect is `A_MOD_INCREASE_SPEED` 30 on the
+caster for the spell's 3 sec, and the 24 September beta notes say so ("Strider Kick now increases
+movement speed by 30% for 3 seconds."). The kick now activates a "Strider Kick" aura (action ID 1317257,
+so a rotation can check `auraIsActive` on it) with an active movement speed effect of 30%. It only matters
+to a rotation that moves after a kick, such as a melee weave stepping out to shoot. Switch:
+`StriderKickSpeedsUp` (`sim/hunter/strider_kick.go`, default true).
+
+Test: `TestStriderKickSpeedsUp` (`sim/hunter/pet_pool_test.go`). Goldens: with patch 121 none move. On
+its own this patch moved `TestSurvival` (176 of 193 rows, -4.4 to +3.6, Average 352.97 to 352.96): that
+suite walks in from 30 yards, the first kick lands at 5 yards mid-walk, and the speed change hit the
+movement bug patch 121 fixes.
+
+## 121. `core: a speed change mid-move keeps the move's destination`
+
+`MultiplyMovementSpeed` re-plans a move in progress when the unit's speed changes, but passed `MoveTo`
+the move's length (speed times planned duration) where `MoveTo` takes the distance from the target to
+end at. A Hunter walking from 5 to 12 yards who sped up mid-walk stopped at 7, inside the Auto Shot dead
+zone; one walking in from 30 to 0 went to -30. Nothing in the fork changed speed mid-move until patch
+120, so it never showed. The re-plan now ends where the move was going (start plus the move's distance).
+Switch: `MidMoveSpeedChangeKeepsDestination` (`sim/core/movement.go`, default true).
+
+Effect, Survival reference with the Experimental melee weave (patches 118 to 120, 10,000 iterations,
+board seed): 692.8 before patch 120, 664.7 with it, back to the value in docs/forever-oct12-hunter.md
+(site repo) with this patch.
+
+Test: `TestSpeedChangeMidMoveKeepsDestination` (`sim/core/movement_speed_test.go`): a walk from 5 to 12
+yards sped up 30% half a second in stops at 12, and at 7 with the switch off. Goldens: `TestSurvival`
+returns to its pre-120 values; the full `sim/...` suite passes.
