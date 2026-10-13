@@ -13,7 +13,7 @@ func (hunter *Hunter) registerSniperShotSpell() {
 	}
 
 	spellId := [4]int32{0, 1310687, 0, 1310786}
-	base := [4]float64{0, 160, 0, 295}
+	base := [4]float64{0, 160, 225, 295}
 	mana := [4]float64{0, 365, 365, 365}
 	level := [4]int{0, 40, 48, 58}
 

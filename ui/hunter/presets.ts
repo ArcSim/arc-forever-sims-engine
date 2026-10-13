@@ -36,15 +36,17 @@ import TwoHWeaveGear from './gear_sets/2h_weave.gear.json';
 import MMGear from './gear_sets/mm_weave.gear.json';
 
 import TwoHWeaveAPL from './apls/2h_weave.apl.json';
+import EasyWeaveAPL from './apls/easy_weave.apl.json';
 import SurvDWAPL from './apls/SurvDW.apl.json';
 import MMSniperAPL from './apls/mm_sniper.apl.json';
 
-export const APL2HWeave = PresetUtils.makePresetAPLRotation('2H Weave', TwoHWeaveAPL);
+export const APL2HWeave = PresetUtils.makePresetAPLRotation('2H Max Weave', TwoHWeaveAPL);
 export const APLSurvDW = PresetUtils.makePresetAPLRotation('Surv DW', SurvDWAPL);
 export const APLMMSniper = PresetUtils.makePresetAPLRotation('MM Sniper', MMSniperAPL);
+export const APLEasyWeave = PresetUtils.makePresetAPLRotation('2H Easy Weave', EasyWeaveAPL);
 
 export const APLPresets = {
-	[Phase.Phase1]: [APL2HWeave, APLSurvDW, APLMMSniper],
+	[Phase.Phase1]: [APL2HWeave, APLSurvDW, APLMMSniper, APLEasyWeave],
 };
 
 export const DefaultAPL = APL2HWeave;

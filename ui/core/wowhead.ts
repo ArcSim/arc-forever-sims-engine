@@ -81,9 +81,7 @@ export type WowheadTooltipSpellParams = {
 export const WOWHEAD_EXPANSION_ENV = 4;
 
 export const buildWowheadTooltipDataset = async (options: WowheadTooltipItemParams | WowheadTooltipSpellParams) => {
-	const lang = getLanguageCode();
 	const params = new URLSearchParams();
-	const langPrefix = lang ? lang + '.' : '';
 
 	if (options.level) {
 		params.set('lvl', String(options.level || MAX_CHARACTER_LEVEL));
@@ -94,7 +92,7 @@ export const buildWowheadTooltipDataset = async (options: WowheadTooltipItemPara
 	} else if ('itemId' in options && options.itemId >= 250000) {
 		params.set('domain', 'forever');
 	} else {
-		params.set('domain', `${langPrefix}classic`);
+		params.set('domain', 'classic');
 	}
 
 	if ('itemId' in options) {

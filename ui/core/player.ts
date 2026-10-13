@@ -1159,7 +1159,7 @@ export class Player<SpecType extends Spec> {
 
 		const lang = getLanguageCode();
 		const langPrefix = lang ? lang + '.' : '';
-		parts.push(`domain=${langPrefix}classic`);
+		parts.push(`domain=forever`);
 
 		if (equippedItem.enchant !== null) {
 			parts.push('ench=' + equippedItem.enchant.effectId);
