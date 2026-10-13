@@ -1,5 +1,11 @@
 [
 	{
+		"number": 774,
+		"title": "hunter: Improved Tracking counts on the default Unknown target (#768)",
+		"mergedAt": "2026-10-13",
+		"url": "https://github.com/ElliotWood/Forever/pull/774"
+	},
+	{
 		"number": 773,
 		"title": "Cat default rotation keeps Rake up",
 		"mergedAt": "2026-10-13",
