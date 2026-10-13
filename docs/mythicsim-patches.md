@@ -2975,3 +2975,18 @@ and 70338); Era's targeted the caster's party (20). A Battle Chicken buffs only 
 the engineer is what the game can give. `Party.battle_squawks` stays 0 to 5 in the engine; MythicSim offers
 one stack on the player.
 
+
+## 130. `warrior: Last Stand reads its 30% from client 70291's health aura`
+
+Client 1.60.1.70291 moved Last Stand's buff (12976) from `A_MOD_MAX_HEALTH` (230) to
+`A_MOD_INCREASE_HEALTH` (34), still with 30, and the buff tooltip still reads "Health increased by
+30% of maximum". `registerLastStand` asked for aura 230 as the buff was gained, so from `c91f22924a`
+(the fork's merge of client 70338) every fight where a warrior gains Last Stand panicked with "spell
+12976 has no effect with aura 230". Five of the Rust engine's 49 Protection Warrior fixtures reach it;
+the reference builds do not.
+
+`registerLastStand` now reads the share once at registration, from aura 230 when the client states it
+and from aura 34 otherwise, and the buff grants 30% of maximum health as before.
+
+Test: `TestLastStandGrantsThirtyPercentOfMaximumHealth` (`sim/warrior/protection`). Goldens: none move
+(the fights that reached Last Stand panicked).
