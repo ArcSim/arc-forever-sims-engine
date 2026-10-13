@@ -14,7 +14,7 @@ const DefaultAttackPowerPerDPS = 14.0
 const ArmorPenPerPercentArmor = 13.99
 
 const MaxMeleeAttackDistance = 5
-const MinRangedAttackDistance = 12
+const MinRangedAttackDistance = 8
 
 const MissDodgeParryBlockCritChancePerDefense = 0.04
 
