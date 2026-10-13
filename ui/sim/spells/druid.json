@@ -265,7 +265,7 @@
 	"9904": {
 		"ability": "Rake",
 		"file": "sim/druid/rake.go",
-		"note": "Client 70009: a little more damage at every rank (rank 4 58 plus 96 -> 61 plus 102).",
+		"note": "Client 70009: a little more damage at every rank (rank 4 58 plus 96 -> 61 plus 102). The client stores no attack power scaling, but Blizzard's Druid deep dive (30 Sep) says Rake now gains damage from Attack Power, so the sim adds 5% of attack power to the hit and to each tick (#769). Beta combat logs: rank 1 lands 43 on the hit and 36 a tick for Moondre (foreverlogs 2717, about 310 attack power) and 51 / 43 for Axl (2771, about 405), against the client's 23 / 16 before Savage Fury; attack power read off each druid's own Rip ticks. The hit ignores armor: each druid's hit is the same on every mob while their white swings differ.",
 		"source": "forever",
 		"tooltip": "40 Energy\nMelee Range\nInstant\nRake the target for 61 damage and an additional 102 damage over 9 sec. Awards 1 combo point."
 	},
