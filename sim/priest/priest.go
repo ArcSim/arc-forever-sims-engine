@@ -24,9 +24,9 @@ type Priest struct {
 
 	VampiricEmbrace *core.Spell
 
-	SearingLightAura  *core.Aura
-	ShadowformAura    *core.Aura
-	ShadowWeavingAura *core.Aura
+	SearingLightAura   *core.Aura
+	ShadowformAura     *core.Aura
+	ShadowWeavingAuras core.AuraArray
 
 	// Every Holy Fire rank the priest knows, so Power in Light can ask whether its dot is running.
 	HolyFire []*core.Spell

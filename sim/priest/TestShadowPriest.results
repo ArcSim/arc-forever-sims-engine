@@ -156,8 +156,8 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-CursedMurlocEye-273840"
  value: {
-  dps: 352.51107
-  tps: 251.51852
+  dps: 352.57995
+  tps: 251.56673
  }
 }
 dps_results: {
@@ -982,43 +982,43 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-Settings-Undead-Naked-Default-shadow-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 359.4913
-  tps: 408.38287
+  dps: 359.97982
+  tps: 408.72484
  }
 }
 dps_results: {
  key: "TestShadowPriest-Settings-Undead-Naked-Default-shadow-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 359.4913
-  tps: 255.91757
+  dps: 359.97982
+  tps: 256.25953
  }
 }
 dps_results: {
  key: "TestShadowPriest-Settings-Undead-Naked-Default-shadow-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 361.85883
-  tps: 253.978
+  dps: 362.302
+  tps: 254.28821
  }
 }
 dps_results: {
  key: "TestShadowPriest-Settings-Undead-Naked-Default-shadow-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 189.61718
-  tps: 240.41334
+  dps: 189.82836
+  tps: 240.62452
  }
 }
 dps_results: {
  key: "TestShadowPriest-Settings-Undead-Naked-Default-shadow-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 189.61718
-  tps: 187.61194
+  dps: 189.82836
+  tps: 187.82312
  }
 }
 dps_results: {
  key: "TestShadowPriest-Settings-Undead-Naked-Default-shadow-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 292.1072
-  tps: 286.09148
+  dps: 292.40956
+  tps: 286.39385
  }
 }
 dps_results: {
