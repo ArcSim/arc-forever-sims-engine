@@ -69,11 +69,11 @@ export const SurvDWHawk = PresetUtils.makePresetTalents(
 );
 export const SurvDWLacerate = PresetUtils.makePresetTalents(
 	'Surv DW LS',
-	SavedTalents.create({ talentsString: '5-005005201-500230230050222151' }),
+	SavedTalents.create({ talentsString: '5-005005001-500230230250222151' }),
 );
 export const TwoHWeave = PresetUtils.makePresetTalents(
 	'2H Weave',
-	SavedTalents.create({ talentsString: '-00531500114-500230230050220151' }),
+	SavedTalents.create({ talentsString: '-00531500104-500230230050122151' }),
 );
 export const TalentsMMHawk = PresetUtils.makePresetTalents(
 	'MM Hawk',
@@ -137,7 +137,7 @@ export const DefaultConsumes = Consumes.create({
 });
 
 export const DefaultOptions = HunterOptions.create({
-	ammo: Ammo.ThoriumHeadedArrow,
+	ammo: Ammo.SwiftfeatherArrow,
 	petAttackSpeed: PetAttackSpeed.OneTwo,
 	petType: PetType.Cat,
 	petUptime: 1,

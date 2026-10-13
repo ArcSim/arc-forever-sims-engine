@@ -18,21 +18,14 @@ import { TypedEvent } from '../core/typed_event.js';
 
 export const WeaponAmmo = InputHelpers.makeSpecOptionsEnumIconInput<Spec.SpecHunter, Ammo>({
 	fieldName: 'ammo',
-	numColumns: 6,
 	values: [
 		{ value: Ammo.AmmoNone, tooltip: 'No Ammo' },
-		{ actionId: () => ActionId.fromItemId(3030), value: Ammo.RazorArrow },
-		{ actionId: () => ActionId.fromItemId(11285), value: Ammo.JaggedArrow },
-		{ actionId: () => ActionId.fromItemId(19316), value: Ammo.IceThreadedArrow },
-		{ actionId: () => ActionId.fromItemId(18042), value: Ammo.ThoriumHeadedArrow },
 		{ actionId: () => ActionId.fromItemId(12654), value: Ammo.Doomshot },
-		{ actionId: () => ActionId.fromItemId(3033), value: Ammo.SolidShot },
-		{ actionId: () => ActionId.fromItemId(11284), value: Ammo.AccurateSlugs },
 		{ actionId: () => ActionId.fromItemId(19317), value: Ammo.IceThreadedBullet },
-		{ actionId: () => ActionId.fromItemId(10513), value: Ammo.MithrilGyroShot },
-		{ actionId: () => ActionId.fromItemId(11630), value: Ammo.RockshardPellets },
 		{ actionId: () => ActionId.fromItemId(15997), value: Ammo.ThoriumShells },
 		{ actionId: () => ActionId.fromItemId(13377), value: Ammo.MiniatureCannonBalls },
+		{ actionId: () => ActionId.fromItemId(274387), value: Ammo.SwiftfeatherArrow },
+		{ actionId: () => ActionId.fromItemId(274388), value: Ammo.SwiftstrikeShot },
 	],
 });
 

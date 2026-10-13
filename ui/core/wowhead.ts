@@ -89,10 +89,8 @@ export const buildWowheadTooltipDataset = async (options: WowheadTooltipItemPara
 
 	if ('spellId' in options) {
 		params.set('domain', 'forever');
-	} else if ('itemId' in options && options.itemId >= 250000) {
-		params.set('domain', 'forever');
 	} else {
-		params.set('domain', 'classic');
+		params.set('domain', 'forever');
 	}
 
 	if ('itemId' in options) {

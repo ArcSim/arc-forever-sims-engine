@@ -78,18 +78,12 @@ message Hunter {
 	message Options {
 		enum Ammo {
 			AmmoNone = 0;
-			RazorArrow = 1;
-			SolidShot = 2;
-			JaggedArrow = 3;
-			AccurateSlugs = 4;
-			MithrilGyroShot = 5;
-			RockshardPellets = 6;
-			IceThreadedArrow = 7;
-			ThoriumHeadedArrow = 8;
 			Doomshot = 9;
 			IceThreadedBullet = 10;
 			ThoriumShells = 11;
 			MiniatureCannonBalls = 12;
+			SwiftfeatherArrow = 13;
+			SwiftstrikeShot = 14;
 		}
 		Ammo ammo = 1;
 		enum QuiverBonus {

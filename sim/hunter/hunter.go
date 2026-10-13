@@ -195,30 +195,18 @@ func NewHunter(character *core.Character, options *proto.Player) *Hunter {
 
 	if hunter.HasRangedWeapon() {
 		switch hunter.Options.Ammo {
-		case proto.Hunter_Options_RazorArrow:
-			hunter.AmmoDPS = 7.5
-		case proto.Hunter_Options_SolidShot:
-			hunter.AmmoDPS = 7.5
-		case proto.Hunter_Options_JaggedArrow:
-			hunter.AmmoDPS = 13
-		case proto.Hunter_Options_AccurateSlugs:
-			hunter.AmmoDPS = 13
-		case proto.Hunter_Options_MithrilGyroShot:
-			hunter.AmmoDPS = 15
-		case proto.Hunter_Options_IceThreadedArrow:
-			hunter.AmmoDPS = 16.5
+		case proto.Hunter_Options_Doomshot:
+			hunter.AmmoDPS = 17.5
 		case proto.Hunter_Options_IceThreadedBullet:
-			hunter.AmmoDPS = 16.5
-		case proto.Hunter_Options_ThoriumHeadedArrow:
 			hunter.AmmoDPS = 17.5
 		case proto.Hunter_Options_ThoriumShells:
-			hunter.AmmoDPS = 17.5
-		case proto.Hunter_Options_RockshardPellets:
 			hunter.AmmoDPS = 18
-		case proto.Hunter_Options_Doomshot:
-			hunter.AmmoDPS = 20
 		case proto.Hunter_Options_MiniatureCannonBalls:
-			hunter.AmmoDPS = 20.5
+			hunter.AmmoDPS = 20
+		case proto.Hunter_Options_SwiftfeatherArrow:
+			hunter.AmmoDPS = 24.5
+		case proto.Hunter_Options_SwiftstrikeShot:
+			hunter.AmmoDPS = 24.5
 		}
 		hunter.AmmoDamageBonus = hunter.AmmoDPS * rangedWeapon.SwingSpeed
 		hunter.NormalizedAmmoDamageBonus = hunter.AmmoDPS * 2.8
@@ -253,7 +241,6 @@ func NewHunter(character *core.Character, options *proto.Player) *Hunter {
 
 	hunter.AutoAttacks.RangedConfig().Flags |= core.SpellFlagCastTimeNoGCD
 	hunter.AutoAttacks.RangedConfig().Flags |= core.SpellFlagMeleeMetrics
-	hunter.AutoAttacks.RangedConfig().CritDamageBonus = hunter.mortalShots()
 	hunter.AutoAttacks.RangedConfig().BonusCoefficient = 1
 	hunter.AutoAttacks.RangedConfig().ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := hunter.RangedWeaponDamage(sim, spell.RangedAttackPower(target, false)) +

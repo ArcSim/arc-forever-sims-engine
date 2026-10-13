@@ -246,28 +246,35 @@ export class Database {
 	private static async getWowheadTooltipData(id: number, tooltipPostfix: string): Promise<IconData> {
 		if (id === 0) return IconData.create();
 
-		const url = `https://nether.wowhead.com/forever/tooltip/${tooltipPostfix}/${id}?lvl=${MAX_CHARACTER_LEVEL}`;
-
-		try {
+		const tryUrl = async (domain: string) => {
+			const url = `https://nether.wowhead.com/${domain}/tooltip/${tooltipPostfix}/${id}?lvl=${MAX_CHARACTER_LEVEL}`;
 			const response = await fetch(url);
+			if (!response.ok) return null;
 			const json = await response.json();
-			let rank = 0;
-			const tip = json && json['tooltip'];
-			if (tooltipPostfix === 'spell' && typeof tip === 'string') {
-				const match = tip.match(/Rank ([0-9]+)/);
-				rank = match ? parseInt(match[1]) : 0;
-			}
-			return IconData.create({
-				id: id,
-				name: json['name'] || '',
-				icon: json['icon'] || '',
-				hasBuff: !!(json['buff']),
-				rank: rank,
-			});
-		} catch (e) {
-			console.error('Error while fetching url: ' + url + '\n\n' + e);
-			return IconData.create();
+			if (!json || !json['name']) return null;
+			return json;
+		};
+
+		let json = await tryUrl('forever');
+		if (!json && tooltipPostfix === 'item') {
+			json = await tryUrl('classic');
 		}
+		if (!json) return IconData.create();
+
+		let rank = 0;
+		const tip = json['tooltip'];
+		if (tooltipPostfix === 'spell' && typeof tip === 'string') {
+			const match = tip.match(/Rank ([0-9]+)/);
+			rank = match ? parseInt(match[1]) : 0;
+		}
+
+		return IconData.create({
+			id: id,
+			name: json['name'] || '',
+			icon: json['icon'] || '',
+			hasBuff: !!(json['buff']),
+			rank: rank,
+		});
 	}
 
 	public static mergeSimDatabases(db1: SimDatabase, db2: SimDatabase): SimDatabase {
