@@ -23,7 +23,7 @@ import {
 import { SimSignals } from './sim_signal_manager';
 import { noop } from './utils';
 
-const SIM_WORKER_URL = '/classic/hunter/sim_worker.js';
+const SIM_WORKER_URL = '/classic/sim_worker.js';
 export type WorkerProgressCallback = (progressMetrics: ProgressMetrics) => void;
 
 /**
