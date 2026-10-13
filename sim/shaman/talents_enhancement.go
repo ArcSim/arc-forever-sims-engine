@@ -278,11 +278,13 @@ func (shaman *Shaman) applyImprovedStormstrike() {
 //
 // The client states the per-point, per-stack value (408498) and the buff (408505, 30 sec, -20% cast
 // and cost at five stacks) but no proc rate at all: no procs-per-minute entry and no proc chance
-// below 100. 2 PPM per point is ours, from master; it puts 5/5 at a full stack roughly every 30 sec.
-// 408498 is Season of Discovery's rune spell, and the Era client's row carries the same unexplained
-// eff1 = 50: there it is the tooltip's "chance increased by 50% with Windfury Weapon, and another 50%
-// with a two-hander" on SoD's 10 PPM (wowsims/sod). Forever's tooltip drops that sentence, so 10 PPM
-// at 5/5 matches SoD's base; whether the Windfury and two-hander bonuses survive is unconfirmed.
+// below 100. The beta's logs give it: Steele (foreverlogs 2748, 26 Enhancement points so 1 in the
+// talent, Lightning Bolt 2.5 sec cast 4% faster per stack) gains a stack on 0.54 of 335 lone landed
+// autos and Stormstrikes swinging a 3.6 sec two-hander, 9 PPM (8 to 10); a miss never procs, and
+// rounds with Windfury attacks proc as independent hits would. So the rate does not grow with points
+// (the old 2 PPM a point gave 1 point 0.12 a hit): 10 PPM, Season of Discovery's base for 408498.
+// SoD's +50% with Windfury Weapon and +50% with a two-hander (the row's eff1 = 50) would put Steele
+// at 22.5 PPM, every hit; Forever's tooltip drops that sentence and the log agrees.
 func (shaman *Shaman) applyMaelstromWeapon() {
 	if shaman.Talents.MaelstromWeapon == 0 {
 		return
@@ -292,7 +294,7 @@ func (shaman *Shaman) applyMaelstromWeapon() {
 	maxStacks := int32(5)
 	perStack := spellData.MaelstromWeapon.EffectAt(1).FractionAt(shaman.Talents.MaelstromWeapon)
 
-	ppmm := shaman.NewLegacyPPMManager(2*float64(shaman.Talents.MaelstromWeapon), core.ProcMaskMelee)
+	ppmm := shaman.NewLegacyPPMManager(10, core.ProcMaskMelee)
 
 	castMod := shaman.AddDynamicMod(core.SpellModConfig{
 		Kind:      core.SpellMod_CastTime_Pct,

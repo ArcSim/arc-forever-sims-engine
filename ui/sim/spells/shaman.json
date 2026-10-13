@@ -261,13 +261,9 @@
 	"408505": {
 		"ability": "Maelstrom Weapon",
 		"file": "sim/shaman/talents_enhancement.go",
-		"note": "The stacking buff (408505, 30 sec, 5 stacks) and -4/-8/-12/-16/-20% per stack (408498's curve) are the beta client's. The client states no proc rate, so the sim's 2 procs per minute per point is a guess; 408498's eff1 50 is Season of Discovery's Windfury and two-hander bonus, not a rate (#468).",
-		"source": "assumed",
-		"tooltip": "30 sec duration\nWhen you deal damage with a melee attack, you have a chance to reduce the cast time and Mana cost of your next Lightning Bolt spell by 4% per talent point. Stacks up to 5 times.",
-		"assumptions": [
-			"Maelstrom Weapon procs 2 times a minute per talent point (10 at 5/5) from any melee hit",
-			"Windfury Weapon and a two-handed weapon do not raise the proc rate"
-		]
+		"note": "The stacking buff (408505, 30 sec, 5 stacks) and -4/-8/-12/-16/-20% per stack (408498's curve) are the beta client's. The client states no proc rate; the beta's combat log gives it. Steele (foreverlogs.gg report 2748, 26 Enhancement points so 1 in the talent; their Lightning Bolt casts 4% faster per stack) gains a stack on 0.54 of 335 lone landed auto attacks and Stormstrikes with a 3.6 sec two-hander and Windfury Weapon: 9 procs a minute (8 to 10), never on a miss. The rate does not grow with points, so the sim uses Season of Discovery's 10 a minute at every rank (it gave 2 a point, 0.12 a hit at 1 point). SoD's +50% for Windfury Weapon and +50% for a two-hander (408498's eff1 50) would have procced every hit; Forever drops them. One weapon speed can't tell procs a minute from a flat chance, so the sim keeps procs a minute.",
+		"source": "forever",
+		"tooltip": "30 sec duration\nWhen you deal damage with a melee attack, you have a chance to reduce the cast time and Mana cost of your next Lightning Bolt spell by 4% per talent point. Stacks up to 5 times."
 	},
 	"408510": {
 		"ability": "Water Shield",
