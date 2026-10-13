@@ -51,6 +51,11 @@ func (s *Spell) ClassSpellsOnly() bool {
 	return s.HasAttr(dbcenums.ATTR_INDEX_EX_12, dbcenums.ATTR_EX_12_ONLY_PROC_FROM_CLASS_ABILITIES)
 }
 
+// Whether the spell's aura lands on players only, so that a party aura passes over the pets.
+func (s *Spell) OnlyTargetsPlayers() bool {
+	return s.HasAttr(dbcenums.ATTR_INDEX_EX_3, dbcenums.ATTR_EX_3_ONLY_TARGET_PLAYERS)
+}
+
 // Whether the client bars the spell from missing (and from being dodged, parried or blocked).
 func (s *Spell) AlwaysHits() bool {
 	return s.HasAttr(dbcenums.ATTR_INDEX_EX_3, dbcenums.ATTR_EX_3_ALWAYS_HIT)

@@ -8,6 +8,9 @@ import "github.com/wowsims/forever/sim/core/proto"
 type BuffHooks struct {
 	ApplyBuffs func(char *Character, raid *proto.RaidBuffs, party *proto.PartyBuffs, individual *proto.IndividualBuffs)
 
+	// The party's auras that reach a player's pet as well as the player. Nil applies none.
+	ApplyPetBuffs func(pet *Character, party *proto.PartyBuffs)
+
 	ApplyDebuffs func(target *Unit, debuffs *proto.Debuffs, raid *proto.Raid)
 
 	GiftOfArthasAura func(target *Unit) *Aura

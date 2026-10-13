@@ -342,6 +342,10 @@ func (raid *Raid) applyCharacterEffects(raidConfig *proto.Raid) *proto.RaidStats
 
 			for _, pet := range char.Pets {
 				pet.EnableHealthBar()
+				// A guardian is not in the party; a summoned pet is.
+				if apply := registeredBuffs().ApplyPetBuffs; apply != nil && !pet.IsGuardian() {
+					apply(&pet.Character, partyBuffs)
+				}
 			}
 		}
 

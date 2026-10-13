@@ -2990,3 +2990,33 @@ and from aura 34 otherwise, and the buff grants 30% of maximum health as before.
 
 Test: `TestLastStandGrantsThirtyPercentOfMaximumHealth` (`sim/warrior/protection`). Goldens: none move
 (the fights that reached Last Stand panicked).
+
+## 131. `buffs: party auras without ONLY_TARGET_PLAYERS reach the party's pets`
+
+A pet got no party or raid buff at all: `Pet.AddPartyBuffs` is empty and `applyBuffEffects` runs on
+players only. In Forever a party aura is an area aura on the party (SpellEffect type 35), and the
+server puts it on the party's pets too unless the spell carries Attributes[3] 0x100
+(`ATTR_EX_3_ONLY_TARGET_PLAYERS`). Beta logs show the rule: in foreverlogs.gg report 2695 (2 October)
+a Warlock's Imp and a Hunter's pet carry Retribution Aura (7294, no flag) 90% and 96% of the run,
+while Devotion Aura (643, flagged) is on the players 83% to 90% and never on a pet; in report 2748
+(8 October) two pets carry Retribution Aura and none of its 35 pets carries Devotion Aura.
+
+Flagged in client 70338, so nothing changes for a pet: Arcane Brilliance (23028), Prayer of Spirit
+(27681), Gift of the Wild (21850), Prayer of Fortitude (21564), the Greater Blessings (25898, 25916,
+25918), Devotion Aura, Battle Shout, Leader of the Pack, Moonkin Aura, Strength of Earth and Grace of
+Air. Not flagged, now on a summoned pet (`sim/core/buffs/pet_buffs.go`): Mana Spring Totem (10494,
+10 mana every 2 sec, kept while casting), Trueshot Aura and the four Atiesh auras. Left out: Mana
+Tide Totem (the sim casts it as the player's external cooldown), Retribution Aura (pets take no
+hits), Blood Pact (health only; the casting Imp does not carry its own, report 2695) and the weapon
+totems. Guardians are not party members and get nothing.
+
+`PartyAurasReachPets` (default true). The core hook is `BuffHooks.ApplyPetBuffs`, called from
+`Raid.applyCharacterEffects` for each non-guardian pet.
+
+Effect: an Imp with Mana Spring Totem regains about 440 mana a fight while casting, which it did
+not before. Demonology Warlock reference with the Imp kept out instead of the Succubus (Discord,
+14 October): +0.6% to +0.7% (Imp +4.3 to +4.6 DPS), 10,000 iterations, every cell. No MythicSim
+reference moves (their Succubus is never short of mana; no reference has a pet beside Trueshot
+Aura). Goldens: `TestAffliction` (Succubus with Mana Spring Totem) +0.5%.
+
+Tests: `TestPartyAuraPetFlags` and `TestImpGetsManaSpringTotemOnly` (`sim/warlock`).
