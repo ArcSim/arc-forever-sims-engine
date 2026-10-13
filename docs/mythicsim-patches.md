@@ -3020,3 +3020,38 @@ reference moves (their Succubus is never short of mana; no reference has a pet b
 Aura). Goldens: `TestAffliction` (Succubus with Mana Spring Totem) +0.5%.
 
 Tests: `TestPartyAuraPetFlags` and `TestImpGetsManaSpringTotemOnly` (`sim/warlock`).
+
+## 132. `hunter: Lacerating Strikes rolls a refreshed bleed over and keeps its tick timer`
+
+Lacerating Strikes (1310533) bleeds the target for 40% of the Mongoose Bite over 21 sec (1310536,
+seven 3 sec ticks). Patch 87 let a new bite replace the running bleed. Mongoose Bite comes round every
+5 to 13 sec, so a bleed was replaced after 3 or 4 of its 7 ticks: on Sanctum's weave
+(`1a573b3d`, 3,000 iterations) 8.99 bleeds a fight dealt 28.2 ticks, 3.1 a bleed, 45% of the 40%,
+and the report showed 17.6 DPS where 40% of every bite would be about 34 (raised by Sanctum on the
+MythicSim Discord, 13 October). The client cannot say which the server does. Forever's Deep Wounds,
+the other "X% as a bleed" effect, rolls over and keeps its tick timer (Zirene on forever-bugs #234,
+patch 89), so Lacerating Strikes now does the same: `procLaceratingStrikes` reads `OutstandingDmg`
+before the cast, the bleed is applied with `ApplyKeepingTickTimer`, and the owed damage and the new
+bite's 40% are spread over `RemainingTicks`. No log at level 60 has settled it yet.
+
+`LaceratingStrikesRollsOver` (default true) switches it; false is the old replace and tick restart.
+
+`TestLaceratingStrikesRefreshRollsOver` (replaces `TestLaceratingStrikesRefreshKeepsTheNewBleed`)
+bites for 1000 at 0 sec and 1400 at 4.5 sec: rolled over, the next tick stays at 6 sec, the bleed runs
+out at 25.5 sec with 7 ticks of (6 x 400/7 + 560) / 7 and ticks at 3, 6, ..., 24 sec; switched off, 7
+ticks of 560/7 at 7.5 to 25.5 sec. Goldens (Average-Default): TestSurvival 352.97 to 359.47,
+TestSurvivalMelee 397.50 to 404.01; Beast Mastery and Marksmanship do not move.
+
+10,000 iterations, live pin `944a791060` against this patch:
+
+| Build | Before | After | Lacerating Strikes |
+| --- | ---: | ---: | ---: |
+| survival-hunter reference, board seed, board length | 781.36 | 804.10 | 16.8 to 38.7 DPS |
+| survival-hunter reference, board seed, 120 s | 778.67 | 800.31 | 16.8 to 38.6 DPS |
+| survival-hunter reference, alt seed, board length | 781.66 | 803.60 | 16.8 to 38.8 DPS |
+| survival-hunter reference, alt seed, 120 s | 778.74 | 800.49 | 16.8 to 38.6 DPS |
+| Sanctum's weave `1a573b3d` (seed 1179722310) | 900.54 | 914.97 | 17.6 to 32.4 DPS |
+| Sanctum's weave `f7751f61` (seed 1179722310) | 945.88 | 960.74 | 19.0 to 34.3 DPS |
+
+Drop this when upstream rolls the bleed over, or set the switch false if a log shows a refresh
+replaces it.
