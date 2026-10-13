@@ -48,7 +48,7 @@ func (hunter *Hunter) getImmolationTrapConfig(rank int, timer *core.Timer) core.
 				Tag:   "ImmolationTrap",
 			},
 			NumberOfTicks: 5,
-			TickLength:    time.Millisecond * 1500,
+			TickLength:    time.Millisecond * 3000,
 
 			OnSnapshot: func(sim *core.Simulation, target *core.Unit, dot *core.Dot, isRollover bool) {
 				ap := dot.Spell.RangedAttackPower(target, false)

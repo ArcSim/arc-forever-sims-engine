@@ -121,6 +121,7 @@ func (hunter *Hunter) ApplyTalents() {
 	hunter.applyRapidRecuperation()
 	hunter.applyExposePrey()
 	hunter.applyLaceratingStrikes()
+	hunter.applySurvivalTactics()
 }
 
 func (hunter *Hunter) applyExposePrey() {
@@ -372,7 +373,19 @@ func (hunter *Hunter) applySurvivalistDiscipline() {
 	}
 	hunter.OnSpellRegistered(func(spell *core.Spell) {
 		if spell.Flags.Matches(SpellFlagTrap) && spell.CD.Timer != nil {
-			spell.CD.Duration = time.Duration(float64(spell.CD.Duration) * (1 - 0.10*float64(hunter.Talents.SurvivalistDiscipline)))
+			spell.CD.Duration = time.Duration(float64(spell.CD.Duration) * (1 - 0.20*float64(hunter.Talents.SurvivalistDiscipline)))
+		}
+	})
+}
+
+func (hunter *Hunter) applySurvivalTactics() {
+	if hunter.Talents.SurvivalTactics == 0 {
+		return
+	}
+	bonus := 5 * float64(hunter.Talents.SurvivalTactics) * core.MeleeHitRatingPerHitChance
+	hunter.OnSpellRegistered(func(spell *core.Spell) {
+		if spell.Flags.Matches(SpellFlagTrap) {
+			spell.BonusHitRating += bonus
 		}
 	})
 }
