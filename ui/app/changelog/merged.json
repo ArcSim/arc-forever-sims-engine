@@ -1,5 +1,53 @@
 [
 	{
+		"number": 772,
+		"title": "Rake scales with attack power (5% on the hit and each tick); the hit ignores armor",
+		"mergedAt": "2026-10-13",
+		"url": "https://github.com/ElliotWood/Forever/pull/772"
+	},
+	{
+		"number": 771,
+		"title": "[DB] Update to 1.60.1.70338 with hotfixes as of 2026-10-13",
+		"mergedAt": "2026-10-13",
+		"url": "https://github.com/ElliotWood/Forever/pull/771"
+	},
+	{
+		"number": 770,
+		"title": "Wowhead Forever data changed (2026-10-13)",
+		"mergedAt": "2026-10-13",
+		"url": "https://github.com/ElliotWood/Forever/pull/770"
+	},
+	{
+		"number": 767,
+		"title": "[DB] Update to 1.60.1.70338 with hotfixes as of 2026-10-12",
+		"mergedAt": "2026-10-12",
+		"url": "https://github.com/ElliotWood/Forever/pull/767"
+	},
+	{
+		"number": 766,
+		"title": "Wowhead Forever data changed (2026-10-12)",
+		"mergedAt": "2026-10-12",
+		"url": "https://github.com/ElliotWood/Forever/pull/766"
+	},
+	{
+		"number": 765,
+		"title": "[DB] Update to 1.60.1.70338 with hotfixes as of 2026-10-11",
+		"mergedAt": "2026-10-11",
+		"url": "https://github.com/ElliotWood/Forever/pull/765"
+	},
+	{
+		"number": 764,
+		"title": "Wowhead Forever data changed (2026-10-11)",
+		"mergedAt": "2026-10-11",
+		"url": "https://github.com/ElliotWood/Forever/pull/764"
+	},
+	{
+		"number": 763,
+		"title": "[DB] Update to 1.60.1.70338 with hotfixes as of 2026-10-10",
+		"mergedAt": "2026-10-10",
+		"url": "https://github.com/ElliotWood/Forever/pull/763"
+	},
+	{
 		"number": 762,
 		"title": "Update DB: read client 70291+'s new armor aura, follow two renames (#758)",
 		"mergedAt": "2026-10-10",
