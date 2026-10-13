@@ -62,6 +62,9 @@ func (mage *Mage) registerFrostfireBoltRank(rank *spelldata.Spell) {
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			result := spell.CalcDamage(sim, target, rank.DamageEffect().Roll(sim, core.CharacterLevel), spell.OutcomeMagicHitAndCrit)
+			if mage.procFingersOfFrost != nil {
+				mage.procFingersOfFrost(sim, spell, result)
+			}
 			spell.WaitTravelTime(sim, func(sim *core.Simulation) {
 				spell.DealDamage(sim, result)
 				if result.Landed() {

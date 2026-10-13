@@ -336,13 +336,10 @@
 	},
 	"400669": {
 		"ability": "Fingers of Frost",
-		"assumptions": [
-			"A cast already in progress when the chill lands is not the 'next spell cast': it takes neither the Shatter crit nor a charge, and the cast after it takes both."
-		],
 		"file": "sim/mage/talents_frost.go",
 		"foreverId": 400669,
-		"note": "Forever's own id; Fingers of Frost is a later expansion spell, so the Classic database has no entry for it. Beta client 1.60.1.70009 (400647, 400669): 15% at both ranks, one charge per rank, 15 sec. Shatter's crit bonus is folded into this aura because a raid boss can never be chilled or frozen by anything else.",
-		"source": "assumed",
+		"note": "Forever's own id; Fingers of Frost is a later expansion spell, so the Classic database has no entry for it. Beta client 1.60.1.70009 (400647, 400669): 15% at both ranks, one charge per rank, 15 sec. Shatter's crit bonus is folded into this aura because a raid boss can never be chilled or frozen by anything else. The beta's combat logs (foreverlogs.gg reports 2747 and 2748, five procs off Frostbolt from four mages) gain it the moment Frostbolt's cast ends, 0.6 to 0.9 sec before the bolt lands: the next cast (Fire Blast, Ice Lance, Frostbolt) takes a charge and the bolt's own impact doesn't. So the sim rolls it for Frostbolt and Frostfire Bolt at launch, on the hit rolled there, and no chill lands part way through a cast.",
+		"source": "forever",
 		"tooltip": "Your Chill effects have a 15% chance to grant Fingers of Frost, which treats your next spell cast, or next 2 at rank 2, as though the target were frozen. Lasts 15 sec.\nWhile it is up your spells gain Shatter's critical strike chance, 17/33/50%, and Ice Lance deals its frozen damage."
 	},
 	"401502": {

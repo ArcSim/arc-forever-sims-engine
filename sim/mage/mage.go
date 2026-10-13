@@ -27,6 +27,9 @@ type Mage struct {
 	PresenceOfMindAura *core.Aura
 	WintersChillAura   *core.Aura
 
+	// procFingersOfFrost rolls Fingers of Frost for a chilling bolt at launch; nil without the talent.
+	procFingersOfFrost func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult)
+
 	ArcaneBlast *core.Spell
 	Ignite      *core.Spell
 	Flamestrike []*core.Spell

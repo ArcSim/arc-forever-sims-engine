@@ -227,46 +227,29 @@ func (mage *Mage) registerFingersOfFrost() {
 		Kind:       core.SpellMod_BonusCrit_Percent,
 	})
 
-	// A chill lands while the mage is part way through the next cast. That cast is not the "next
-	// spell cast" the talent grants, so it is held out of the Shatter bonus and does not spend a
-	// charge; the cast after it gets both.
-	// TODO: beta will confirm whether a cast already in progress when the chill lands counts.
-	var inFlight *core.Spell
-
+	// The beta's logs (foreverlogs 2748, 5 procs off Frostbolt, 4 mages) gain the aura at Frostbolt's cast
+	// end, before it lands (0.6-0.9 sec later): the next cast takes the bonus and a charge, the bolt's
+	// own impact neither. So Frostbolt and Frostfire Bolt roll it at launch (procFingersOfFrost, on
+	// the hit already rolled there); Cone of Cold and Improved Blizzard's ticks land at once.
+	var launcher *core.Spell
 	mage.FingersOfFrostAura = mage.RegisterAura(core.Aura{
 		Label:     "Fingers of Frost",
 		ActionID:  core.ActionID{SpellID: fofRank.ID},
 		Duration:  fofRank.Duration(),
 		MaxStacks: int32(spellData.FingersOfFrost.EffectAt(1).ValueAt(mage.Talents.FingersOfFrost)),
-		OnGain: func(_ *core.Aura, sim *core.Simulation) {
+		OnGain: func(_ *core.Aura, _ *core.Simulation) {
 			shatterMod.Activate()
-
-			inFlight = nil
-			if mage.Hardcast.Expires > sim.CurrentTime {
-				for _, spell := range mage.Spellbook {
-					if spell.Matches(MageSpellsAll) && spell.ActionID.SameAction(mage.Hardcast.ActionID) {
-						spell.BonusCritPercent -= shatterCrit
-						inFlight = spell
-						break
-					}
-				}
-			}
 		},
 		OnExpire: func(_ *core.Aura, _ *core.Simulation) {
 			shatterMod.Deactivate()
-			if inFlight != nil {
-				inFlight.BonusCritPercent += shatterCrit
-				inFlight = nil
-			}
 		},
 		OnCastComplete: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
 			if !spell.Matches(MageSpellsAllDamaging) {
 				return
 			}
 
-			if spell == inFlight {
-				spell.BonusCritPercent += shatterCrit
-				inFlight = nil
+			if spell == launcher {
+				launcher = nil
 				return
 			}
 
@@ -275,16 +258,27 @@ func (mage *Mage) registerFingersOfFrost() {
 		},
 	})
 
+	grant := func(sim *core.Simulation) {
+		mage.FingersOfFrostAura.Activate(sim)
+		mage.FingersOfFrostAura.SetStacks(sim, mage.FingersOfFrostAura.MaxStacks)
+	}
+
+	mage.procFingersOfFrost = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+		if result.Landed() && sim.Proc(procChance, "Fingers of Frost") {
+			launcher = spell
+			grant(sim)
+		}
+	}
+
 	mage.MakeProcTriggerAura(core.ProcTrigger{
 		Name:               "Fingers of Frost Trigger",
 		Callback:           core.CallbackOnSpellHitDealt,
-		ClassSpellMask:     MageSpellChill,
+		ClassSpellMask:     MageSpellConeOfCold | MageSpellImprovedBlizzard,
 		Outcome:            core.OutcomeLanded,
 		ProcChance:         procChance,
 		TriggerImmediately: true,
 		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-			mage.FingersOfFrostAura.Activate(sim)
-			mage.FingersOfFrostAura.SetStacks(sim, mage.FingersOfFrostAura.MaxStacks)
+			grant(sim)
 		},
 	})
 }
