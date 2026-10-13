@@ -1,5 +1,11 @@
 [
 	{
+		"number": 776,
+		"title": "Fingers of Frost procs at Frostbolt's cast end, not its impact",
+		"mergedAt": "2026-10-13",
+		"url": "https://github.com/ElliotWood/Forever/pull/776"
+	},
+	{
 		"number": 775,
 		"title": "Maelstrom Weapon procs at 10 PPM at every rank",
 		"mergedAt": "2026-10-13",
