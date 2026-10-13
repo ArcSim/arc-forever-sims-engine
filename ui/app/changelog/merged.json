@@ -1,5 +1,11 @@
 [
 	{
+		"number": 773,
+		"title": "Cat default rotation keeps Rake up",
+		"mergedAt": "2026-10-13",
+		"url": "https://github.com/ElliotWood/Forever/pull/773"
+	},
+	{
 		"number": 772,
 		"title": "Rake scales with attack power (5% on the hit and each tick); the hit ignores armor",
 		"mergedAt": "2026-10-13",
