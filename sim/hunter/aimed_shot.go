@@ -9,7 +9,7 @@ import (
 
 func (hunter *Hunter) getAimedShotConfig(rank int, timer *core.Timer) core.SpellConfig {
 	spellId := [7]int32{0, 19434, 20900, 20901, 20902, 20903, 20904}[rank]
-	baseDamage := [7]float64{0, 20, 40, 70, 100, 130, 166}[rank]
+	baseDamage := [7]float64{0, 20, 34, 55, 89, 125, 166}[rank]
 	manaCost := [7]float64{0, 75, 115, 160, 210, 260, 310}[rank]
 	level := [7]int{0, 20, 28, 36, 44, 52, 60}[rank]
 
@@ -31,7 +31,7 @@ func (hunter *Hunter) getAimedShotConfig(rank int, timer *core.Timer) core.Spell
 		Cast: core.CastConfig{
 			DefaultCast: core.Cast{
 				GCD:      core.GCDDefault,
-				CastTime: time.Millisecond * 2500,
+				CastTime: time.Millisecond * 2000,
 			},
 			CD: core.Cooldown{
 				Timer:    timer,
@@ -46,7 +46,7 @@ func (hunter *Hunter) getAimedShotConfig(rank int, timer *core.Timer) core.Spell
 				if mult < 0.01 {
 					mult = 1
 				}
-				cast.CastTime = time.Duration(float64(time.Millisecond*2500) / mult)
+				cast.CastTime = time.Duration(float64(time.Millisecond*2000) / mult)
 			},
 		},
 		ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {
