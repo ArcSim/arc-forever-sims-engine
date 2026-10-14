@@ -1,5 +1,11 @@
 [
 	{
+		"number": 789,
+		"title": "Fire Nova crits don't trigger Elemental Devastation (forever-bugs #334)",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/789"
+	},
+	{
 		"number": 788,
 		"title": "Malediction raises Hellfire's area hits (forever-bugs #311)",
 		"mergedAt": "2026-10-14",
