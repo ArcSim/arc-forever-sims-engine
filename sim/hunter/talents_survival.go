@@ -80,10 +80,11 @@ func (hunter *Hunter) registerResourcefulness() {
 		return
 	}
 
-	// 440529's cost mask leaves out Strider Kick.
+	// 440529's cost mask leaves out Strider Kick, but dev AidanZMoon called that a bug fixed for the
+	// 15 Oct build (forever-bugs #271), so it gets the discount like the other melee abilities.
 	hunter.AddStaticMod(core.SpellModConfig{
 		Kind:       core.SpellMod_PowerCost_Pct_Add,
-		ClassMask:  HunterSpellsTraps | HunterSpellsMelee&^HunterSpellStriderKick,
+		ClassMask:  HunterSpellsTraps | HunterSpellsMelee,
 		FloatValue: spellData.Resourcefulness.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_COST)).FractionAt(hunter.Talents.Resourcefulness),
 	})
 

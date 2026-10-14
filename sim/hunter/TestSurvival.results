@@ -59,462 +59,462 @@ dps_results: {
  key: "TestSurvival-AllItems-AccurateScope-33"
  value: {
   dps: 291.94952
-  tps: 165.83091
+  tps: 164.3713
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Alcor'sSunrazor-14555"
  value: {
   dps: 397.51477
-  tps: 242.16313
+  tps: 239.85052
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Annihilator-12798"
  value: {
   dps: 375.67009
-  tps: 225.62027
+  tps: 223.48134
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-ArenaGrandMaster-19024"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-ArgentAvenger-13246"
  value: {
   dps: 370.50463
-  tps: 222.74045
+  tps: 220.65619
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 296.54422
-  tps: 169.04719
+  tps: 167.58759
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-BarbaricBelt-4264"
  value: {
   dps: 293.23272
-  tps: 166.72915
+  tps: 165.26954
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-BarbaricCrossbow-272999"
  value: {
   dps: 289.00005
-  tps: 163.74538
+  tps: 162.26759
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Beastmaster'sBoots-22061"
  value: {
   dps: 298.21558
-  tps: 169.05365
+  tps: 167.59405
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Beastmaster'sTreads-226881"
  value: {
   dps: 299.13284
-  tps: 169.69573
+  tps: 168.23613
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-BeastmasterArmor"
  value: {
   dps: 346.47788
-  tps: 202.89632
+  tps: 201.45703
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-BeaststalkerArmor"
  value: {
   dps: 334.23715
-  tps: 195.39406
+  tps: 193.99352
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-BlackDragonMail"
  value: {
   dps: 313.39485
-  tps: 180.88657
+  tps: 179.42589
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 293.16424
-  tps: 166.65174
+  tps: 165.19502
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-BlazingEmblem-2802"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-BloodGuard'sChainGauntlets-16530"
  value: {
   dps: 293.85882
-  tps: 167.16741
+  tps: 165.70781
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-BloodGuard'sChainVices-22862"
  value: {
   dps: 295.59425
-  tps: 168.38221
+  tps: 166.92261
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-BloodTigerHarness"
  value: {
   dps: 301.25663
-  tps: 172.30293
+  tps: 170.87713
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Bloodfist-11744"
  value: {
   dps: 382.0156
-  tps: 230.93994
+  tps: 228.65749
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-BloodmailRegalia"
  value: {
   dps: 322.07101
-  tps: 186.92474
+  tps: 185.49174
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-BloodsoulEmbrace"
  value: {
   dps: 307.94266
-  tps: 176.83891
+  tps: 175.46792
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-BloodvineGarb"
  value: {
   dps: 303.00989
-  tps: 173.86089
+  tps: 172.39673
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-BlueDragonMail"
  value: {
   dps: 300.96583
-  tps: 172.14232
+  tps: 170.68272
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Bonereaver'sEdge-17076"
  value: {
   dps: 373.20685
-  tps: 223.81554
+  tps: 221.92267
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-BurstofKnowledge-11832"
  value: {
   dps: 292.00872
-  tps: 165.51219
+  tps: 164.02061
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-CadaverousGarb"
  value: {
   dps: 324.43147
-  tps: 188.62197
+  tps: 187.15385
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Champion'sPursuance"
  value: {
   dps: 338.61304
-  tps: 198.40939
+  tps: 197.00151
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Champion'sPursuit"
  value: {
   dps: 320.6758
-  tps: 185.91074
+  tps: 184.47489
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-ColdrageDagger-10761"
  value: {
   dps: 382.73888
-  tps: 231.58485
+  tps: 229.31687
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-CrudeScope-30"
  value: {
   dps: 291.93159
-  tps: 165.81835
+  tps: 164.35875
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-CryptstalkerArmor"
  value: {
   dps: 403.0578
-  tps: 241.44465
+  tps: 240.05125
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-CursedMurlocEye-273840"
  value: {
   dps: 292.00641
-  tps: 165.85277
+  tps: 164.38675
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Dal'Rend'sArms"
  value: {
   dps: 319.70255
-  tps: 187.4121
+  tps: 185.08575
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 291.92263
-  tps: 165.80193
+  tps: 164.35018
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-DarkmoonCard:Heroism-19287"
  value: {
   dps: 291.90328
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-DarkmoonCard:Maelstrom-19289"
  value: {
   dps: 299.48601
-  tps: 171.09663
+  tps: 169.64042
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Darrowspike-13984"
  value: {
   dps: 388.45538
-  tps: 235.56027
+  tps: 233.2955
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-DeadlyScope-663"
  value: {
   dps: 291.96745
-  tps: 165.84346
+  tps: 164.38385
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-DefiasLeather"
  value: {
   dps: 298.12738
-  tps: 170.16717
+  tps: 168.70459
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Defiler'sTalisman-20072"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Defiler'sTalisman-21115"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Defiler'sTalisman-21116"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Defiler'sTalisman-21120"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-DevilsaurArmor"
  value: {
   dps: 309.16424
-  tps: 177.93491
+  tps: 176.46679
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-DraconicInfusedEmblem-22268"
  value: {
   dps: 292.09909
-  tps: 165.9356
+  tps: 164.476
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Dragon'sCall-10847"
  value: {
   dps: 385.34678
-  tps: 220.55753
+  tps: 218.50584
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-DragonscaleBreastplate-8367"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-DreadmistRaiment"
  value: {
   dps: 309.28925
-  tps: 177.90658
+  tps: 176.49554
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-EarthenSigil-20525"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Earthstrike-21180"
  value: {
   dps: 300.04571
-  tps: 171.49823
+  tps: 170.03863
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-EbonHiltofMarduk-14576"
  value: {
   dps: 242.43346
-  tps: 130.48666
+  tps: 128.77354
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-EidolonTalisman-18340"
  value: {
   dps: 298.22241
-  tps: 170.22193
+  tps: 168.76232
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-ElectrifiedDagger-19100"
  value: {
   dps: 386.44317
-  tps: 234.17304
+  tps: 231.94152
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Enchant2HWeapon-GrandArcanist-7941"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Enchant:FieryBlaze-36"
  value: {
   dps: 292.81356
-  tps: 166.4449
+  tps: 164.97707
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-EnchantChest-Absorption-8220"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-EnchantChest-LesserAbsorption-63"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-EnchantChest-MinorAbsorption-44"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-EnchantCloak-Subtlety-2621"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-EnchantGloves-Threat-2613"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-EnchantWeapon-Crusader-1900"
  value: {
   dps: 295.61747
-  tps: 168.40127
+  tps: 166.94167
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-EnchantWeapon-FieryWeapon-803"
  value: {
   dps: 297.34596
-  tps: 169.57705
+  tps: 168.11195
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
   dps: 291.93867
-  tps: 165.82331
+  tps: 164.3637
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-EnchantWeapon-Insight-8216"
  value: {
   dps: 291.92263
-  tps: 165.74854
+  tps: 164.31559
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-EnchantWeapon-Lifestealing-1898"
  value: {
   dps: 296.66674
-  tps: 169.0963
+  tps: 167.62751
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-EnchantWeapon-Recovery-8721"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
   hps: 6.35271
  }
 }
@@ -522,833 +522,833 @@ dps_results: {
  key: "TestSurvival-AllItems-EnergyCloak-9397"
  value: {
   dps: 291.92263
-  tps: 165.8049
+  tps: 164.35003
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-EssenceofthePureFlame-18815"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-EverlookPathcarver-274759"
  value: {
   dps: 294.43425
-  tps: 167.58231
+  tps: 166.11257
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-EyeofMoam-21473"
  value: {
   dps: 292.28135
-  tps: 166.06319
+  tps: 164.60358
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-EyeoftheDead-23047"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-FieldMarshal'sPursuit"
  value: {
   dps: 332.11037
-  tps: 193.89891
+  tps: 192.47267
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-FlameWalkers-18047"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-FlameWrath-11809"
  value: {
   dps: 356.55259
-  tps: 212.44183
+  tps: 210.44217
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-FlurryAxe-871"
  value: {
   dps: 392.35202
-  tps: 238.49417
+  tps: 236.19902
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-ForceofWill-11810"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-FreezingBand-942"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-FrozenHeartoftheMountain-249469"
  value: {
   dps: 294.25529
-  tps: 167.52104
+  tps: 166.03939
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-GarboftheUndeadSlayer"
  value: {
   dps: 295.19786
-  tps: 168.10474
+  tps: 166.64514
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Gem-studdedLeatherBelt-4262"
  value: {
   dps: 292.57768
-  tps: 166.27061
+  tps: 164.81101
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-General'sChainGloves-16571"
  value: {
   dps: 298.33394
-  tps: 170.27602
+  tps: 168.83739
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-GiantstalkerArmor"
  value: {
   dps: 367.69489
-  tps: 218.78407
+  tps: 217.39082
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-GirdleofReprisal-11861"
  value: {
   dps: 293.3419
-  tps: 166.80557
+  tps: 165.34596
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-GlacialBlade-19099"
  value: {
   dps: 386.6774
-  tps: 234.3197
+  tps: 232.08954
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-GnomishHarmPreventionBelt-10721"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-GoblinConstructionHelmet-10543"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-GoldenBanana-270226"
  value: {
   dps: 292.76232
-  tps: 166.33998
+  tps: 165.02673
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-GreenDragonMail"
  value: {
   dps: 292.2957
-  tps: 165.87948
+  tps: 164.49247
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Guardian'sDualblade-273046"
  value: {
   dps: 345.10628
-  tps: 204.63233
+  tps: 202.73923
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-HandofJustice-11815"
  value: {
   dps: 294.07396
-  tps: 167.60833
+  tps: 166.01588
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Headmaster'sCharge-13937"
  value: {
   dps: 373.98422
-  tps: 225.57106
+  tps: 223.64378
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-HeartofWyrmthalak-22321"
  value: {
   dps: 294.10477
-  tps: 167.33357
+  tps: 165.87466
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-HeartoftheScale-13164"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-HelmofFire-8348"
  value: {
   dps: 297.71031
-  tps: 169.85718
+  tps: 168.38744
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-HibernationCrystal-20636"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Hurricane-2824"
  value: {
   dps: 288.7261
-  tps: 163.64653
+  tps: 162.13754
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-IcebladeHacker-13952"
  value: {
   dps: 272.682
-  tps: 153.55028
+  tps: 151.56939
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-InfernalLasso-219345"
  value: {
   dps: 294.57313
-  tps: 167.67953
+  tps: 166.20978
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-IronfeatherArmor"
  value: {
   dps: 296.39656
-  tps: 168.91723
+  tps: 167.47582
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-JomGabbar-23570"
  value: {
   dps: 302.41862
-  tps: 173.15927
+  tps: 171.69967
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-KissoftheSpider-22954"
  value: {
   dps: 305.38092
-  tps: 175.52739
+  tps: 174.02561
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Knight-Lieutenant'sChainGauntlets-16403"
  value: {
   dps: 293.85882
-  tps: 167.16741
+  tps: 165.70781
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Knight-Lieutenant'sChainVices-23279"
  value: {
   dps: 295.59425
-  tps: 168.38221
+  tps: 166.92261
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-LieutenantCommander'sPursuance"
  value: {
   dps: 338.61304
-  tps: 198.40939
+  tps: 197.00151
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-LieutenantCommander'sPursuit"
  value: {
   dps: 320.6758
-  tps: 185.91074
+  tps: 184.47489
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Lifestone-833"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Linken'sBoomerang-11905"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Loatheb'sReflection-23042"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Magister'sRegalia"
  value: {
   dps: 314.58538
-  tps: 181.6854
+  tps: 180.25097
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-MarkofResolution-17759"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-MarkofTyranny-13966"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-MarkoftheChampion-23206"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-MarkoftheChampion-23207"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-MarkoftheDragonLord-13143"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-MarkoftheRedFlight-282778"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Marshal'sChainGrips-16463"
  value: {
   dps: 298.33394
-  tps: 170.27602
+  tps: 168.83739
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-MindtapTalisman-18371"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-MoltenHeartoftheMountain-249470"
  value: {
   dps: 293.4778
-  tps: 166.9007
+  tps: 165.4411
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Naglering-11669"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-NecropileRaiment"
  value: {
   dps: 301.87616
-  tps: 172.75527
+  tps: 171.32253
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-ObsidianMailTunic-22191"
  value: {
   dps: 302.44587
-  tps: 173.15438
+  tps: 171.71574
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-OrbofFire-12805"
  value: {
   dps: 291.84903
-  tps: 165.75022
+  tps: 164.28384
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-PetrolspillLeggings-9509"
  value: {
   dps: 294.43738
-  tps: 167.5724
+  tps: 166.1128
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Plaguefang-279876"
  value: {
   dps: 361.64331
-  tps: 216.72531
+  tps: 214.65371
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Predator'sArmor"
  value: {
   dps: 313.58339
-  tps: 180.93294
+  tps: 179.52282
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Prismcharm-15867"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-RaggedJohn'sNeverendingCup-15873"
  value: {
   dps: 289.653
-  tps: 164.22334
+  tps: 162.76373
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-RedWhelpGloves-7284"
  value: {
   dps: 292.95339
-  tps: 166.51736
+  tps: 165.05918
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-RegaliaofUndeadCleansing"
  value: {
   dps: 295.78985
-  tps: 168.51913
+  tps: 167.05953
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Renataki'sCharmofBeasts-19953"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-RingofSaviors-1447"
  value: {
   dps: 291.92263
-  tps: 165.8062
+  tps: 164.35048
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Rivenspike-13286"
  value: {
   dps: 366.73906
-  tps: 219.37979
+  tps: 217.36691
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-RunebladeofBaronRivendare-13505"
  value: {
   dps: 358.03522
-  tps: 213.30272
+  tps: 211.44047
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-SearingDagger-273003"
  value: {
   dps: 199.93725
-  tps: 102.95943
+  tps: 100.89967
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-SecondWind-11819"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-SerenityField-272439"
  value: {
   dps: 292.02307
-  tps: 165.73001
+  tps: 164.37028
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-ShadowcraftArmor"
  value: {
   dps: 333.24478
-  tps: 194.67448
+  tps: 193.2719
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Shadowstrike-17074"
  value: {
   dps: 367.66858
-  tps: 220.37134
+  tps: 218.4102
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-ShardoftheFallenStar-21891"
  value: {
   dps: 294.03933
-  tps: 167.2875
+  tps: 165.81775
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-ShardoftheGods"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-SkullforgeReaver-13361"
  value: {
   dps: 369.66615
-  tps: 221.84736
+  tps: 219.79018
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Slayer'sCrest-23041"
  value: {
   dps: 306.45266
-  tps: 175.9831
+  tps: 174.52349
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Smokey'sLighter-13171"
  value: {
   dps: 293.96377
-  tps: 167.22186
+  tps: 165.75698
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-SmokingHeartoftheMountain-11811"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-SniperScope-664"
  value: {
   dps: 291.98538
-  tps: 165.85601
+  tps: 164.3964
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-SpireoftheStoneshaper-12532"
  value: {
   dps: 352.37318
-  tps: 209.23197
+  tps: 207.33911
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-SpiritofEskhandar"
  value: {
   dps: 319.78676
-  tps: 188.08956
+  tps: 185.67283
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-StandardScope-32"
  value: {
   dps: 291.94056
-  tps: 165.82463
+  tps: 164.36503
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-StormGauntlets-12632"
  value: {
   dps: 294.44159
-  tps: 167.61097
+  tps: 166.12336
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-StormshroudArmor"
  value: {
   dps: 311.09468
-  tps: 179.19017
+  tps: 177.77908
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Striker'sGarb"
  value: {
   dps: 341.8107
-  tps: 200.60797
+  tps: 199.22647
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-SwineFists-10760"
  value: {
   dps: 295.07023
-  tps: 167.99745
+  tps: 166.53142
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-SwordofZeal-6622"
  value: {
   dps: 249.66846
-  tps: 136.95834
+  tps: 135.21195
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-TalismanofArathor-20071"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-TalismanofArathor-21117"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-TalismanofArathor-21118"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-TalismanofArathor-21119"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-TalismanofAscendance-22678"
  value: {
   dps: 293.26408
-  tps: 166.75109
+  tps: 165.29149
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-TalismanofEphemeralPower-18820"
  value: {
   dps: 292.94021
-  tps: 166.52438
+  tps: 165.06478
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-TheBurrower'sShell-23558"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-TheElements"
  value: {
   dps: 313.11355
-  tps: 180.55367
+  tps: 179.14186
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-TheHighlander'sFortitude"
  value: {
   dps: 305.60208
-  tps: 175.31698
+  tps: 173.89656
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-TheLionHornofStormwind-14557"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-TheLobotomizer-19324"
  value: {
   dps: 385.85127
-  tps: 233.75402
+  tps: 231.52425
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-ThePostmaster"
  value: {
   dps: 305.19924
-  tps: 175.13528
+  tps: 173.68578
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-TheRestrainedEssenceofSapphiron-23046"
  value: {
   dps: 293.14229
-  tps: 166.66584
+  tps: 165.20623
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-ThorncursedGrips-274159"
  value: {
   dps: 292.84129
-  tps: 166.42568
+  tps: 164.96896
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Thunderfury,BlessedBladeoftheWindseeker-19019"
  value: {
   dps: 401.63874
-  tps: 239.7617
+  tps: 237.48615
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-TortoiseArmor-6907"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-UndeadSlayer'sArmor"
  value: {
   dps: 295.19786
-  tps: 168.10474
+  tps: 166.64514
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Uther'sStrength-11302"
  value: {
   dps: 291.96568
-  tps: 165.84221
+  tps: 164.38261
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Venomstrike-6469"
  value: {
   dps: 288.98634
-  tps: 163.75667
+  tps: 162.29707
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-VestmentsoftheDevout"
  value: {
   dps: 308.92432
-  tps: 177.62746
+  tps: 176.23143
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-VolcanicArmor"
  value: {
   dps: 293.70119
-  tps: 167.0378
+  tps: 165.57553
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-WarbladeofCaerDarrow-13982"
  value: {
   dps: 372.24644
-  tps: 223.16302
+  tps: 221.22271
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-Warlord'sPursuit"
  value: {
   dps: 332.11037
-  tps: 193.89891
+  tps: 192.47267
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-WarmthofForgiveness-23027"
  value: {
   dps: 291.92263
-  tps: 165.70102
+  tps: 164.28096
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-WildheartRaiment"
  value: {
   dps: 313.84997
-  tps: 181.00113
+  tps: 179.6233
  }
 }
 dps_results: {
  key: "TestSurvival-AllItems-WrathofCenarius-21190"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-Average-Default"
  value: {
   dps: 287.98212
-  tps: 163.39582
+  tps: 161.94148
  }
 }
 dps_results: {
  key: "TestSurvival-Settings-NightElf-Weapons-Cat-sv_melee-FullBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 2002.51813
-  tps: 1507.35373
+  dps: 2229.73189
+  tps: 1677.8838
  }
 }
 dps_results: {
  key: "TestSurvival-Settings-NightElf-Weapons-Cat-sv_melee-FullBuffs-30.0yards-LongSingleTarget"
  value: {
   dps: 291.88213
-  tps: 165.78568
+  tps: 164.32479
  }
 }
 dps_results: {
  key: "TestSurvival-Settings-NightElf-Weapons-Cat-sv_melee-FullBuffs-30.0yards-ShortSingleTarget"
  value: {
   dps: 313.92348
-  tps: 181.71101
+  tps: 180.26509
  }
 }
 dps_results: {
  key: "TestSurvival-Settings-NightElf-Weapons-Cat-sv_melee-NoBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 436.09571
-  tps: 397.26944
+  dps: 443.38509
+  tps: 404.60564
  }
 }
 dps_results: {
  key: "TestSurvival-Settings-NightElf-Weapons-Cat-sv_melee-NoBuffs-30.0yards-LongSingleTarget"
  value: {
-  dps: 117.80619
-  tps: 78.94705
+  dps: 131.17019
+  tps: 92.4106
  }
 }
 dps_results: {
@@ -1361,36 +1361,36 @@ dps_results: {
 dps_results: {
  key: "TestSurvival-Settings-Orc-Weapons-Cat-sv_melee-FullBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 2001.30878
-  tps: 1504.46688
+  dps: 2238.13898
+  tps: 1683.56303
  }
 }
 dps_results: {
  key: "TestSurvival-Settings-Orc-Weapons-Cat-sv_melee-FullBuffs-30.0yards-LongSingleTarget"
  value: {
   dps: 291.92263
-  tps: 165.81208
+  tps: 164.35248
  }
 }
 dps_results: {
  key: "TestSurvival-Settings-Orc-Weapons-Cat-sv_melee-FullBuffs-30.0yards-ShortSingleTarget"
  value: {
   dps: 310.45331
-  tps: 179.29027
+  tps: 177.83872
  }
 }
 dps_results: {
  key: "TestSurvival-Settings-Orc-Weapons-Cat-sv_melee-NoBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 426.3075
-  tps: 387.32031
+  dps: 433.44728
+  tps: 394.53239
  }
 }
 dps_results: {
  key: "TestSurvival-Settings-Orc-Weapons-Cat-sv_melee-NoBuffs-30.0yards-LongSingleTarget"
  value: {
-  dps: 116.86452
-  tps: 77.95227
+  dps: 130.87655
+  tps: 92.11696
  }
 }
 dps_results: {
@@ -1404,6 +1404,6 @@ dps_results: {
  key: "TestSurvival-SwitchInFrontOfTarget-Default"
  value: {
   dps: 234.96737
-  tps: 136.51759
+  tps: 135.05674
  }
 }
