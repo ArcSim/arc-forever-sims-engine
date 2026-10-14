@@ -254,8 +254,8 @@ dps_results: {
 dps_results: {
  key: "TestSubtlety-AllItems-DefiasLeather"
  value: {
-  dps: 291.83881
-  tps: 145.04389
+  dps: 295.19085
+  tps: 146.70985
  }
 }
 dps_results: {

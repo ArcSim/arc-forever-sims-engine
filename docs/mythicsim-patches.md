@@ -3203,3 +3203,123 @@ Downstream: the items' hit and crit now live in `pseudoStats`, which a gear summ
 
 Drop it when the client ships these items' `ItemSparse` rows (the generator then reads their equip
 spells as for any client item) and `RandPropPoints` prices legendary items.
+
+## 135. `core, items: weapon skill moves the attack table for the weapon that carries it`
+
+Reported by Redfall on Discord, 15 October: Aged Core Leather Gloves with Distracting Dagger (Classic +5
+and +6 dagger skill) simmed 5 DPS behind Devilsaur Gauntlets with Bonescraper, with the same miss,
+dodge, glancing rate and glancing damage. The engine had no weapon skill: the boss table
+(`NewAttackTable`) is fixed at 300 skill, `MapBonusStatIndexToStat` skipped the client's skill stats,
+`AddEquipSpellStats` skipped `A_MOD_SKILL` on weapon lines, and master's database, which fills in the
+unreleased items, has no skill to carry. Upstream (ElliotWood/Forever master `fdc17dfa0e`) is the same;
+the line goes back to the TBC engine. wowsims/classic and wowsims/sod model it.
+
+**Forever keeps weapon skill.** Only the racials (+1% crit, `applyWeaponSpecialization`) and Weapon
+Expertise (expertise) stopped granting it. Forever moved an item's skill from Classic's equip spell into
+its stat row, with stat indices of its own, read off the client's items (70338 `ItemSparse` and the
+70374 hotfixes) by each item's weapon type and checked against its Wowhead Forever tooltip:
+
+| Index | Skill | Item it was read from (Wowhead Forever) |
+| --- | --- | --- |
+| 90 | Two-handed axes | Huge Thorium Battleaxe ("Increased Two-Handed Axes +2"), Hurley's Felling Axe (+1) |
+| 91 | Two-handed maces | Servomechanic Sledgehammer (+1) |
+| 92 | Two-handed swords | Bladewind (+1) |
+| 96 | Daggers | Death's Sting ("Increased Daggers +3"), Hands of Thero-shan (+4) |
+| 98 | Fist weapons (unarmed) | Punchy's Punchers ("Increased Fist Weapons +1") |
+| 101 | Polearms | Frenzied Striker (+1) |
+| 103 | Swords | Test Sword Chest (Classic "Increased Swords") |
+
+93 to 95, 97, 99, 100 and 102 fall between them in what reads as alphabetical order (axes, bows,
+crossbows, ..., staves) but no client item carries one, so they stay unmapped. The amount is priced from
+the budget like any other stat; every value above matches its tooltip. Forever cut most of them:
+Huge Thorium Battleaxe +10 to +2, Servomechanic Sledgehammer +7 to +1 (plus 1% expertise), and Dwarven
+Tree Chopper's +2 became 0.6% expertise. The ranged skill items became ranged hit (patch 134). Set bonuses
+and suffixes still state skill as an `A_MOD_SKILL` spell: Defias Leather 5 piece 7534 Daggers +1, The
+Twin Blades of Hakkari 2 piece 15763 Swords +6, Defias Enforcer's Garb 4 piece 1324675 Swords +1, and the
+"of Proficiency" suffixes.
+
+**Mechanics** (`sim/core/weapon_skill.go`, ported from wowsims/classic's `NewAttackTable`, which follows
+magey's Classic attack table). Skill above the 5 a level every character has is kept per skill line as
+14 new `PseudoStat`s (`PseudoStatAxesSkill` 28 to `PseudoStatThrownSkill` 41, appended, so saved stats
+stay valid), on items' `pseudoStats`, not as `Stat`s (`stats.go` asks not to grow the stat array).
+`Character.updateWeaponSkills` sums the equipment and aura bonuses (`Unit.AddWeaponSkill`,
+`Aura.AttachWeaponSkill`) into the skill each hand attacks with, at construction, after an item swap and
+when a skill aura changes. An attack takes its hand's skill by proc mask (melee main hand, off hand,
+ranged); attacks with no weapon, pets and druids (forms fight with paws) attack at base skill. Against an
+enemy at or above the attacker's level, with gap = target defense - weapon skill:
+
+- miss: 5% + 0.1% a point, 0.2% a point past 10 (`AttackTable.MissChance`); past the defense, 0.04% a
+  point off (Classic; wowsims/classic keeps 0.1%);
+- hit suppression: 0.2% a point past 10, which is the boss's 1% at base (`HitSuppressionFor`; stays 0
+  under `Encounter.NoHitSuppression`, patch 125);
+- dodge: 5% + 0.1% a point (`DodgeChance`);
+- a glancing blow keeps a uniform roll between max(min(1.3 - 0.05 gap, 0.91), 0.01) and
+  max(min(1.2 - 0.03 gap, 0.99), 0.2) (`Glance`);
+- glancing chance, parry and crit suppression stay on base skill.
+
+At a gap of 15, 10, 5 and 0 the formulas give the table's own values (8% / 6% / 5.5% / 5% miss, 1% hit
+suppression at 15, 55-75% / 80-90% / 91-99% glances), and with no skill every lookup returns the table's
+field, so a sim without weapon skill is bit-identical.
+
+**Data.** `dbc.GetWeaponSkills` reads indices 90-103 into the item's pseudo stats;
+`dbc.AddEquipSpellStats` turns `A_MOD_SKILL` on a weapon line into them (Devilsaur Claws 24362, unarmed
++4), for client items and, next to `TakeClientHitAndCrit`, for filled-in items; and
+`MergeItemEffectsForAllStates` starts from the item's pseudo stats instead of discarding them.
+`fillClassicWeaponSkill` (`tools/database/gen_db/classic_weapon_skill.go`, after
+`dropClassicBonusDamage`) gives a filled-in item with no client equip spell its Classic skill from Wowhead
+Classic's planner (`skillBuff`, checked against the 1.15.9 client's `ItemEffect` and `SpellEffect`), as
+it keeps its other Classic stats. These are items Forever has not released: Wowhead Forever answers
+"Entity not found" and the client has their item rows encrypted and no equip spell linked, which is what
+Forever does when it moves an item's equip spells into its row, so their Forever skill may come out lower.
+Filled-in items whose client equip spells state no skill (the ranged ones) get none.
+
+| Item | Skill | Source |
+| --- | --- | --- |
+| Death's Sting 21126 | Daggers +3 | client stat 96 |
+| Hands of Thero-shan 7951 | Daggers +4 | client stat 96 |
+| Huge Thorium Battleaxe 12775 | Two-handed axes +2 | client stat 90 |
+| Hurley's Felling Axe 274929 | Two-handed axes +1 | client stat 90 |
+| Servomechanic Sledgehammer 4548 | Two-handed maces +1 | client stat 91 |
+| Bladewind 276102 | Two-handed swords +1 | client stat 92 |
+| Punchy's Punchers 275669 | Fist weapons +1 | client stat 98 |
+| Frenzied Striker 13056 | Polearms +1 | client stat 101 (hotfix row) |
+| Devilsaur Claws 20005 | Fist weapons +4 | client equip spell 24362 |
+| Aged Core Leather Gloves 18823 | Daggers +5 | Classic |
+| Distracting Dagger 18392 | Daggers +6 | Classic |
+| Mugger's Belt 18505 | Daggers +5 | Classic |
+| Skilled Fighting Blade 12062 | Daggers +4 | Classic |
+| Edgemaster's Handguards 14551 | Axes, daggers and swords +7 | Classic |
+| Expert Goldminer's Helmet 9375 | Axes +7 | Classic |
+| Obsidian Edged Blade 18822 | Two-handed swords +8 | Classic |
+
+`assets/database/db.json` carries the 16 item lines, written by applying those rules to the committed JSON
+(client values priced as `GetScaledStat` does from `RandPropPoints.json`; Classic values from the
+planner), each line re-marshalled with the field order `WriteProtoArrayToBuffer` writes; `go run
+./tools/sync_db_binary` rebuilt `db.bin`. A full `make db` was not run (no `tools/database/wowsims.db`).
+Defias Leather's 5 piece takes its +1 (`sim/common/forever/items_sets.go`); The Twin Blades of Hakkari
+and Defias Enforcer's Garb have no pieces in the database, and the "of Proficiency" suffixes are not in
+it either.
+
+Tests: `TestWeaponSkillAtBaseIsTheTable`, `TestWeaponSkillFormulasMeetTheBossTable`,
+`TestWeaponSkillAgainstABoss`, `TestWeaponSkillOnlyAgainstEnemiesAtOrAboveTheAttacker`,
+`TestWeaponSkillOf` (`sim/core`); `TestItemWeaponSkills`, `TestCharacterWeaponSkillPerHand` (`sim/core`,
+with_db); `TestWeaponSkillMovesTheBossTable` (`sim/rogue`: a dagger's dodge and glance damage at base,
+with Aged Core Leather Gloves and with the Defias Leather 5 piece, from real sims);
+`TestMapBonusStatIndexToWeaponSkill` (`tools/database/dbc`); `TestPlannerWeaponSkills`
+(`tools/database/gen_db`). Goldens: only `AllItems-DefiasLeather` in `TestAssassination` (+1.5%),
+`TestCombat` (+1.6%) and `TestSubtlety` (+1.1%); AllItems lists only items with registered effects, so no
+stat-only skill item is in one.
+
+Measured, Redfall's case (Human Fury, Alcor's Sunrazor and the two pairs alone, Crusader on both,
+Greater Strength on the gloves, `dps_no_reck`, seed 11, 3,000 iterations): Bonescraper and Devilsaur
+Gauntlets 133.4 on both engines; Distracting Dagger and Aged Core Leather Gloves 131.6 before, 152.6
+after (+16%), main hand miss 27.0% to 24.4%, dodge 6.5% to 5.4%, average glance 50 to 74. None of
+MythicSim's 31 reference builds wears an affected item. The engine's own presets do: Combat Rogue P1 BiS
+(Aged Core Leather Gloves with Perdition's Blade and Core Hound Tooth, +5 to both hands) and Warrior
+Phase 1 (Edgemaster's Handguards with two swords, +7 to both).
+
+Downstream: the Rust engine needs the port before its next repin (stats 28-41 on items, the per-hand
+skill and the four lookups), and MythicSim's gear summary (`web/src/lib/forever-gear-stats.ts`) reads only
+`stats`, so it does not show skill.
+
+Drop it when upstream models weapon skill.

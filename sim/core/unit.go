@@ -155,6 +155,14 @@ type Unit struct {
 	DynamicHealingTakenModifiers []DynamicHealingTakenModifier
 	Blockhandler                 func(sim *Simulation, spell *Spell, result *SpellResult)
 
+	// Weapon skill above base for attacks with the main hand, off hand and ranged weapon
+	// (sim/core/weapon_skill.go).
+	weaponSkill [weaponSkillHands]float64
+	// Weapon skill from auras such as set bonuses, by skill line (AddWeaponSkill), and what
+	// recomputes weaponSkill when it changes (a character's equipment decides which line counts).
+	weaponSkillBonus    [numWeaponSkills]float64
+	onWeaponSkillChange func()
+
 	GCD *Timer
 
 	// Separate from GCD timer to support spell queueing and off-GCD actions
@@ -925,7 +933,7 @@ func (unit *Unit) GetBlockFromRating() float64 {
 
 func (unit *Unit) GetTotalDodgeChanceAsDefender(spell *Spell, atkTable *AttackTable) float64 {
 	chance := unit.PseudoStats.BaseDodgeChance +
-		atkTable.BaseDodgeChance +
+		atkTable.DodgeChance(spell) +
 		unit.GetDodgeFromRating() -
 		spell.DodgeParrySuppression() -
 		spell.Unit.PseudoStats.DodgeReduction

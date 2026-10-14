@@ -205,6 +205,7 @@ func main() {
 	// After the global filters: those are for the client's rows, ours were filtered on master.
 	filled := mergeForeverSimDB(db, fmt.Sprintf("%s/forever_sim_db.json", inputsDir))
 	dropClassicBonusDamage(db, filled, fmt.Sprintf("%s/wowhead_gearplannerdb.txt", inputsDir))
+	fillClassicWeaponSkill(db, filled, instance.ItemEffectsByParentID, fmt.Sprintf("%s/wowhead_gearplannerdb.txt", inputsDir))
 	fillPlannerArmor(db, fmt.Sprintf("%s/wowhead_forever_gearplanner.txt", inputsDir))
 	fillPlannerSpellPower(db, fmt.Sprintf("%s/wowhead_forever_gearplanner.txt", inputsDir))
 	fillPlannerLegendaryStats(db, fmt.Sprintf("%s/wowhead_forever_gearplanner.txt", inputsDir))

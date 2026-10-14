@@ -99,7 +99,7 @@ var ItemSetBlessedPlate = core.NewItemSet(core.ItemSet{
 // https://www.wowhead.com/forever/item-set=161/defias-leather
 //
 // Forever rebuilt the Deadmines set: the 3 and 4 piece bonuses are new and the old +1 dagger skill
-// moved to five pieces. The sim has no weapon skill, so the 5 piece does nothing here.
+// moved to five pieces.
 var ItemSetDefiasLeather = core.NewItemSet(core.ItemSet{
 	ID:   161,
 	Name: "Defias Leather",
@@ -122,6 +122,9 @@ var ItemSetDefiasLeather = core.NewItemSet(core.ItemSet{
 			trigger.TriggerImmediately = true
 			setBonusAura.AttachProcTrigger(trigger)
 		},
-		5: setNoop,
+		// Increased Daggers +1 (7534).
+		5: func(_ core.Agent, setBonusAura *core.Aura) {
+			setBonusAura.AttachWeaponSkill(proto.PseudoStat_PseudoStatDaggersSkill, 1)
+		},
 	},
 })

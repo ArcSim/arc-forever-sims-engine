@@ -370,6 +370,7 @@ func (swap *ItemSwap) SwapItems(sim *Simulation, swapSet proto.APLActionItemSwap
 			onSwapSlot(sim, slot)
 		}
 	}
+	character.updateWeaponSkills()
 
 	if !swap.IsValidSwap(swapSet) {
 		return

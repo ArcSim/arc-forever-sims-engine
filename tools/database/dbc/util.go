@@ -246,6 +246,13 @@ func AddEquipSpellStats(outStats *stats.Stats, pseudoStats []float64, spellID in
 			continue
 		}
 
+		if effect.EffectAura == dbcenums.A_MOD_SKILL && pseudoStats != nil && value != 0 {
+			if skill, ok := MapSkillLineToWeaponSkill(effect.EffectMiscValues[0]); ok {
+				add(skill, value)
+			}
+			continue
+		}
+
 		// 1293881 (Pendulum of Doom) states a zero melee haste and changes the speed through its procs.
 		if pseudoStats == nil || value == 0 {
 			continue

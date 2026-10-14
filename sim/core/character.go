@@ -185,6 +185,7 @@ func NewCharacter(party *Party, partyIndex int, player *proto.Player) Character 
 	if player.WeaponTypeOverride != proto.WeaponType_WeaponTypeUnknown {
 		character.Equipment.overrideWeaponTypes(player.WeaponTypeOverride, player.WeaponTypeOverrideOffHandOnly)
 	}
+	character.updateWeaponSkills()
 	return character
 }
 
@@ -301,6 +302,9 @@ func (character *Character) addUniversalStatDependencies() {
 // Returns a partially-filled PlayerStats proto for use in the CharacterStats api call.
 func (character *Character) applyAllEffects(agent Agent, raidBuffs *proto.RaidBuffs, partyBuffs *proto.PartyBuffs, individualBuffs *proto.IndividualBuffs) *proto.PlayerStats {
 	playerStats := &proto.PlayerStats{}
+	// Here, not in NewCharacter: the class embeds a copy of what NewCharacter returns, and this is
+	// the character the set bonuses' skill reaches.
+	character.onWeaponSkillChange = character.updateWeaponSkills
 
 	measureStats := func() *proto.UnitStats {
 		baseStats := character.GetStats()

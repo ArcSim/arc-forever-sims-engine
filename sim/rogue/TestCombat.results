@@ -254,8 +254,8 @@ dps_results: {
 dps_results: {
  key: "TestCombat-AllItems-DefiasLeather"
  value: {
-  dps: 317.1115
-  tps: 157.60442
+  dps: 322.10276
+  tps: 160.08507
  }
 }
 dps_results: {

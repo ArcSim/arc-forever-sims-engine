@@ -254,8 +254,8 @@ dps_results: {
 dps_results: {
  key: "TestAssassination-AllItems-DefiasLeather"
  value: {
-  dps: 328.80985
-  tps: 163.4185
+  dps: 333.74108
+  tps: 165.86932
  }
 }
 dps_results: {

@@ -434,6 +434,8 @@ func (w *chainWalker) findTriggerOf(spellIDToMatch int, spellID int) *SpellEffec
 func MergeItemEffectsForAllStates(parsed *proto.UIItem) []*proto.ItemEffect {
 	var effects []*proto.ItemEffect
 	pseudoStats := make([]float64, stats.PseudoStatsLen)
+	// The weapon skill in the item's own stat array (GetWeaponSkills), or filled in by gen_db.
+	copy(pseudoStats, parsed.PseudoStats)
 
 	itemEffects := dbcInstance.ItemEffectsByParentID[int(parsed.Id)]
 	for idx := range itemEffects {
@@ -452,6 +454,9 @@ func MergeItemEffectsForAllStates(parsed *proto.UIItem) []*proto.ItemEffect {
 				// that spell replaces master's Classic value (TakeClientHitAndCrit).
 				if _, fromClient := dbcInstance.Items[int(parsed.Id)]; !fromClient {
 					TakeClientHitAndCrit(parsed, equipPseudoStats, pseudoStats)
+					for _, skill := range WeaponSkillPseudoStats() {
+						pseudoStats[skill] += equipPseudoStats[skill]
+					}
 					continue
 				}
 				if areaType := spelldata.AreaTypeOfGroup(dbcInstance.Spells[baseEff.SpellID].RequiredAreasID); areaType != proto.AreaType_AreaTypeUnknown {

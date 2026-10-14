@@ -96,6 +96,7 @@ func (item *Item) ToScaledUIItem(itemLevel int) *proto.UIItem {
 		RandPropPoints:  item.GetRandPropPoints(item.ItemLevel),
 		Ilvl:            int32(item.ItemLevel),
 	}
+	uiItem.PseudoStats = NullFloat(item.GetWeaponSkills(item.ItemLevel))
 
 	uiItem.ScalingOptions = scalingProperties
 	return uiItem

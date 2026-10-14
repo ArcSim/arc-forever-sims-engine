@@ -264,7 +264,7 @@ enum Stat {
 // between the UI and backend. It's also OK to include things here which aren't
 // in the PseudoStats struct.
 //
-// NextIndex: 27;
+// NextIndex: 42;
 enum PseudoStat {
 	PseudoStatMainHandDps = 0;
 	PseudoStatOffHandDps = 1;
@@ -304,6 +304,24 @@ enum PseudoStat {
 	// (talents, the Hyjal flask); ExpertiseRating covers the few rating-denominated ones
 	// (the tier 1 4P bonuses) and converts into this at 10 rating per percent.
 	PseudoStatExpertisePercent = 27;
+
+	// Weapon skill above the 5 a level every character has, by the skill line it raises. Forever
+	// keeps Classic's weapon skill on items (item stats 90-103), set bonuses and suffixes; it moves
+	// the attack table only for attacks made with a weapon of that type (sim/core/weapon_skill.go).
+	PseudoStatAxesSkill = 28;
+	PseudoStatSwordsSkill = 29;
+	PseudoStatMacesSkill = 30;
+	PseudoStatDaggersSkill = 31;
+	PseudoStatUnarmedSkill = 32; // Fist weapons
+	PseudoStatTwoHandedAxesSkill = 33;
+	PseudoStatTwoHandedSwordsSkill = 34;
+	PseudoStatTwoHandedMacesSkill = 35;
+	PseudoStatPolearmsSkill = 36;
+	PseudoStatStavesSkill = 37;
+	PseudoStatBowsSkill = 38;
+	PseudoStatGunsSkill = 39;
+	PseudoStatCrossbowsSkill = 40;
+	PseudoStatThrownSkill = 41;
 }
 
 message UnitStats {

@@ -29,6 +29,7 @@ below is gated on `IsForever()` unless it says the class code is Forever-only.
 |---|---|---|
 | Every +10 resistance racial is removed. | Racials guide | `sim/core/racials.go` |
 | Weapon skill racials become +1% crit (both pools) while the matching weapon is held; Mace Specialization moves to Dwarves. | Racials guide, *demo* | `sim/core/specializations.go` |
+| Weapon skill stays on items, as item stats 90-103 (most cut from Classic: Huge Thorium Battleaxe +10 to +2), and on set bonuses and suffixes as `A_MOD_SKILL`. It moves miss, dodge, hit suppression and glancing damage against higher-level targets for the weapon of that type (Classic's table). | Client item rows, Wowhead Forever tooltips | `sim/core/weapon_skill.go` (MythicSim patch 135) |
 | Dwarf gains Beast Slaying-style +5% vs Beasts ("Big Game Hunter"). Troll keeps Beast Slaying; both ranged specializations removed. | Racials guide | `sim/core/racials.go` |
 | Orc: Command removed (Shatter Curse replaces it). Blood Fury: 10% attack power and spell power. | Racials guide, *demo* | `sim/core/racials.go` |
 | Gnome Expansive Mind raises the resource pool (mana modelled) rather than Intellect. Eureka! cooldown/cost figures unpublished. | Racials guide | `sim/core/racials.go` |
