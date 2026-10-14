@@ -47,32 +47,23 @@ func TestMutilateHitsDoNotRollAvoidance(t *testing.T) {
 	}
 }
 
-// Cold Blood crits both Mutilate hands and isn't spent by them; the next Eviscerate spends it.
-func TestColdBloodLastsThroughMutilate(t *testing.T) {
+// Cold Blood crits both Mutilate hands, then Mutilate spends it (forever-bugs #224).
+func TestMutilateSpendsColdBlood(t *testing.T) {
 	sim, rogue := kidneyShotSim(AssassinationTalents)
 	target := rogue.CurrentTarget
 	coldBlood := rogue.GetAura("Cold Blood")
 
 	rogue.ColdBlood.SkipCastAndApplyEffects(sim, target)
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 20 && coldBlood.IsActive(); i++ {
 		rogue.Mutilate.SkipCastAndApplyEffects(sim, target)
 	}
-	if !coldBlood.IsActive() {
-		t.Fatal("Cold Blood was spent by Mutilate")
+	if coldBlood.IsActive() {
+		t.Fatal("Cold Blood survived Mutilate")
 	}
 	for _, hand := range []*core.Spell{rogue.MutilateMH, rogue.MutilateOH} {
 		m := hand.SpellMetrics[target.UnitIndex]
-		if m.Crits == 0 || m.Hits != 0 {
-			t.Errorf("%v under Cold Blood: %d crits, %d hits; want only crits", hand.ActionID, m.Crits, m.Hits)
+		if m.Crits != 1 || m.Hits != 0 {
+			t.Errorf("%v under Cold Blood: %d crits, %d hits; want one crit", hand.ActionID, m.Crits, m.Hits)
 		}
-	}
-
-	metrics := rogue.NewComboPointMetrics(core.ActionID{SpellID: 31016, Tag: 9})
-	for i := 0; i < 20 && coldBlood.IsActive(); i++ {
-		rogue.AddComboPoints(sim, 5, metrics)
-		rogue.Eviscerate.SkipCastAndApplyEffects(sim, target)
-	}
-	if coldBlood.IsActive() {
-		t.Error("Cold Blood survived Eviscerate")
 	}
 }
