@@ -277,9 +277,12 @@
 	},
 	"9908": {
 		"ability": "Swipe",
+		"assumptions": [
+			"The 0.05 attack power share is fitted to one beta bear's hits with and without Blessing of Might; Season of Discovery's script used 0.1."
+		],
 		"file": "sim/druid/swipe.go",
-		"note": "Client 70009: damage, 3 targets and the 20 Rage are Classic's.",
-		"source": "classic"
+		"note": "Client 70009: damage, 3 targets and the 20 Rage are Classic's. On top it adds 5% of attack power from a server script (forever-bugs #125: dev fixed Swipe not scaling, 26 Sep). The 0.05 is a fit to beta report 2756: Blessing of Might's +40 AP raised the same Swipes by 1.6 (126 hits), so it stays a guess until a cleaner measurement.",
+		"source": "assumed"
 	},
 	"9912": {
 		"ability": "Wrath",
