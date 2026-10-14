@@ -74,8 +74,9 @@ func (priest *Priest) applyWandSpecialization() {
 // Twin Disciplines is new in Forever: +1% damage and healing per point on instant spells. The client
 // states it as two SPELL_AURA_ADD_PCT_MODIFIER effects, damage and dot, so it joins the additive
 // bucket rather than multiplying. 1225132's masks name Holy Nova, Chastise, Divine Grace and
-// Contingency Plan (damage) and Shadow Word: Pain and Devouring Plague (dot) - not Mind Flay,
-// Penance, Shadow Word: Death or Starshards.
+// Contingency Plan (damage) and Shadow Word: Pain and Devouring Plague (dot). The devs called the
+// missing Mind Flay and Shadow Word: Death bugs, fixed for the next build (forever-bugs #322, #328,
+// 2026-10-13), so both are added; Penance and Starshards stay out.
 func (priest *Priest) applyTwinDisciplines() {
 	if priest.Talents.TwinDisciplines == 0 {
 		return
@@ -83,7 +84,7 @@ func (priest *Priest) applyTwinDisciplines() {
 
 	priest.AddStaticMod(core.SpellModConfig{
 		ClassMask: PriestSpellHolyNova | PriestSpellChastise | PriestSpellDivineGrace | PriestSpellContingencyPlan |
-			PriestSpellShadowWordPain | PriestSpellDevouringPlague,
+			PriestSpellShadowWordPain | PriestSpellDevouringPlague | PriestSpellMindFlay | PriestSpellShadowWordDeath,
 		FloatValue: spellData.TwinDisciplines.EffectAt(1).FractionAt(priest.Talents.TwinDisciplines),
 		Kind:       core.SpellMod_DamageDone_Flat,
 	})

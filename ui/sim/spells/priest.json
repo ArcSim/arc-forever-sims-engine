@@ -204,7 +204,7 @@
 	"15473": {
 		"ability": "Shadowform",
 		"file": "sim/priest/talents_shadow.go",
-		"note": "Beta client 1.60.1.70009: Classic's 15473 is +15% Shadow damage and -15% Physical damage taken; Forever adds -50% Shadow mana cost and +100% critical strike damage bonus (on Mind Blast, Mind Flay, Shadow Word: Pain and Devouring Plague, the mask 41984016 names) and drops the damage to 10%. The form blocks only healing. The sim charges nothing to cast it where the client says 40% of base mana, as it did for Classic.",
+		"note": "Beta client 1.60.1.70009: Classic's 15473 is +15% Shadow damage and -15% Physical damage taken; Forever adds -50% Shadow mana cost and +100% critical strike damage bonus (on Mind Blast, Mind Flay, Shadow Word: Pain and Devouring Plague, the mask 41984016 names, plus Shadow Word: Death, which the devs called a missing-mask bug fixed for the next build, forever-bugs #328) and drops the damage to 10%. The form blocks only healing. The sim charges nothing to cast it where the client says 40% of base mana, as it did for Classic.",
 		"source": "forever",
 		"tooltip": "Instant\nAssume Shadowform, increasing your Shadow damage by 10%, reducing the Mana cost of all Shadow spells by 50%, increasing the critical strike damage bonus of your Shadow spells by 100%, and reducing Physical damage taken by you by 15%. However, you may not cast healing spells while in this form."
 	},
