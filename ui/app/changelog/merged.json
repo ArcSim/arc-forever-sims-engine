@@ -1,5 +1,11 @@
 [
 	{
+		"number": 792,
+		"title": "paladin: Reckoning swings at once without resetting the swing timer, 1.5 s proc cooldown",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/792"
+	},
+	{
 		"number": 791,
 		"title": "Human/Orc weapon racial crit follows the weapon's hand, not ranged",
 		"mergedAt": "2026-10-14",
