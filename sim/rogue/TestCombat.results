@@ -331,8 +331,8 @@ dps_results: {
 dps_results: {
  key: "TestCombat-AllItems-EbonHiltofMarduk-14576"
  value: {
-  dps: 328.46821
-  tps: 161.61621
+  dps: 326.87326
+  tps: 160.83145
  }
 }
 dps_results: {
@@ -941,8 +941,8 @@ dps_results: {
 dps_results: {
  key: "TestCombat-AllItems-SwordofZeal-6622"
  value: {
-  dps: 341.73614
-  tps: 169.84286
+  dps: 339.86523
+  tps: 168.91302
  }
 }
 dps_results: {

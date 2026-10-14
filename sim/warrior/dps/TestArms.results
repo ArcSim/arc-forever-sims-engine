@@ -44,7 +44,7 @@ character_stats_results: {
   final_stats: 0
   final_stats: 0
   final_stats: 0
-  final_stats: 17.1
+  final_stats: 16.1
   final_stats: 6
   final_stats: 0
   final_stats: 0
@@ -65,8 +65,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-Alcor'sSunrazor-14555"
  value: {
-  dps: 391.55337
-  tps: 228.04085
+  dps: 390.44124
+  tps: 227.56366
  }
 }
 dps_results: {
@@ -86,8 +86,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-ArgentAvenger-13246"
  value: {
-  dps: 376.68696
-  tps: 219.00147
+  dps: 371.77241
+  tps: 215.8046
  }
 }
 dps_results: {
@@ -114,8 +114,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-Bashguuder-13204"
  value: {
-  dps: 385.91967
-  tps: 223.57517
+  dps: 387.19905
+  tps: 224.71736
  }
 }
 dps_results: {
@@ -205,8 +205,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-Bloodfist-11744"
  value: {
-  dps: 388.01402
-  tps: 226.30006
+  dps: 388.76676
+  tps: 226.59341
  }
 }
 dps_results: {
@@ -240,15 +240,15 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-BonechillHammer-14487"
  value: {
-  dps: 366.84669
-  tps: 212.6384
+  dps: 370.57972
+  tps: 214.43156
  }
 }
 dps_results: {
  key: "TestArms-AllItems-Bonereaver'sEdge-17076"
  value: {
-  dps: 393.47436
-  tps: 229.03051
+  dps: 393.4554
+  tps: 229.24
  }
 }
 dps_results: {
@@ -296,8 +296,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-ColdrageDagger-10761"
  value: {
-  dps: 379.28381
-  tps: 220.93331
+  dps: 385.78237
+  tps: 224.34224
  }
 }
 dps_results: {
@@ -352,8 +352,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-Darrowspike-13984"
  value: {
-  dps: 382.71153
-  tps: 222.85283
+  dps: 389.10202
+  tps: 226.20124
  }
 }
 dps_results: {
@@ -373,8 +373,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-DefiasLeather"
  value: {
-  dps: 335.79535
-  tps: 193.03679
+  dps: 335.77581
+  tps: 193.02585
  }
 }
 dps_results: {
@@ -422,8 +422,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-Dragon'sCall-10847"
  value: {
-  dps: 382.21328
-  tps: 213.56377
+  dps: 376.75072
+  tps: 210.81187
  }
 }
 dps_results: {
@@ -478,8 +478,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-ElectrifiedDagger-19100"
  value: {
-  dps: 384.92813
-  tps: 222.86837
+  dps: 382.29716
+  tps: 222.14567
  }
 }
 dps_results: {
@@ -675,8 +675,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-GlacialBlade-19099"
  value: {
-  dps: 384.94876
-  tps: 222.87992
+  dps: 382.34529
+  tps: 222.17262
  }
 }
 dps_results: {
@@ -759,8 +759,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-IcebladeHacker-13952"
  value: {
-  dps: 290.68358
-  tps: 167.96136
+  dps: 290.30739
+  tps: 167.7507
  }
 }
 dps_results: {
@@ -864,8 +864,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-ManualCrowdPummeler-9449"
  value: {
-  dps: 408.39191
-  tps: 238.27822
+  dps: 405.91844
+  tps: 236.86131
  }
 }
 dps_results: {
@@ -913,8 +913,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-MasterworkStormhammer-12794"
  value: {
-  dps: 381.62358
-  tps: 221.93976
+  dps: 383.8417
+  tps: 223.88995
  }
 }
 dps_results: {
@@ -976,8 +976,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-Plaguefang-279876"
  value: {
-  dps: 374.87084
-  tps: 217.56036
+  dps: 375.48711
+  tps: 217.91403
  }
 }
 dps_results: {
@@ -1032,8 +1032,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-RunebladeofBaronRivendare-13505"
  value: {
-  dps: 374.24906
-  tps: 217.79693
+  dps: 369.06596
+  tps: 214.39265
  }
 }
 dps_results: {
@@ -1109,8 +1109,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-SkullforgeReaver-13361"
  value: {
-  dps: 368.59042
-  tps: 213.64289
+  dps: 368.93455
+  tps: 213.67658
  }
 }
 dps_results: {
@@ -1144,8 +1144,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-Spider'sKiss"
  value: {
-  dps: 370.21097
-  tps: 214.44663
+  dps: 371.92337
+  tps: 216.38734
  }
 }
 dps_results: {
@@ -1165,8 +1165,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-StingingViper-6472"
  value: {
-  dps: 360.13198
-  tps: 208.17955
+  dps: 357.81124
+  tps: 207.10359
  }
 }
 dps_results: {
@@ -1193,8 +1193,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-Sulfuras,HandofRagnaros-17182"
  value: {
-  dps: 377.68465
-  tps: 219.02005
+  dps: 374.95853
+  tps: 217.66123
  }
 }
 dps_results: {
@@ -1263,8 +1263,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-TheCruelHandofTimmy-13401"
  value: {
-  dps: 378.65291
-  tps: 219.68669
+  dps: 379.78642
+  tps: 220.72443
  }
 }
 dps_results: {
@@ -1298,8 +1298,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-TheLobotomizer-19324"
  value: {
-  dps: 380.76598
-  tps: 220.87001
+  dps: 381.84067
+  tps: 221.87481
  }
 }
 dps_results: {
@@ -1326,8 +1326,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-Thunderfury,BlessedBladeoftheWindseeker-19019"
  value: {
-  dps: 395.02818
-  tps: 227.5205
+  dps: 392.24116
+  tps: 225.77915
  }
 }
 dps_results: {
@@ -1389,8 +1389,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-WarbladeofCaerDarrow-13982"
  value: {
-  dps: 394.1806
-  tps: 229.21975
+  dps: 387.22227
+  tps: 225.23694
  }
 }
 dps_results: {

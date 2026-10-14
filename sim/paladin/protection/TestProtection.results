@@ -44,7 +44,7 @@ character_stats_results: {
   final_stats: 0
   final_stats: 3
   final_stats: 3
-  final_stats: 11.2034
+  final_stats: 9.2034
   final_stats: 13.7211
   final_stats: 0.8
   final_stats: 0
@@ -1957,16 +1957,16 @@ dps_results: {
 dps_results: {
  key: "TestProtection-Settings-Human-WeaponAndShield-DefaultTalents-Protection-p5-FullBuffs-5.0yards-LongMultiTarget"
  value: {
-  dps: 1279.57539
-  tps: 1961.87029
+  dps: 1279.17976
+  tps: 1961.4272
   dtps: 30453.63424
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Human-WeaponAndShield-DefaultTalents-Protection-p5-FullBuffs-5.0yards-LongSingleTarget"
  value: {
-  dps: 317.63874
-  tps: 352.52985
+  dps: 317.36652
+  tps: 352.22497
   dtps: 1506.86777
  }
 }
@@ -2053,16 +2053,16 @@ dps_results: {
 dps_results: {
  key: "TestProtection-Settings-Human-WeaponAndShield-Protection 0/45/6-Protection-p5-FullBuffs-5.0yards-LongMultiTarget"
  value: {
-  dps: 1248.82816
-  tps: 1915.66322
+  dps: 1248.64706
+  tps: 1915.46039
   dtps: 30161.26696
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Human-WeaponAndShield-Protection 0/45/6-Protection-p5-FullBuffs-5.0yards-LongSingleTarget"
  value: {
-  dps: 303.69461
-  tps: 345.11053
+  dps: 303.42576
+  tps: 344.80942
   dtps: 1402.81128
  }
 }

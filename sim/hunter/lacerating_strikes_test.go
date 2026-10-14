@@ -11,7 +11,7 @@ import (
 // their class masks, so its ticks get the same crit chance and crit damage as Mongoose Bite.
 func TestLaceratingStrikesGetsSavageStrikesAndPredatorsEdge(t *testing.T) {
 	player := &proto.Player{
-		Name: "sv", Class: proto.Class_ClassHunter, Race: proto.Race_RaceOrc, TalentsString: SurvivalTalents,
+		Name: "sv", Class: proto.Class_ClassHunter, Race: proto.Race_RaceNightElf, TalentsString: SurvivalTalents,
 		Equipment: WeaponsOnly,
 		Spec: &proto.Player_Hunter{Hunter: &proto.Hunter{Options: &proto.Hunter_Options{ClassOptions: &proto.HunterOptions{
 			Ammo: proto.HunterOptions_Doomshot, PetType: proto.HunterOptions_Cat}}}},

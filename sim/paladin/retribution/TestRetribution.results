@@ -241,8 +241,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Bonereaver'sEdge-17076"
  value: {
-  dps: 404.49627
-  tps: 244.07824
+  dps: 395.61108
+  tps: 239.10254
  }
 }
 dps_results: {
@@ -1005,8 +1005,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-RunebladeofBaronRivendare-13505"
  value: {
-  dps: 399.30797
-  tps: 241.17279
+  dps: 390.41974
+  tps: 236.19539
  }
 }
 dps_results: {
@@ -1299,8 +1299,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-WarbladeofCaerDarrow-13982"
  value: {
-  dps: 415.03556
-  tps: 250.02006
+  dps: 405.76944
+  tps: 244.83103
  }
 }
 dps_results: {
@@ -1320,8 +1320,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Wolfsbane-267369"
  value: {
-  dps: 401.15343
-  tps: 242.26815
+  dps: 391.02874
+  tps: 236.59832
  }
 }
 dps_results: {

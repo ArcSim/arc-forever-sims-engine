@@ -331,8 +331,8 @@ dps_results: {
 dps_results: {
  key: "TestSubtlety-AllItems-EbonHiltofMarduk-14576"
  value: {
-  dps: 287.50915
-  tps: 141.46313
+  dps: 286.35409
+  tps: 140.8948
  }
 }
 dps_results: {
@@ -941,8 +941,8 @@ dps_results: {
 dps_results: {
  key: "TestSubtlety-AllItems-SwordofZeal-6622"
  value: {
-  dps: 298.44904
-  tps: 148.32917
+  dps: 296.9279
+  tps: 147.57316
  }
 }
 dps_results: {

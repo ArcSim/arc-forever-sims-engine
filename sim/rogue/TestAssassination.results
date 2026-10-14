@@ -331,8 +331,8 @@ dps_results: {
 dps_results: {
  key: "TestAssassination-AllItems-EbonHiltofMarduk-14576"
  value: {
-  dps: 143.39401
-  tps: 70.55416
+  dps: 142.23702
+  tps: 69.98488
  }
 }
 dps_results: {
@@ -941,8 +941,8 @@ dps_results: {
 dps_results: {
  key: "TestAssassination-AllItems-SwordofZeal-6622"
  value: {
-  dps: 146.2435
-  tps: 72.68302
+  dps: 144.83305
+  tps: 71.98203
  }
 }
 dps_results: {

@@ -291,11 +291,12 @@ func applyCreatureTypeSlaying(character *Character, mobType proto.MobType) {
 	})
 }
 
+// The physical crit follows the hand holding the weapon: the client's aura (290) carries a
+// SpellEquippedItems weapon requirement, so it counts per attack weapon. A sword in the off hand
+// crits only off-hand swings, and ranged attacks never get it (forever-bugs #91: orc with an axe,
+// 500+ auto shots against a level higher target and not one crit, melee still critting).
 func applyWeaponSpecialization(character *Character, label string, spellID int32, critPercent float64, weaponType proto.WeaponType) {
-	hasWeaponEquipped := func() bool {
-		mh, oh := character.MainHand(), character.OffHand()
-		return (mh != nil && mh.WeaponType == weaponType) || (oh != nil && oh.WeaponType == weaponType)
-	}
+	hasWeaponEquipped := func() bool { return character.GetProcMaskForTypes(weaponType).Matches(ProcMaskMelee) }
 
 	aura := character.RegisterAura(Aura{
 		Label:      label,
@@ -303,14 +304,30 @@ func applyWeaponSpecialization(character *Character, label string, spellID int32
 		Duration:   NeverExpires,
 		BuildPhase: Ternary(hasWeaponEquipped(), CharacterBuildPhaseBase, CharacterBuildPhaseNone),
 	}).
-		AttachStatBuff(stats.PhysicalCritPercent, critPercent).
 		AttachStatBuff(stats.SpellCritPercent, critPercent)
 
 	if hasWeaponEquipped() {
 		MakePermanent(aura)
 	}
 
+	critMods := map[ProcMask]*SpellMod{
+		ProcMaskMeleeMH: character.AddDynamicMod(SpellModConfig{Kind: SpellMod_BonusCrit_Percent, ProcMask: ProcMaskMeleeMH, FloatValue: critPercent}),
+		ProcMaskMeleeOH: character.AddDynamicMod(SpellModConfig{Kind: SpellMod_BonusCrit_Percent, ProcMask: ProcMaskMeleeOH, FloatValue: critPercent}),
+	}
+	setHands := func() {
+		held := character.GetProcMaskForTypes(weaponType)
+		for hand, mod := range critMods {
+			if held.Matches(hand) {
+				mod.Activate()
+			} else {
+				mod.Deactivate()
+			}
+		}
+	}
+	setHands()
+
 	character.RegisterItemSwapCallback(AllWeaponSlots(), func(sim *Simulation, _ proto.ItemSlot) {
+		setHands()
 		if hasWeaponEquipped() {
 			aura.Activate(sim)
 		} else {
