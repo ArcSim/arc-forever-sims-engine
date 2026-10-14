@@ -1,5 +1,11 @@
 [
 	{
+		"number": 791,
+		"title": "Human/Orc weapon racial crit follows the weapon's hand, not ranged",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/791"
+	},
+	{
 		"number": 790,
 		"title": "warlock: Succubus Lash of Pain can crit (~6% base spell crit)",
 		"mergedAt": "2026-10-14",
