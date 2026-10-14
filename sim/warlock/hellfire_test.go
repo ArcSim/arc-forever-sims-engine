@@ -54,9 +54,9 @@ func TestHellfireCritsWhereItsEffectRowAllows(t *testing.T) {
 	}
 }
 
-// Malediction is a dot modifier, and Hellfire's area hits are Hellfire Effect's direct School
-// Damage (client 70205 11682), so the talent raises Corruption's ticks but not Hellfire's.
-func TestMaledictionSkipsHellfire(t *testing.T) {
+// Malediction raises Hellfire's area hits like Corruption's ticks: the client left them out (they
+// are Hellfire Effect 11682's direct School Damage), dev fixed it in the next build (forever-bugs #311).
+func TestMaledictionRaisesHellfire(t *testing.T) {
 	player := core.WithSpec(&proto.Player{
 		Race:          proto.Race_RaceOrc,
 		Class:         proto.Class_ClassWarlock,
@@ -75,8 +75,8 @@ func TestMaledictionSkipsHellfire(t *testing.T) {
 	sim.Reset()
 
 	warlock := sim.Raid.Parties[0].Players[0].(WarlockAgent).GetWarlock()
-	if got := warlock.Hellfire.AOEDot().PeriodicDamageMultiplier; got != 1 {
-		t.Errorf("Hellfire periodic multiplier with 5 Malediction = %v, want 1", got)
+	if got := warlock.Hellfire.AOEDot().PeriodicDamageMultiplier; got <= 1 {
+		t.Errorf("Hellfire periodic multiplier with 5 Malediction = %v, want > 1", got)
 	}
 	if got := warlock.Corruption.Dot(warlock.CurrentTarget).PeriodicDamageMultiplier; got <= 1 {
 		t.Errorf("Corruption periodic multiplier with 5 Malediction = %v, want > 1", got)
