@@ -1,5 +1,11 @@
 [
 	{
+		"number": 795,
+		"title": "warrior: Last Stand reads its 30% from client 70291's health aura (no more panic)",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/795"
+	},
+	{
 		"number": 794,
 		"title": "rage: a critical auto attack adds its swing's rage again (100%, not 75%)",
 		"mergedAt": "2026-10-14",
