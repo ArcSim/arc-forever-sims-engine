@@ -1,5 +1,11 @@
 [
 	{
+		"number": 788,
+		"title": "Malediction raises Hellfire's area hits (forever-bugs #311)",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/788"
+	},
+	{
 		"number": 787,
 		"title": "druid: bear Swipe adds 5% of attack power",
 		"mergedAt": "2026-10-14",
