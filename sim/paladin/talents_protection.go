@@ -246,17 +246,24 @@ func (paladin *Paladin) applyReckoning() {
 	blockChance := spellData.Reckoning.FractionAt(paladin.Talents.Reckoning)
 	critChance := blockChance * 2.5
 
-	// The extra attack (20178) is the Classic one, as on master: it pulls the next main-hand
-	// swing to now rather than adding a free swing.
+	// The extra attack (20178) is a free swing at once that leaves the swing timer alone: beta
+	// logs 2747-2749 (14 of 16 procs) put the next normal swing one weapon speed after the
+	// previous one. Client 70291+ gives 20177 a 1.5 s proc cooldown, shared by both triggers.
+	icd := core.Cooldown{Timer: paladin.NewTimer(), Duration: spellData.Reckoning.Highest().ICD()}
+	extraAttack := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+		if !icd.IsReady(sim) {
+			return
+		}
+		icd.Use(sim)
+		paladin.AutoAttacks.InstantMHAttack(sim)
+	}
 
 	paladin.MakeProcTriggerAura(core.ProcTrigger{
 		Name:       "Reckoning - Block" + paladin.Label,
 		Callback:   core.CallbackOnSpellHitTaken,
 		Outcome:    core.OutcomeBlock,
 		ProcChance: blockChance,
-		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-			paladin.AutoAttacks.ExtraMHAttack(sim)
-		},
+		Handler:    extraAttack,
 	})
 
 	paladin.MakeProcTriggerAura(core.ProcTrigger{
@@ -264,9 +271,7 @@ func (paladin *Paladin) applyReckoning() {
 		Callback:   core.CallbackOnSpellHitTaken,
 		Outcome:    core.OutcomeCrit,
 		ProcChance: critChance,
-		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-			paladin.AutoAttacks.ExtraMHAttack(sim)
-		},
+		Handler:    extraAttack,
 	})
 }
 
