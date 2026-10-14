@@ -3021,6 +3021,8 @@ Aura). Goldens: `TestAffliction` (Succubus with Mana Spring Totem) +0.5%.
 
 Tests: `TestPartyAuraPetFlags` and `TestImpGetsManaSpringTotemOnly` (`sim/warlock`).
 
+At integration onto `d2409ccd0` (14 October), `TestShadowPriest` and `TestSmitePriest` move too: the Shadowfiend is a summoned pet, so it now carries Trueshot Aura and Mana Spring Totem from the test raid. Only DPS lines change (naked Shadow +1.3% short fights, +0.4% long).
+
 ## 132. `hunter: Lacerating Strikes rolls a refreshed bleed over and keeps its tick timer`
 
 Lacerating Strikes (1310533) bleeds the target for 40% of the Mongoose Bite over 21 sec (1310536,
