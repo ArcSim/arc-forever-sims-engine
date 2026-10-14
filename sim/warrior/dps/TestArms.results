@@ -1193,8 +1193,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-Sulfuras,HandofRagnaros-17182"
  value: {
-  dps: 372.01299
-  tps: 215.87951
+  dps: 376.34318
+  tps: 218.15064
  }
 }
 dps_results: {
@@ -1326,8 +1326,8 @@ dps_results: {
 dps_results: {
  key: "TestArms-AllItems-Thunderfury,BlessedBladeoftheWindseeker-19019"
  value: {
-  dps: 373.06223
-  tps: 214.05364
+  dps: 371.56361
+  tps: 213.03464
  }
 }
 dps_results: {

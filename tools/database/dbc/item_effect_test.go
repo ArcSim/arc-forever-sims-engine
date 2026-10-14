@@ -1,6 +1,8 @@
 package dbc
 
 import (
+	"maps"
+	"slices"
 	"testing"
 
 	"github.com/wowsims/forever/sim/core/proto"
@@ -31,5 +33,69 @@ func TestAddAreaStatsKeepsOneEntryPerArea(t *testing.T) {
 	}
 	if source[ap] != 29 {
 		t.Errorf("the caller's map was written through: %v", source)
+	}
+}
+
+func TestTakeClientHitAndCrit(t *testing.T) {
+	pseudo := func(values map[proto.PseudoStat]float64) []float64 {
+		out := make([]float64, proto.PseudoStat_PseudoStatRangedCritPercent+8)
+		for stat, value := range values {
+			out[stat] = value
+		}
+		return out
+	}
+	meleeHit, spellHit := int32(proto.Stat_StatMeleeHitRating), int32(proto.Stat_StatSpellHitRating)
+	meleeCrit, spellCrit := int32(proto.Stat_StatMeleeCritRating), int32(proto.Stat_StatSpellCritRating)
+	agility := int32(proto.Stat_StatAgility)
+
+	for _, tc := range []struct {
+		name      string
+		stats     map[int32]float64
+		spell     map[proto.PseudoStat]float64
+		wantStats map[int32]float64
+		wantTook  bool
+	}{
+		{"Blackhand's Breadth: 1318954's melee and ranged crit replaces Classic's 2% crit rating",
+			map[int32]float64{meleeCrit: 28},
+			map[proto.PseudoStat]float64{proto.PseudoStat_PseudoStatMeleeCritPercent: 1, proto.PseudoStat_PseudoStatRangedCritPercent: 1},
+			map[int32]float64{}, true},
+		{"Eye of the Beast: 1318956's spell crit replaces Classic's spell crit rating",
+			map[int32]float64{spellCrit: 28},
+			map[proto.PseudoStat]float64{proto.PseudoStat_PseudoStatSpellCritPercent: 1},
+			map[int32]float64{}, true},
+		{"Trueaim Gauntlets: ranged hit replaces the hit and leaves the crit and the rest",
+			map[int32]float64{meleeHit: 10, spellHit: 10, meleeCrit: 14, agility: 9},
+			map[proto.PseudoStat]float64{proto.PseudoStat_PseudoStatRangedHitPercent: 3},
+			map[int32]float64{meleeCrit: 14, agility: 9}, true},
+		{"a spell with neither leaves the item alone",
+			map[int32]float64{meleeHit: 10},
+			map[proto.PseudoStat]float64{proto.PseudoStat_PseudoStatDodgePercent: 1},
+			map[int32]float64{meleeHit: 10}, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			item := &proto.UIItem{ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {Stats: tc.stats}}}
+			into := pseudo(nil)
+			into[proto.PseudoStat_PseudoStatBlockPercent] = 2
+			equip := pseudo(tc.spell)
+
+			took := TakeClientHitAndCrit(item, equip, into)
+
+			if took != tc.wantTook {
+				t.Errorf("took = %v, want %v", took, tc.wantTook)
+			}
+			if got := item.ScalingOptions[0].Stats; !maps.Equal(got, tc.wantStats) {
+				t.Errorf("stats = %v, want %v", got, tc.wantStats)
+			}
+			want := pseudo(nil)
+			want[proto.PseudoStat_PseudoStatBlockPercent] = 2
+			if tc.wantTook {
+				for stat, value := range tc.spell {
+					want[stat] += value
+				}
+			}
+			if !slices.Equal(into, want) {
+				t.Errorf("pseudo stats = %v, want %v", into, want)
+			}
+		})
 	}
 }

@@ -207,6 +207,7 @@ func main() {
 	dropClassicBonusDamage(db, filled, fmt.Sprintf("%s/wowhead_gearplannerdb.txt", inputsDir))
 	fillPlannerArmor(db, fmt.Sprintf("%s/wowhead_forever_gearplanner.txt", inputsDir))
 	fillPlannerSpellPower(db, fmt.Sprintf("%s/wowhead_forever_gearplanner.txt", inputsDir))
+	fillPlannerLegendaryStats(db, fmt.Sprintf("%s/wowhead_forever_gearplanner.txt", inputsDir))
 	fillClassicHealing(db, filled, fmt.Sprintf("%s/wowhead_gearplannerdb.txt", inputsDir), fmt.Sprintf("%s/wowhead_forever_gearplanner.txt", inputsDir))
 	leftovers := db.Clone()
 	ApplyNonSimmableFilters(leftovers)

@@ -1227,8 +1227,8 @@ dps_results: {
 dps_results: {
  key: "TestMarksmanship-AllItems-Thunderfury,BlessedBladeoftheWindseeker-19019"
  value: {
-  dps: 335.15145
-  tps: 200.935
+  dps: 336.7612
+  tps: 202.06183
  }
 }
 dps_results: {

@@ -447,8 +447,11 @@ func MergeItemEffectsForAllStates(parsed *proto.UIItem) []*proto.ItemEffect {
 
 			if len(props.Stats) > 0 || addedStats || addedPseudoStats {
 				// An item the client ships no stat row for came from our sim's database
-				// (forever_sim_db.json), whose stats already include its equip spells.
+				// (forever_sim_db.json), whose stats already include its equip spells. Its hit
+				// and crit are the exception: where the client's own equip spell states them,
+				// that spell replaces master's Classic value (TakeClientHitAndCrit).
 				if _, fromClient := dbcInstance.Items[int(parsed.Id)]; !fromClient {
+					TakeClientHitAndCrit(parsed, equipPseudoStats, pseudoStats)
 					continue
 				}
 				if areaType := spelldata.AreaTypeOfGroup(dbcInstance.Spells[baseEff.SpellID].RequiredAreasID); areaType != proto.AreaType_AreaTypeUnknown {
@@ -495,4 +498,56 @@ func MergeItemEffectsForAllStates(parsed *proto.UIItem) []*proto.ItemEffect {
 
 	parsed.PseudoStats = NullFloat(pseudoStats)
 	return effects
+}
+
+// The two halves of an item's hit and crit: the pseudo stats a client equip spell states them in,
+// and the rating stats master's database states them in.
+var clientHitAndCrit = []struct {
+	pseudoStats []proto.PseudoStat
+	ratings     []proto.Stat
+}{
+	{
+		[]proto.PseudoStat{proto.PseudoStat_PseudoStatMeleeHitPercent, proto.PseudoStat_PseudoStatRangedHitPercent, proto.PseudoStat_PseudoStatSpellHitPercent},
+		[]proto.Stat{proto.Stat_StatMeleeHitRating, proto.Stat_StatSpellHitRating},
+	},
+	{
+		[]proto.PseudoStat{proto.PseudoStat_PseudoStatMeleeCritPercent, proto.PseudoStat_PseudoStatRangedCritPercent, proto.PseudoStat_PseudoStatSpellCritPercent},
+		[]proto.Stat{proto.Stat_StatMeleeCritRating, proto.Stat_StatSpellCritRating},
+	},
+}
+
+// Forever revised some of the Classic-era items the client ships no stat row for yet, and gave them
+// new equip spells that state their attack type: Blackhand's Breadth's 1318954 is "Increased Critical
+// 1 - Melee and Ranged" (A_MOD_WEAPON_CRIT_PERCENT 1), Eye of the Beast's 1318956 "Increased
+// Critical 1 - Spell" (A_MOD_SPELL_CRIT_CHANCE 1), and Trueaim Gauntlets' 1301127 +3% hit with bows,
+// guns and crossbows. Master's database still has these items at Classic's size and as rating
+// (Blackhand's Breadth 28 crit rating, 2%), which UnifyGearHitAndCrit then pays into every pool.
+//
+// Where an equip spell of such an item states hit, or crit, the item's rating of that kind (Classic
+// states all hit and crit on an equip spell, never in the item row) is dropped and the spell's
+// pseudo stats are added to into, the item's pseudo stats: percents of the type the spell names,
+// which the sim does not unify. Returns whether the spell stated either.
+func TakeClientHitAndCrit(item *proto.UIItem, equipPseudoStats []float64, into []float64) bool {
+	took := false
+	for _, kind := range clientHitAndCrit {
+		states := false
+		for _, pseudoStat := range kind.pseudoStats {
+			if equipPseudoStats[pseudoStat] != 0 {
+				states = true
+			}
+		}
+		if !states {
+			continue
+		}
+		took = true
+		for _, opt := range item.ScalingOptions {
+			for _, rating := range kind.ratings {
+				delete(opt.Stats, int32(rating))
+			}
+		}
+		for _, pseudoStat := range kind.pseudoStats {
+			into[pseudoStat] += equipPseudoStats[pseudoStat]
+		}
+	}
+	return took
 }

@@ -3110,3 +3110,96 @@ Tests: `TestRockbiterFollowsTheWeaponInTheHand`, `TestRockbiterThreatFollowsTheW
 `TestFlametongueOnTheSwapWeaponProcsOnlyAfterTheSwap` and `TestStoneAndOilFollowTheWeaponInTheHand`
 (`sim/shaman/enhancement`). Goldens: none move (no suite swaps weapons); MythicSim's default
 Enhancement and Elehance requests give the same DPS to the hundredth of a point as `944a791060`.
+
+## 134. `items: Forever's revised items take their client equip spells' hit and crit`
+
+Finding B9 of MythicSim's 14 October review: the items `mergeForeverSimDB` fills in from master's
+database (`forever_sim_db.json`, the Classic-era items client 69893's `ItemSparse` does not ship) kept
+Classic's hit and crit, stated as rating, even where Forever revised the item. Their client
+`ItemXItemEffect` rows link new equip spells, but `dbc.MergeItemEffectsForAllStates` skipped the equip
+spells of every filled-in item, as master's stats already include Classic's. `UnifyGearHitAndCrit`
+then paid the Classic rating into every pool.
+
+Seven filled-in items have a client equip spell that states hit or crit (the client spells are in the
+70338 spell store's item roots, so the 70338 item tables still link them):
+
+| Item | Client equip spell | Before (master, unified) | After |
+| --- | --- | --- | --- |
+| Blackhand's Breadth 13965 | 1318954 "Increased Critical 1 - Melee and Ranged", aura 52, 1 | 28 crit rating: 2% melee, ranged and spell | 1% melee and ranged crit |
+| Eye of the Beast 13968 | 1318956 "Increased Critical 1 - Spell", aura 57, 1 | 28 spell crit rating: 2% to every pool | 1% spell crit |
+| Trueaim Gauntlets 13255 | 1301127 "Increased Hit Chance - Ranged - 03", aura 54, 3, bows, guns and crossbows | 10 hit rating: 1% to every pool | 3% ranged hit |
+| Sash of the Grand Hunt 22207, Stoneshatter 18388, Marksman Bands 18296, Infernal Trickster Leggings 17754 | 1294769 "Increased Hit Chance - Ranged - 01", aura 54, 1, the same weapons | none | 1% ranged hit |
+
+**Type.** The client keeps two kinds of hit and crit apart. Item rows state them only as the generic
+ratings, `ItemSparse` 31 and 32 (184 and 521 of client 69893's rows; none of the typed ratings 16 to 21
+occurs), and the Forever planner lists them as generic `hitpct` and `critstrkpct`; that is the rule
+`UnifyGearHitAndCrit` models, and it stays. The revised equip spells name their type, in the spell name
+("- Melee and Ranged", "- Spell", "- Ranged"), the description ("with Melee and Ranged attacks", "with
+Spells", "with ranged weapons"), the aura and the equipped-item class. So these follow the spell:
+`dbc.AddEquipSpellStats` already turns the auras into typed percent pseudo stats (the path client items
+and enchants take: Biznick's Accurascope, Presence of Sight), and the sim does not unify pseudo stats.
+`sim/core/forever_rules.go` is unchanged.
+
+`dbc.TakeClientHitAndCrit` (called from `MergeItemEffectsForAllStates` for a filled-in item): where an
+equip spell states hit, the item's hit rating (melee and spell) is dropped and the spell's hit pseudo
+stats are added; crit the same way. Classic states all hit and crit on equip spells, never in the item
+row, so the dropped rating is the Classic spell's. Any other stat a filled-in item's equip spell states
+is still skipped. Items whose client spells state no hit or crit are unchanged.
+
+Separately, `fillPlannerLegendaryStats` (`tools/database/gen_db/planner_legendary_stats.go`, after
+`fillPlannerSpellPower`): `RandPropPoints` has no legendary column, so `GetScaledStat` priced every stat
+of a legendary client row at 0, and the epic column does not fit (Atiesh's allocations come out at a
+budget of 59 at item level 90, epic 64; Sulfuras' at 54 at item level 80, epic 57). The Forever planner
+states the priced stats, each the client allocation at that budget (Atiesh, mage: 5254, 5424 and 4068 of
+59 are 31 Stamina, 32 Intellect and 24 Spirit, 3390 is 20 hit rating). A legendary item takes its primary
+stats, resistances and generic hit and crit from the planner where it has none:
+
+| Item | Added |
+| --- | --- |
+| Atiesh, mage 22589 | 31 Sta, 32 Int, 24 Spi, 20 hit rating (2%, `ItemSparse` 31) |
+| Atiesh, warlock 22630 | 30 Sta, 29 Int, 28 crit rating (2%, `ItemSparse` 32) |
+| Atiesh, priest 22631 and druid 22632 | 28 Sta, 28 Int, 27 Spi |
+| Thunderfury 19019 | 5 Agi, 8 Sta, 8 Fire and 9 Nature resistance |
+| Sulfuras 17182 | 12 Str, 12 Sta, 30 Fire resistance |
+
+The mage staff's planner `splcritstrkpct` 2 is Power of the Guardian (28142), a party aura the item
+already carries as an effect, and is not read. Ashbringer and Shard of the Defiler are not in the
+planner and are unchanged.
+
+Not changed, for want of client data: Skyfury Helm 20134 (Classic 1% crit and 2% spell crit, unified to
+3%; no client row or effect), the 21 reference-build items the planner does not list (Truestrike
+Shoulders, Tarnished Elven Ring, Mark of Fordring, Clutch of Andros, Heliotrope Cloak and the rest; none
+has a client `ItemXItemEffect` row), and 11 filled-in items whose client equip spells state something else
+(Savage Gladiator Chain, Kindling Stave and Death Grips among them; the planner keeps their crit and hit,
+1.5%, 1% and 0.5%).
+
+`assets/database/db.json` carries the 13 edits, made by the two functions run on the committed JSON (the
+client spells' pseudo stats read off client 69893's `ItemXItemEffect` and `ItemEffect` in
+`tools/data_watch/.cache` and the spell store's effects and equipped classes), each edited item line
+re-marshalled the way `WriteProtoArrayToBuffer` writes it, so no other record moves. `go run
+./tools/sync_db_binary` rebuilt `db.bin` (run on the unedited JSON first, it reproduced the old binary
+byte for byte). `leftover_db` has no affected item. A full `make db` was not run (no
+`tools/database/wowsims.db`).
+
+Tests: `TestTakeClientHitAndCrit` (`tools/database/dbc`), `TestFillPlannerLegendaryStats`
+(`tools/database/gen_db`), `TestForeverRevisedItemsTakeClientHitAndCrit` and
+`TestForeverLegendaryItemStats` (`sim/core`, with_db, on the embedded binary; both fail on the old one).
+Goldens: AllItems rows only. Sulfuras gains its Strength and Stamina in `TestFeralBear` (+2.1%),
+`TestFeralCat` (+1.0%), `TestRetribution` (+0.9%), `TestEnhancement` (+0.9%) and `TestArms` (+1.2%);
+Thunderfury its Agility and Stamina in `TestBeastMastery`, `TestMarksmanship`, `TestSurvival` and
+`TestSurvivalMelee` (+0.3% to +0.5%) and `TestArms` (-0.4%: the Agility moves the random stream, and the suite's
+few iterations read that as a loss). None of the seven revised items is in an AllItems list.
+
+Measured (MythicSim's 31 reference builds, board seed, board length, 10,000 iterations, the worker's
+default requests, base `d2409ccd0` with the old binary): every reference is bit-identical, as none wears
+an affected item. On the trinket board, Blackhand's Breadth loses 0.8% to 1.2% (Fury Warrior 908.0 to
+897.9, Survival weave 951.0 to 941.5, Enhancement 744.8 to 735.5, Marksmanship 797.1 to 789.1,
+Retribution 915.5 to 907.4, Feral 751.6 to 745.8, Combat 654.6 to 648.9, Protection Warrior 574.6 to
+570.1), about half its value over no trinket. Eye of the Beast loses 0.8% to 1.0% (Fire 726.1 to 719.4,
+Destruction 726.2 to 719.3, Balance 664.2 to 657.8, Shadow 725.1 to 719.1, Elemental 524.8 to 520.5).
+
+Downstream: the items' hit and crit now live in `pseudoStats`, which a gear summary that reads only
+`stats` (MythicSim's `web/src/lib/forever-gear-stats.ts`) does not show.
+
+Drop it when the client ships these items' `ItemSparse` rows (the generator then reads their equip
+spells as for any client item) and `RandPropPoints` prices legendary items.

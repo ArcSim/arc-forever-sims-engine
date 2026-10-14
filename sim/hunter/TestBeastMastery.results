@@ -1227,8 +1227,8 @@ dps_results: {
 dps_results: {
  key: "TestBeastMastery-AllItems-Thunderfury,BlessedBladeoftheWindseeker-19019"
  value: {
-  dps: 406.22806
-  tps: 220.58488
+  dps: 407.9284
+  tps: 221.77512
  }
 }
 dps_results: {
