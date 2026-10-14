@@ -1,5 +1,23 @@
 [
 	{
+		"number": 780,
+		"title": "priest: Twin Disciplines reaches Mind Flay and SW:D; Shadowform crit bonus reaches SW:D",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/780"
+	},
+	{
+		"number": 779,
+		"title": "Wowhead Forever data changed (2026-10-14)",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/779"
+	},
+	{
+		"number": 778,
+		"title": "Forever client build 1.60.1.70374",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/778"
+	},
+	{
 		"number": 777,
 		"title": "Shadow Weaving stacks on each target, not on the priest",
 		"mergedAt": "2026-10-13",
