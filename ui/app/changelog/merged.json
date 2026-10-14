@@ -1,5 +1,11 @@
 [
 	{
+		"number": 782,
+		"title": "Siphon Life ticks can crit",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/782"
+	},
+	{
 		"number": 781,
 		"title": "rogue: Instant and Deadly Poison scale with attack power",
 		"mergedAt": "2026-10-14",
