@@ -56,7 +56,7 @@ func (priest *Priest) registerDevouringPlagueSpell(rank *spelldata.Spell, cdTime
 				dot.Snapshot(target, tick.Average(core.CharacterLevel))
 			},
 			OnTick: func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-				result := dot.CalcAndDealPeriodicSnapshotDamage(sim, target, priestTickOutcome(rank.PeriodicCanCrit(), dot))
+				result := dot.CalcAndDealPeriodicSnapshotDamage(sim, target, priest.tickOutcome(rank.PeriodicCanCrit(), dot))
 				priest.GainHealth(sim, result.Damage, healthMetrics)
 			},
 		},

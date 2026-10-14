@@ -339,3 +339,40 @@ func TestShadowWeavingStacksPerTarget(t *testing.T) {
 		}
 	}
 }
+
+// Inner Focus's +25% crit stays on the next spell but no longer reaches periodic ticks (dev
+// AidanZMoon, forever-bugs #137): a Shadow Word: Pain running while it is up ticks at its own crit.
+func TestInnerFocusSkipsPeriodicCrit(t *testing.T) {
+	player := core.WithSpec(&proto.Player{
+		Race:          proto.Race_RaceUndead,
+		Class:         proto.Class_ClassPriest,
+		Equipment:     &proto.EquipmentSpec{},
+		Consumables:   &proto.ConsumesSpec{},
+		TalentsString: "000000001", // Inner Focus
+		Rotation:      &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
+	}, &proto.Player_DpsPriest{DpsPriest: &proto.DpsPriest{Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}}}})
+	sim := core.NewSim(&proto.RaidSimRequest{
+		SimOptions: &proto.SimOptions{RandomSeed: 100},
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	priest := sim.Raid.Parties[0].Players[0].(PriestAgent).GetPriest()
+	target := priest.CurrentTarget
+	swp := priest.GetSpell(core.ActionID{SpellID: spellData.ShadowWordPain.Highest().ID})
+
+	priest.InnerFocusAura.Activate(sim)
+	withIF := swp.SpellCritChance(target)
+	tick := priest.tickOutcome(true, swp.Dot(target))
+	crits := 0
+	for range 4000 {
+		result := &core.SpellResult{Target: target, Damage: 1}
+		tick(sim, result, priest.AttackTables[target.UnitIndex])
+		if result.Outcome == core.OutcomeCrit {
+			crits++
+		}
+	}
+	if rate := float64(crits) / 4000; rate > withIF-0.2 {
+		t.Errorf("ticks crit %.3f with Inner Focus up (spell %.3f), want its 25%% left out", rate, withIF)
+	}
+}

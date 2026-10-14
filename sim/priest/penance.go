@@ -62,7 +62,7 @@ func (priest *Priest) registerPenanceSpell(rank *spelldata.Spell) {
 			},
 			OnTick: func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 				// Each bolt is its own direct Holy hit (1316993, School Damage), so every one can crit.
-				dot.CalcAndDealPeriodicSnapshotDamage(sim, target, priestTickOutcome(true, dot))
+				dot.CalcAndDealPeriodicSnapshotDamage(sim, target, priest.tickOutcome(true, dot))
 			},
 		},
 

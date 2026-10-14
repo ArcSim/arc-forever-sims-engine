@@ -107,8 +107,8 @@
 	"14751": {
 		"ability": "Inner Focus",
 		"file": "sim/priest/talents_discipline.go",
-		"note": "The client row matches Classic Era 1.15.9: 100% off the next spell, +25% critical effect chance, 3 min cooldown. The crit follows the second effect's mask, which leaves out Mind Flay, Shadow Word: Death and Starshards (#432). Beta client 1.60.1.70009.",
-		"source": "classic"
+		"note": "The client row matches Classic Era 1.15.9: 100% off the next spell, +25% critical effect chance, 3 min cooldown. The crit follows the second effect's mask, which leaves out Mind Flay, Shadow Word: Death and Starshards (#432). Forever change: the crit no longer reaches periodic ticks, so a DoT ticking while it is up gets nothing (dev AidanZMoon, forever-bugs #137). Beta client 1.60.1.70009.",
+		"source": "forever"
 	},
 	"14914": {
 		"ability": "Holy Fire",
