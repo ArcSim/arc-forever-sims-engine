@@ -10,10 +10,13 @@ const ThreatPerRageGained = 5
 
 // TODO: Ingame test needed at higher levels
 const DamageTakenRageFactor = 10
-// A critical auto attack generates 75% more rage. Server side, so no client table carries it:
-// Blizzard put it back with the beta build of 2026-10-01 for warriors and druids (WoW: Forever
-// Podcast episode 2, "it won't be double rage on crits, it's 75% increase").
-const CritRageMultiplier = 1.75
+// A critical auto attack adds its swing's rage again, before the two-hander's factor. Blizzard's
+// beta development notes (1 and 8 October, warrior and druid): "Additional Rage generated from
+// landing Critical Strikes increased to 100% increased Rage (was 75%)". The client hook, Rule of
+// Rage (DND) 1322574, is an A_DUMMY of 100 on melee autos. Magey's beta logs
+// (github.com/magey/forever-warrior/issues/3) fit crit = swing + 3.46 x speed: a one-hander doubles,
+// a two-hander's 3.3 sec swing gets 11.42 on top of 14.85 (measured 11.3-11.5).
+const CritRageBonus = 1.0
 
 const (
 	BaseRageHitFactor     = 3.46
@@ -75,14 +78,14 @@ func (unit *Unit) EnableRageBar(options RageBarOptions) {
 				return
 			}
 
-			if weapon.NormalizedSwingSpeed == TwoHandNormalizedSwingSpeed {
-				hitFactor *= TwoHandRageMultiplier
-			}
-
 			// rage is normalized so it only depends on weapon swing speed and some multipliers
-			generatedRage := hitFactor * weapon.SwingSpeed * options.BaseRageMultiplier * handMultiplier
+			baseRage := hitFactor * weapon.SwingSpeed * options.BaseRageMultiplier * handMultiplier
+			generatedRage := baseRage
+			if weapon.NormalizedSwingSpeed == TwoHandNormalizedSwingSpeed {
+				generatedRage *= TwoHandRageMultiplier
+			}
 			if result.DidCrit() {
-				generatedRage *= CritRageMultiplier
+				generatedRage += baseRage * CritRageBonus
 			}
 
 			var metrics *ResourceMetrics

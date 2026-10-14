@@ -58,9 +58,9 @@ character_stats_results: {
 stat_weights_results: {
  key: "TestFeralBear-StatWeights-Default"
  value: {
-  weights: 2.33056
+  weights: 2.22227
   weights: 1
-  weights: 0.38641
+  weights: 0.72264
   weights: 0
   weights: 0
   weights: 0
@@ -75,22 +75,22 @@ stat_weights_results: {
   weights: 0
   weights: 0
   weights: 0
-  weights: 1.05934
+  weights: 1.01012
   weights: 0
   weights: 0
   weights: 0
   weights: 0
   weights: 0
   weights: 0
-  weights: 3.32278
-  weights: 0.41495
+  weights: 2.72642
+  weights: 0.25583
   weights: 0
   weights: 0
-  weights: 0.5322
+  weights: 0.30359
   weights: 0
   weights: 0
   weights: 0
-  weights: 0.07783
+  weights: 0.64729
   weights: 0
   weights: 0
   weights: 0
@@ -115,1184 +115,1184 @@ stat_weights_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-AccurateScope-33"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Alcor'sSunrazor-14555"
  value: {
-  dps: 250.00173
-  tps: 611.2808
-  dtps: 1628.19042
+  dps: 251.9493
+  tps: 615.47943
+  dtps: 1624.20082
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-ArenaGrandMaster-19024"
  value: {
-  dps: 177.2793
-  tps: 449.10121
-  dtps: 1608.72779
+  dps: 178.15817
+  tps: 452.00835
+  dtps: 1604.03409
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-BadgeoftheSwarmguard-21670"
  value: {
-  dps: 179.47364
-  tps: 453.64658
-  dtps: 1626.56518
+  dps: 180.90808
+  tps: 456.20473
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-BarbaricBelt-4264"
  value: {
-  dps: 180.93016
-  tps: 458.61971
-  dtps: 1632.91617
+  dps: 181.89116
+  tps: 461.04155
+  dtps: 1626.1773
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Bashguuder-13204"
  value: {
-  dps: 245.93346
-  tps: 605.15408
-  dtps: 1628.19042
+  dps: 247.85015
+  tps: 609.38727
+  dtps: 1624.20082
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-BlazefuryMedallion-17111"
  value: {
-  dps: 178.9057
-  tps: 452.17474
-  dtps: 1603.99864
+  dps: 180.42598
+  tps: 454.29919
+  dtps: 1611.61271
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-BlazingEmblem-2802"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-BloodTigerHarness"
  value: {
-  dps: 183.49519
-  tps: 462.47054
-  dtps: 1625.40299
+  dps: 186.98566
+  tps: 469.83479
+  dtps: 1623.86547
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Bloodfist-11744"
  value: {
-  dps: 235.98083
-  tps: 580.52275
-  dtps: 1625.01687
+  dps: 238.55877
+  tps: 586.57968
+  dtps: 1626.99346
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-BloodvineGarb"
  value: {
-  dps: 187.77757
-  tps: 466.77559
-  dtps: 1622.52455
+  dps: 188.30176
+  tps: 468.32288
+  dtps: 1631.53025
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-BonechillHammer-14487"
  value: {
-  dps: 243.21572
-  tps: 595.33137
-  dtps: 1628.19042
+  dps: 244.84183
+  tps: 599.07123
+  dtps: 1624.20082
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-BurstofKnowledge-11832"
  value: {
-  dps: 177.12809
-  tps: 448.5332
-  dtps: 1626.56518
+  dps: 178.5452
+  tps: 451.05613
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-CadaverousGarb"
  value: {
-  dps: 202.94966
-  tps: 504.60842
-  dtps: 1172.046
+  dps: 203.60922
+  tps: 506.07064
+  dtps: 1171.06254
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-CenarionRaiment"
  value: {
-  dps: 190.76137
-  tps: 479.49015
-  dtps: 970.0313
+  dps: 190.33851
+  tps: 480.39733
+  dtps: 971.15804
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Champion'sRefuge"
  value: {
-  dps: 167.64192
-  tps: 418.09361
-  dtps: 1463.04373
+  dps: 169.7963
+  tps: 423.71197
+  dtps: 1460.39325
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-ColdrageDagger-10761"
  value: {
-  dps: 225.02521
-  tps: 554.92464
-  dtps: 1626.56518
+  dps: 227.03915
+  tps: 559.41517
+  dtps: 1624.20082
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-CrudeScope-30"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-CursedMurlocEye-273840"
  value: {
-  dps: 178.25562
-  tps: 449.999
-  dtps: 1626.56518
+  dps: 179.57431
+  tps: 452.39397
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-DarkmoonCard:Heroism-19287"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-DarkmoonCard:Maelstrom-19289"
  value: {
-  dps: 184.69235
-  tps: 458.36675
-  dtps: 1626.56518
+  dps: 186.05922
+  tps: 460.82435
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Darrowspike-13984"
  value: {
-  dps: 243.88959
-  tps: 597.26251
-  dtps: 1628.19042
+  dps: 245.74783
+  tps: 601.31019
+  dtps: 1624.20082
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-DeadlyScope-663"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-DefiasLeather"
  value: {
-  dps: 182.20351
-  tps: 461.08013
-  dtps: 1602.66368
+  dps: 184.82741
+  tps: 466.00426
+  dtps: 1605.4134
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Defiler'sTalisman-20072"
  value: {
-  dps: 177.24071
-  tps: 447.39508
-  dtps: 1622.53748
+  dps: 178.59074
+  tps: 451.374
+  dtps: 1628.80008
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Defiler'sTalisman-21115"
  value: {
-  dps: 176.3151
-  tps: 446.08189
-  dtps: 1625.16114
+  dps: 177.49567
+  tps: 449.11549
+  dtps: 1629.237
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Defiler'sTalisman-21116"
  value: {
-  dps: 174.98661
-  tps: 443.70083
-  dtps: 1627.39322
+  dps: 177.6321
+  tps: 450.39861
+  dtps: 1624.76459
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Defiler'sTalisman-21120"
  value: {
-  dps: 176.53446
-  tps: 447.45181
-  dtps: 1625.4387
+  dps: 179.17133
+  tps: 452.52036
+  dtps: 1625.35609
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-DevilsaurArmor"
  value: {
-  dps: 190.20019
-  tps: 479.969
-  dtps: 1624.45528
+  dps: 192.9599
+  tps: 484.54871
+  dtps: 1627.91237
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-DraconicInfusedEmblem-22268"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-DreadmistRaiment"
  value: {
-  dps: 172.65402
-  tps: 429.45647
-  dtps: 1626.34554
+  dps: 174.22733
+  tps: 433.84957
+  dtps: 1624.68148
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-EarthenSigil-20525"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Earthstrike-21180"
  value: {
-  dps: 184.49966
-  tps: 464.80979
-  dtps: 1626.56518
+  dps: 185.83683
+  tps: 467.2284
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-EidolonTalisman-18340"
  value: {
-  dps: 187.54285
-  tps: 475.55087
-  dtps: 1625.02212
+  dps: 190.53473
+  tps: 482.56295
+  dtps: 1625.19666
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-ElectrifiedDagger-19100"
  value: {
-  dps: 247.21962
-  tps: 606.52195
-  dtps: 1623.61533
+  dps: 246.8713
+  tps: 608.66716
+  dtps: 1619.03487
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Enchant2HWeapon-GrandArcanist-7941"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Enchant:FieryBlaze-36"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-EnchantChest-Absorption-8220"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-EnchantChest-LesserAbsorption-63"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-EnchantChest-MinorAbsorption-44"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-EnchantCloak-Subtlety-2621"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-EnchantGloves-Threat-2613"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-EnchantWeapon-Crusader-1900"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-EnchantWeapon-FieryWeapon-803"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-EnchantWeapon-Insight-8216"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-EnchantWeapon-Lifestealing-1898"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-EnchantWeapon-Recovery-8721"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-EnergyCloak-9397"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-EssenceofthePureFlame-18815"
  value: {
-  dps: 180.9892
-  tps: 453.55265
-  dtps: 1626.56518
+  dps: 182.36613
+  tps: 456.02333
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-EverlookPathcarver-274759"
  value: {
-  dps: 178.97535
-  tps: 450.93464
-  dtps: 1626.56518
+  dps: 180.40103
+  tps: 453.4687
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-EyeofMoam-21473"
  value: {
-  dps: 176.95357
-  tps: 448.30633
-  dtps: 1626.56518
+  dps: 178.37234
+  tps: 450.83141
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-EyeoftheDead-23047"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-FeralheartRaiment"
  value: {
-  dps: 203.67792
-  tps: 504.74712
-  dtps: 1167.86498
+  dps: 205.63422
+  tps: 509.04378
+  dtps: 1162.98588
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-FieldMarshal'sSanctuary"
  value: {
-  dps: 199.44344
-  tps: 493.83674
-  dtps: 1357.99709
+  dps: 199.75346
+  tps: 496.41824
+  dtps: 1348.22653
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-ForceofWill-11810"
  value: {
-  dps: 177.16422
-  tps: 449.05231
-  dtps: 1584.45618
+  dps: 177.9399
+  tps: 450.5507
+  dtps: 1581.38966
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-FreezingBand-942"
  value: {
-  dps: 176.68124
-  tps: 447.9523
-  dtps: 1626.56518
+  dps: 178.10692
+  tps: 450.48636
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-FrozenHeartoftheMountain-249469"
  value: {
-  dps: 176.81779
-  tps: 448.12981
-  dtps: 1626.56518
+  dps: 178.23438
+  tps: 450.65206
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Gem-studdedLeatherBelt-4262"
  value: {
-  dps: 175.64227
-  tps: 445.19391
-  dtps: 1627.39322
+  dps: 178.29926
+  tps: 451.92135
+  dtps: 1624.76459
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-GlacialBlade-19099"
  value: {
-  dps: 246.95565
-  tps: 606.17879
-  dtps: 1623.61533
+  dps: 246.7497
+  tps: 608.50907
+  dtps: 1619.03487
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-GnomishHarmPreventionBelt-10721"
  value: {
-  dps: 176.53446
-  tps: 447.45181
-  dtps: 1625.4387
+  dps: 179.17133
+  tps: 452.52036
+  dtps: 1625.35609
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-GoblinConstructionHelmet-10543"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-GoldenBanana-270226"
  value: {
-  dps: 178.35376
-  tps: 452.14362
-  dtps: 1624.04015
+  dps: 178.57407
+  tps: 452.8353
+  dtps: 1625.66914
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-HandofJustice-11815"
  value: {
-  dps: 179.29221
-  tps: 454.89151
-  dtps: 1632.99916
+  dps: 180.60978
+  tps: 455.61422
+  dtps: 1628.8306
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Headmaster'sCharge-13937"
  value: {
-  dps: 264.28859
-  tps: 644.45668
-  dtps: 1624.47346
+  dps: 268.31318
+  tps: 654.00014
+  dtps: 1626.71257
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-HeartofWyrmthalak-22321"
  value: {
-  dps: 178.60986
-  tps: 450.4595
-  dtps: 1626.56518
+  dps: 179.98767
+  tps: 452.93134
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-HeartoftheScale-13164"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-HelmofFire-8348"
  value: {
-  dps: 180.17052
-  tps: 453.70698
-  dtps: 1595.42441
+  dps: 180.39143
+  tps: 454.52296
+  dtps: 1604.38345
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-HibernationCrystal-20636"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-IdolofBrutality-23198"
  value: {
-  dps: 182.34232
-  tps: 464.97751
-  dtps: 1627.65135
+  dps: 184.68925
+  tps: 469.54
+  dtps: 1635.15862
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-IdolofFerocity-22397"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-IdoloftheMoon-23197"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-InfernalLasso-219345"
  value: {
-  dps: 179.43787
-  tps: 451.53592
-  dtps: 1626.56518
+  dps: 180.86425
+  tps: 454.07089
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-IronfeatherArmor"
  value: {
-  dps: 179.25274
-  tps: 451.29525
-  dtps: 1626.56518
+  dps: 180.67178
+  tps: 453.82068
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Ironfoe-11684"
  value: {
-  dps: 269.11346
-  tps: 651.0603
-  dtps: 1645.55277
+  dps: 269.04951
+  tps: 653.20491
+  dtps: 1644.31589
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-JomGabbar-23570"
  value: {
-  dps: 186.01362
-  tps: 467.81867
-  dtps: 1628.19042
+  dps: 187.30336
+  tps: 470.6299
+  dtps: 1624.20082
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-KissoftheSpider-22954"
  value: {
-  dps: 181.6693
-  tps: 460.31522
-  dtps: 1633.67569
+  dps: 183.71197
+  tps: 464.13025
+  dtps: 1639.19833
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-LieutenantCommander'sRefuge"
  value: {
-  dps: 167.64192
-  tps: 418.09361
-  dtps: 1486.59991
+  dps: 169.7963
+  tps: 423.71197
+  dtps: 1483.90676
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Lifestone-833"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Linken'sBoomerang-11905"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Loatheb'sReflection-23042"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Magister'sRegalia"
  value: {
-  dps: 175.68161
-  tps: 438.31645
-  dtps: 1620.41781
+  dps: 178.25482
+  tps: 444.51319
+  dtps: 1621.93863
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-ManualCrowdPummeler-9449"
  value: {
-  dps: 232.69089
-  tps: 576.11938
-  dtps: 1622.97641
+  dps: 237.09944
+  tps: 584.77705
+  dtps: 1620.43393
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-MarkofResolution-17759"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-MarkofTyranny-13966"
  value: {
-  dps: 177.2793
-  tps: 449.10121
-  dtps: 1455.77951
+  dps: 178.15817
+  tps: 452.00835
+  dtps: 1451.53205
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-MarkoftheChampion-23206"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-MarkoftheChampion-23207"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-MarkoftheDragonLord-13143"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-MarkoftheRedFlight-282778"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-MasterworkStormhammer-12794"
  value: {
-  dps: 242.19891
-  tps: 594.9453
-  dtps: 1628.19042
+  dps: 244.04851
+  tps: 598.98106
+  dtps: 1624.20082
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-MindtapTalisman-18371"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-MoltenHeartoftheMountain-249470"
  value: {
-  dps: 178.79872
-  tps: 453.17693
-  dtps: 1626.56518
+  dps: 180.22914
+  tps: 455.72561
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Naglering-11669"
  value: {
-  dps: 176.57272
-  tps: 445.99809
-  dtps: 1559.07316
+  dps: 178.53329
+  tps: 450.18364
+  dtps: 1563.80745
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-NecropileRaiment"
  value: {
-  dps: 170.94969
-  tps: 429.33602
-  dtps: 1360.91663
+  dps: 176.3674
+  tps: 439.49709
+  dtps: 1361.71392
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-OrbofFire-12805"
  value: {
-  dps: 176.85511
-  tps: 448.17834
-  dtps: 1626.56518
+  dps: 178.26816
+  tps: 450.69597
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-PetrolspillLeggings-9509"
  value: {
-  dps: 178.10791
-  tps: 452.07594
-  dtps: 1604.4884
+  dps: 179.3385
+  tps: 454.62277
+  dtps: 1610.1289
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Prismcharm-15867"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-RaggedJohn'sNeverendingCup-15873"
  value: {
-  dps: 171.66892
-  tps: 435.59192
-  dtps: 1628.74305
+  dps: 172.20917
+  tps: 436.26785
+  dtps: 1625.94999
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-RedWhelpGloves-7284"
  value: {
-  dps: 179.61088
-  tps: 451.76083
-  dtps: 1626.56518
+  dps: 180.92447
+  tps: 454.14918
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-RegaliaofUndeadCleansing"
  value: {
-  dps: 176.8402
-  tps: 446.03223
-  dtps: 1510.17076
+  dps: 176.13422
+  tps: 444.20947
+  dtps: 1511.04247
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-RingofSaviors-1447"
  value: {
-  dps: 175.71095
-  tps: 444.85096
-  dtps: 1626.81612
+  dps: 177.57087
+  tps: 448.9032
+  dtps: 1631.90001
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-SearingDagger-273003"
  value: {
-  dps: 195.43725
-  tps: 490.31361
-  dtps: 1626.56518
+  dps: 197.20919
+  tps: 494.28867
+  dtps: 1624.20082
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-SecondWind-11819"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-SerenityField-272439"
  value: {
-  dps: 177.22466
-  tps: 448.65875
-  dtps: 1626.56518
+  dps: 178.64187
+  tps: 451.18179
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-ShadowcraftArmor"
  value: {
-  dps: 197.1199
-  tps: 499.12574
-  dtps: 1399.165
+  dps: 199.08312
+  tps: 505.60646
+  dtps: 1401.00133
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-ShardoftheFallenStar-21891"
  value: {
-  dps: 178.61735
-  tps: 450.46924
-  dtps: 1626.56518
+  dps: 180.04303
+  tps: 453.00331
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-ShardoftheGods"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Slayer'sCrest-23041"
  value: {
-  dps: 190.97268
-  tps: 479.65316
-  dtps: 1626.56518
+  dps: 192.38253
+  tps: 482.18605
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Smokey'sLighter-13171"
  value: {
-  dps: 178.78372
-  tps: 450.68553
-  dtps: 1626.56518
+  dps: 180.20032
+  tps: 453.20778
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-SmokingHeartoftheMountain-11811"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-SniperScope-664"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Spider'sKiss"
  value: {
-  dps: 237.77283
-  tps: 586.52405
-  dtps: 1634.63732
+  dps: 239.55401
+  tps: 590.45558
+  dtps: 1630.53447
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-SpireoftheStoneshaper-12532"
  value: {
-  dps: 248.69828
-  tps: 610.12491
-  dtps: 1623.43458
+  dps: 251.30014
+  tps: 616.95857
+  dtps: 1622.71758
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-SpiritofEskhandar"
  value: {
-  dps: 262.41006
-  tps: 641.53442
-  dtps: 1549.788
+  dps: 259.31966
+  tps: 638.48551
+  dtps: 1542.31115
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-StandardScope-32"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-StingingViper-6472"
  value: {
-  dps: 201.79743
-  tps: 503.59663
-  dtps: 1626.56518
+  dps: 203.65945
+  tps: 507.72814
+  dtps: 1624.20082
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-StormrageRaiment"
  value: {
-  dps: 181.4927
-  tps: 458.57205
-  dtps: 1327.74227
+  dps: 181.65892
+  tps: 460.73532
+  dtps: 1333.91548
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-StormshroudArmor"
  value: {
-  dps: 192.64007
-  tps: 488.18699
-  dtps: 1564.32138
+  dps: 192.43168
+  tps: 488.86332
+  dtps: 1562.01255
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Sulfuras,HandofRagnaros-17182"
  value: {
-  dps: 313.76073
-  tps: 746.81377
-  dtps: 1628.19042
+  dps: 315.55652
+  tps: 750.63254
+  dtps: 1624.20082
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-SwineFists-10760"
  value: {
-  dps: 182.9331
-  tps: 460.10493
-  dtps: 1561.61762
+  dps: 183.17726
+  tps: 460.90607
+  dtps: 1560.66175
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-SymbolsofUnendingLife"
  value: {
-  dps: 284.28406
-  tps: 688.65037
-  dtps: 1587.88436
+  dps: 282.39347
+  tps: 685.62259
+  dtps: 1580.21875
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-TalismanofArathor-20071"
  value: {
-  dps: 177.24071
-  tps: 447.39508
-  dtps: 1622.53748
+  dps: 178.59074
+  tps: 451.374
+  dtps: 1628.80008
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-TalismanofArathor-21117"
  value: {
-  dps: 176.3151
-  tps: 446.08189
-  dtps: 1625.16114
+  dps: 177.49567
+  tps: 449.11549
+  dtps: 1629.237
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-TalismanofArathor-21118"
  value: {
-  dps: 174.98661
-  tps: 443.70083
-  dtps: 1627.39322
+  dps: 177.6321
+  tps: 450.39861
+  dtps: 1624.76459
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-TalismanofArathor-21119"
  value: {
-  dps: 176.53446
-  tps: 447.45181
-  dtps: 1625.4387
+  dps: 179.17133
+  tps: 452.52036
+  dtps: 1625.35609
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-TalismanofAscendance-22678"
  value: {
-  dps: 179.22035
-  tps: 451.25314
-  dtps: 1626.56518
+  dps: 180.65262
+  tps: 453.79577
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-TalismanofEphemeralPower-18820"
  value: {
-  dps: 177.87448
-  tps: 449.50351
-  dtps: 1626.56518
+  dps: 179.32155
+  tps: 452.06538
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-TheBurrower'sShell-23558"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-TheCruelHandofTimmy-13401"
  value: {
-  dps: 240.58649
-  tps: 590.97214
-  dtps: 1628.19042
+  dps: 242.40429
+  tps: 594.9558
+  dtps: 1624.20082
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-TheLionHornofStormwind-14557"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1578.05711
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1577.92916
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-TheLobotomizer-19324"
  value: {
-  dps: 252.60821
-  tps: 617.42116
-  dtps: 1628.19042
+  dps: 254.66984
+  tps: 621.78385
+  dtps: 1624.20082
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-ThePostmaster"
  value: {
-  dps: 176.53511
-  tps: 440.94944
-  dtps: 1380.41429
+  dps: 175.96763
+  tps: 440.87305
+  dtps: 1381.76485
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-TheRestrainedEssenceofSapphiron-23046"
  value: {
-  dps: 179.91223
-  tps: 452.15258
-  dtps: 1626.56518
+  dps: 181.33622
+  tps: 454.68446
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-ThorncursedGrips-274159"
  value: {
-  dps: 180.021
-  tps: 454.23646
-  dtps: 1626.56518
+  dps: 181.54273
+  tps: 456.90094
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-UndeadSlayer'sArmor"
  value: {
-  dps: 176.96925
-  tps: 445.28129
-  dtps: 1413.8904
+  dps: 177.3162
+  tps: 446.49318
+  dtps: 1416.1551
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Uther'sStrength-11302"
  value: {
-  dps: 176.83836
-  tps: 448.15655
-  dtps: 1623.80518
+  dps: 178.25522
+  tps: 450.67914
+  dtps: 1624.16713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-VestmentsoftheDevout"
  value: {
-  dps: 174.31763
-  tps: 435.92552
-  dtps: 1627.45826
+  dps: 174.57372
+  tps: 436.78049
+  dtps: 1628.65185
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-VolcanicArmor"
  value: {
-  dps: 178.39875
-  tps: 447.20857
-  dtps: 1414.1464
+  dps: 179.4519
+  tps: 449.2294
+  dtps: 1423.04501
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Warlord'sSanctuary"
  value: {
-  dps: 199.44344
-  tps: 493.83674
-  dtps: 1357.99709
+  dps: 199.75346
+  tps: 496.41824
+  dtps: 1348.22653
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-WarmthofForgiveness-23027"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-WildheartRaiment"
  value: {
-  dps: 183.22958
-  tps: 457.62663
-  dtps: 1622.78337
+  dps: 185.58719
+  tps: 462.35626
+  dtps: 1626.29063
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-WolfsheadHelm-8345"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-WrathofCenarius-21190"
  value: {
-  dps: 176.54863
-  tps: 447.77991
-  dtps: 1626.56518
+  dps: 177.96523
+  tps: 450.30216
+  dtps: 1626.98713
  }
 }
 dps_results: {
  key: "TestFeralBear-Average-Default"
  value: {
-  dps: 177.43054
-  tps: 449.32325
-  dtps: 1607.46932
+  dps: 178.44267
+  tps: 451.94898
+  dtps: 1607.58559
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-NightElf-Naked-Standard-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 886.76721
-  tps: 1883.41279
+  tps: 1883.12077
   dtps: 29456.12987
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-NightElf-Naked-Standard-default-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 202.23657
-  tps: 500.02003
+  dps: 203.47866
+  tps: 503.6738
   dtps: 1488.58166
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-NightElf-Naked-Standard-default-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 205.29475
-  tps: 471.60288
+  dps: 208.87907
+  tps: 480.31991
   dtps: 1493.59214
  }
 }
@@ -1307,40 +1307,40 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-Settings-NightElf-Naked-Standard-default-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 86.22114
-  tps: 265.56595
-  dtps: 2185.22953
+  dps: 85.97572
+  tps: 265.65447
+  dtps: 2184.59103
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-NightElf-Naked-Standard-default-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 85.17732
-  tps: 242.95212
-  dtps: 2214.56929
+  dps: 85.22071
+  tps: 243.23326
+  dtps: 2214.09041
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-Tauren-Naked-Standard-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 895.93865
-  tps: 1872.95808
+  tps: 1872.66607
   dtps: 29948.47267
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-Tauren-Naked-Standard-default-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 198.89865
-  tps: 491.42973
+  dps: 200.14893
+  tps: 493.99017
   dtps: 1506.2524
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-Tauren-Naked-Standard-default-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 197.19203
-  tps: 452.46777
+  dps: 200.61699
+  tps: 459.60374
   dtps: 1523.62173
  }
 }
@@ -1355,24 +1355,24 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-Settings-Tauren-Naked-Standard-default-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 83.56348
-  tps: 258.19431
-  dtps: 2211.69767
+  dps: 83.48282
+  tps: 258.51584
+  dtps: 2211.59093
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-Tauren-Naked-Standard-default-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 81.62554
-  tps: 234.23372
+  dps: 81.61466
+  tps: 234.17388
   dtps: 2241.31464
  }
 }
 dps_results: {
  key: "TestFeralBear-SwitchInFrontOfTarget-Default"
  value: {
-  dps: 202.23657
-  tps: 500.02003
+  dps: 203.47866
+  tps: 503.6738
   dtps: 1488.58166
  }
 }
