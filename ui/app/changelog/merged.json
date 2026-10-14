@@ -1,5 +1,17 @@
 [
 	{
+		"number": 785,
+		"title": "rogue: Mutilate spends Cold Blood (forever-bugs #224)",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/785"
+	},
+	{
+		"number": 784,
+		"title": "[DB] Update to 1.60.1.70374 with hotfixes as of 2026-10-14",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/784"
+	},
+	{
 		"number": 783,
 		"title": "Resourcefulness discounts Strider Kick too (forever-bugs #271)",
 		"mergedAt": "2026-10-14",
