@@ -106,7 +106,8 @@ func applyConsumeEffects(agent Agent, _ *proto.PartyBuffs) {
 
 	// Static Imbues. Forever's Windfury Totem is a party aura, not Era's main-hand enchant (#550), so
 	// it no longer displaces a main-hand stone or oil.
-	if consumables.MhImbueId != 0 {
+	// A stone or oil of its own on the item swap's main-hand weapon (mythicsim patch 133).
+	if !registerPerWeaponMainHandImbue(agent, consumables) && consumables.MhImbueId != 0 {
 		registerStaticImbue(agent, consumables.MhImbueId, character.AutoAttacks.MH(), ProcMaskMeleeMH)
 	}
 	if consumables.OhImbueId != 0 {

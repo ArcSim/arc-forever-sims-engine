@@ -51,6 +51,28 @@ func (shaman *Shaman) setupItemSwapImbue(imbue proto.ShamanImbue, imbueID int32)
 	}
 }
 
+// PerWeaponImbues makes Rockbiter's attack power and Flametongue's proc follow the weapon in the hand
+// at an item swap, the swap's weapon included (mythicsim patch 133): Rockbiter on only one of the two
+// weapons counts while that one is in the hand, and Flametongue on only the swap's weapon procs once it
+// is. Off, as before: Rockbiter counts all fight when the weapon worn at the pull carries it and never
+// when only the swap's weapon does, and Flametongue on only the swap's weapon never procs.
+var PerWeaponImbues = true
+
+// swapWeaponCarries reports whether a weapon in the hand once the item swap's set is worn carries the
+// temporary enchantment (a slot the swap leaves alone keeps the weapon worn at the pull).
+func (shaman *Shaman) swapWeaponCarries(effectID int32) bool {
+	for _, slot := range []proto.ItemSlot{proto.ItemSlot_ItemSlotMainHand, proto.ItemSlot_ItemSlotOffHand} {
+		item := shaman.ItemSwap.GetUnequippedItemBySlot(slot)
+		if item.ID == 0 {
+			item = shaman.Equipment.GetItemBySlot(slot)
+		}
+		if item.TempEnchant == effectID {
+			return true
+		}
+	}
+	return false
+}
+
 // newWindfuryAttackSpell is the Windfury attack: 439440 (main hand) or 439441 (Attributes[3] 0x1000000,
 // off hand), a SPELL_EFFECT_WEAPON_DAMAGE special hit carrying the rank's extra attack power (16361:
 // 333 at 60). Beta log 2708 (foreverlogs.gg, Toma, 22 Enhancement, level 30) bears this out: 62 procs,
@@ -252,6 +274,10 @@ func (shaman *Shaman) RegisterFlametongueImbue(procMask core.ProcMask) {
 	for _, itemSlot := range core.AllWeaponSlots() {
 		var weapon *core.Item
 		var triggerProcMask core.ProcMask
+		// Only the swap's weapon carries it: the proc aura starts each fight switched off by the swap
+		// callback in makeFTProcTriggerAura (the weapon in the hand lacks enchant 5) and comes on at the
+		// swap. weapon is the slot, so the spell reads the weapon in the hand.
+		swapOnly := false
 		switch {
 		case shaman.SelfBuffs.ImbueMH == proto.ShamanImbue_FlametongueWeapon && itemSlot == proto.ItemSlot_ItemSlotMainHand:
 			weapon = shaman.MainHand()
@@ -259,16 +285,28 @@ func (shaman *Shaman) RegisterFlametongueImbue(procMask core.ProcMask) {
 		case shaman.SelfBuffs.ImbueOH == proto.ShamanImbue_FlametongueWeapon && itemSlot == proto.ItemSlot_ItemSlotOffHand:
 			weapon = shaman.OffHand()
 			triggerProcMask = core.ProcMaskMeleeOH
+		case PerWeaponImbues && shaman.ItemSwap.IsEnabled() && itemSlot == proto.ItemSlot_ItemSlotMainHand &&
+			shaman.SelfBuffs.ImbueMHSwap == proto.ShamanImbue_FlametongueWeapon && shaman.ItemSwap.GetUnequippedItemBySlot(itemSlot).ID != 0:
+			weapon = shaman.MainHand()
+			triggerProcMask = core.ProcMaskMeleeMH
+			swapOnly = true
+		case PerWeaponImbues && shaman.ItemSwap.IsEnabled() && itemSlot == proto.ItemSlot_ItemSlotOffHand &&
+			shaman.SelfBuffs.ImbueOHSwap == proto.ShamanImbue_FlametongueWeapon && shaman.ItemSwap.GetUnequippedItemBySlot(itemSlot).ID != 0:
+			weapon = shaman.OffHand()
+			triggerProcMask = core.ProcMaskMeleeOH
+			swapOnly = true
 		}
 
 		if weapon == nil {
 			continue
 		}
 
-		weapon.TempEnchant = flametongueEnchantID
+		if !swapOnly {
+			weapon.TempEnchant = flametongueEnchantID
 
-		if shaman.ItemSwap.IsEnabled() {
-			shaman.ItemSwap.AddTempEnchant(flametongueEnchantID, itemSlot, false)
+			if shaman.ItemSwap.IsEnabled() {
+				shaman.ItemSwap.AddTempEnchant(flametongueEnchantID, itemSlot, false)
+			}
 		}
 
 		flameTongueSpell := shaman.newFlametongueImbueSpell(weapon)
@@ -378,16 +416,41 @@ func (shaman *Shaman) RegisterRockbiterImbue(procMask core.ProcMask) {
 
 	shaman.setupItemSwapImbue(proto.ShamanImbue_RockbiterWeapon, rockbiterEnchantID)
 
-	if !imbued {
+	// With an item swap, the passive follows the weapons in the hand unless both sets carry it.
+	perWeapon := PerWeaponImbues && shaman.ItemSwap.IsEnabled() && imbued != shaman.swapWeaponCarries(rockbiterEnchantID)
+	if !imbued && !perWeapon {
 		return
 	}
 
 	attackPower := rockbiterImbue.Effect(dbcenums.A_MOD_ATTACK_POWER, 0).Average(core.CharacterLevel) *
 		(1 + spellData.ElementalWeapons.EffectAt(1).FractionAt(shaman.Talents.ElementalWeapons))
-	core.MakePermanent(shaman.NewTemporaryStatsAura("Rockbiter Weapon", core.ActionID{SpellID: rockbiterImbue.ID},
-		stats.Stats{stats.AttackPower: attackPower}, core.NeverExpires).Aura)
+	aura := shaman.NewTemporaryStatsAura("Rockbiter Weapon", core.ActionID{SpellID: rockbiterImbue.ID},
+		stats.Stats{stats.AttackPower: attackPower}, core.NeverExpires).Aura
+
+	if !perWeapon {
+		core.MakePermanent(aura)
+		if shaman.Talents.SpiritWeapons {
+			shaman.PseudoStats.ThreatMultiplier *= spellData.SpiritWeapons.EffectAt(2).MultiplierAt(1)
+		}
+		return
+	}
 
 	if shaman.Talents.SpiritWeapons {
-		shaman.PseudoStats.ThreatMultiplier *= spellData.SpiritWeapons.EffectAt(2).MultiplierAt(1)
+		threat := spellData.SpiritWeapons.EffectAt(2).MultiplierAt(1)
+		aura.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) {
+			shaman.PseudoStats.ThreatMultiplier *= threat
+		}).ApplyOnExpire(func(_ *core.Aura, _ *core.Simulation) {
+			shaman.PseudoStats.ThreatMultiplier /= threat
+		})
 	}
+	// The item swap's reset runs this with the pull's weapons, so the aura starts each fight as they say.
+	shaman.RegisterItemSwapCallback(core.AllWeaponSlots(), func(sim *core.Simulation, _ proto.ItemSlot) {
+		if shaman.MainHand().TempEnchant == rockbiterEnchantID || shaman.OffHand().TempEnchant == rockbiterEnchantID {
+			if !aura.IsActive() {
+				aura.Activate(sim)
+			}
+		} else {
+			aura.Deactivate(sim)
+		}
+	})
 }

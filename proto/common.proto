@@ -477,6 +477,10 @@ message ConsumesSpec {
 	// deep dives, 7 and 8 October 2026). Registered like mh/ohImbue_id. Mythicsim patch 100.
 	int32 mh_temp_enchant_id = 27;
 	int32 oh_temp_enchant_id = 28;
+	// The stone or oil on the item swap's main-hand weapon (mythicsim patch 133). Set, mhImbue_id
+	// counts only while the weapon worn at the pull is in the main hand and this one only while the
+	// swap's weapon is; -1 is nothing on the swap's weapon. Unset (0), mhImbue_id counts as before.
+	int32 mh_imbue_swap_id = 29;
 }
 
 enum MobType {

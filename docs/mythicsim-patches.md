@@ -3057,3 +3057,56 @@ TestSurvivalMelee 397.50 to 404.01; Beast Mastery and Marksmanship do not move.
 
 Drop this when upstream rolls the bleed over, or set the switch false if a log shows a refresh
 replaces it.
+
+
+## 133. `shaman, core: Rockbiter, Flametongue and the main-hand stone follow the weapon in the hand`
+
+With an item swap (MythicSim's Manual Crowd Pummeler opener: the Pummeler worn at the pull, the
+player's own weapon swapped in after 30 seconds), only Windfury and Frostbrand Weapon followed the
+weapon in the hand. Rockbiter's attack power aura was built only for the weapon worn at the pull and
+was permanent: Rockbiter on the Pummeler alone counted all fight, on the own weapon alone never.
+Flametongue's proc aura was built only for the weapon worn at the pull, so Flametongue on the own
+weapon alone never procced. The main-hand stone or oil is a per-hand consumable
+(`Consumables.MhImbueId`): an Elemental Sharpening Stone or a wizard oil is a character stat for the
+whole fight, Frost Oil a main-hand proc for the whole fight, and a Dense stone is added to the swing
+built at the pull and lost at the first reset when the main hand swaps.
+
+- `RegisterRockbiterImbue` (`sim/shaman/weapon_imbues.go`): with an item swap where only one of the
+  two sets carries Rockbiter (`imbueMh` or `imbueMhSwap`), the aura is no longer permanent; an item
+  swap callback keeps it up while a weapon with enchant 3021 is in the hand (the item swap's reset
+  sets it for the pull's weapons), and Spirit Weapons' x1.86 threat moves into its OnGain/OnExpire.
+  Both sets with Rockbiter, or no item swap: permanent as before.
+- `RegisterFlametongueImbue`: `imbueMhSwap` (or `imbueOhSwap`) Flametongue without it on the pull's
+  weapon now builds the proc aura on the slot without marking the pull's weapon; the existing swap
+  callback in `makeFTProcTriggerAura` switches it off at the reset and on at the swap.
+- `ConsumesSpec.mh_imbue_swap_id` (field 29, `sim/core/imbue_swap.go`): set, `mhImbue_id` counts only
+  while the pull's weapon is in the main hand and `mh_imbue_swap_id` only while the swap's weapon is;
+  -1 is nothing on the swap's weapon, the same id on both counts all fight. Elemental Sharpening
+  Stone, Brilliant Wizard Oil, Wizard Oil and Mana Oil become a stat aura, Frost Oil (and any
+  `StaticImbueProcs` entry) its proc aura switched on and off, and a Dense stone's 8 damage is added to
+  the main-hand swing rebuilt at each swap. Blessed Wizard Oil and Consecrated Sharpening Stone (undead
+  only) still count all fight. A Feral Druid's paw keeps `MHImbueFlatWeaponDamage` as before. Unset (0),
+  or no main-hand swap weapon, everything is as before.
+
+Switches: `shaman.PerWeaponImbues` and `core.EnablePerWeaponMainHandImbue` (default true).
+
+Effect, MythicSim request path (`claude/forever-oct14-integration`, defaults with the opener, the
+swap fields written into the request by hand), 10,000 iterations, board seed and alt seed, board
+length and 120 s, against today's Enhancement default (Rockbiter on both, Frost Oil):
+
+| Enhancement | board seed, board | board seed, 120 s | alt seed, board | alt seed, 120 s |
+| --- | ---: | ---: | ---: | ---: |
+| Rockbiter both, Frost Oil (default) | 730.71 | 727.18 | 729.70 | 726.97 |
+| Pummeler Flametongue, own Rockbiter, Frost Oil both | 731.42 (+0.10%) | 728.98 (+0.25%) | 730.37 (+0.09%) | 728.04 (+0.15%) |
+| Pummeler Flametongue + Frost Oil, own Rockbiter + Elemental Sharpening Stone | 732.10 (+0.19%) | 730.10 (+0.40%) | 731.79 (+0.29%) | 728.99 (+0.28%) |
+| Pummeler Flametongue + Frost Oil, own Rockbiter + Brilliant Wizard Oil | 733.26 (+0.35%) | 730.97 (+0.52%) | 732.35 (+0.36%) | 729.68 (+0.37%) |
+
+The last split also wins at 300 s (+0.17%, +0.19%) and on three targets (+0.67% to +0.73%). Elehance
+(two and three targets, Flametongue and Brilliant Wizard Oil with the opener) gains from no split:
+Frost Oil on the Pummeler ties on two targets (-0.04% to +0.04%) and loses on three (-0.15% to
+-0.27%); Rockbiter on either weapon loses 0.7% to 1.9% (3,000 iteration screen).
+
+Tests: `TestRockbiterFollowsTheWeaponInTheHand`, `TestRockbiterThreatFollowsTheWeaponInTheHand`,
+`TestFlametongueOnTheSwapWeaponProcsOnlyAfterTheSwap` and `TestStoneAndOilFollowTheWeaponInTheHand`
+(`sim/shaman/enhancement`). Goldens: none move (no suite swaps weapons); MythicSim's default
+Enhancement and Elehance requests give the same DPS to the hundredth of a point as `944a791060`.
