@@ -109,6 +109,10 @@ func (shaman *Shaman) applyElementalDevastation() {
 		Callback:         core.CallbackOnSpellHitDealt,
 		ProcMask:         core.ProcMaskSpellDamage,
 		Outcome:          core.OutcomeCrit,
+		// Totems and what they cast never trigger it, Fire Nova included (dev AidanZMoon, forever-bugs #334).
+		ExtraCondition: func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+			return !spell.Matches(SpellMaskFireNova)
+		},
 		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			critBuffAura.Activate(sim)
 		},
