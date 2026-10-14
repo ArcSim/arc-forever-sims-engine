@@ -91,8 +91,7 @@ func TestDemonicBrandImpSpendsWithFirebolt(t *testing.T) {
 		for i := 0; i < 2000; i++ {
 			hit.SkipCastAndApplyEffects(sim, pet.CurrentTarget)
 		}
-		// The Succubus has no spell crit to roll, so only the Imp's hits show the crits.
-		if m := hit.SpellMetrics[0]; m.Misses != 0 || (tc.summon == proto.WarlockOptions_Imp && m.Crits == 0) {
+		if m := hit.SpellMetrics[0]; m.Misses != 0 || m.Crits == 0 {
 			t.Errorf("%v: branded hit missed %d and crit %d times in 2000, want 0 misses and some crits", tc.summon, m.Misses, m.Crits)
 		}
 	}
