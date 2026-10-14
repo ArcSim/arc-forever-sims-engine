@@ -105,13 +105,16 @@ func (warrior *Warrior) registerLastStand() {
 	actionID := core.ActionID{SpellID: lastStandRank.ID}
 	healthMetrics := warrior.NewHealthMetrics(actionID)
 
+	// Client 1.60.1.70291 moved the buff from A_MOD_MAX_HEALTH to A_MOD_INCREASE_HEALTH, still 30; the
+	// talent tooltip reads "30% of your maximum health", so it stays a share of maximum health.
+	healthPercent := lastStandBuff.Effect(dbcenums.A_MOD_INCREASE_HEALTH, 0).Percent()
 	var bonusHealth float64
 	aura := warrior.RegisterAura(core.Aura{
 		Label:    "Last Stand",
 		ActionID: actionID,
 		Duration: lastStandBuff.Duration(),
 		OnGain: func(aura *core.Aura, sim *core.Simulation) {
-			bonusHealth = warrior.MaxHealth() * lastStandBuff.Effect(dbcenums.A_MOD_MAX_HEALTH, 0).Percent()
+			bonusHealth = warrior.MaxHealth() * healthPercent
 			warrior.UpdateMaxHealth(sim, bonusHealth, healthMetrics)
 		},
 		OnExpire: func(aura *core.Aura, sim *core.Simulation) {
