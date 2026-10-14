@@ -1,5 +1,11 @@
 [
 	{
+		"number": 790,
+		"title": "warlock: Succubus Lash of Pain can crit (~6% base spell crit)",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/790"
+	},
+	{
 		"number": 789,
 		"title": "Fire Nova crits don't trigger Elemental Devastation (forever-bugs #334)",
 		"mergedAt": "2026-10-14",
