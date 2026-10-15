@@ -312,17 +312,8 @@ func (warrior *Warrior) registerBloodCraze() {
 			bloodCraze.SelfHot().Apply(sim)
 		},
 	})
-
-	warrior.MakeProcTriggerAura(core.ProcTrigger{
-		Name:               "Blood Craze - Bloodthirst",
-		Callback:           core.CallbackOnSpellHitDealt,
-		ClassSpellMask:     SpellMaskBloodthirst,
-		Outcome:            core.OutcomeLanded,
-		RequireDamageDealt: true,
-		Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-			bloodCraze.SelfHot().Apply(sim)
-		},
-	})
+	// No Bloodthirst trigger: the 1 Oct beta notes ("Blood Craze no longer activates off of Bloodthirst
+	// casts") and the client 70374 tooltip dropped it.
 }
 
 // Booming Voice (12321) widens the shout radius, which the sim does not model. Build 70170 added a

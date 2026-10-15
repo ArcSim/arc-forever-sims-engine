@@ -124,9 +124,9 @@
 	"16488": {
 		"ability": "Blood Craze",
 		"file": "sim/warrior/talents_fury.go",
-		"note": "Client 1.60.1.70009: Forever widens the trigger to Bloodthirst damage and hits over 20% of maximum health, and the curve (16487) reads 1/2/3% of maximum health over 6 sec in 3 ticks. Classic heals over 6 sec only after a critical strike.",
+		"note": "Client 1.60.1.70374: Forever adds hits over 20% of maximum health to Classic's critical-strike trigger, and the curve (16487) reads 1/2/3% of maximum health over 6 sec in 3 ticks. Bloodthirst no longer triggers it: 70009 listed it, the 1 Oct Blizzard beta notes say 'Blood Craze no longer activates off of Bloodthirst casts'.",
 		"source": "forever",
-		"tooltip": "Passive\nRegenerates 1% of your total Health per point over 6 sec after being the victim of a critical strike, dealing damage with Bloodthirst, or suffering more than 20% of your maximum Health from a single attack."
+		"tooltip": "Passive\nRegenerates 1% of your total Health per point over 6 sec after being the victim of a critical strike or suffering more than 20% of your maximum Health from a single attack."
 	},
 	"1680": {
 		"ability": "Whirlwind",
