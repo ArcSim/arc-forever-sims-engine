@@ -87,7 +87,7 @@ var tooltipAllowed = map[int32][]float64{
 	871:     {5.5},
 	12579:   {20},                         // Winter's Chill: 20% a point to proc
 	24858:   {35},                         // Moonkin Form: the cost is a percentage of base mana the store rounds away
-	9634:    {30, 1240, 55},               // Dire Bear Form: threat is not in the client; health is on 9635
+	9634:    {50, 1240, 55},               // Dire Bear Form: threat is not in the client; health is on 9635
 	19577:   {8},                          // Intimidation: base mana share
 	1310703: {3, 4, 5, 9, 12, 15, 18, 21}, // Venom: per combo point durations
 	16488:   {20},                         // Blood Craze: the 20% health condition

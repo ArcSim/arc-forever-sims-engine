@@ -21,10 +21,11 @@ const (
 // Converts from 0.009327 to 0.0085
 const AnimalSpiritRegenSuppression = 0.911337
 
-// Dire Bear Form: 360% more armor from items, and 30% more threat from Bear Form (Passive2) (21178,
-// in beta client 70009 as in Classic). Moonkin Form carries the same armor multiplier.
+// Dire Bear Form: 360% more armor from items, and 50% more threat from Bear Form (Passive2) (21178:
+// client 70374 raised it from Classic's 30%, as the 8 Oct beta notes say). Moonkin Form carries the
+// same armor multiplier.
 const BaseBearArmorMulti = 4.6
-const BearFormThreatMultiplier = 1.3
+const BearFormThreatMultiplier = 1.5
 const CatFormThreatMultiplier = 0.71
 const MoonkinFormArmorMultiplier = 4.6
 

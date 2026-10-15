@@ -204,9 +204,9 @@
 	"9634": {
 		"ability": "Dire Bear Form",
 		"file": "sim/druid/forms.go",
-		"note": "Client 70009: the passive (9635) gives 360% item armor, 600 health plus 32 a level and 120 attack power plus 3 a level, 1240 and 180 at 60, as the sim has; Wowhead's 1560 and 210 are the same passive at its max level of 70. The 1.3x threat is Bear Form (Passive2) (21178), which the client still carries: +30% threat from every school, taught with Feral Combat at level 10, as in Classic. Furor's Bear half is 20% a point at 10 Rage. Forever moves Feral Instinct onto Swipe, so the form's threat is the flat 1.3x it carries here.",
+		"note": "Client 70009: the passive (9635) gives 360% item armor, 600 health plus 32 a level and 120 attack power plus 3 a level, 1240 and 180 at 60, as the sim has; Wowhead's 1560 and 210 are the same passive at its max level of 70. The 1.5x threat is Bear Form (Passive2) (21178), taught with Feral Combat at level 10: client 70374 carries +50% threat from every school (Classic and 70009: 30%), and the 8 Oct Blizzard beta notes say 'Bear Form and Dire Bear Form: Threat bonus increased to 50% from 30%'. Furor's Bear half is 20% a point at 10 Rage. Forever moves Feral Instinct onto Swipe, so the form's threat is the flat 1.5x it carries here.",
 		"source": "forever",
-		"tooltip": "55% of base mana\nInstant\nShapeshift into dire bear form, increasing melee attack power by 180, health by 1240, armor contribution from items by 360% and threat caused by 30%. Rage replaces mana while the form lasts."
+		"tooltip": "55% of base mana\nInstant\nShapeshift into dire bear form, increasing melee attack power by 180, health by 1240, armor contribution from items by 360% and threat caused by 50%. Rage replaces mana while the form lasts."
 	},
 	"9830": {
 		"ability": "Shred",
