@@ -1,5 +1,17 @@
 [
 	{
+		"number": 797,
+		"title": "warrior: Blood Craze no longer triggers off Bloodthirst",
+		"mergedAt": "2026-10-15",
+		"url": "https://github.com/ElliotWood/Forever/pull/797"
+	},
+	{
+		"number": 796,
+		"title": "[DB] Update to 1.60.1.70374 with hotfixes as of 2026-10-15",
+		"mergedAt": "2026-10-15",
+		"url": "https://github.com/ElliotWood/Forever/pull/796"
+	},
+	{
 		"number": 795,
 		"title": "warrior: Last Stand reads its 30% from client 70291's health aura (no more panic)",
 		"mergedAt": "2026-10-14",
