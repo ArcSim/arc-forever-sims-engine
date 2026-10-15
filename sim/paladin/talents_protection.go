@@ -117,7 +117,9 @@ func (paladin *Paladin) applyAnticipation() {
 
 // Improved Seal of Fury - When Seal of Fury's shield is fully absorbed, restore 60 Mana, increased
 // by 15% per level the attacker is above you, up to 45%. The level is the current target's. The
-// client states the mana as one point per caster level, so it is read folded.
+// client states the mana as one point per caster level, so it is read folded. The mana is
+// restored by 1314104, which client 70374 flags No Threat (beta notes 8 Oct: no longer generates
+// threat when restoring Mana); that spell isn't in the store, so the flag is set here.
 func (paladin *Paladin) applyImprovedSealOfFury(shield *core.DamageAbsorptionAura) {
 	if !paladin.Talents.ImprovedSealOfFury {
 		return
@@ -128,6 +130,7 @@ func (paladin *Paladin) applyImprovedSealOfFury(shield *core.DamageAbsorptionAur
 	perLevel := rank.EffectN(2).Percent()
 	maxLevels := rank.EffectN(3).Average(core.CharacterLevel)
 	manaMetrics := paladin.NewManaMetrics(core.ActionID{SpellID: rank.ID})
+	manaMetrics.NoThreat = true
 
 	shield.AttachOnDamageAbsorbed(func(sim *core.Simulation, aura *core.DamageAbsorptionAura, _ *core.SpellResult, _ float64) {
 		if aura.ShieldStrength > 0 {
@@ -170,6 +173,7 @@ func (paladin *Paladin) applyShieldSpecialization() {
 	rank := spellData.ShieldSpecializationTriggered.Highest()
 	manaShare := rank.EffectN(1).Percent()
 	manaMetrics := paladin.NewManaMetrics(core.ActionID{SpellID: rank.ID})
+	manaMetrics.NoThreat = rank.NoThreat() // No Threat since client 70374 (beta notes 8 Oct)
 
 	paladin.MakeProcTriggerAura(core.ProcTrigger{
 		Name:               "Shield Specialization" + paladin.Label,
