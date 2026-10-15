@@ -1,5 +1,17 @@
 [
 	{
+		"number": 800,
+		"title": "paladin: Retribution Aura scales 6% of the paladin's spell power (beta notes 8 Oct)",
+		"mergedAt": "2026-10-15",
+		"url": "https://github.com/ElliotWood/Forever/pull/800"
+	},
+	{
+		"number": 799,
+		"title": "Wowhead Forever data changed (2026-10-15)",
+		"mergedAt": "2026-10-15",
+		"url": "https://github.com/ElliotWood/Forever/pull/799"
+	},
+	{
 		"number": 798,
 		"title": "druid: Bear Form threat bonus 50% (client 70374), was 30%",
 		"mergedAt": "2026-10-15",
