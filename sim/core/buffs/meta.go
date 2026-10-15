@@ -155,11 +155,19 @@ func (m *Meta) parsedAura(unit *core.Unit, isPlayer bool, talentPoints int32, bu
 	return aura
 }
 
+// Thorns scales with the druid's spell power at 6% though its client row carries no coefficient.
+// Blizzard's beta notes: Thorns "will now dynamically update its values based on the caster's spell
+// power" (24 Sep 2026), and "the spell power ratio has been reduced to 6% (was 13.3%)" (8 Oct 2026).
+// Only the druid's own copy carries it: the raid option has no druid spell power, and the notes say
+// Thorns "reverts to its base values" when the caster cannot be found.
+const ThornsSpellPowerCoefficient = 0.06
+
 // A damage shield, which the parse does not read: core.NewDamageShield with the spell's school and
 // Value as its damage.
 func newDamageShield(unit *core.Unit, m *Meta, isPlayer bool, talentPoints int32) *core.Aura {
+	coefficient := core.TernaryFloat64(isPlayer && m == thornsMeta, ThornsSpellPowerCoefficient, 0)
 	aura := core.NewDamageShield(unit, m.label(isPlayer), m.actionID(isPlayer), m.Duration(talentPoints),
-		m.Category, m.SingleAura, m.Spell.School, m.Value(talentPoints), 0)
+		m.Category, m.SingleAura, m.Spell.School, m.Value(talentPoints), coefficient)
 	core.JoinSharedCategory(aura, m.SharedCategory, isPlayer)
 	return aura
 }

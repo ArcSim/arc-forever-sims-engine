@@ -285,7 +285,7 @@
 	"9910": {
 		"ability": "Thorns",
 		"file": "sim/druid/thorns.go",
-		"note": "Rank 6, the druid's own cast; the raid option registers the same shield in sim/core/buffs/buffs_auto_gen.go. Client 9910 (1.60.1.70009): 22 Nature damage per melee hit taken, up from Classic Era's 18; 1.60.1.70291 put it back to 18 (#758). Forever has no Improved Thorns or Brambles, so neither copy takes talent points, and the damage is dealt under 9910 itself.",
+		"note": "Rank 6, the druid's own cast; the raid option registers the same shield in sim/core/buffs/buffs_auto_gen.go. Client 9910 (1.60.1.70009): 22 Nature damage per melee hit taken, up from Classic Era's 18; 1.60.1.70291 put it back to 18 (#758). Forever has no Improved Thorns or Brambles, so neither copy takes talent points, and the damage is dealt under 9910 itself. The druid's own copy adds 6% of the druid's Nature spell power (Blizzard beta notes 24 Sep + 8 Oct 2026: scales with the caster's spell power, ratio 6%; the client row has no coefficient); the raid option's copy deals the base, as the notes say it does when the caster can't be found.",
 		"source": "forever",
 		"tooltip": "320 Mana\nInstant\nThorns sprout from the friendly target causing 18 Nature damage to attackers when hit. Lasts 10 min."
 	}

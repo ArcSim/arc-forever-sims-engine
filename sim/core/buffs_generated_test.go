@@ -678,6 +678,21 @@ func TestGeneratedThornsStrikesBackAtAMeleeHit(t *testing.T) {
 	}
 }
 
+// Thorns scales with the druid's spell power at 6% (beta notes, 8 Oct 2026): the druid's own copy
+// carries the coefficient, the raid option's deals the base.
+func TestThornsScalesWithTheDruidsSpellPower(t *testing.T) {
+	char := core.NewGeneratedBuffTestCharacter()
+	buffs.ThornsAura(&char.Unit, true, 0)
+	buffs.ThornsAura(&char.Unit, false, 0)
+
+	if got := char.GetSpell(core.ActionID{SpellID: 9910, Tag: 2}).BonusCoefficient; got != 0.06 {
+		t.Errorf("the druid's own Thorns has coefficient %v, want 0.06", got)
+	}
+	if got := char.GetSpell(core.ActionID{SpellID: 9910, Tag: 1}).BonusCoefficient; got != 0 {
+		t.Errorf("the raid option's Thorns has coefficient %v, want 0", got)
+	}
+}
+
 // Retribution Aura is the paladin's slot: the external copy keeps its own
 // category and stays out of the shared one only the paladin's own cast joins.
 func TestGeneratedRetributionAuraHoldsThePaladinSlot(t *testing.T) {
