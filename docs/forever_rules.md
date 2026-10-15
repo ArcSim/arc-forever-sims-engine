@@ -126,6 +126,7 @@ below is gated on `IsForever()` unless it says the class code is Forever-only.
 | Rule | Source | Here |
 |---|---|---|
 | Barrage applies to Aimed Shot as well as Multi-Shot and Volley. | Tooltip | `sim/hunter/aimed_shot.go` |
+| From 16 October 2026 a pet's physical crit is its master's ranged crit (Agility, gear, buffs, Lethal Attacks, ranged-only crit), not its own Agility; Ferocity and Intimidation still add on the pet. | Dev AidanZMoon, forever-bugs #331 | `sim/hunter/pet.go` |
 
 ## Encounters
 

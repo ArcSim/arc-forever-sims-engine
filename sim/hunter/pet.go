@@ -78,8 +78,7 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 	hp.Pet.MobType = proto.MobType_MobTypeBeast
 
 	hp.AddStatDependency(stats.Strength, stats.AttackPower, 2.0)
-	// Warrior crit scaling.
-	hp.AddStatDependency(stats.Agility, stats.PhysicalCritPercent, core.CritPerAgiMaxLevel[proto.Class_ClassWarrior])
+	// No Agility crit: the pet's physical crit is its owner's ranged crit (makeStatInheritance).
 	hp.AddStatDependency(stats.Intellect, stats.SpellCritPercent, core.CritPerIntMaxLevel[proto.Class_ClassWarrior])
 
 	// Bestial Discipline buys the pet 10% focus regen a rank (19590 effect 1).
@@ -166,10 +165,17 @@ func (hp *HunterPet) ExecuteCustomRotation(sim *core.Simulation) {
 	}
 }
 
-// Forever is a Classic-era realm: the pet takes none of its owner's stats, where TBC's does.
+// Forever is a Classic-era realm: the pet takes none of its owner's stats, where TBC's does, but one.
+// From 16 October 2026 its physical crit is its master's ranged crit and it has no crit of its own (dev
+// AidanZMoon, forever-bugs #331: "It currently uses Melee Crit on Beta but will use Ranged Crit starting
+// Thursday"; pets "don't have erroneous base crit"). Auto Shot rolls PhysicalCritPercent plus the
+// ranged-only RangedCritPercent; the weapon racials are melee spell mods, so they stay out as they do
+// for Auto Shot. Ferocity and Intimidation still add on the pet.
 func (hunter *Hunter) makeStatInheritance() core.PetStatInheritance {
 	return func(ownerStats stats.Stats) stats.Stats {
-		return stats.Stats{}
+		return stats.Stats{
+			stats.PhysicalCritPercent: ownerStats[stats.PhysicalCritPercent] + ownerStats[stats.RangedCritPercent],
+		}
 	}
 }
 
