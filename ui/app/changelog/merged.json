@@ -1,5 +1,11 @@
 [
 	{
+		"number": 803,
+		"title": "druid: Thorns scales with 6% of the druid's spell power (beta notes)",
+		"mergedAt": "2026-10-15",
+		"url": "https://github.com/ElliotWood/Forever/pull/803"
+	},
+	{
 		"number": 802,
 		"title": "warlock: Demonic Brand's Imp Fire hit carries normal threat (beta notes 8 Oct)",
 		"mergedAt": "2026-10-15",
