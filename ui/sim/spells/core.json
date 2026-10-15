@@ -14,9 +14,9 @@
 	"10301": {
 		"ability": "Retribution Aura",
 		"file": "sim/core/buffs/paladin.go",
-		"note": "Client 10301 (1.60.1.70009): 30 Holy damage to each melee attacker where Era's is 20, and #385 scales it with Holy spell power at 0.1357 (1.5/3.5/3 x 0.95), checked in game at level 20. The spell power is the protected member's own, not the paladin's: in beta logs 2729-2736 one paladin's party splits by holder on rank 2 (base 12): the paladin ~28, a warlock ~30, a priest ~22, two warriors 12 flat, and every warrior, rogue and hunter holder across 40 reports sits at the base (7 rank 1, 12 rank 2). The raid option reads the tank's own spell power.",
+		"note": "Client 10301: 20 Holy damage to each melee attacker since 1.60.1.70291 (was 30), back to Era's. Blizzard's beta notes of 8 Oct 2026 set the rest: \"the spell power ratio has been reduced to 6% (was 13.3%)\" and it now uses \"the casting Paladin's spell power\" instead of the struck member's. That retires #385's level-20 reading (0.1357) and the holder split in beta logs 2729-2736, both from the build before. The paladin's own aura adds 6% of the paladin's Holy spell power; the raid option deals the base, as the party config does not carry the paladin's spell power.",
 		"source": "forever",
-		"tooltip": "Causes 30 Holy damage, plus 13.6% of the struck member's Holy spell power, to any enemy that strikes a party member within 30 yards."
+		"tooltip": "Causes 20 Holy damage, plus 6% of the paladin's Holy spell power, to any enemy that strikes a party member within 30 yards."
 	},
 	"10610": {
 		"ability": "Windfury Totem Rank 3",

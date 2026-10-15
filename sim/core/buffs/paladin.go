@@ -57,20 +57,17 @@ func ShadowResistanceAura(char *core.Character, isPlayer bool, rank PaladinAuraR
 	return newBuff(&char.Unit, paladinAuraMeta(shadowResistanceAuraMeta, rank), isPlayer, 0)
 }
 
-// Retribution Aura scales with Holy spell power in Forever even though its
-// client row carries no coefficient (every rank and Thorns are the same: EffectBonusCoefficient 0,
-// and the damage still moves with spell power in game). The coefficient is the 1.5 s cast-time
-// floor over 3.5, the AoE divisor because the shield hits every attacker, and the 0.95 penalty for
-// the aura effect. Confirmed at level 20: with 80 spell power rank 1 (base 7) hits for 17 to 18,
-// mostly 18, which is the 17.86 this coefficient predicts; the 0.95² variant (0.129) would have
-// shown mostly 17.
-const RetributionAuraSpellPowerCoefficient = 1.5 / 3.5 / 3 * 0.95
+// Retribution Aura scales with the paladin's Holy spell power at 6%, though its client row carries
+// no coefficient (EffectBonusCoefficient 0 on every rank). Blizzard's beta notes of 8 Oct 2026 set
+// it: "the spell power ratio has been reduced to 6% (was 13.3%)", the base back to Vanilla's (client
+// 70291 has rank 5 at 20), and a fix so it reads "the casting Paladin's spell power" instead of the
+// struck member's. That retires the level-20 reading of 0.1357 and the holder split in beta logs
+// 2729-2736, both from the build before.
+const RetributionAuraSpellPowerCoefficient = 0.06
 
-// RetributionAuraBuff is the aura on the unit the shield protects. Both copies read the Holy spell
-// power of the unit the aura is on, not the paladin's: in beta logs one paladin's party splits by
-// holder (reports 2729-2736, rank 2 10298 base 12: Mielle the paladin ~28, Whutz the warlock ~30,
-// Chaise the priest ~22, the warriors Arthass and Noftw 12 flat), and every warrior, rogue and
-// hunter holder in 40 reports sits at the base, 7 for rank 1 and 12 for rank 2.
+// RetributionAuraBuff is the aura on the unit the shield protects. The paladin's own copy carries
+// the paladin's spell power. The party option's copy deals the base: it is on a party member, whose
+// spell power is not the paladin's, and the party config does not say the paladin's.
 func RetributionAuraBuff(char *core.Character, isPlayer bool, rank PaladinAuraRank) *core.Aura {
 	m := paladinAuraMeta(retributionAuraMeta, rank)
 	label := m.label(isPlayer)
@@ -79,7 +76,7 @@ func RetributionAuraBuff(char *core.Character, isPlayer bool, rank PaladinAuraRa
 	}
 
 	aura := core.NewDamageShield(&char.Unit, label, m.actionID(isPlayer), core.NeverExpires, m.Category, m.SingleAura,
-		core.SpellSchoolHoly, rank.Value, RetributionAuraSpellPowerCoefficient)
+		core.SpellSchoolHoly, rank.Value, core.TernaryFloat64(isPlayer, RetributionAuraSpellPowerCoefficient, 0))
 	core.JoinSharedCategory(aura, m.SharedCategory, isPlayer)
 	return aura
 }

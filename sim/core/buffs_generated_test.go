@@ -713,41 +713,27 @@ func TestGeneratedRetributionAuraHoldsThePaladinSlot(t *testing.T) {
 	}
 }
 
-// The party's copy reads the spell power of the unit it is on: beta logs show a warrior in the
-// paladin's party taking the base damage while the casters' hits carry their own spell power. The
-// party's retired spell-power field is ignored.
-func TestRetributionAuraCarriesTheHoldersSpellPower(t *testing.T) {
+// Retribution Aura scales with the paladin's spell power (beta notes, 8 Oct 2026), not the struck
+// member's: the party option's copy deals the base whatever its holder has.
+func TestRetributionAuraIgnoresTheHoldersSpellPower(t *testing.T) {
 	sim := setupFakeSimWithBuffs(&proto.RaidBuffs{},
-		&proto.PartyBuffs{RetributionAura: true, RetributionAuraSpellPower: 450}, &proto.IndividualBuffs{})
+		&proto.PartyBuffs{RetributionAura: true}, &proto.IndividualBuffs{})
 	char := sim.Raid.Parties[0].Players[0].GetCharacter()
 	attacker := sim.Encounter.AllTargetUnits[0]
 	attacker.AutoAttacks.CancelAutoSwing(sim)
-
-	aura := char.GetAura("Retribution Aura (External)")
-	if aura == nil {
-		t.Fatalf("no aura is labelled %q; the unit has %v", "Retribution Aura (External)", auraLabels(char))
-	}
-	category := char.ExclusiveEffectManager.GetExclusiveEffectCategory(buffs.RetributionAuraCategory)
-	if len(category.Effects()) != 1 || category.Effects()[0].Priority != buffs.RetributionAuraValue(0) {
-		t.Errorf("the category has %d effects, first bid %v; want one bidding the base %v",
-			len(category.Effects()), category.Effects()[0].Priority, buffs.RetributionAuraValue(0))
-	}
+	landed := &core.SpellResult{Target: &char.Unit, Outcome: core.OutcomeHit}
+	base := buffs.RetributionAuraValue(0)
 
 	shield := char.GetSpell(core.ActionID{SpellID: 10301, Tag: 1})
-	landed := &core.SpellResult{Target: &char.Unit, Outcome: core.OutcomeHit}
-	hit := func() float64 {
-		before := shield.SpellMetrics[attacker.UnitIndex].TotalDamage
-		aura.OnSpellHitTaken(aura, sim, attacker.AutoAttacks.MHAuto(), landed)
-		sim.Step()
-		return shield.SpellMetrics[attacker.UnitIndex].TotalDamage - before
-	}
-
-	if got, want := hit(), buffs.RetributionAuraValue(0); math.Abs(got-want) > 1e-6 {
-		t.Errorf("a holder with no spell power dealt %v, want the base %v", got, want)
+	external := char.GetAura("Retribution Aura (External)")
+	if external == nil {
+		t.Fatalf("no aura is labelled %q; the unit has %v", "Retribution Aura (External)", auraLabels(char))
 	}
 	char.AddStatDynamic(sim, stats.SpellDamage, 100)
-	if got, want := hit(), buffs.RetributionAuraValue(0)+buffs.RetributionAuraSpellPowerCoefficient*100; math.Abs(got-want) > 1e-6 {
-		t.Errorf("a holder with 100 spell power dealt %v, want %v", got, want)
+	external.OnSpellHitTaken(external, sim, attacker.AutoAttacks.MHAuto(), landed)
+	sim.Step()
+	if got := shield.SpellMetrics[attacker.UnitIndex].TotalDamage; math.Abs(got-base) > 1e-6 {
+		t.Errorf("the party's copy on a holder with 100 spell power dealt %v, want the base %v", got, base)
 	}
 }
 

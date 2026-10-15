@@ -239,8 +239,8 @@ func driveGraceOfAirTotem(char *core.Character, party *proto.PartyBuffs) {
 	})
 }
 
-// The party's Retribution Aura is the top rank, and its damage carries the
-// holder's own Holy spell power.
+// The party's Retribution Aura is the top rank at its base damage: it scales with
+// the paladin's spell power, which the party config does not carry.
 func driveRetributionAura(char *core.Character, _ *proto.PartyBuffs) {
 	core.MakePermanent(RetributionAuraBuff(char, false, RetributionAuraMaxRank))
 }

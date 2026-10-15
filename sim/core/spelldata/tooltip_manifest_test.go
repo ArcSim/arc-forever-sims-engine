@@ -28,7 +28,7 @@ var tooltipAllowed = map[int32][]float64{
 	686:     {16},                                     // Shadow Bolt rank 1
 	5143:    {25},                                     // Arcane Missiles rank 2
 	5145:    {49},                                     // Arcane Missiles rank 4
-	10301:   {13.6},                                   // Retribution Aura: spell power share measured in game (#385)
+	10301:   {6},                                      // Retribution Aura: spell power share, beta notes 8 Oct 2026
 	14893:   {25},                                     // Inspiration: Classic's 25%, the client buff says 8% (assumed row)
 	17794:   {20},                                     // Improved Shadow Bolt: 4% a point, 20% at five
 	20346:   {50, 61},                                 // Judgement of Light: 50% chance not in the client (assumed row)
