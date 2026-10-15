@@ -1,5 +1,11 @@
 [
 	{
+		"number": 805,
+		"title": "druid: Shifting Power can't be used at full Energy (beta notes 8 Oct)",
+		"mergedAt": "2026-10-15",
+		"url": "https://github.com/ElliotWood/Forever/pull/805"
+	},
+	{
 		"number": 804,
 		"title": "hunter: a pet's crit is its master's ranged crit (dev, forever-bugs #331)",
 		"mergedAt": "2026-10-15",
