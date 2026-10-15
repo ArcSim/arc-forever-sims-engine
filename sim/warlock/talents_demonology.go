@@ -250,9 +250,10 @@ func (warlock *Warlock) applyDemonicBrand() {
 	charges := int32(spellData.DemonicBrand.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_CHARGES)).ValueAt(points))
 
 	for _, pet := range warlock.BasePets {
-		school, schoolPower := core.SpellSchoolShadow, stats.ShadowDamage
+		// Only the Shadow hit carries the high threat (beta notes 8 Oct).
+		school, schoolPower, threat := core.SpellSchoolShadow, stats.ShadowDamage, 3.0
 		if pet == warlock.Imp {
-			school, schoolPower = core.SpellSchoolFire, stats.FireDamage
+			school, schoolPower, threat = core.SpellSchoolFire, stats.FireDamage, 1
 		}
 
 		brandSpell := pet.RegisterSpell(core.SpellConfig{
@@ -263,7 +264,7 @@ func (warlock *Warlock) applyDemonicBrand() {
 			Flags:       core.SpellFlagPassiveSpell | core.SpellFlagNoOnCastComplete,
 
 			DamageMultiplier: 1,
-			ThreatMultiplier: 3,
+			ThreatMultiplier: threat,
 
 			ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 				levelBonus := float64(core.CharacterLevel-26) * 1.5
