@@ -1,5 +1,11 @@
 [
 	{
+		"number": 804,
+		"title": "hunter: a pet's crit is its master's ranged crit (dev, forever-bugs #331)",
+		"mergedAt": "2026-10-15",
+		"url": "https://github.com/ElliotWood/Forever/pull/804"
+	},
+	{
 		"number": 803,
 		"title": "druid: Thorns scales with 6% of the druid's spell power (beta notes)",
 		"mergedAt": "2026-10-15",
