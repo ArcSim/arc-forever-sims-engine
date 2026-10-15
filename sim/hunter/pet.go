@@ -78,9 +78,9 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 	hp.Pet.MobType = proto.MobType_MobTypeBeast
 
 	hp.AddStatDependency(stats.Strength, stats.AttackPower, 2.0)
-	// Warrior crit scaling.
-	hp.AddStatDependency(stats.Agility, stats.PhysicalCritPercent, core.CritPerAgiMaxLevel[proto.Class_ClassWarrior])
+	// No Agility crit: the pet's physical crit is its owner's ranged crit (patch 136, makeStatInheritance).
 	hp.AddStatDependency(stats.Intellect, stats.SpellCritPercent, core.CritPerIntMaxLevel[proto.Class_ClassWarrior])
+	hp.inheritAutoShotCritMods()
 
 	// Bestial Discipline buys the pet 10% focus regen a rank (19590 effect 1).
 	hp.EnableFocusBar(spellData.BestialDiscipline.EffectAt(1).MultiplierAt(hunter.Talents.BestialDiscipline))
@@ -207,10 +207,48 @@ func (hp *HunterPet) starves(sim *core.Simulation, ability *core.Spell, left flo
 	return left+regen < ability.Cost.GetCurrentCost()
 }
 
-// Forever is a Classic-era realm: the pet takes none of its owner's stats, where TBC's does.
+// Forever is a Classic-era realm: the pet takes none of its owner's stats, where TBC's does, but one.
+// From 16 October 2026 the pet's crit is its master's ranged crit (MythicSim patch 136; Forever dev to
+// Bae in #hunter: "Pets will use Ranged Crit starting Thursday"). It replaces the pet's own crit, which
+// came from its 100 base Agility at the Warrior's 20 Agility a point (5%) plus any Agility it gained.
+//
+// The Hunter's Auto Shot rolls PhysicalCritPercent (Agility, gear, buffs, Lethal Attacks) plus
+// RangedCritPercent (the ranged-only offset: scopes, less a melee-only stone), so the pet inherits that
+// sum. The owner's stat changes reach the pet on the pet heartbeat (core.PetUpdateInterval), as every
+// dynamic inheritance does. Crit modifiers on the Auto Shot spell itself are added by
+// inheritAutoShotCritMods. The target's side (crit suppression, ReducedCritTakenPercent) stays on the
+// pet's own attack table, as for any attacker. Crit auras on the pet itself still add: Ferocity
+// ("Increases the critical strike chance of your pets and hawks", 19598) and Intimidation's next attack.
 func (hunter *Hunter) makeStatInheritance() core.PetStatInheritance {
 	return func(ownerStats stats.Stats) stats.Stats {
-		return stats.Stats{}
+		return stats.Stats{
+			stats.PhysicalCritPercent: ownerStats[stats.PhysicalCritPercent] + ownerStats[stats.RangedCritPercent],
+		}
+	}
+}
+
+// inheritAutoShotCritMods carries the crit modifiers on the Hunter's Auto Shot spell over to the pet while
+// it is out: today only the weapon racials' take-back (applyWeaponSpecialization adds +1% or +2% to
+// PhysicalCritPercent and takes it back off ProcMaskRangedAuto, forever-bugs #91), so an Orc with an axe
+// in hand gives the pet the crit his Auto Shot rolls, not his melee crit. Read when the pet is enabled
+// (the owner's permanent auras are up by then); a spell mod gained or lost while the pet is out is not
+// followed.
+func (hp *HunterPet) inheritAutoShotCritMods() {
+	var applied float64
+	hp.OnPetEnable = func(sim *core.Simulation) {
+		applied = 0
+		if autoShot := hp.hunterOwner.AutoAttacks.RangedAuto(); autoShot != nil {
+			applied = autoShot.BonusCritPercent
+		}
+		if applied != 0 {
+			hp.AddStatDynamic(sim, stats.PhysicalCritPercent, applied)
+		}
+	}
+	hp.OnPetDisable = func(sim *core.Simulation) {
+		if applied != 0 {
+			hp.AddStatDynamic(sim, stats.PhysicalCritPercent, -applied)
+			applied = 0
+		}
 	}
 }
 

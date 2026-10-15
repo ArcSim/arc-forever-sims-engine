@@ -3323,3 +3323,59 @@ skill and the four lookups), and MythicSim's gear summary (`web/src/lib/forever-
 `stats`, so it does not show skill.
 
 Drop it when upstream models weapon skill.
+
+## 136. `hunter: a pet's crit is its master's ranged crit`
+
+Raised by Bae in #hunter, 16 October: hunter pets do not scale with their master's crit. They had their
+own crit from Agility plus a base that a Forever developer called erroneous, and the developer's answer
+was "Pets will use Ranged Crit starting Thursday" (Thursday 16 October). The engine had the old rule:
+`makeStatInheritance` gave the pet none of its owner's stats, and the pet took the Warrior's 20 Agility
+a point of crit on its 100 base Agility (5%, about 0.2% against a boss after crit suppression).
+
+**Now** the pet's physical crit is the crit the Hunter's Auto Shot rolls before the target's side of the
+table:
+
+- `makeStatInheritance` hands the pet the owner's `PhysicalCritPercent + RangedCritPercent`. That is
+  Agility at the Hunter's 53 a point, gear, buffs and Lethal Attacks, plus the ranged-only offset (a
+  scope's ranged crit; an Elemental Sharpening Stone's +2% physical comes back off as -2% ranged). It is a
+  dynamic inheritance, so a crit or Agility proc on the Hunter reaches the pet on the pet heartbeat
+  (`PetUpdateInterval`, 5.25 sec), as every inherited stat does.
+- `inheritAutoShotCritMods` adds the Auto Shot spell's own crit modifiers to the pet while it is out
+  (`OnPetEnable`, taken back in `OnPetDisable`). Today that is only the weapon racials' take-back
+  (`applyWeaponSpecialization`, forever-bugs #91, patch 88): an Orc with an axe gives the pet the crit
+  his Auto Shot rolls, not his melee crit. It is read when the pet is summoned, after the owner's
+  permanent auras are up; a spell mod gained or lost while the pet is out is not followed.
+- The pet loses its own Agility crit (`AddStatDependency(Agility, PhysicalCritPercent)` is gone). The
+  boss's crit suppression and `ReducedCritTakenPercent` stay on the pet's own attack table, as for any
+  attacker (the pet and the Hunter are both level 60, so the same 4.8% comes off both).
+- Crit on the pet itself still adds on top: Ferocity (19598, "Increases the critical strike chance of
+  your pets and hawks", on the pet's stats) and Intimidation's next attack (+100%). The
+  Hunter's own crit spell mods (Savage Strikes on melee strikes, Ferocity's Hawk half) are spell mods,
+  not stats, so they do not reach the pet. Frenzy procs off the pet's crits and so procs more.
+
+Left as it was: the pet's spell crit (Lightning Breath and Thunderstomp roll `SpellCritPercent`, which
+is Ferocity alone; the Warrior Intellect rate is 0). "Ranged Crit" reads as the physical table; no log
+has shown whether Forever's magic pet attacks moved too.
+
+Tests (`sim/hunter/pet_ranged_crit_test.go`): `TestPetCritIsTheOwnersRangedCrit` (a Night Elf and an Orc
+with Arcanite Reaper on Marksmanship talents, an Orc on Beast Mastery with Ferocity, a Troll on
+Survival: the pet's crit stat is the Auto Shot's plus Ferocity, the Orc's axe racial stays out, and
+against the boss the pet's swing crits exactly as often as the Auto Shot plus Ferocity);
+`TestPetCritFollowsTheOwner` (200 pet Agility moves nothing; 106 Agility, 3% crit and 2% ranged-only crit
+gained by the Hunter reach the pet, a melee-only +2%/-2% does not). Both fail on patch 135
+(pet crit 5.00% against the Auto Shot's 8.46%).
+
+Goldens: the four hunter suites (`TestBeastMastery`, `TestMarksmanship`, `TestSurvival`,
+`TestSurvivalMelee`), every row with a pet; Beast Mastery Average-Default 409.29 to 420.54 (+2.7%).
+
+Measured (native `wowsimcli`, MythicSim production default path, 10,000 iterations, board seed and alt
+seed, board length and 120 s, against `0025d73986`): only the `hunter` (Beast Mastery) reference has a
+pet; it moves +3.8% to +4.0% in every cell (756.59 to 785.75 with the Battle Squawk it carried until 16
+October, 745.14 to 773.77 without it). Its ranged build (Eaglehorn Long Bow) moves 664.42 to 694.16
+(+4.5%). The other 30 references reproduce their `expected_baseline_dps` to 1.4e-12; no other class
+has a Hunter pet.
+
+Downstream: the Rust engine needs the port before its next repin (the pet's inherited crit and the
+Auto Shot spell mod carry-over, without the pet's Agility crit).
+
+Drop it when upstream gives the pet its owner's ranged crit.

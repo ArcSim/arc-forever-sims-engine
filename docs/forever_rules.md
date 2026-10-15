@@ -129,6 +129,7 @@ below is gated on `IsForever()` unless it says the class code is Forever-only.
 | Rule | Source | Here |
 |---|---|---|
 | Barrage applies to Aimed Shot as well as Multi-Shot and Volley. | Tooltip | `sim/hunter/aimed_shot.go` |
+| From 16 October 2026 a pet's crit is its master's ranged crit (the Auto Shot's: Agility, gear, buffs, Lethal Attacks, ranged-only crit, less the weapon racials), not its own Agility; Ferocity and Intimidation still add on the pet. | Forever dev to Bae, #hunter, 16 October ("Pets will use Ranged Crit starting Thursday") | `sim/hunter/pet.go` (MythicSim patch 136) |
 
 ## Encounters
 
