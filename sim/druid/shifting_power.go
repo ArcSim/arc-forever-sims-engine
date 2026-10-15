@@ -11,7 +11,7 @@ import (
 // Shifting Power, the Feral talent build 70170 put where King of the Jungle was: a Cat Form spell
 // that turns 55% of base mana into 40 Energy on a 16 sec cooldown (client 1322605). Natural
 // Shapeshifter's cost cut reaches it, and Improved Shifting Power (1322670) takes 4 sec a rank off
-// the cooldown.
+// the cooldown. Since the 8 Oct beta build it can't be used at full Energy (dev notes).
 func (druid *Druid) registerShiftingPowerSpell() {
 	if !druid.Talents.ShiftingPower {
 		return
@@ -37,6 +37,10 @@ func (druid *Druid) registerShiftingPowerSpell() {
 				Timer:    druid.NewTimer(),
 				Duration: row.Cooldown(),
 			},
+		},
+
+		ExtraCastCondition: func(_ *core.Simulation, _ *core.Unit) bool {
+			return druid.CurrentEnergy() < druid.MaximumEnergy()
 		},
 
 		ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {

@@ -295,3 +295,31 @@ func TestRavageCannotBeDodged(t *testing.T) {
 		t.Errorf("Ravage over 2000 attempts: %d dodges, %d misses, want 0 dodges and some misses", m.Dodges, m.Misses)
 	}
 }
+
+// Shifting Power (1322605) can't be used at full Energy since the 8 Oct beta build (dev notes:
+// "can no longer be used while already at Full Energy").
+func TestShiftingPowerRefusedAtFullEnergy(t *testing.T) {
+	sim := core.NewSim(&proto.RaidSimRequest{
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+		Raid: &proto.Raid{Parties: []*proto.Party{{Buffs: &proto.PartyBuffs{}, Players: []*proto.Player{{
+			Name: "Cat", Class: proto.Class_ClassDruid, Race: proto.Race_RaceNightElf, TalentsString: DefaultTalents,
+			Equipment: &proto.EquipmentSpec{}, Buffs: &proto.IndividualBuffs{}, Spec: DefaultSpecOptions,
+			Rotation: &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
+		}}}}},
+		Encounter: core.MakeSingleTargetEncounter(0),
+	}, simsignals.CreateSignals())
+	sim.Reset()
+
+	cat := sim.Raid.Parties[0].Players[0].(druid.DruidAgent).GetDruid()
+	if cat.ShiftingPower == nil {
+		t.Fatal("the default build has no Shifting Power")
+	}
+	cat.AddEnergy(sim, 100, cat.EnergyRefundMetrics)
+	if cat.ShiftingPower.Cast(sim, cat.CurrentTarget) {
+		t.Fatal("Shifting Power cast at full Energy")
+	}
+	cat.SpendEnergy(sim, 50, cat.EnergyRefundMetrics)
+	if !cat.ShiftingPower.Cast(sim, cat.CurrentTarget) {
+		t.Fatal("Shifting Power did not cast at half Energy")
+	}
+}
