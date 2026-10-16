@@ -10,9 +10,10 @@ import (
 	"github.com/wowsims/forever/sim/paladin"
 )
 
-// A Reckoning proc swings at once and leaves the swing timer alone (beta logs 2747-2749), at most
-// once per 1.5 s (client 20177 ProcCategoryRecovery).
-func TestReckoningSwingsWithoutResettingTheTimer(t *testing.T) {
+// A Reckoning proc banks a charge, at most once per 1.5 s (client 20177 ProcCategoryRecovery); the
+// next normal swing spends them all as extra attacks and leaves the swing timer alone (16 Oct build,
+// beta logs 2747-2749).
+func TestReckoningChargesSpendOnTheNextSwing(t *testing.T) {
 	sim := core.NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
 		Raid: core.SinglePlayerRaidProto(&proto.Player{
@@ -55,13 +56,20 @@ func TestReckoningSwingsWithoutResettingTheTimer(t *testing.T) {
 		return
 	}
 
-	if swings, got := critsAt(sim.CurrentTime); swings != 1 || got != next {
-		t.Errorf("Reckoning: %d swings, next normal swing %s; want 1 swing and the swing at %s untouched", swings, got, next)
+	charges := pal.GetAura("Reckoning" + pal.Label)
+	if swings, got := critsAt(sim.CurrentTime); swings != 0 || got != next || charges.GetStacks() != 1 {
+		t.Errorf("Reckoning: %d swings, %d charges, next swing %s; want 0 swings, 1 charge, swing at %s", swings, charges.GetStacks(), got, next)
 	}
-	if swings, _ := critsAt(sim.CurrentTime + 1400*time.Millisecond); swings != 1 {
-		t.Errorf("Reckoning swings inside the 1.5 s lockout: %d in total, want 1", swings)
+	if critsAt(sim.CurrentTime + 1400*time.Millisecond); charges.GetStacks() != 1 {
+		t.Errorf("Reckoning charged inside the 1.5 s lockout: %d charges, want 1", charges.GetStacks())
 	}
-	if swings, _ := critsAt(sim.CurrentTime + 100*time.Millisecond); swings != 2 {
-		t.Errorf("Reckoning swings after the 1.5 s lockout: %d in total, want 2", swings)
+	if critsAt(sim.CurrentTime + 100*time.Millisecond); charges.GetStacks() != 2 {
+		t.Errorf("Reckoning after the 1.5 s lockout: %d charges, want 2", charges.GetStacks())
+	}
+	for sim.CurrentTime <= next {
+		sim.Step()
+	}
+	if casts() != 3 || charges.IsActive() || pal.AutoAttacks.NextAttackAt() != next+pal.AutoAttacks.MainhandSwingSpeed() {
+		t.Errorf("next swing: %d swings, charges active %v; want 1 swing + 2 extra attacks, charges spent, timer untouched", casts(), charges.IsActive())
 	}
 }

@@ -250,16 +250,38 @@ func (paladin *Paladin) applyReckoning() {
 	blockChance := spellData.Reckoning.FractionAt(paladin.Talents.Reckoning)
 	critChance := blockChance * 2.5
 
-	// The extra attack (20178) is a free swing at once that leaves the swing timer alone: beta
-	// logs 2747-2749 (14 of 16 procs) put the next normal swing one weapon speed after the
-	// previous one. Client 70291+ gives 20177 a 1.5 s proc cooldown, shared by both triggers.
+	// 16 Oct build: each proc banks a charge (max 4) and the next melee swing (auto attack) spends
+	// them all, 1 extra attack each. An extra attack is a free swing that leaves the swing timer
+	// alone (beta logs 2747-2749). Client 70291+ gives 20177 a 1.5 s proc cooldown, shared by both
+	// triggers.
 	icd := core.Cooldown{Timer: paladin.NewTimer(), Duration: spellData.Reckoning.Highest().ICD()}
+	charges := paladin.RegisterAura(core.Aura{
+		Label:     "Reckoning" + paladin.Label,
+		ActionID:  core.ActionID{SpellID: 20178},
+		Duration:  core.NeverExpires,
+		MaxStacks: 4,
+		OnSpellHitDealt: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
+			if !spell.ProcMask.Matches(core.ProcMaskMeleeMHAuto) {
+				return
+			}
+			// Spend after this swing resolves: deactivating inside the callback reorders the other
+			// hit-dealt auras mid-loop.
+			sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{DoAt: sim.CurrentTime, OnAction: func(sim *core.Simulation) {
+				n := aura.GetStacks()
+				aura.Deactivate(sim)
+				for range n {
+					paladin.AutoAttacks.InstantMHAttack(sim)
+				}
+			}}))
+		},
+	})
 	extraAttack := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		if !icd.IsReady(sim) {
 			return
 		}
 		icd.Use(sim)
-		paladin.AutoAttacks.InstantMHAttack(sim)
+		charges.Activate(sim)
+		charges.AddStack(sim)
 	}
 
 	paladin.MakeProcTriggerAura(core.ProcTrigger{
