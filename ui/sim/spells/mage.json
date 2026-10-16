@@ -330,7 +330,7 @@
 	"400625": {
 		"ability": "Hot Streak",
 		"file": "sim/mage/talents_fire.go",
-		"note": "Hot Streak's buff, Forever's own id; it is a later expansion spell, so the Classic database has no entry for it. Beta client 1.60.1.70009: 20 sec (15 before 70009), -25% Pyroblast cast time a stack, 3 stacks, spent by the next Pyroblast. Frostfire Bolt crits, which the Forever tooltip also names, grant a stack too.",
+		"note": "Hot Streak's buff, Forever's own id; it is a later expansion spell, so the Classic database has no entry for it. Beta client 1.60.1.70009: 20 sec (15 before 70009), -25% Pyroblast cast time a stack, 3 stacks, spent by the next Pyroblast. Frostfire Bolt crits, which the Forever tooltip also names, grant a stack too. Since the beta build of 2026-10-16 (Blizzard's beta notes, us.forums.blizzard.com t/2360696 post 6): 'Heating up also always gains an additional charge each time the Mage casts Fire Blast. This does mean Fire Blast critical strikes generate 2 charges', and it is 'no longer consumed if the Mage also had Presence of Mind active for the Pyroblast cast'.",
 		"source": "forever",
 		"tooltip": "Your non-periodic critical strikes with Fireball, Frostfire Bolt, Fire Blast and Scorch grant Hot Streak for 20 sec.\nEach stack reduces the cast time of Pyroblast by 25%, stacking up to 3 times."
 	},

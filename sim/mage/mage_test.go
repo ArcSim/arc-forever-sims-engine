@@ -107,6 +107,48 @@ func TestHotStreakSpentByPyroblast(t *testing.T) {
 	}
 }
 
+// Since the beta build of 2026-10-16 (Blizzard's beta notes, forums t/2360696 post 6) every Fire Blast
+// adds a Heating Up stack, crit or not, and a Pyroblast made instant by Presence of Mind keeps them.
+func TestHeatingUpFromFireBlastAndKeptThroughPresenceOfMind(t *testing.T) {
+	sim := core.NewSim(&proto.RaidSimRequest{
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+		Raid: &proto.Raid{Parties: []*proto.Party{{Buffs: &proto.PartyBuffs{}, Players: []*proto.Player{{
+			Name: "Mage", Class: proto.Class_ClassMage, Race: proto.Race_RaceGnome, TalentsString: "000000000000001-03552020130133151",
+			Equipment: &proto.EquipmentSpec{}, Buffs: &proto.IndividualBuffs{},
+			Spec:     &proto.Player_Mage{Mage: &proto.Mage{Options: &proto.Mage_Options{ClassOptions: &proto.MageOptions{}}}},
+			Rotation: &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
+		}}}}},
+		Encounter: core.MakeSingleTargetEncounter(0),
+	}, simsignals.CreateSignals())
+	sim.Reset()
+
+	mage := sim.Raid.Parties[0].Players[0].(MageAgent).GetMage()
+	fireBlast := mage.GetSpell(core.ActionID{SpellID: spellData.FireBlast.Highest().ID})
+	pom := mage.GetSpell(core.ActionID{SpellID: spellData.PresenceOfMind.Highest().ID})
+	pyroblast := mage.GetSpell(core.ActionID{SpellID: spellData.Pyroblast.Highest().ID})
+
+	if !fireBlast.Cast(sim, mage.CurrentTarget) {
+		t.Fatal("Fire Blast did not cast")
+	}
+	if !mage.HotStreakAura.IsActive() || mage.HotStreakAura.GetStacks() < 1 {
+		t.Fatal("Fire Blast gave no Heating Up stack")
+	}
+
+	for !mage.GCD.IsReady(sim) {
+		sim.Step()
+	}
+	mage.HotStreakAura.SetStacks(sim, 3)
+	if !pom.Cast(sim, mage.CurrentTarget) || !pyroblast.Cast(sim, mage.CurrentTarget) {
+		t.Fatal("Presence of Mind + Pyroblast did not cast")
+	}
+	if mage.Hardcast.Expires > sim.CurrentTime {
+		t.Fatal("Presence of Mind left Pyroblast a cast time")
+	}
+	if got := mage.HotStreakAura.GetStacks(); !mage.HotStreakAura.IsActive() || got != 3 {
+		t.Errorf("Heating Up at %d stacks after an instant Pyroblast, want 3 kept", got)
+	}
+}
+
 // Frostfire Bolt (1237313) casts, lands its bolt and dot, and takes Improved Fireball's cast time cut
 // exactly as Fireball does: the client's mask on 11069 names both.
 func TestFrostfireBolt(t *testing.T) {

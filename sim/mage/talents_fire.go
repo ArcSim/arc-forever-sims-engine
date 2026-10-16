@@ -207,6 +207,9 @@ func (mage *Mage) registerImprovedFireWard() {
 // take 25% off Pyroblast's cast time, stacking 3 times, so the stacks are worth holding rather than
 // spending. The buff is 400625: its duration (20 sec since build 70009), stack cap and per-stack cast
 // time cut are read from the row. Frostfire Bolt, which the tooltip also names, builds stacks too.
+// Since the beta build of 2026-10-16 (Blizzard's beta notes, forums t/2360696 post 6) every Fire Blast
+// cast adds a stack on top of its crit's (a Fire Blast crit gives 2), and a Pyroblast that Presence of
+// Mind made instant keeps the stacks.
 func (mage *Mage) registerHotStreak() {
 	if !mage.Talents.HeatingUp {
 		return
@@ -235,8 +238,9 @@ func (mage *Mage) registerHotStreak() {
 			castTimeMod.UpdateFloatValue(perStack * float64(newStacks))
 		},
 		OnCastComplete: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
-			// 400625 carries one charge: the next Pyroblast spends every stack.
-			if spell.Matches(MageSpellPyroblast) {
+			// 400625 carries one charge: the next Pyroblast spends every stack, unless Presence of Mind
+			// made it instant (3 stacks alone leave it a 1.5 sec cast).
+			if spell.Matches(MageSpellPyroblast) && spell.CurCast.CastTime > 0 {
 				aura.Deactivate(sim)
 			}
 		},
@@ -247,6 +251,17 @@ func (mage *Mage) registerHotStreak() {
 		Callback:           core.CallbackOnSpellHitDealt,
 		ClassSpellMask:     MageSpellFireball | MageSpellFrostfireBolt | MageSpellFireBlast | MageSpellScorch,
 		Outcome:            core.OutcomeCrit,
+		TriggerImmediately: true,
+		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			mage.HotStreakAura.Activate(sim)
+			mage.HotStreakAura.AddStack(sim)
+		},
+	})
+
+	mage.MakeProcTriggerAura(core.ProcTrigger{
+		Name:           "Hot Streak Fire Blast Trigger",
+		Callback:           core.CallbackOnCastComplete,
+		ClassSpellMask:     MageSpellFireBlast,
 		TriggerImmediately: true,
 		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			mage.HotStreakAura.Activate(sim)
