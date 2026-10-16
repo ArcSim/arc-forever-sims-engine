@@ -71,7 +71,8 @@ var WeaponOnly = &proto.EquipmentSpec{
 const DefaultTalents = "5505301-053030031005112251"
 
 // Stormstrike (17364, aura 271) raises only its caster's Lightning Bolt, Chain Lightning and Earth
-// Shock, and only one of those spends the charge.
+// Shock. Only the bolts spend the charge: Earth Shock takes the bonus and leaves it (patch 140, beta
+// testing relayed by Redfall, 16 October 2026).
 func TestStormstrikeOnlyBoostsCastersBoltsAndEarthShock(t *testing.T) {
 	sim := core.NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
@@ -107,8 +108,19 @@ func TestStormstrikeOnlyBoostsCastersBoltsAndEarthShock(t *testing.T) {
 		t.Fatal("Frost Shock spent the Stormstrike charge")
 	}
 	sham.EarthShock.CalcAndDealDamage(sim, target, 100, sham.EarthShock.OutcomeAlwaysHit)
+	if !debuff.IsActive() {
+		t.Fatal("Earth Shock spent the Stormstrike charge")
+	}
+	if got := sham.EarthShock.TargetDamageMultiplier(sim, table, false) / earthShockBase; got != 1.2 {
+		t.Errorf("second Earth Shock multiplier under Stormstrike = %v, want 1.2", got)
+	}
+	lightningBolt := sham.GetSpell(core.ActionID{SpellID: 15208})
+	if lightningBolt == nil {
+		t.Fatal("no Lightning Bolt rank 10 (15208)")
+	}
+	lightningBolt.CalcAndDealDamage(sim, target, 100, lightningBolt.OutcomeAlwaysHit)
 	if debuff.IsActive() {
-		t.Error("Earth Shock did not spend the Stormstrike charge")
+		t.Error("Lightning Bolt did not spend the Stormstrike charge")
 	}
 }
 

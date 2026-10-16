@@ -15,7 +15,7 @@ func (shaman *Shaman) StormstrikeDebuffAura(target *core.Unit) *core.Aura {
 		Duration:  stormstrikeRank.Duration(),
 		MaxStacks: int32(stormstrikeRank.ProcCharges),
 		OnSpellHitTaken: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-			if spell.Unit != &shaman.Unit || !spell.Matches(stormstrikeSpells) {
+			if spell.Unit != &shaman.Unit || !spell.Matches(stormstrikeConsumers) {
 				return
 			}
 			if !result.Landed() || result.Damage == 0 {
@@ -24,7 +24,8 @@ func (shaman *Shaman) StormstrikeDebuffAura(target *core.Unit) *core.Aura {
 			aura.RemoveStack(sim)
 		},
 	})
-	// Client 17364 (aura 271): only this shaman's Lightning Bolt, Chain Lightning and Earth Shock take the bonus.
+	// Client 17364 (aura 271): only this shaman's Lightning Bolt, Chain Lightning and Earth Shock take the bonus;
+	// only the bolts spend it (stormstrikeConsumers).
 	multiplier := 1 + stormstrikeRank.Effect(dbcenums.A_MOD_SPELL_DAMAGE_FROM_CASTER, 0).Percent()
 	return aura.AttachDDBC(0, 1, &shaman.AttackTables, func(_ *core.Simulation, spell *core.Spell, _ *core.AttackTable) float64 {
 		return core.Ternary(spell.Matches(stormstrikeSpells), multiplier, 1)
@@ -32,6 +33,11 @@ func (shaman *Shaman) StormstrikeDebuffAura(target *core.Unit) *core.Aura {
 }
 
 const stormstrikeSpells = SpellMaskLightningBolt | SpellMaskChainLightning | SpellMaskEarthShock | SpellMaskOverload
+
+// stormstrikeConsumers spend the charge (MythicSim patch 140). Earth Shock takes the bonus, as client row
+// 17364's mask says, but does not spend it: Redfall relayed in-game beta testing on the MythicSim Discord
+// (16 October 2026) that Earth Shock is not consuming Stormstrike.
+const stormstrikeConsumers = SpellMaskLightningBolt | SpellMaskChainLightning | SpellMaskOverload
 
 func (shaman *Shaman) newStormstrikeHitSpellConfig(spellID int32, isMH bool) core.SpellConfig {
 	var procMask core.ProcMask

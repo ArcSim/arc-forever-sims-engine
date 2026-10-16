@@ -3611,3 +3611,37 @@ next rotation rebuild.
 Downstream: the Rust engine needs the landing spend before its next repin.
 
 Drop it when upstream spends Fingers of Frost charges on impact.
+
+## 140. `shaman: Earth Shock takes Stormstrike's bonus without spending it`
+
+Stormstrike (17364) puts one charge on the target (`ProcCharges` 1) and its effect 2
+(A_MOD_SPELL_DAMAGE_FROM_CASTER, mask 0x100003) gives the shaman's Lightning Bolt, Chain Lightning and
+Earth Shock +20%. The engine spent the charge on any of the three that landed for damage. Redfall relayed
+in-game beta testing on the MythicSim Discord (16 October 2026): Earth Shock is not consuming
+Stormstrike.
+
+**Now** only Lightning Bolt, Chain Lightning and their Overloads spend it (`stormstrikeConsumers` in
+`sim/shaman/stormstrike.go`). Earth Shock keeps the +20%, as the client row's mask says (the report is
+only about the charge), so every Earth Shock inside the 12 seconds gets the bonus and the next bolt
+still finds the charge. Frost Shock and Flame Shock take neither, as before.
+
+Test: `TestStormstrikeOnlyBoostsCastersBoltsAndEarthShock` (`sim/shaman/enhancement`) now has two Earth
+Shocks under the charge, both at x1.2, the charge still up after them, and a Lightning Bolt that spends
+it; it fails on `771c6349a` ("Earth Shock spent the Stormstrike charge"). Goldens: `TestEnhancement`,
+Average-Default 345.92 to 349.16 (+0.9%); `TestElemental` and `TestRestorationShaman` do not move.
+
+Measured (native `wowsimcli`, MythicSim production default path, 10,000 iterations, board seed, board
+length, references of MythicSim #502, against patch 139, which matches `771c6349a` for every shaman):
+
+| Reference | Patch 139 | Patch 140 | Change |
+| --- | ---: | ---: | ---: |
+| Elehance | 656.63 | 662.10 | +0.83% |
+| Enhancement | 750.85 | 753.61 | +0.37% |
+| Elemental (no Stormstrike) | 515.54 | 515.54 | 0 |
+
+The other 28 references give their patch 139 DPS to the hundredth.
+
+Downstream: the Rust engine needs the same split before its next repin.
+
+Drop it when upstream stops Earth Shock spending Stormstrike, or put Earth Shock back if a beta log shows
+it spending the charge.
