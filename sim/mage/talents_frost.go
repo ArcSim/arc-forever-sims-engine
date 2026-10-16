@@ -208,6 +208,16 @@ func (mage *Mage) registerImprovedConeOfCold() {
 	})
 }
 
+// FingersOfFrostSpentOnImpact (MythicSim patch 139) spends a Fingers of Frost charge when the
+// consuming spell lands rather than when its cast completes. A Frostbolt cast on the last charge is
+// still in flight when an instant Ice Lance goes out straight after it, so both count the target as
+// frozen. First claimed on the MythicSim Discord (#mage-ish, 12 October 2026: "you can get a double
+// benefit of the last proc by casting a spell and immediately ice lancing after so they hit at the
+// same time") and confirmed on the beta by mixarxrt (16 October 2026: "fof last charge is that i can
+// cast fb+il with 1 fof proc"). The client's charge aura (400669) carries no proc charges or proc
+// flags, so the server script decides it. False spends the charge at cast completion, as before.
+var FingersOfFrostSpentOnImpact = true
+
 // Raid bosses cannot be chilled or frozen, so Fingers of Frost is the only thing that gets Shatter
 // and the Ice Lance bonus going on one; Shatter is folded in here because the two only ever fire
 // together. A chill effect has a 15% chance (the talent row's second effect, flat at both ranks) to
@@ -254,7 +264,24 @@ func (mage *Mage) registerFingersOfFrost() {
 			}
 
 			// OnCastComplete runs after the damage is rolled, so the consuming cast keeps the bonus.
-			aura.RemoveStack(sim)
+			if !FingersOfFrostSpentOnImpact || spell.TravelTime() <= 0 {
+				aura.RemoveStack(sim)
+				return
+			}
+
+			// The charge goes when the missile lands (patch 139), so an instant cast while it travels still
+			// sees the last one. A bolt that procced at launch returned above, as upstream's #776 has it: it
+			// refilled the charges and spends none, now or on landing. Ahead of the landing's own damage and
+			// procs at the same instant, so a chill that grants fresh charges on impact keeps them all.
+			pa := sim.GetConsumedPendingActionFromPool()
+			pa.NextActionAt = sim.CurrentTime + spell.TravelTime()
+			pa.Priority = core.ActionPriorityAuto
+			pa.OnAction = func(sim *core.Simulation) {
+				if aura.IsActive() {
+					aura.RemoveStack(sim)
+				}
+			}
+			sim.AddPendingAction(pa)
 		},
 	})
 
