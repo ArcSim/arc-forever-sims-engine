@@ -17,12 +17,12 @@ import SmiteLaunchGear from './gear_sets/smite_launch.gear.json';
 export const ROTATION_PRESET_SHADOW = PresetUtils.makePresetAPLRotation('Shadow', ShadowApl);
 export const ROTATION_PRESET_SMITE = PresetUtils.makePresetAPLRotation('Smite', SmiteApl);
 
-export const TalentsP1Shadow = PresetUtils.makePresetTalents('Shadow', SavedTalents.create({ talentsString: '005300231303--505120501201300051' }));
+export const TalentsP1Shadow = PresetUtils.makePresetTalents('Shadow', SavedTalents.create({ talentsString: '00530323103--50552001211300051' }));
 // The community builds the rankings page runs on our Forever sim: Shadow 15/0/36 and Smite 31/17/3.
-export const ShadowTalents = PresetUtils.makePresetTalents('Shadow 15/0/36', SavedTalents.create({ talentsString: '0253000311--550022501201302251' }));
+export const ShadowTalents = PresetUtils.makePresetTalents('Shadow 15/0/36', SavedTalents.create({ talentsString: '02530003101--55052201201302251' }));
 // Thirty-one points of Discipline for Power Infusion, twenty of Holy for the pieces that scale Smite.
-export const TalentsLaunchSmite = PresetUtils.makePresetTalents('Smite', SavedTalents.create({ talentsString: '515330031305001001-30505113002' }));
-export const SmiteTalents = PresetUtils.makePresetTalents('Smite 31/17/3', SavedTalents.create({ talentsString: '515030031305001031-00505023002-003' }));
+export const TalentsLaunchSmite = PresetUtils.makePresetTalents('Smite', SavedTalents.create({ talentsString: '515335031030001001-30505113002' }));
+export const SmiteTalents = PresetUtils.makePresetTalents('Smite 31/17/3', SavedTalents.create({ talentsString: '515035031030001031-00505023002-003' }));
 
 // Master's priest options are empty: no Inner Fire, and the Shadow rotation casts Shadowform itself.
 export const DefaultOptions = Options.create({

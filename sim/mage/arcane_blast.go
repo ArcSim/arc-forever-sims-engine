@@ -34,7 +34,10 @@ func (mage *Mage) registerArcaneBlastSpell() {
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealDamage(sim, target, arcaneBlastRank.DamageEffect().Roll(sim, core.CharacterLevel), spell.OutcomeMagicHitAndCrit)
-			mage.ArcaneBlastAura.Activate(sim)
+			// The buff runs 15 sec from its first stack (client 70425): a stack does not refresh it.
+			if !mage.ArcaneBlastAura.IsActive() {
+				mage.ArcaneBlastAura.Activate(sim)
+			}
 			mage.ArcaneBlastAura.AddStack(sim)
 		},
 	})

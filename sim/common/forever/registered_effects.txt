@@ -11,11 +11,13 @@
 1204 The Green Tower
 1447 Ring of Saviors
 1979 Wall of the Dead
+2801 Blade of Hanna
 2802 Blazing Emblem
 2824 Hurricane
 4262 Gem-studded Leather Belt
 4264 Barbaric Belt
 4696 Lapidis Tankard of Tidesippe
+5028 Lord Sakrasis' Scepter
 5443 Gold-plated Buckler
 6469 Venomstrike
 6472 Stinging Viper
@@ -151,6 +153,7 @@
 226881 Beastmaster's Treads
 234562 High Warlord's Shield Wall
 234588 Grand Marshal's Aegis
+249396 Mystic Mushroom
 249469 Frozen Heart of the Mountain
 249470 Molten Heart of the Mountain
 267369 Wolfsbane

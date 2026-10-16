@@ -28,17 +28,19 @@ func newElementalShaman(t *testing.T, talents string) (*core.Simulation, *shaman
 }
 
 // "Chain Lightning mana cost reduced by approximately 35%" on all four ranks (16 October 2026 beta notes).
+// Client 70425's rows carry the cut: 145, 200, 250 and 315, about 65% of 225, 305, 390 and 485, and the
+// sim must not cut them again.
 func TestChainLightningCostCut(t *testing.T) {
 	_, sham := newElementalShaman(t, DefaultTalents)
 	ranks := 0
+	want := []int32{145, 200, 250, 315}
 	shaman.ChainLightningRankMap.Each(func(rank int32, config *spelldata.Spell) {
 		spell := sham.GetSpell(core.ActionID{SpellID: config.ID})
 		if spell == nil {
 			t.Fatalf("Chain Lightning rank %d (%d) is not registered", rank, config.ID)
 		}
-		want := int32(math.Round(config.Cost() * 0.65))
-		if spell.Cost.BaseCost != want {
-			t.Errorf("Chain Lightning rank %d costs %d before talents, want %d (65%% of the client's %v)", rank, spell.Cost.BaseCost, want, config.Cost())
+		if spell.Cost.BaseCost != want[rank-1] || int32(math.Round(config.Cost())) != want[rank-1] {
+			t.Errorf("Chain Lightning rank %d costs %d before talents (client %v), want %d", rank, spell.Cost.BaseCost, config.Cost(), want[rank-1])
 		}
 		ranks++
 	})
@@ -47,7 +49,8 @@ func TestChainLightningCostCut(t *testing.T) {
 	}
 }
 
-// Fire Nova's spell power coefficient is 0.143 (16 October 2026 beta notes), not the client row's 0.214.
+// Fire Nova's spell power coefficient is 0.143 (16 October 2026 beta notes), the client row's since 70425
+// (stored as a float32, so to a millionth).
 func TestFireNovaCoefficient(t *testing.T) {
 	_, sham := newElementalShaman(t, DefaultTalents)
 	var nova *core.Spell
@@ -59,7 +62,7 @@ func TestFireNovaCoefficient(t *testing.T) {
 	if nova == nil {
 		t.Fatal("no Fire Nova is registered")
 	}
-	if math.Abs(nova.BonusCoefficient-0.143) > 1e-9 {
+	if math.Abs(nova.BonusCoefficient-0.143) > 1e-6 {
 		t.Fatalf("Fire Nova's coefficient is %v, want 0.143", nova.BonusCoefficient)
 	}
 }
@@ -72,9 +75,9 @@ func TestCallOfFlameLengthensFlameShock(t *testing.T) {
 		rank    int32
 		ticks   int32
 	}{
-		{"5505001300103051--503352001", 0, 4},
-		{"5505101300103051--503352001", 1, 5},
-		{"5505201300103051--503352001", 2, 6},
+		{"5505301000001351--553302001", 0, 4},
+		{"5505311000001351--553302001", 1, 5},
+		{"5505321000001351--553302001", 2, 6},
 		{DefaultTalents, 3, 7},
 	} {
 		_, sham := newElementalShaman(t, row.talents)

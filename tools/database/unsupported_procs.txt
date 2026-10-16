@@ -54,7 +54,6 @@
 435097 ProcTypeMask KILL; no callback in the proc mask
 435467 states no rate
 435962 no callback in the proc mask
-440529 named ability; states no rate
 449924 ProcTypeMask bit 34; no callback in the proc mask
 449935 named ability
 449980 ProcTypeMask bit 34; no callback in the proc mask
@@ -112,3 +111,4 @@
 1324298 states no rate
 1324318 states no rate
 1324323 states no rate
+1324686 an outcome the proc mask has no bit for

@@ -47,7 +47,7 @@ export const ManaSpringTotem = makeTristatePartyBuffInput({
 });
 
 export const ManaTideTotems = makeMultistatePartyBuffInput({
-	actionId: ActionId.fromSpellId(17360),
+	actionId: ActionId.fromSpellId(1325257),
 	numStates: 5,
 	fieldName: 'manaTideTotems',
 	label: 'Mana Tide Totem',

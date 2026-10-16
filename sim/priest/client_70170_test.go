@@ -10,7 +10,7 @@ import (
 )
 
 // Shadow talents with Inner Focus, Shadow Weaving 3/3 and Early Demise 2/2 (the benchmark build).
-const client70170Talents = "025300011303--500222501201302251"
+const client70170Talents = "02530301103--50052201221302251"
 
 func newClient70170Sim(t *testing.T, race proto.Race, executeFromStart bool) (*core.Simulation, *core.Character) {
 	t.Helper()
@@ -175,7 +175,7 @@ func TestInnerFocusCritIsNonPeriodic(t *testing.T) {
 }
 
 // The row the sim reads for a Devouring Plague tick's crit: every rank carries Periodic Can Crit
-// since client 1.60.1.70170, so priestTickOutcome(rank.PeriodicCanCrit()) is patch 14's unconditional roll.
+// since client 1.60.1.70170, so priest.tickOutcome(rank.PeriodicCanCrit()) is patch 14's unconditional roll.
 func TestEveryDevouringPlagueRankCarriesPeriodicCanCrit(t *testing.T) {
 	DevouringPlagueRankMap.Each(func(rank int32, s *spelldata.Spell) {
 		if !s.PeriodicCanCrit() {

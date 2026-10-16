@@ -213,7 +213,7 @@ func (warrior *Warrior) registerBattleShout() {
 func TestHoverEnumArgument(t *testing.T) {
 	wantHover(t, battleShoutGo, "baseAttackPower :=", 4,
 		"`baseAttackPower` = **139**\n\n`spellData.BattleShout.Highest().Effect(99, 0).Average(60)`",
-		"| 1 ▶ | +139 attack power to the party around the caster")
+		"| 1 ▶ | +139 attack power to the raid around the caster")
 }
 
 // A line of sim/warrior/stances.go with two ladder reads in one expression, then a declaration split

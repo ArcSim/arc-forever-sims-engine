@@ -11,7 +11,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-const frostfireHybridTalents = "-1355000013013304-00550003210013002"
+const frostfireHybridTalents = "-1355000013013403-00550003210013002"
 
 func frostfireSim(talents string) (*core.Simulation, *Mage) {
 	player := &proto.Player{
@@ -55,23 +55,27 @@ func TestFrostfireRanksAndTalents(t *testing.T) {
 	if got := spell.SpellHitChance(hybrid.CurrentTarget); math.Abs(got-.05) > 1e-9 {
 		t.Errorf("hit = %v, want .05", got)
 	}
-	// Fire Power adds 8%. Piercing Ice adds 6% to the hit and 2% to the DoT.
+	// Piercing Ice adds 6% to the hit and 2% to the DoT. Fire Power (client 70425) counts the Fire
+	// effects on the target, and a fresh target has none.
 	table := hybrid.AttackTables[hybrid.CurrentTarget.UnitIndex]
-	if got := spell.AttackerDamageMultiplier(table, false); math.Abs(got-1.14) > 1e-9 {
-		t.Errorf("Fire Power + Piercing Ice direct multiplier = %v, want 1.14", got)
+	if got := spell.AttackerDamageMultiplier(table, false); math.Abs(got-1.06) > 1e-9 {
+		t.Errorf("Piercing Ice direct multiplier = %v, want 1.06", got)
 	}
-	if got := spell.AttackerDamageMultiplier(table, true); math.Abs(got-1.10) > 1e-9 {
-		t.Errorf("Fire Power + Piercing Ice periodic multiplier = %v, want 1.10", got)
+	if got := spell.AttackerDamageMultiplier(table, true); math.Abs(got-1.02) > 1e-9 {
+		t.Errorf("Piercing Ice periodic multiplier = %v, want 1.02", got)
 	}
-	if spell.BonusCritPercent != 6 {
-		t.Errorf("Critical Mass = %v, want 6", spell.BonusCritPercent)
+	if got := spell.TargetDamageMultiplier(sim, table, false); math.Abs(got-1) > 1e-9 {
+		t.Errorf("Fire Power with no Fire effect on the target = %v, want 1", got)
+	}
+	if spell.BonusCritPercent != 8 {
+		t.Errorf("Critical Mass = %v, want 8", spell.BonusCritPercent)
 	}
 	// A guaranteed direct crit proves both the Frost crit bonus and Fire proc interactions.
 	spell.BonusCritPercent += 100
 	spell.Flags |= core.SpellFlagIgnoreResists
 	result := spell.CalcDamage(sim, hybrid.CurrentTarget, 100, spell.OutcomeMagicCrit)
-	if math.Abs(result.Damage-228) > 1e-6 {
-		t.Errorf("Ice Shards crit = %v, want 228", result.Damage)
+	if math.Abs(result.Damage-212) > 1e-6 {
+		t.Errorf("Ice Shards crit = %v, want 212", result.Damage)
 	}
 	spell.CurCast.Cost = 333
 	hybrid.SpendMana(sim, 333, hybrid.NewManaMetrics(spell.ActionID))
@@ -105,8 +109,8 @@ func TestFrostfireFingersAndMissileBarrage(t *testing.T) {
 	}
 	// The launching cast completes without spending a charge.
 	mage.FingersOfFrostAura.OnCastComplete(mage.FingersOfFrostAura, sim, spell)
-	if spell.BonusCritPercent != 56 {
-		t.Errorf("Shatter crit bonus = %v, want 56", spell.BonusCritPercent)
+	if spell.BonusCritPercent != 58 {
+		t.Errorf("Shatter crit bonus = %v, want 58", spell.BonusCritPercent)
 	}
 	// Finish one real cast. Turn off the launch roll so it cannot replenish the charge.
 	mage.procFingersOfFrost = nil

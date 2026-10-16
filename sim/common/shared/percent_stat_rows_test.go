@@ -9,16 +9,14 @@ import (
 )
 
 // Client 1.60.1.70170 moved Mystic Mushroom's Increased Spirit to A_MOD_TOTAL_STAT_PERCENTAGE with no stat
-// named. Its tooltip says Spirit, so the parser reads Spirit; a row of that aura that names a stat, or an
-// A_MOD_PERCENT_STAT row, reads as it states. Insight's buff (1299796) moved the same way and upstream's
-// overrides/2.sql restores its row, so it is covered by TestInsightMultipliesSpirit instead.
+// named, and client 70425 names Spirit again in the stat mask alone (misc 0, mask 16). Either way the
+// parser reads Spirit, not the Strength misc 0 would mean on its own.
 func TestPercentStatRowsNamingNoStatReadAsSpirit(t *testing.T) {
 	for id, want := range map[int32]float64{1248751: 1.05} {
 		row := spelldata.MustFind(id)
 		effect := row.EffectN(1)
-		if effect.Aura != dbcenums.A_MOD_TOTAL_STAT_PERCENTAGE || effect.Misc != 0 || effect.Misc2 != 0 {
-			t.Fatalf("%s %d is aura %d with misc %d and %d: the client names a stat now, so drop it from percentStatRowsNamingNoStat",
-				row.Name, id, effect.Aura, effect.Misc, effect.Misc2)
+		if effect.Aura != dbcenums.A_MOD_TOTAL_STAT_PERCENTAGE {
+			t.Fatalf("%s %d is aura %d now; revisit the percent stat parse", row.Name, id, effect.Aura)
 		}
 		parsed := spelldata.DryRun(row)
 		if len(parsed.Applied) == 0 {

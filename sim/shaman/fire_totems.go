@@ -5,6 +5,7 @@ import (
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/buffs"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 )
 
 // The totem lays down a pulse spell of its own; the damage and coefficient live on that spell, not on
@@ -22,14 +23,13 @@ var flametongueTotemRank = spellData.FlametongueTotem.Highest()
 // its place is the caster-centred nova, on a 10 sec cooldown.
 var fireNovaRank = spellData.FireNova.Highest()
 
-// The nova's damage is 408428 (403 base, 0.214 coefficient), which the scripted dummy casts, not the Era
-// row 11307 its tooltip cites: beta logs record every Fire Nova hit under the rank 1 sibling 408423.
+// The nova's damage is 408428, which the scripted dummy casts, not the Era row 11307 its tooltip cites:
+// beta logs record every Fire Nova hit under the rank 1 sibling 408423.
 var fireNovaDamage = spellData.FireNovaTriggered.ByID(408428)
 
-// The 16 October 2026 beta notes cut Fire Nova's spell power coefficient to 0.143 (the client row still
-// says 0.214). They also say its base damage and mana cost are "significantly reduced" without giving
-// numbers, so those stay at the client's values until a client build or a beta log states them.
-const fireNovaCoefficient = 0.143
+// The 16 October 2026 beta notes cut Fire Nova's spell power coefficient to 0.143 and its base damage and
+// mana cost "significantly". Client 70425's rows carry all three (239 base, 245 at 60, 375 mana).
+var fireNovaCoefficient = fireNovaDamage.DamageEffect().Coeff()
 
 func (shaman *Shaman) registerSearingTotemSpell() {
 	attack := shaman.RegisterSpell(core.SpellConfig{
@@ -124,7 +124,8 @@ func (shaman *Shaman) registerFlametongueTotemSpell() {
 }
 
 func (shaman *Shaman) registerMagmaTotemSpell() {
-	duration := magmaTotemRank.Duration()
+	// Trial by Fire (client 70425) lengthens it by 10 sec a point.
+	duration := magmaTotemRank.Duration() + time.Millisecond*time.Duration(spellData.TrialByFire.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_DURATION)).ValueAt(shaman.Talents.TrialByFire))
 	tickLength := core.DurationFromSeconds(2)
 
 	shaman.MagmaTotem = shaman.RegisterSpell(core.SpellConfig{

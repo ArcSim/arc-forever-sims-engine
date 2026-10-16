@@ -123,8 +123,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Alcor'sSunrazor-14555"
  value: {
-  dps: 242.64061
-  tps: 695.30491
+  dps: 243.18649
+  tps: 696.12372
   dtps: 1624.20082
  }
 }
@@ -549,7 +549,7 @@ dps_results: {
  value: {
   dps: 196.3274
   tps: 572.15332
-  dtps: 804.86595
+  dtps: 1162.98588
  }
 }
 dps_results: {
@@ -865,6 +865,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-MysticMushroom-249396"
+ value: {
+  dps: 168.58897
+  tps: 504.61331
+  dtps: 1626.98713
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-Naglering-11669"
  value: {
   dps: 169.33442
@@ -931,9 +939,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-RingofSaviors-1447"
  value: {
-  dps: 168.16082
-  tps: 502.93776
-  dtps: 1631.90001
+  dps: 167.59667
+  tps: 502.23847
+  dtps: 1628.27659
  }
 }
 dps_results: {
@@ -1171,8 +1179,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-TheLobotomizer-19324"
  value: {
-  dps: 245.33581
-  tps: 702.54122
+  dps: 239.30074
+  tps: 686.7232
   dtps: 1624.20082
  }
 }

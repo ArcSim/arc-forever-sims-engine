@@ -74,6 +74,10 @@ type SpellConfig struct {
 }
 
 type Spell struct {
+	// Older rank IDs a rotation may still name: a rotation saved before a new rank shipped (Lava Burst
+	// rank 4 in client 70425) keeps pressing the spell the character knows. GetAPLSpell reads them.
+	RankAliases []ActionID
+
 	// ID for this spell.
 	ActionID
 	//Rank of the spell.

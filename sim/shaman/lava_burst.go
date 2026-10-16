@@ -2,6 +2,7 @@ package shaman
 
 import (
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
 var lavaBurstRank = spellData.LavaBurst.Highest()
@@ -15,7 +16,7 @@ func (shaman *Shaman) registerLavaBurstSpell() {
 
 	flameShockBonus := 1 + lavaBurstRank.EffectN(2).Percent()
 
-	shaman.RegisterSpell(core.SpellConfig{
+	spell := shaman.RegisterSpell(core.SpellConfig{
 		ActionID:       core.ActionID{SpellID: lavaBurstRank.ID},
 		SpellSchool:    lavaBurstRank.SpellSchool(),
 		DefenseType:    lavaBurstRank.DefenseTypeCore(),
@@ -55,5 +56,11 @@ func (shaman *Shaman) registerLavaBurstSpell() {
 				spell.DealDamage(sim, result)
 			})
 		},
+	})
+	// Client 70425 added rank 4 (1326047). Rotations saved with an older rank keep casting it.
+	spellData.LavaBurst.Each(func(_ int32, rank *spelldata.Spell) {
+		if rank.ID != lavaBurstRank.ID {
+			spell.RankAliases = append(spell.RankAliases, core.ActionID{SpellID: rank.ID})
+		}
 	})
 }

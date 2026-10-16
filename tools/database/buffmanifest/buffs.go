@@ -179,11 +179,12 @@ var Party = []BuffSpec{
 			proto.Stat_StatMP5,
 		},
 	},
-	// The cast states the totem's 13 s life and the 5 min cooldown, the aura the mana.
+	// The cast states the totem's 13 s life and the 5 min cooldown, the aura the mana. Rank 4 (client
+	// 70425) restores 290 every 3 s.
 	{
 		Field:    "mana_tide_totems",
-		SpellID:  17360,
-		CastID:   17359,
+		SpellID:  1325257,
+		CastID:   1325256,
 		Kind:     KindExternalCD,
 		Category: "ManaTideTotem",
 		Stats: []proto.Stat{

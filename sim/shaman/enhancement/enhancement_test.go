@@ -68,7 +68,7 @@ var WeaponOnly = &proto.EquipmentSpec{
 }
 
 // The community build our Forever sim ranks Enhancement with.
-const DefaultTalents = "5505301-053030031005112251"
+const DefaultTalents = "5505031-053030031005112251"
 
 // Stormstrike (17364, aura 271) raises only its caster's Lightning Bolt, Chain Lightning and Earth
 // Shock. Only the bolts spend the charge: Earth Shock takes the bonus and leaves it (patch 140, beta

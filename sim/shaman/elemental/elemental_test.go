@@ -44,7 +44,7 @@ func TestElemental(t *testing.T) {
 }
 
 // The community build our Forever sim ranks Elemental with.
-const DefaultTalents = "5505301300103051--503352001"
+const DefaultTalents = "5505331000001351--553302001"
 
 const DefaultArmorType = proto.ArmorType_ArmorTypeMail
 

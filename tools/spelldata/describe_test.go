@@ -101,11 +101,11 @@ func TestEffectLines(t *testing.T) {
 			literal: "E_ENERGIZE base=90 misc=1 target=[1,0]",
 		},
 		{
-			name:    "a buff the caster hands to its party",
+			name:    "a buff the caster hands to its raid (client 70425; party before)",
 			id:      25289,
 			effect:  1,
-			human:   "+139 attack power to the party around the caster (at level 60)",
-			literal: "E_APPLY_AURA A_MOD_ATTACK_POWER base=139 ppl=0.6 radius=20 target=[20,0]",
+			human:   "+139 attack power to the raid around the caster (at level 60)",
+			literal: "E_APPLY_AURA A_MOD_ATTACK_POWER base=139 ppl=0.6 radius=20 target=[56,0]",
 		},
 		{
 			name:    "a shape no branch words",

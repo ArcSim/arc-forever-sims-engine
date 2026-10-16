@@ -102,15 +102,15 @@ export const DefaultDebuffs = Debuffs.create({
 
 // Talent presets, from master's ui/warlock spec.
 export const TalentsDemonicPact = PresetUtils.makePresetTalents('Demonic Pact', SavedTalents.create({ talentsString: '203-0055003221201001351-0550005' }));
-export const TalentsAffliction = PresetUtils.makePresetTalents('Affliction', SavedTalents.create({ talentsString: '2435002013520135--0500055' }));
-export const TalentsDSRuin = PresetUtils.makePresetTalents('DS/Ruin', SavedTalents.create({ talentsString: '233500201332-0340003001-0550105' }));
+export const TalentsAffliction = PresetUtils.makePresetTalents('Affliction', SavedTalents.create({ talentsString: '2552002013520135--0500055' }));
+export const TalentsDSRuin = PresetUtils.makePresetTalents('DS/Ruin', SavedTalents.create({ talentsString: '255100201332-0340003001-0550105' }));
 export const TalentsPactOptimised = PresetUtils.makePresetTalents(
 	'Demonic Pact 2/31/18',
 	SavedTalents.create({ talentsString: '113-0005003221220311351-0550005' }),
 );
 export const TalentsDeepAffliction = PresetUtils.makePresetTalents(
 	'Deep Affliction 35/0/16',
-	SavedTalents.create({ talentsString: '2535002013521105--05000551' }),
+	SavedTalents.create({ talentsString: '2552012013521105--05000551' }),
 );
 export const TalentsDSRuinPandemic = PresetUtils.makePresetTalents(
 	'DS/Ruin Pandemic 24/11/16',

@@ -15,7 +15,7 @@ func (warlock *Warlock) registerAfflictionTalents() {
 	warlock.applyImprovedCorruption()
 
 	// Tier 2
-	warlock.applyMalediction()
+	warlock.applyGrimReach()
 	warlock.applySoulHarvesting()
 	warlock.applyImprovedDrains()
 
@@ -76,11 +76,10 @@ func (warlock *Warlock) applyImprovedCorruption() {
 	})
 }
 
-// The 16 October 2026 beta notes replace Malediction (1225177, +1% periodic damage a point) with
-// Grim Reach, +10/20% range on Affliction spells and nothing for damage. The new client tree is not
-// out yet, so the talent keeps Malediction's proto field and tree slot, and points in it do nothing
-// here: the sim models no spell range for Grim Reach to extend.
-func (warlock *Warlock) applyMalediction() {
+// Client 70425 (16 October 2026 beta) replaced Malediction (1225177, +1% periodic damage a point) with
+// Grim Reach (18218), +10/20% range on Affliction spells and nothing for damage: the sim models no
+// spell range for it to extend.
+func (warlock *Warlock) applyGrimReach() {
 }
 
 // Improved Drains: 7/13/20% more drain damage (403511, a dot modifier).

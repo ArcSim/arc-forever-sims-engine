@@ -20,9 +20,6 @@ func (mage *Mage) registerArcaneMissilesRank(arcaneMissilesRank *spelldata.Spell
 	tickLength := time.Second
 	numTicks := int32(arcaneMissilesRank.Duration() / tickLength)
 
-	// The Arcane Blast stacks the channel spent, which its missiles keep.
-	arcaneBlastBonus := 0.0
-
 	arcaneMissilesTickSpell := mage.RegisterSpell(core.SpellConfig{
 		ActionID:       core.ActionID{SpellID: missileRank.ID},
 		SpellSchool:    missileRank.SpellSchool(),
@@ -37,9 +34,6 @@ func (mage *Mage) registerArcaneMissilesRank(arcaneMissilesRank *spelldata.Spell
 		BonusCoefficient: missileRank.DamageEffect().Coeff(),
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			spell.DamageMultiplierAdditive += arcaneBlastBonus
-			defer func() { spell.DamageMultiplierAdditive -= arcaneBlastBonus }()
-
 			result := spell.CalcDamage(sim, target, missileRank.DamageEffect().Roll(sim, core.CharacterLevel), spell.OutcomeMagicHitAndCrit)
 			spell.WaitTravelTime(sim, func(sim *core.Simulation) {
 				spell.DealDamage(sim, result)
@@ -78,16 +72,6 @@ func (mage *Mage) registerArcaneMissilesRank(arcaneMissilesRank *spelldata.Spell
 		},
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			// The channel spends the Arcane Blast stacks as it starts: beta log 2689 (Icykiss) shows
-			// 400573 removed 0.3 s into both Arcane Missiles, before the first missile. Its missiles
-			// still carry them, 15% a stack, though 400573's mask leaves Arcane Missiles out: beta log
-			// 2721 (Dainer, rank 3) has every missile after 1 stack at 99-101 and after 2 at 112-114
-			// (crits 149-151 / 169-171), the same fights and targets; 1.30/1.15 = 1.13 where the
-			// client's 10% would give 1.20/1.10 = 1.09.
-			arcaneBlastBonus = 0.15 * float64(mage.ArcaneBlastAura.GetStacks())
-			if mage.ArcaneBlastAura != nil {
-				mage.ArcaneBlastAura.Deactivate(sim)
-			}
 			spell.Dot(target).Apply(sim)
 		},
 	})

@@ -39,7 +39,7 @@
 		"file": "sim/hunter/pet_abilities.go",
 		"note": "New in Forever, Crocolisk only (client SkillLineAbility, skill line 212). Client 70009: rank 5 (level 60) 54 damage +-7%, 35 Focus, 6 sec cooldown; the crocolisk Bites when Bite is ready and Dismembers with the focus left over. The 50% healing reduction is left out.",
 		"source": "forever",
-		"tooltip": "35 Focus\nMelee Range\nInstant\n6 sec cooldown\nViciously bites enemy appendages for 50 to 58 damage and reduces the effectiveness of any healing by 50% for 10 sec."
+		"tooltip": "35 Focus\nMelee Range\nInstant\n15 sec cooldown\nViciously bites enemy appendages for 50 to 58 damage and reduces the effectiveness of any healing by 25% for 6 sec."
 	},
 	"1265042": {
 		"ability": "Tendon Rip",

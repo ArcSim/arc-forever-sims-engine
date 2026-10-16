@@ -42,7 +42,7 @@ func TestDemonicPactKeepsTheSacrifice(t *testing.T) {
 	if aura := sacrificeAura(t, pactTalents, proto.WarlockOptions_Succubus); aura != nil {
 		t.Errorf("Pact + sacrificed Succubus with the Succubus out: got %v, want none", aura)
 	}
-	if aura := sacrificeAura(t, "113-0005003221220311350-0550005", proto.WarlockOptions_Imp); aura != nil {
+	if aura := sacrificeAura(t, "113-000500322122031135-0550005", proto.WarlockOptions_Imp); aura != nil {
 		t.Errorf("no Demonic Pact: got %v, want none", aura)
 	}
 }

@@ -9,7 +9,7 @@ import (
 
 func (mage *Mage) registerFireTalents() {
 	// Tier 1
-	mage.registerWakeOfFire()
+	mage.registerImprovedFireBlast()
 	mage.registerIncineration()
 	mage.registerImprovedFireball()
 
@@ -40,16 +40,16 @@ func (mage *Mage) registerFireTalents() {
 	// Combustion: combustion.go
 }
 
-// The Fire Blast cooldown half only. The other half, 1312934 (+50% Fire Blast crit for 30 sec), is
-// granted by killing a non-trivial target, which the sim's targets never do.
-func (mage *Mage) registerWakeOfFire() {
-	if mage.Talents.WakeOfFire == 0 {
+// Improved Fire Blast (11078, called Wake of Fire until client 70425): the Fire Blast cooldown.
+// Its range bonus changes no number. 70425 dropped the kill-granted crit half (1312934).
+func (mage *Mage) registerImprovedFireBlast() {
+	if mage.Talents.ImprovedFireBlast == 0 {
 		return
 	}
 
 	mage.AddStaticMod(core.SpellModConfig{
 		ClassMask: MageSpellFireBlast,
-		TimeValue: time.Millisecond * time.Duration(spellData.WakeOfFire.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_COOLDOWN)).ValueAt(mage.Talents.WakeOfFire)),
+		TimeValue: time.Millisecond * time.Duration(spellData.ImprovedFireBlast.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_COOLDOWN)).ValueAt(mage.Talents.ImprovedFireBlast)),
 		Kind:      core.SpellMod_Cooldown_Flat,
 	})
 }
@@ -308,16 +308,58 @@ func (mage *Mage) registerCriticalMass() {
 	})
 }
 
-// Ignite is left out by its NoSpellMods flag.
+// Fire Power (client 70425, 16 October 2026 beta): 1/2/3% more damage for Fire spells per Fire
+// effect the mage has on the target, counting up to four (the tooltip's "up to ${$s1*4}%"). The
+// effects are the Fire-only ones the sim puts on a target: the Fireball, Flamestrike and Pyroblast
+// DoTs, Ignite, and Improved Scorch's Fire Vulnerability. Frostfire Bolt's DoT mixes schools and
+// does not count, as the tooltip says. A DoT counts once whatever rank or how many casts of it are
+// up. Ignite still takes no bonus itself (it copies damage that already had it). Fire Vulnerability
+// is modelled as an aura on the mage, so it counts on the mage's current target only.
 func (mage *Mage) registerFirePower() {
 	if mage.Talents.FirePower == 0 {
 		return
 	}
 
-	mage.AddStaticMod(core.SpellModConfig{
-		ClassMask:  MageSpellsAll,
-		School:     core.SpellSchoolFire,
-		FloatValue: spellData.FirePower.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_DAMAGE)).FractionAt(mage.Talents.FirePower),
-		Kind:       core.SpellMod_DamageDone_Flat,
+	const maxEffects = 4
+	perEffect := spellData.FirePower.EffectAt(1).FractionAt(mage.Talents.FirePower)
+	families := []int64{MageSpellFireball, MageSpellFlamestrike | MageSpellFlamestrikeDot, MageSpellIgnite, MageSpellPyroblast | MageSpellPyroblastDot}
+	spellsByFamily := make([][]*core.Spell, len(families))
+	mage.OnSpellRegistered(func(spell *core.Spell) {
+		if spell.SpellSchool != core.SpellSchoolFire {
+			return
+		}
+		for i, family := range families {
+			if spell.Matches(family) {
+				spellsByFamily[i] = append(spellsByFamily[i], spell)
+			}
+		}
+	})
+
+	fireEffects := func(target *core.Unit) int {
+		count := 0
+		for _, spells := range spellsByFamily {
+			for _, spell := range spells {
+				// Flamestrike's DoT is an area DoT: it burns every target, so it counts for each.
+				if dot := spell.Dot(target); dot != nil && dot.IsActive() || spell.AOEDot() != nil && spell.AOEDot().IsActive() {
+					count++
+					break
+				}
+			}
+		}
+		if mage.ImprovedScorchAura != nil && mage.ImprovedScorchAura.IsActive() && target == mage.CurrentTarget {
+			count++
+		}
+		return min(count, maxEffects)
+	}
+
+	mage.Env.RegisterPostFinalizeEffect(func() {
+		for _, attackTable := range mage.AttackTables {
+			core.EnableDamageDoneByCaster(0, 1, attackTable, func(_ *core.Simulation, spell *core.Spell, attackTable *core.AttackTable) float64 {
+				if !spell.SpellSchool.Matches(core.SpellSchoolFire) || spell.Matches(MageSpellIgnite) {
+					return 1
+				}
+				return 1 + perEffect*float64(fireEffects(attackTable.Defender))
+			})
+		}
 	})
 }

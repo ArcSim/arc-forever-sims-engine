@@ -13,12 +13,10 @@ var ChainLightningRankMap = spellData.ChainLightning
 // half the rank: its damage grows 1.25-1.5x faster per level, so rank 4 at 60 averages 66, not 63.
 var chainLightningOverloadRanks = spelldata.Ranked(408479, 408481, 408482, 408484)
 
-// "Chain Lightning mana cost reduced by approximately 35%" on every rank (16 October 2026 beta notes). The
-// client data still carries the old costs, so the rank's cost is cut here until it moves.
-const chainLightningCostMultiplier = 0.65
-
+// "Chain Lightning mana cost reduced by approximately 35%" on every rank (16 October 2026 beta notes):
+// client 70425's rows carry the cut costs (rank 1 225 to 145), so the rank's own cost is read.
 func chainLightningCost(config *spelldata.Spell) int32 {
-	return int32(math.Round(config.Cost() * chainLightningCostMultiplier))
+	return int32(math.Round(config.Cost()))
 }
 
 func (shaman *Shaman) registerChainLightningSpell() {

@@ -17,7 +17,7 @@ func TestNoMaelstromWeaponNoLightningBolt(t *testing.T) {
 	}}}
 	player := &proto.Player{
 		Name: "enh", Class: proto.Class_ClassShaman, Race: proto.Race_RaceOrc,
-		TalentsString: "05323303001-0530300310051-05005", // 21 Enhancement on the UI presets: no Maelstrom Weapon
+		TalentsString: "15323303-0530300310051-05005", // 21 Enhancement on the UI presets: no Maelstrom Weapon
 		Equipment:     &proto.EquipmentSpec{Items: []*proto.ItemSpec{{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {Id: 17182}}},
 		Spec:          &proto.Player_EnhancementShaman{EnhancementShaman: &proto.EnhancementShaman{Options: &proto.EnhancementShaman_Options{ClassOptions: &proto.ShamanOptions{}}}},
 		Rotation: &proto.APLRotation{Type: proto.APLRotation_TypeAPL, PriorityList: []*proto.APLListItem{{Action: &proto.APLAction{

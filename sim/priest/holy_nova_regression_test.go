@@ -17,7 +17,7 @@ func TestHolyNovaHealingCritAllRanks(t *testing.T) {
 				Class:         proto.Class_ClassPriest,
 				Equipment:     &proto.EquipmentSpec{},
 				Consumables:   &proto.ConsumesSpec{},
-				TalentsString: "504020031305001-13505100202-50002",
+				TalentsString: "504025031030001-13505100202-50002",
 				Rotation:      &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
 				Spec:          &proto.Player_DpsPriest{DpsPriest: &proto.DpsPriest{Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}}}},
 			}

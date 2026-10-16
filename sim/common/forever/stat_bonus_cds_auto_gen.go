@@ -12,7 +12,7 @@ func RegisterAllOnUseCds() {
 	//
 	// unsupported: 12257 deals no damage and heals no one (A_PERIODIC_TRIGGER_SPELL, E_TRIGGER_SPELL)
 	// shared.NewSimpleStatActive(744) // Thunderbrew's Boot Flask - https://www.wowhead.com/forever/spell=12257
-	// unsupported: 18820 deals no damage and heals no one (A_MOD_POWER_COST_SCHOOL2)
+	// unsupported: 18820 deals no damage and heals no one (A_MOD_POWER_COST_SCHOOL)
 	// shared.NewSimpleStatActive(940) // Robes of Insight - https://www.wowhead.com/forever/spell=18820
 	// unsupported: 835 deals no damage and heals no one (A_MOD_STUN)
 	// shared.NewSimpleStatActive(1404) // Tidal Charm - https://www.wowhead.com/forever/spell=835

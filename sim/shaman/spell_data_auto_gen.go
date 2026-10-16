@@ -51,6 +51,7 @@ type generatedSpellData struct {
 	ElementalFocus                 spelldata.Ladder
 	ElementalFocusTriggered        spelldata.Ladder
 	ElementalFury                  spelldata.Ladder
+	ElementalMastery               spelldata.Ladder
 	ElementalReach                 spelldata.Ladder
 	ElementalWarding               spelldata.Ladder
 	ElementalWeapons               spelldata.Ladder
@@ -84,7 +85,6 @@ type generatedSpellData struct {
 	HealingStreamTotemTriggered    spelldata.Ladder
 	HealingWave                    spelldata.Ladder
 	HealingWay                     spelldata.Ladder
-	ImprovedFireNova               spelldata.Ladder
 	ImprovedGhostWolf              spelldata.Ladder
 	ImprovedHealingWave            spelldata.Ladder
 	ImprovedLightningShield        spelldata.Ladder
@@ -147,6 +147,7 @@ type generatedSpellData struct {
 	Toughness                      spelldata.Ladder
 	TremorTotem                    spelldata.Ladder
 	TremorTotemTriggered           spelldata.Ladder
+	TrialByFire                    spelldata.Ladder
 	TwoHandedAxesAndMaces          spelldata.Ladder
 	TwoHandedAxesAndMacesTriggered spelldata.Ladder
 	WaterBreathing                 spelldata.Ladder
@@ -193,6 +194,7 @@ var spellData = generatedSpellData{
 	ElementalFocus:                 spelldata.Ranked(16164),
 	ElementalFocusTriggered:        spelldata.Ranked(16246),
 	ElementalFury:                  spelldata.Talent(16089, 5),
+	ElementalMastery:               spelldata.Ranked(16166),
 	ElementalReach:                 spelldata.Talent(28999, 2),
 	ElementalWarding:               spelldata.Talent(28996, 3),
 	ElementalWeapons:               spelldata.Talent(16266, 3),
@@ -200,7 +202,7 @@ var spellData = generatedSpellData{
 	EyeOfTheStorm:                  spelldata.Talent(29062, 3),
 	FarSight:                       spelldata.Ranked(6196),
 	FireNova:                       spelldata.Ranked(408341, 408342, 408343, 408344, 408345),
-	FireNovaTriggered:              spelldata.Ranked(8349, 8502, 8503, 11306, 11307, 408423, 408424, 408426, 408427, 408428),
+	FireNovaTriggered:              spelldata.Ranked(408423, 408424, 408426, 408427, 408428),
 	FireResistanceTotem:            spelldata.Ranked(8184, 10537, 10538),
 	FireResistanceTotemTriggered:   spelldata.Ranked(8185, 10534, 10535),
 	FlameShock:                     spelldata.Ranked(8050, 8052, 8053, 10447, 10448, 29228),
@@ -226,7 +228,6 @@ var spellData = generatedSpellData{
 	HealingStreamTotemTriggered:    spelldata.Ranked(5672, 6371, 6372, 10460, 10461),
 	HealingWave:                    spelldata.Ranked(331, 332, 547, 913, 939, 959, 8005, 10395, 10396, 25357),
 	HealingWay:                     spelldata.Talent(29206, 3),
-	ImprovedFireNova:               spelldata.Talent(16086, 2),
 	ImprovedGhostWolf:              spelldata.Talent(16262, 2),
 	ImprovedHealingWave:            spelldata.Talent(16182, 5),
 	ImprovedLightningShield:        spelldata.Talent(16261, 3),
@@ -234,7 +235,7 @@ var spellData = generatedSpellData{
 	ImprovedStormstrike:            spelldata.Talent(1223031, 2),
 	ImprovedStormstrikeTriggered:   spelldata.Ranked(1238931),
 	ImprovedWeaponTotems:           spelldata.Ranked(29192, 29193),
-	LavaBurst:                      spelldata.Ranked(408490, 1238299, 1238300),
+	LavaBurst:                      spelldata.Ranked(408490, 1238299, 1238300, 1326047),
 	LesserHealingWave:              spelldata.Ranked(8004, 8008, 8010, 10466, 10467, 10468),
 	LightningBolt:                  spelldata.Ranked(403, 529, 548, 915, 943, 6041, 10391, 10392, 15207, 15208),
 	LightningOverload:              spelldata.Talent(408438, 3),
@@ -246,8 +247,8 @@ var spellData = generatedSpellData{
 	MagmaTotemTriggered:            spelldata.Ranked(8187, 8188, 10579, 10580, 10581, 10582, 10583, 10584),
 	ManaSpringTotem:                spelldata.Ranked(5675, 10495, 10496, 10497),
 	ManaSpringTotemTriggered:       spelldata.Ranked(5677, 10491, 10493, 10494),
-	ManaTideTotem:                  spelldata.Ranked(16190, 17354, 17359),
-	ManaTideTotemTriggered:         spelldata.Ranked(16191, 17355, 17360),
+	ManaTideTotem:                  spelldata.Ranked(16190, 17354, 17359, 1325256),
+	ManaTideTotemTriggered:         spelldata.Ranked(16191, 17355, 17360, 1325257),
 	MentalDexterity:                spelldata.Talent(415140, 3),
 	MentalQuickness:                spelldata.Talent(30812, 2),
 	Mindfulness:                    spelldata.Talent(1223033, 3),
@@ -289,6 +290,7 @@ var spellData = generatedSpellData{
 	Toughness:                      spelldata.Talent(16252, 5),
 	TremorTotem:                    spelldata.Ranked(8143),
 	TremorTotemTriggered:           spelldata.Ranked(8146),
+	TrialByFire:                    spelldata.Talent(16086, 2),
 	TwoHandedAxesAndMaces:          spelldata.Ranked(16269),
 	TwoHandedAxesAndMacesTriggered: spelldata.Ranked(197, 199),
 	WaterBreathing:                 spelldata.Ranked(131),

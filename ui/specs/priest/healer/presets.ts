@@ -41,9 +41,9 @@ export const OtherDefaults = {
 };
 
 // Talent presets, from master's ui/priest spec.
-export const TalentsHolyHealer = PresetUtils.makePresetTalents('Holy 19/32/0', SavedTalents.create({ talentsString: '005203031302-2350510323000053' }));
+export const TalentsHolyHealer = PresetUtils.makePresetTalents('Holy 19/32/0', SavedTalents.create({ talentsString: '00520303123-2350510323000053' }));
 export const TalentsDisciplineHealer = PresetUtils.makePresetTalents(
 	'Discipline 35/16/0',
-	SavedTalents.create({ talentsString: '005203031325101531-03505003' }),
+	SavedTalents.create({ talentsString: '005205031332011531-03505003' }),
 );
 export const TalentPresets = [TalentsHolyHealer, TalentsDisciplineHealer];

@@ -17,7 +17,6 @@ func (priest *Priest) registerShadowTalents() {
 	priest.applySpiritTap()
 
 	// Tier 2
-	priest.applyShadowAffinity()
 	priest.applyImprovedShadowWordPain()
 	priest.applyShadowReach()
 
@@ -28,7 +27,7 @@ func (priest *Priest) registerShadowTalents() {
 	priest.applyImprovedMindFlay()
 
 	// Tier 4
-	priest.applyImprovedFade()
+	priest.applyDarkInspiration()
 	priest.applyVampiricEmbrace()
 	priest.applyShadowWeaving()
 
@@ -71,19 +70,6 @@ func (priest *Priest) applySpiritTap() {
 	if priest.Talents.SpiritTap == 0 {
 		return
 	}
-}
-
-func (priest *Priest) applyShadowAffinity() {
-	if priest.Talents.ShadowAffinity == 0 {
-		return
-	}
-
-	priest.AddStaticMod(core.SpellModConfig{
-		ClassMask:  PriestSpellsAll,
-		School:     core.SpellSchoolShadow,
-		FloatValue: spellData.ShadowAffinity.FractionAt(priest.Talents.ShadowAffinity),
-		Kind:       core.SpellMod_ThreatMultiplier_Pct,
-	})
 }
 
 // +3 sec of duration per point, which is one more tick at Shadow Word: Pain's 3 second cadence.
@@ -195,7 +181,13 @@ func (priest *Priest) registerMindFlaySpell(rank *spelldata.Spell) {
 				dot.Snapshot(target, tick.Average(core.CharacterLevel))
 			},
 			OnTick: func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-				dot.CalcAndDealPeriodicSnapshotDamage(sim, target, priest.tickOutcome(rank.PeriodicCanCrit(), dot))
+				if priest.Talents.ImprovedMindFlay == 0 {
+					dot.CalcAndDealPeriodicSnapshotDamage(sim, target, priest.tickOutcome(rank.PeriodicCanCrit(), dot))
+					return
+				}
+				result := dot.CalcSnapshotDamage(sim, target, priest.tickOutcome(rank.PeriodicCanCrit(), dot))
+				result.Damage *= priest.mindFlayRamp(dot)
+				dot.Spell.DealPeriodicDamage(sim, result)
 			},
 		},
 
@@ -216,26 +208,15 @@ func (priest *Priest) registerMindFlaySpell(rank *spelldata.Spell) {
 	})
 }
 
-// Improved Mind Flay is new in Forever: +10% damage per point, plus range and slow the sim ignores.
+// Improved Mind Flay (client 70425, 16 October 2026 beta): each Mind Flay tick deals 10/20% more than
+// the one before it, so a three tick channel deals 1, 1.1 and 1.2 times (rank 1) its tick. The tooltip
+// says "than its previous instance"; read as a step added per tick, the way the retail talent of the
+// same wording stacks, not compounded. Applied in Mind Flay's tick (registerMindFlaySpell).
 func (priest *Priest) applyImprovedMindFlay() {
-	if priest.Talents.ImprovedMindFlay == 0 {
-		return
-	}
-
-	priest.AddStaticMod(core.SpellModConfig{
-		ClassMask:  PriestSpellMindFlay,
-		FloatValue: spellData.ImprovedMindFlay.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_DOT)).FractionAt(priest.Talents.ImprovedMindFlay),
-		Kind:       core.SpellMod_DamageDone_Flat,
-	})
 }
 
-// applyImprovedFade implements Improved Fade.
-//
-// TODO: To be implemented. Fade sheds threat, and the sim never needs the priest to drop aggro.
-func (priest *Priest) applyImprovedFade() {
-	if priest.Talents.ImprovedFade == 0 {
-		return
-	}
+func (priest *Priest) mindFlayRamp(dot *core.Dot) float64 {
+	return 1 + spellData.ImprovedMindFlay.FractionAt(priest.Talents.ImprovedMindFlay)*float64(dot.TickCount()-1)
 }
 
 // VampiricEmbraceCooldown is the 16 October 2026 beta notes' cooldown (was 60 sec).
@@ -468,5 +449,43 @@ func (priest *Priest) applyShadowform() {
 		},
 
 		RelatedSelfBuff: priest.ShadowformAura,
+	})
+}
+
+// applyDarkInspiration implements Dark Inspiration, a Shadow talent of client 70425 (16 October 2026
+// beta): Mind Blast and a fully channeled Mind Flay raise the priest's and the party's Spirit by 3% a
+// point (15% at 5) for 10 sec. Spirit is spell damage through Spiritual Guidance. The sim applies it
+// to the priest only. A full channel is one whose last tick lands; the engine counts the remaining
+// ticks down before it deals a tick, so the last one sees none left. 1326168 holds the duration.
+func (priest *Priest) applyDarkInspiration() {
+	if priest.Talents.DarkInspiration == 0 {
+		return
+	}
+
+	buff := spellData.DarkInspirationTriggered.Highest()
+	spirit := priest.NewDynamicMultiplyStat(stats.Spirit, spellData.DarkInspiration.MultiplierAt(priest.Talents.DarkInspiration))
+	aura := priest.RegisterAura(core.Aura{
+		Label:    "Dark Inspiration",
+		ActionID: core.ActionID{SpellID: buff.ID},
+		Duration: buff.Duration(),
+	}).AttachStatDependency(spirit)
+
+	priest.MakeProcTriggerAura(core.ProcTrigger{
+		Name:           "Dark Inspiration Mind Blast",
+		Callback:       core.CallbackOnCastComplete,
+		ClassSpellMask: PriestSpellMindBlast,
+		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			aura.Activate(sim)
+		},
+	})
+	priest.MakeProcTriggerAura(core.ProcTrigger{
+		Name:           "Dark Inspiration Mind Flay",
+		Callback:       core.CallbackOnPeriodicDamageDealt,
+		ClassSpellMask: PriestSpellMindFlay,
+		Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+			if dot := spell.Dot(result.Target); dot != nil && dot.RemainingTicks() == 0 {
+				aura.Activate(sim)
+			}
+		},
 	})
 }

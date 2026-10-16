@@ -12,7 +12,7 @@ import (
 func TestElementalDevastationSkipsFireNova(t *testing.T) {
 	uptime := func(spellID int32) float64 {
 		player := &proto.Player{
-			Name: "ele", Class: proto.Class_ClassShaman, Race: proto.Race_RaceOrc, TalentsString: "000003",
+			Name: "ele", Class: proto.Class_ClassShaman, Race: proto.Race_RaceOrc, TalentsString: "003",
 			Equipment: &proto.EquipmentSpec{},
 			Spec:      &proto.Player_ElementalShaman{ElementalShaman: &proto.ElementalShaman{Options: &proto.ElementalShaman_Options{ClassOptions: &proto.ShamanOptions{}}}},
 			Rotation: &proto.APLRotation{Type: proto.APLRotation_TypeAPL, PriorityList: []*proto.APLListItem{{Action: &proto.APLAction{Action: &proto.APLAction_CastSpell{

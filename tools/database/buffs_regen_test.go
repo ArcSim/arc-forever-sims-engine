@@ -97,6 +97,15 @@ func TestScopeMatchesTheClientTargeting(t *testing.T) {
 // each with the reason the scope is still what the sim wants.
 var scopeExemptions = map[string]string{
 	"thorns": "the druid trains no raid-wide spell of the family, so the raid scope is the sim spreading the one cast 9910 states over every player",
+	// Raid-wide since client 70425; core/raid.go spreads Leader of the Pack and Moonkin Aura, and a
+	// MythicSim request sets the rest on every party.
+	"battle_shout":            "raid-wide since client 70425 (the 16 October 2026 beta notes), kept a PartyBuffs field so requests keep their shape; the sim spreads it to every party",
+	"leader_of_the_pack":      "raid-wide since client 70425 (the 16 October 2026 beta notes), kept a PartyBuffs field so requests keep their shape; the sim spreads it to every party",
+	"moonkin_aura":            "raid-wide since client 70425 (the 16 October 2026 beta notes), kept a PartyBuffs field so requests keep their shape; the sim spreads it to every party",
+	"trueshot_aura":           "raid-wide since client 70425 (the 16 October 2026 beta notes), kept a PartyBuffs field so requests keep their shape; the sim spreads it to every party",
+	"strength_of_earth_totem": "raid-wide since client 70425 (the 16 October 2026 beta notes), kept a PartyBuffs field so requests keep their shape; the sim spreads it to every party",
+	"grace_of_air_totem":      "raid-wide since client 70425 (the 16 October 2026 beta notes), kept a PartyBuffs field so requests keep their shape; the sim spreads it to every party",
+	"flametongue_totem":       "raid-wide since client 70425 (the 16 October 2026 beta notes), kept a PartyBuffs field so requests keep their shape; the sim spreads it to every party",
 }
 
 // What the client says against the scope the manifest files the row under, and
@@ -124,8 +133,9 @@ func scopeComplaint(row ResolvedBuff) string {
 // The paladin auras state a healing-taken row of 0 beside the aura, which the
 // parse leaves out.
 var pinnedAmounts = map[string]map[string]float64{
-	"leader_of_the_pack": {"stat PhysicalCritPercent+SpellCritPercent": 3},
-	"moonkin_aura":       {"stat PhysicalCritPercent+SpellCritPercent": 3},
+	// Client 70425 splits them as the 16 October 2026 beta notes did: melee and ranged crit, spell crit.
+	"leader_of_the_pack": {"stat PhysicalCritPercent": 3},
+	"moonkin_aura":       {"stat SpellCritPercent": 3},
 	"expose_armor":       {"stat Armor": -2250},
 	"devotion_aura":      {"stat Armor": 735},
 	"concentration_aura": {"pushback": -0.35},

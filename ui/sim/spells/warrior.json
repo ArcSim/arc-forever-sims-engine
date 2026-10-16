@@ -67,7 +67,7 @@
 		"file": "sim/warrior/talents_arms.go",
 		"note": "Forever's own id, client 1.60.1.70009: 1289682's curve reads 4/8/12/16/20% on main-hand melee hits against a target with your Rend, and the Overpower window it opens lasts 6 sec (1289681). The row used to carry a later expansion's id (56638) and 2% a point.",
 		"source": "forever",
-		"tooltip": "Passive\nYour main-hand melee attacks against targets afflicted by your Rend have a 4% chance per point to activate your Overpower ability for 1 attack. Lasts 6 sec."
+		"tooltip": "Passive\nYour main-hand melee attacks against targets afflicted by your Rend have a 4% chance per point to activate your Overpower ability for 1 attack."
 	},
 	"1290261": {
 		"ability": "Weaponmaster",

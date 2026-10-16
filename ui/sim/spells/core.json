@@ -116,7 +116,7 @@
 		"file": "sim/shaman/stormstrike.go",
 		"note": "The shaman's own Stormstrike; the Classic raid-wide copy in core is gone. Client 17364 (1.60.1.70009): 125 mana, an 8 sec cooldown and one charge of +20% on the shaman's own next Lightning Bolt, Chain Lightning or Earth Shock for 12 sec (aura 271), where Era's costs 21% of base mana, cools down 20 sec and raises Nature damage taken from anyone.",
 		"source": "forever",
-		"tooltip": "125 Mana\nMelee Range\nInstant\n8 sec cooldown\nInstantly strike for normal weapon damage and increase the damage you deal to the target with your next Lightning Bolt, Chain Lightning, or Earth Shock spell by 20% for 12 sec."
+		"tooltip": "8% of base mana\nMelee Range\nInstant\n8 sec cooldown\nInstantly strike for normal weapon damage and increase the damage you deal to the target with your next Lightning Bolt, Chain Lightning, or Earth Shock spell by 20% for 12 sec."
 	},
 	"17794": {
 		"ability": "Improved Shadow Bolt (Shadow Vulnerability)",

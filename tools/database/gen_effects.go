@@ -1248,6 +1248,9 @@ var itemAuraKinds = []dbcenums.EffectAuraType{
 	dbcenums.A_MOD_DAMAGE_TAKEN,
 	dbcenums.A_MOD_BASE_RESISTANCE_PCT,
 	dbcenums.A_MOD_PERCENT_STAT,
+	// Client 70425's Insight buff (1299796) names Spirit in A_MOD_TOTAL_STAT_PERCENTAGE's stat mask, which
+	// the spell parse reads (percentStatRow), so overrides/2.sql no longer has to rewrite it.
+	dbcenums.A_MOD_TOTAL_STAT_PERCENTAGE,
 }
 
 func appliesAnItemAura(s *spelldata.Spell) bool {

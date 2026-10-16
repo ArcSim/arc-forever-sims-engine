@@ -35,13 +35,13 @@ export const ArcaneMageSimpleRotation = Mage_Rotation.create({
 
 export const APL_ARCANE_SIMPLE = PresetUtils.makePresetSimpleRotation('Simple', Spec.SpecMage, ArcaneMageSimpleRotation);
 
-export const TalentsP1Frost = PresetUtils.makePresetTalents('Frost DPS', SavedTalents.create({ talentsString: '0502050030003--055500033100030024' }));
-export const TalentsP1Arcane = PresetUtils.makePresetTalents('Arcane DPS', SavedTalents.create({ talentsString: '050215003100311531-2305003202003-' }));
-export const TalentsP1Fire = PresetUtils.makePresetTalents('Fire DPS', SavedTalents.create({ talentsString: '0502252000003-23550000130133051-' }));
+export const TalentsP1Frost = PresetUtils.makePresetTalents('Frost DPS', SavedTalents.create({ talentsString: '05002050030003--055500033100030024' }));
+export const TalentsP1Arcane = PresetUtils.makePresetTalents('Arcane DPS', SavedTalents.create({ talentsString: '0501215003100301531-2305003202003-' }));
+export const TalentsP1Fire = PresetUtils.makePresetTalents('Fire DPS', SavedTalents.create({ talentsString: '05002252000003-23550000130135031-' }));
 // The community builds our Forever sim ranks: Arcane 35/0/16, Fire 0/35/16 and Frost 14/0/37.
-export const FireTalents = PresetUtils.makePresetTalents('Fire 0/35/16', SavedTalents.create({ talentsString: '-03552020130133151-005500033' }));
-export const FrostTalents = PresetUtils.makePresetTalents('Frost 14/0/37', SavedTalents.create({ talentsString: '050005013--0555003301001301251' }));
-export const ArcaneTalents = PresetUtils.makePresetTalents('Arcane 35/0/16', SavedTalents.create({ talentsString: '055005023100311531--005500033' }));
+export const FireTalents = PresetUtils.makePresetTalents('Fire 0/35/16', SavedTalents.create({ talentsString: '-03552020130135131-005500033' }));
+export const FrostTalents = PresetUtils.makePresetTalents('Frost 14/0/37', SavedTalents.create({ talentsString: '0500005013--0555300301001301251' }));
+export const ArcaneTalents = PresetUtils.makePresetTalents('Arcane 35/0/16', SavedTalents.create({ talentsString: '0551005023100301531--005500033' }));
 export const TALENT_PRESETS = [TalentsP1Frost, TalentsP1Arcane, TalentsP1Fire, FireTalents, FrostTalents, ArcaneTalents];
 export const DefaultTalents = TalentsP1Frost;
 

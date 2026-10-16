@@ -1,6 +1,7 @@
 package core
 
 import (
+	"slices"
 	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
@@ -229,6 +230,14 @@ func (rot *APLRotation) GetAPLSpell(spellId *proto.ActionID) *Spell {
 			spell = rot.unit.GetSpell(actionID)
 		} else {
 			spell = aplSpell
+		}
+		if spell == nil {
+			for _, s := range rot.unit.Spellbook {
+				if s.Flags.Matches(SpellFlagAPL) && slices.ContainsFunc(s.RankAliases, actionID.SameAction) {
+					spell = s
+					break
+				}
+			}
 		}
 	}
 

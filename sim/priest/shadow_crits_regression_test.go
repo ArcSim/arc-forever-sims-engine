@@ -17,7 +17,7 @@ func newShadowCritsSim(t *testing.T) (*core.Simulation, *core.Character) {
 		Class:         proto.Class_ClassPriest,
 		Equipment:     &proto.EquipmentSpec{},
 		Consumables:   &proto.ConsumesSpec{},
-		TalentsString: "025300011303--500222501201302251",
+		TalentsString: "02530301103--50052201221302251",
 		Rotation:      &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
 		Spec:          &proto.Player_DpsPriest{DpsPriest: &proto.DpsPriest{Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}}}},
 	}

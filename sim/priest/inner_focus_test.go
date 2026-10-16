@@ -38,11 +38,11 @@ func TestNoInnerFocusDropsTheSequence(t *testing.T) {
 		return n
 	}
 
-	if n := casts("smite_lowrank", "-33555133102-55532", 10894); n == 0 {
+	if n := casts("smite_lowrank", "-33555133102-5550200003", 10894); n == 0 {
 		t.Errorf("smite without Inner Focus never cast Shadow Word: Pain")
 	}
 	// Shadow keeps Devouring Plague on its own row for builds without Inner Focus.
-	if n := casts("shadow", "025300030201--550022401201302251", 19280); n == 0 {
+	if n := casts("shadow", "02530103002--55042201201302251", 19280); n == 0 {
 		t.Errorf("shadow without Inner Focus never cast Devouring Plague")
 	}
 	// Forever's Devouring Plague is a 1 min cooldown (19280 category 691), Inner Focus 3 min: the

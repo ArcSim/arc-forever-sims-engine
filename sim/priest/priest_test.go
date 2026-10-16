@@ -15,8 +15,8 @@ func init() {
 }
 
 // The community builds the rankings page runs on our Forever sim: Shadow 15/0/36 and Smite 31/17/3.
-var ShadowTalents = "0253000311--550022501201302251"
-var SmiteTalents = "515030031305001031-00505023002-003"
+var ShadowTalents = "02530003101--55052201201302251"
+var SmiteTalents = "515035031030001031-00505023002-003"
 
 func TestShadowPriest(t *testing.T) {
 	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{

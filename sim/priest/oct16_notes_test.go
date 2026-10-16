@@ -13,7 +13,7 @@ import (
 // Vampiric Embrace 30 sec (was 60). Every rank carries the new cooldown.
 func TestOct16PriestCooldowns(t *testing.T) {
 	// Vampiric Embrace is shadow 47, the 12th shadow talent.
-	_, priest := newEurekaPriest(t, proto.Race_RaceUndead, "--000000000001")
+	_, priest := newEurekaPriest(t, proto.Race_RaceUndead, "--00000000001")
 	if priest.VampiricEmbrace == nil {
 		t.Fatal("talents did not register Vampiric Embrace")
 	}
@@ -39,7 +39,7 @@ func TestOct16PriestCooldowns(t *testing.T) {
 // 16 October 2026 beta notes: Vampiric Embrace can no longer be resisted. Against a +3 target a spell
 // hit roll misses often enough that 200 casts would show it.
 func TestVampiricEmbraceAlwaysLands(t *testing.T) {
-	sim, priest := newEurekaPriest(t, proto.Race_RaceUndead, "--000000000001")
+	sim, priest := newEurekaPriest(t, proto.Race_RaceUndead, "--00000000001")
 	target := priest.CurrentTarget
 	for i := 0; i < 200; i++ {
 		priest.VampiricEmbrace.SkipCastAndApplyEffects(sim, target)
@@ -82,8 +82,8 @@ func TestPowerInLightCountsShadowWordPain(t *testing.T) {
 func TestTwinDisciplinesCoversTheNotesSpells(t *testing.T) {
 	// Penance (disc 15) and Mind Flay (shadow 9), with and without Twin Disciplines 1 (disc 3). Night Elf
 	// for Starshards.
-	_, plain := newEurekaPriest(t, proto.Race_RaceNightElf, "000000000000001--000000001")
-	_, twin := newEurekaPriest(t, proto.Race_RaceNightElf, "001000000000001--000000001")
+	_, plain := newEurekaPriest(t, proto.Race_RaceNightElf, "000000000000001--00000001")
+	_, twin := newEurekaPriest(t, proto.Race_RaceNightElf, "001000000000001--00000001")
 	bonus := spellData.TwinDisciplines.EffectAt(1).FractionAt(1)
 	if bonus <= 0 {
 		t.Fatal("Twin Disciplines 1 states no bonus")

@@ -155,9 +155,11 @@ func TestEnchantPercentStatBuffIsTheAppliedSpell(t *testing.T) {
 		t.Fatalf("refused (%s), want it registered", got[0].Reason())
 	}
 
+	// Client 70425 states Spirit in A_MOD_TOTAL_STAT_PERCENTAGE's stat mask (16), so overrides/2.sql no
+	// longer rewrites the row to A_MOD_PERCENT_STAT.
 	buff := spelldata.Find(1299796)
-	if e := buff.FirstAura(dbcenums.A_MOD_PERCENT_STAT); e == spelldata.NilEffect || e.Misc != 4 || e.BasePoints != 100 {
-		t.Errorf("1299796 states %+v, want A_MOD_PERCENT_STAT on client stat 4 (Spirit) at 100%%", e)
+	if e := buff.FirstAura(dbcenums.A_MOD_TOTAL_STAT_PERCENTAGE); e == spelldata.NilEffect || e.Misc2 != 16 || e.BasePoints != 100 {
+		t.Errorf("1299796 states %+v, want A_MOD_TOTAL_STAT_PERCENTAGE on stat mask 16 (Spirit) at 100%%", e)
 	}
 }
 

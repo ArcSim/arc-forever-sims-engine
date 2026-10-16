@@ -11,7 +11,7 @@
 		"file": "sim/shaman/chain_lightning.go",
 		"note": "Rank 1. Beta client 1.60.1.70009 (sim/core/spelldata), damage scaled to level 60 by the client's per-level points. Spell power coefficient 0.571 (rank 3's 0.517 is as the client stores it); Classic Era had 0.714, a 2.5 sec cast and roughly four times the damage.",
 		"source": "forever",
-		"tooltip": "225 Mana\n30 yd range\n2 sec cast\n6 sec cooldown\nHurls a lightning bolt at the enemy, dealing 85 to 97 Nature damage and then jumping to additional nearby enemies. Each jump reduces the damage by 30%. Affects 3 total targets."
+		"tooltip": "145 Mana\n30 yd range\n2 sec cast\n6 sec cooldown\nHurls a lightning bolt at the enemy, dealing 85 to 97 Nature damage and then jumping to additional nearby enemies. Each jump reduces the damage by 30%. Affects 3 total targets."
 	},
 	"529": {
 		"ability": "Lightning Bolt",
@@ -39,7 +39,7 @@
 		"file": "sim/shaman/chain_lightning.go",
 		"note": "Rank 2. Beta client 1.60.1.70009 (sim/core/spelldata), damage scaled to level 60 by the client's per-level points. Spell power coefficient 0.571 (rank 3's 0.517 is as the client stores it); Classic Era had 0.714, a 2.5 sec cast and roughly four times the damage.",
 		"source": "forever",
-		"tooltip": "305 Mana\n30 yd range\n2 sec cast\n6 sec cooldown\nHurls a lightning bolt at the enemy, dealing 97 to 109 Nature damage and then jumping to additional nearby enemies. Each jump reduces the damage by 30%. Affects 3 total targets."
+		"tooltip": "200 Mana\n30 yd range\n2 sec cast\n6 sec cooldown\nHurls a lightning bolt at the enemy, dealing 97 to 109 Nature damage and then jumping to additional nearby enemies. Each jump reduces the damage by 30%. Affects 3 total targets."
 	},
 	"943": {
 		"ability": "Lightning Bolt",
@@ -53,7 +53,7 @@
 		"file": "sim/shaman/chain_lightning.go",
 		"note": "Rank 3. Beta client 1.60.1.70009 (sim/core/spelldata), damage scaled to level 60 by the client's per-level points. Spell power coefficient 0.517 (rank 3's 0.517 is as the client stores it); Classic Era had 0.714, a 2.5 sec cast and roughly four times the damage.",
 		"source": "forever",
-		"tooltip": "390 Mana\n30 yd range\n2 sec cast\n6 sec cooldown\nHurls a lightning bolt at the enemy, dealing 108 to 122 Nature damage and then jumping to additional nearby enemies. Each jump reduces the damage by 30%. Affects 3 total targets."
+		"tooltip": "250 Mana\n30 yd range\n2 sec cast\n6 sec cooldown\nHurls a lightning bolt at the enemy, dealing 108 to 122 Nature damage and then jumping to additional nearby enemies. Each jump reduces the damage by 30%. Affects 3 total targets."
 	},
 	"3606": {
 		"ability": "Attack",
@@ -161,7 +161,7 @@
 		"file": "sim/shaman/chain_lightning.go",
 		"note": "Rank 4. Beta client 1.60.1.70009 (sim/core/spelldata), damage scaled to level 60 by the client's per-level points. Spell power coefficient 0.571 (rank 3's 0.517 is as the client stores it); Classic Era had 0.714, a 2.5 sec cast and roughly four times the damage.",
 		"source": "forever",
-		"tooltip": "485 Mana\n30 yd range\n2 sec cast\n6 sec cooldown\nHurls a lightning bolt at the enemy, dealing 119 to 133 Nature damage and then jumping to additional nearby enemies. Each jump reduces the damage by 30%. Affects 3 total targets."
+		"tooltip": "315 Mana\n30 yd range\n2 sec cast\n6 sec cooldown\nHurls a lightning bolt at the enemy, dealing 119 to 133 Nature damage and then jumping to additional nearby enemies. Each jump reduces the damage by 30%. Affects 3 total targets."
 	},
 	"15207": {
 		"ability": "Lightning Bolt",
@@ -256,7 +256,7 @@
 		"file": "sim/shaman/fire_totems.go",
 		"note": "Rank 5, the only rank the sim casts. Forever removes Fire Nova Totem and the spellbook teaches this nova instead. In beta client 1.60.1.70009 408345 is a scripted dummy that casts 408428 (403 base plus 3.4 a level to 57, 0.214 coefficient), so rank 5 hits for 397 to 443 at 60. Its tooltip cites the Era row 11307 (419 base, 0.143), which the sim read from #276 until now, but beta combat logs from five shamans record every Fire Nova hit as rank 1's sibling 408423 and none as the cited row (foreverlogs.gg reports 2650, 2671, 2673, 32 and 35). Cost and level are the totem's.",
 		"source": "forever",
-		"tooltip": "520 Mana\nInstant\n10 sec cooldown\nCauses a burst of flame around the caster, dealing 397 to 443 Fire damage to nearby enemies."
+		"tooltip": "375 Mana\nInstant\n10 sec cooldown\nCauses a burst of flame around the caster, dealing 232 to 258 Fire damage to nearby enemies."
 	},
 	"408505": {
 		"ability": "Maelstrom Weapon",
@@ -296,6 +296,13 @@
 		"ability": "Lava Burst",
 		"file": "sim/shaman/lava_burst.go",
 		"note": "Rank 3, level 60, the only rank the sim casts. Beta client 1.60.1.70009 (sim/core/spelldata), damage scaled to level 60 by the client's per-level points. Coefficient 0.714. Call of Flame's 5% per point is the talent's own curve.",
+		"source": "forever",
+		"tooltip": "230 Mana\n30 yd range\n2.5 sec cast\n10 sec cooldown\nYou hurl molten lava at the target, dealing 178 to 230 Fire damage. If your Flame Shock is on the target, Lava Burst deals 20% increased damage."
+	},
+	"1326047": {
+		"ability": "Lava Burst",
+		"file": "sim/shaman/lava_burst.go",
+		"note": "Rank 4, new in client 1.60.1.70425 (16 October 2026 beta) and the rank the sim casts at 60: rank 3 dropped to a lower spell level in that build. Rotations naming an older rank cast it through Lava Burst's rank aliases.",
 		"source": "forever",
 		"tooltip": "265 Mana\n30 yd range\n2.5 sec cast\n10 sec cooldown\nYou hurl molten lava at the target, dealing 192 to 248 Fire damage. If your Flame Shock is on the target, Lava Burst deals 20% increased damage."
 	},

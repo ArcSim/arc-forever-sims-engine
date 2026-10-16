@@ -175,6 +175,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFury-AllItems-BladeofHanna-2801"
+ value: {
+  dps: 307.39948
+  tps: 198.42666
+ }
+}
+dps_results: {
  key: "TestFury-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 308.14841

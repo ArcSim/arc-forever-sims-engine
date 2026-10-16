@@ -65,8 +65,8 @@ dps_results: {
 dps_results: {
  key: "TestSurvivalMelee-AllItems-Alcor'sSunrazor-14555"
  value: {
-  dps: 491.95181
-  tps: 306.85057
+  dps: 492.21117
+  tps: 307.03211
  }
 }
 dps_results: {
@@ -144,6 +144,13 @@ dps_results: {
  value: {
   dps: 440.5188
   tps: 266.71465
+ }
+}
+dps_results: {
+ key: "TestSurvivalMelee-AllItems-BladeofHanna-2801"
+ value: {
+  dps: 486.22126
+  tps: 301.68254
  }
 }
 dps_results: {
@@ -970,7 +977,7 @@ dps_results: {
  key: "TestSurvivalMelee-AllItems-RingofSaviors-1447"
  value: {
   dps: 407.55488
-  tps: 244.8564
+  tps: 244.86976
  }
 }
 dps_results: {
@@ -1200,8 +1207,8 @@ dps_results: {
 dps_results: {
  key: "TestSurvivalMelee-AllItems-TheLobotomizer-19324"
  value: {
-  dps: 476.75251
-  tps: 294.84007
+  dps: 474.70986
+  tps: 293.41022
  }
 }
 dps_results: {

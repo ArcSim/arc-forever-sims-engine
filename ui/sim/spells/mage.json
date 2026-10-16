@@ -168,7 +168,7 @@
 		"file": "sim/mage/arcane_blast.go",
 		"note": "Rank 5, Forever's own id; Arcane Blast is a later expansion spell, so the Classic database has no entry for it. Beta client 1.60.1.70009: 364-424, coefficient .714, 15% of base mana, 2.5 sec cast. The 10%, 175%, 4 stacks and 8 sec come from its buff, 400573. Arcane Missiles spends the stacks as it starts and its missiles keep 15% a stack, though 400573's mask leaves them out: beta log 2721 (rank 3, same fights and targets) has 99-101 a missile after 1 stack and 112-114 after 2, a 1.13 ratio where 10% would give 1.09.",
 		"source": "forever",
-		"tooltip": "15% of base mana\n2.5 sec cast\nBlasts the target with energy, dealing 364 to 424 Arcane damage.\nEach cast increases the damage of all your other spells by 10% and the mana cost of Arcane Blast by 175%, stacking up to 4 times. Lasts 8 sec or until any other damage spell is cast."
+		"tooltip": "15% of base mana\n1.5 sec cast\nBlasts the target with energy, dealing 218 to 254 Arcane damage.\nEach cast gives you 15% of your Intellect as spell damage and increases the mana cost of Arcane Blast by 175%, stacking up to 4 times. Lasts 15 sec from the first cast."
 	},
 	"1240047": {
 		"ability": "Ice Lance",

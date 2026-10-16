@@ -17,7 +17,7 @@ func init() {
 // The community builds our Forever sim ranks: Deep Affliction 35/0/16 keeps its Succubus out, and
 // Shadow and Flame 13/11/27 sacrifices one before the pull for the Fire damage Forever's Demonic
 // Sacrifice leaves behind.
-var AfflictionTalents = "2535002013521105--05000551"
+var AfflictionTalents = "2552012013521105--05000551"
 var DestructionTalents = "25501-0025003001-055035510010002"
 
 func TestAffliction(t *testing.T) {

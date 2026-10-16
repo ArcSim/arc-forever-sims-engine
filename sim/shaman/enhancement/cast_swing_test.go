@@ -20,7 +20,7 @@ func TestHardCastRestartsTheSwingTimer(t *testing.T) {
 		sim := core.NewSim(&proto.RaidSimRequest{
 			SimOptions: &proto.SimOptions{RandomSeed: 1},
 			Raid: core.SinglePlayerRaidProto(&proto.Player{
-				Name: "enh", Class: proto.Class_ClassShaman, Race: proto.Race_RaceOrc, TalentsString: "5505301000000001-053030031005112251", // DefaultTalents + Lava Burst
+				Name: "enh", Class: proto.Class_ClassShaman, Race: proto.Race_RaceOrc, TalentsString: "5505031000001-053030031005112251", // DefaultTalents + Lava Burst
 				Equipment: &proto.EquipmentSpec{Items: []*proto.ItemSpec{
 					{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
 					{Id: 17182}, // Sulfuras, Hand of Ragnaros
@@ -50,7 +50,7 @@ func TestHardCastRestartsTheSwingTimer(t *testing.T) {
 	if got, speed := nextSwingAfterCast(403, 0); got != speed { // Lightning Bolt rank 1
 		t.Errorf("hard cast: next swing %s after the cast ends, want %s (a full swing)", got, speed)
 	}
-	if got, speed := nextSwingAfterCast(1238300, 0); got != speed { // Lava Burst rank 3
+	if got, speed := nextSwingAfterCast(1326047, 0); got != speed { // Lava Burst rank 3
 		t.Errorf("Lava Burst: next swing %s after the cast ends, want %s (a full swing)", got, speed)
 	}
 	if got, speed := nextSwingAfterCast(403, 5); got != speed {

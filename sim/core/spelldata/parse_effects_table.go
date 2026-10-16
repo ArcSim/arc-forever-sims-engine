@@ -415,7 +415,9 @@ func skipRow(_ *parser, _ *Effect, _ float64) *attachment {
 	return nil
 }
 
-// Rows whose stat the client left unnamed, with the stat their own tooltip gives. Client 1.60.1.70170
+// Rows whose stat the client left unnamed, with the stat their own tooltip gives. Client 70425 names
+// Increased Spirit's stat again, in the stat mask alone (MiscValue_1 16, MiscValue_0 0), which
+// percentStatRow reads, so the map is empty until a row loses its stat again. Client 1.60.1.70170
 // moved Mystic Mushroom's Increased Spirit 1248751 ("Increases Spirit by 5%") from A_MOD_PERCENT_STAT on
 // Spirit (misc 4) to A_MOD_TOTAL_STAT_PERCENTAGE with MiscValue_0 0 and no stat mask in MiscValue_1. Every
 // other row of that aura names its stat in one of the two, so this one reads as Strength, which no tooltip
@@ -423,17 +425,35 @@ func skipRow(_ *parser, _ *Effect, _ float64) *attachment {
 // the same way, so it looks like a client data error rather than a change of stat. Insight's buff 1299796
 // moved the same way, and upstream's tools/database/overrides/2.sql puts its 70124 row back, so it needs no
 // entry here. Drop an entry when the client names the stat. See patch 63 in docs/mythicsim-patches.md.
-var percentStatRowsNamingNoStat = map[int32]stats.Stat{
-	1248751: stats.Spirit,
-}
+var percentStatRowsNamingNoStat = map[int32]stats.Stat{}
 
+// A_MOD_TOTAL_STAT_PERCENTAGE names its stats in a mask in MiscValue_1 (bit 0 Strength to bit 4 Spirit)
+// as well as, on older rows, a stat in MiscValue_0: Spirit Tap is misc 4 and mask 16. Client 70425's rows
+// (Increased Spirit, Demonic Embrace) carry the mask alone with misc 0, which read as Strength, so the
+// mask wins when it is set.
 func percentStatRow(p *parser, e *Effect, v float64) *attachment {
+	if e.Aura == dbcenums.A_MOD_TOTAL_STAT_PERCENTAGE && e.Misc2 != 0 {
+		if list := clientStatMask(e.Misc2); len(list) > 0 {
+			return p.statMultiplier(list, percentMultiplier(v))
+		}
+	}
 	if e.Aura == dbcenums.A_MOD_TOTAL_STAT_PERCENTAGE && e.Misc == 0 && e.Misc2 == 0 {
 		if stat, ok := percentStatRowsNamingNoStat[e.SpellID]; ok {
 			return p.statMultiplier([]stats.Stat{stat}, percentMultiplier(v))
 		}
 	}
 	return p.statMultiplier(clientStatList(e.Misc), percentMultiplier(v))
+}
+
+// The stats a client stat mask names, bit i for clientStats[i].
+func clientStatMask(mask int32) []stats.Stat {
+	var list []stats.Stat
+	for i, stat := range clientStats {
+		if mask&(1<<i) != 0 {
+			list = append(list, stat)
+		}
+	}
+	return list
 }
 
 // The spells a modifier effect names. The client leaves the mask empty on an effect that means the

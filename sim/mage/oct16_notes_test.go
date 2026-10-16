@@ -9,7 +9,7 @@ import (
 )
 
 // Presence of Mind (arcane 15), Pyroblast (fire 9) and Heating Up (fire 12), nothing else.
-const pomPyroTalents = "000000000000001-000000001001"
+const pomPyroTalents = "0000000000000001-000000001001"
 
 func newMageWithTalents(t *testing.T, talents string) (*core.Simulation, *Mage) {
 	t.Helper()

@@ -24,9 +24,8 @@ func (shaman *Shaman) registerElementalTalents() {
 	shaman.applyElementalAlacrity()
 
 	// Tier 4
-	shaman.applyImprovedFireNova()
+	shaman.applyTrialByFire()
 	shaman.applyEyeOfTheStorm()
-	shaman.applyCallOfThunder()
 
 	// Tier 5
 	shaman.applyElementalReach()
@@ -36,8 +35,11 @@ func (shaman *Shaman) registerElementalTalents() {
 	// Tier 6
 	shaman.applyElementalFury()
 
-	// Tier 7
+	// Tier 5 (client 70425 moved Lava Burst up from tier 7)
 	shaman.applyLavaBurst()
+
+	// Tier 7
+	shaman.applyElementalMastery()
 }
 
 func (shaman *Shaman) applyCallOfFlame() {
@@ -63,18 +65,6 @@ func (shaman *Shaman) applyCallOfFlame() {
 
 // The seconds Call of Flame adds to Flame Shock a rank (16 October 2026 beta notes).
 const callOfFlameFlameShockSeconds = 3 * time.Second
-
-func (shaman *Shaman) applyCallOfThunder() {
-	if !shaman.Talents.CallOfThunder {
-		return
-	}
-
-	shaman.AddStaticMod(core.SpellModConfig{
-		Kind:       core.SpellMod_BonusCrit_Percent,
-		FloatValue: spellData.CallOfThunder.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_CRITICAL_CHANCE)).ValueAt(1),
-		ClassMask:  SpellMaskLightningBolt | SpellMaskChainLightning | SpellMaskOverload,
-	})
-}
 
 func (shaman *Shaman) applyConcussion() {
 	if shaman.Talents.Concussion == 0 {
@@ -278,21 +268,21 @@ func (shaman *Shaman) applyEyeOfTheStorm() {
 	}
 }
 
-// applyImprovedFireNova implements Improved Fire Nova, new in Forever: more Fire Nova damage and a
-// shorter cooldown on it.
-func (shaman *Shaman) applyImprovedFireNova() {
-	if shaman.Talents.ImprovedFireNova == 0 {
+// applyTrialByFire implements Trial by Fire (16086, Improved Fire Nova until client 70425): more
+// Fire Nova damage, a shorter cooldown on it and a longer Magma Totem.
+func (shaman *Shaman) applyTrialByFire() {
+	if shaman.Talents.TrialByFire == 0 {
 		return
 	}
 
 	shaman.AddStaticMod(core.SpellModConfig{
 		Kind:       core.SpellMod_DamageDone_Flat,
-		FloatValue: spellData.ImprovedFireNova.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_DAMAGE)).FractionAt(shaman.Talents.ImprovedFireNova),
+		FloatValue: spellData.TrialByFire.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_DAMAGE)).FractionAt(shaman.Talents.TrialByFire),
 		ClassMask:  SpellMaskFireNova,
 	})
 	shaman.AddStaticMod(core.SpellModConfig{
 		Kind:      core.SpellMod_Cooldown_Flat,
-		TimeValue: time.Millisecond * time.Duration(spellData.ImprovedFireNova.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_COOLDOWN)).ValueAt(shaman.Talents.ImprovedFireNova)),
+		TimeValue: time.Millisecond * time.Duration(spellData.TrialByFire.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_COOLDOWN)).ValueAt(shaman.Talents.TrialByFire)),
 		ClassMask: SpellMaskFireNova,
 	})
 }
@@ -310,4 +300,66 @@ func (shaman *Shaman) applyEarthbound() {
 // applyLavaBurst grants Lava Burst, new in Forever. See lava_burst.go.
 func (shaman *Shaman) applyLavaBurst() {
 	shaman.registerLavaBurstSpell()
+}
+
+// applyElementalMastery implements Elemental Mastery, the tier 7 Elemental talent of client 70425
+// (16 October 2026 beta): for 15 sec, Lightning Bolt and Lava Burst cast 0.5 sec faster and Chain
+// Lightning has no cooldown, on a 3 min cooldown. The row also states one charge and melee, ranged and
+// spell proc flags, but its tooltip names no charge ("Lasts 15 sec"), so the buff runs its duration.
+// Chain Lightning's cooldown is cancelled with a flat mod of its own length, so a cast during the buff
+// starts no cooldown; a cooldown already running when the buff starts keeps running.
+func (shaman *Shaman) applyElementalMastery() {
+	if !shaman.Talents.ElementalMastery {
+		return
+	}
+
+	rank := spellData.ElementalMastery.Highest()
+	castTime := time.Millisecond * time.Duration(rank.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_CASTING_TIME)).BasePoints)
+	chainLightningCooldown := max(ChainLightningRankMap.Highest().Cooldown(), ChainLightningRankMap.Highest().CategoryCooldown())
+
+	castMod := shaman.AddDynamicMod(core.SpellModConfig{
+		Kind:      core.SpellMod_CastTime_Flat,
+		ClassMask: SpellMaskLightningBolt | SpellMaskLavaBurst,
+		TimeValue: castTime,
+	})
+	cooldownMod := shaman.AddDynamicMod(core.SpellModConfig{
+		Kind:      core.SpellMod_Cooldown_Flat,
+		ClassMask: SpellMaskChainLightning,
+		TimeValue: -chainLightningCooldown,
+	})
+
+	aura := shaman.RegisterAura(core.Aura{
+		Label:    "Elemental Mastery",
+		ActionID: core.ActionID{SpellID: rank.ID},
+		Duration: rank.Duration(),
+		OnGain: func(_ *core.Aura, _ *core.Simulation) {
+			castMod.Activate()
+			cooldownMod.Activate()
+		},
+		OnExpire: func(_ *core.Aura, _ *core.Simulation) {
+			castMod.Deactivate()
+			cooldownMod.Deactivate()
+		},
+	})
+
+	spell := shaman.RegisterSpell(core.SpellConfig{
+		ActionID:       core.ActionID{SpellID: rank.ID},
+		Flags:          core.SpellFlagNoOnCastComplete | core.SpellFlagAPL,
+		ClassSpellMask: SpellMaskElementalMastery,
+		Cast: core.CastConfig{
+			CD: core.Cooldown{
+				Timer:    shaman.NewTimer(),
+				Duration: max(rank.Cooldown(), rank.CategoryCooldown()),
+			},
+		},
+		ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+			aura.Activate(sim)
+		},
+		RelatedSelfBuff: aura,
+	})
+
+	shaman.AddMajorCooldown(core.MajorCooldown{
+		Spell: spell,
+		Type:  core.CooldownTypeDPS,
+	})
 }

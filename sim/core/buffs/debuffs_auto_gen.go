@@ -85,8 +85,7 @@ func CurseOfElementsAura(unit *core.Unit, isPlayer bool, talentPoints int32) *co
 }
 
 // Curse of Recklessness
-// Left out: effect 1 A_DUMMY(4) misc 0
-// Left out: effect 3 A_PREVENTS_FLEEING(92) misc 0
+// Left out: effect 1 A_PREVENTS_FLEEING(92) misc 0
 var CurseOfRecklessnessCategory = "MinorArmorReduction"
 var curseOfRecklessnessSpell = spelldata.MustFind(11717)
 var curseOfRecklessnessMeta = &Meta{

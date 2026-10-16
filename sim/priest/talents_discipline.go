@@ -96,11 +96,11 @@ func (priest *Priest) applySilentResolve() {
 		return
 	}
 
-	// Client 14523 still names Holy (misc 2); the 16 Oct beta notes widen it to all spells, so read
-	// the first effect by position and drop the school.
+	// Client 70425 widened the threat cut from Holy (school mask 2) to Holy and Shadow (34).
 	priest.AddStaticMod(core.SpellModConfig{
 		ClassMask:  PriestSpellsAll,
-		FloatValue: spellData.SilentResolve.EffectAt(1).FractionAt(priest.Talents.SilentResolve),
+		School:     core.SpellSchoolHoly | core.SpellSchoolShadow,
+		FloatValue: spellData.SilentResolve.Effect(dbcenums.A_MOD_THREAT, 34).FractionAt(priest.Talents.SilentResolve),
 		Kind:       core.SpellMod_ThreatMultiplier_Pct,
 	})
 }

@@ -38,8 +38,8 @@ func penanceCost(t *testing.T, talents string) float64 {
 
 // Improved Healing 3/3 takes 15% off Penance.
 func TestImprovedHealingDiscountsPenance(t *testing.T) {
-	base := penanceCost(t, "504020031305001-13505100202-50002")
-	discounted := penanceCost(t, "504020031305001-13505100032-50002")
+	base := penanceCost(t, "504025031030001-13505100202-50002")
+	discounted := penanceCost(t, "504025031030001-13505100032-50002")
 	if !core.WithinToleranceFloat64(base*0.85, discounted, 1e-6) {
 		t.Errorf("Penance costs %v with Improved Healing 3, %v without; want 15%% off", discounted, base)
 	}
@@ -256,7 +256,7 @@ func TestPowerInfusionKeepsShadowform(t *testing.T) {
 		Class:         proto.Class_ClassPriest,
 		Equipment:     &proto.EquipmentSpec{},
 		Consumables:   &proto.ConsumesSpec{},
-		TalentsString: "000000000000000001--000000000000000001", // Power Infusion + Shadowform
+		TalentsString: "000000000000000001--00000000000000001", // Power Infusion + Shadowform
 		Rotation:      &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
 	}, &proto.Player_DpsPriest{DpsPriest: &proto.DpsPriest{Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}}}})
 	sim := core.NewSim(&proto.RaidSimRequest{

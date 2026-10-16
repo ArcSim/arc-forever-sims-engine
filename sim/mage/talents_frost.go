@@ -315,19 +315,22 @@ func (mage *Mage) IsTargetFrozen() bool {
 	return mage.FingersOfFrostAura != nil && mage.FingersOfFrostAura.IsActive()
 }
 
-// In Forever Winter's Chill only helps the mage's own Frostbolt and Ice Lance, where Classic and TBC
-// made it a raid debuff: 2% crit a stack, one stack per talent point.
+// Client 70425 (16 October 2026 beta) made Winter's Chill a Cone of Cold empowerment: each stack makes
+// the target take 5% more damage from the mage's own Cone of Cold (12579, A_MOD_SPELL_DAMAGE_FROM_CASTER
+// on Cone of Cold's mask), up to 5 stacks at every rank (the points buy the 20/40/60/80/100% chance), for
+// 15 sec. Before it was 2% crit a stack for Frostbolt and Ice Lance. The debuff holds no charges, so Cone
+// of Cold does not spend it.
 func (mage *Mage) registerWinterChill() {
 	if mage.Talents.WintersChill == 0 {
 		return
 	}
 
 	chillRank := spellData.WintersChillTriggered.Highest()
-	critPerStack := chillRank.EffectN(1).Average(core.CharacterLevel)
+	damagePerStack := chillRank.EffectN(1).Percent()
 
-	critMod := mage.AddDynamicMod(core.SpellModConfig{
-		ClassMask: MageSpellFrostbolt | MageSpellIceLance,
-		Kind:      core.SpellMod_BonusCrit_Percent,
+	damageMod := mage.AddDynamicMod(core.SpellModConfig{
+		ClassMask: MageSpellConeOfCold,
+		Kind:      core.SpellMod_DamageDone_Flat,
 	})
 
 	mage.WintersChillAura = mage.RegisterAura(core.Aura{
@@ -336,13 +339,13 @@ func (mage *Mage) registerWinterChill() {
 		Duration:  chillRank.Duration(),
 		MaxStacks: int32(spellData.WintersChill.EffectAt(1).ValueAt(mage.Talents.WintersChill)),
 		OnGain: func(_ *core.Aura, _ *core.Simulation) {
-			critMod.Activate()
+			damageMod.Activate()
 		},
 		OnExpire: func(_ *core.Aura, _ *core.Simulation) {
-			critMod.Deactivate()
+			damageMod.Deactivate()
 		},
 		OnStacksChange: func(_ *core.Aura, _ *core.Simulation, _ int32, newStacks int32) {
-			critMod.UpdateFloatValue(critPerStack * float64(newStacks))
+			damageMod.UpdateFloatValue(damagePerStack * float64(newStacks))
 		},
 	})
 
