@@ -218,6 +218,13 @@ func (mage *Mage) registerImprovedConeOfCold() {
 // flags, so the server script decides it. False spends the charge at cast completion, as before.
 var FingersOfFrostSpentOnImpact = true
 
+// IceLanceSpendsFingersOfFrostAtCast (MythicSim patch 144) keeps Ice Lance out of the landing spend:
+// it takes its Fingers of Frost charge when the cast completes, while Frostbolt and Frostfire Bolt
+// still spend theirs on impact. A combat log on client 70425 (Targetdummy, 16 October 2026) removes
+// the aura at Ice Lance's SPELL_CAST_SUCCESS (08.191), before the lance's damage (08.288). False puts
+// Ice Lance back on the landing spend with the bolts.
+var IceLanceSpendsFingersOfFrostAtCast = true
+
 // Raid bosses cannot be chilled or frozen, so Fingers of Frost is the only thing that gets Shatter
 // and the Ice Lance bonus going on one; Shatter is folded in here because the two only ever fire
 // together. A chill effect has a 15% chance (the talent row's second effect, flat at both ranks) to
@@ -264,7 +271,9 @@ func (mage *Mage) registerFingersOfFrost() {
 			}
 
 			// OnCastComplete runs after the damage is rolled, so the consuming cast keeps the bonus.
-			if !FingersOfFrostSpentOnImpact || spell.TravelTime() <= 0 {
+			// Ice Lance spends its charge here even though it travels (patch 144).
+			if !FingersOfFrostSpentOnImpact || spell.TravelTime() <= 0 ||
+				(IceLanceSpendsFingersOfFrostAtCast && spell.Matches(MageSpellIceLance)) {
 				aura.RemoveStack(sim)
 				return
 			}

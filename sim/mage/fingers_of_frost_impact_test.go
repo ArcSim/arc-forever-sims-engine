@@ -131,3 +131,69 @@ func TestFingersOfFrostLaunchProcSpendsNothingOnLanding(t *testing.T) {
 	}
 	t.Fatal("no seed procced Fingers of Frost at Frostbolt's launch")
 }
+
+// iceLanceOnCharges throws one Ice Lance from 20 yards with the given Fingers of Frost charges and no
+// fresh ones, and reports the charges left while it is in flight and once it has landed.
+func iceLanceOnCharges(t *testing.T, charges int32) (inFlight int32, landed int32) {
+	t.Helper()
+	player := &proto.Player{
+		Name: "Mage", Class: proto.Class_ClassMage, Race: proto.Race_RaceGnome,
+		TalentsString: FrostTalents, Equipment: &proto.EquipmentSpec{}, DistanceFromTarget: 20,
+		Spec:     &proto.Player_Mage{Mage: &proto.Mage{Options: &proto.Mage_Options{ClassOptions: &proto.MageOptions{}}}},
+		Rotation: &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		SimOptions: &proto.SimOptions{RandomSeed: 42},
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	mage := sim.Raid.Parties[0].Players[0].(MageAgent).GetMage()
+	mage.GetAura("Fingers of Frost Trigger").Deactivate(sim)
+	mage.procFingersOfFrost = nil
+	mage.FingersOfFrostAura.Activate(sim)
+	mage.FingersOfFrostAura.SetStacks(sim, charges)
+
+	iceLance := mage.GetSpell(core.ActionID{SpellID: 1240047})
+	if iceLance.TravelTime() <= 0 {
+		t.Fatalf("Ice Lance has no travel time at 20 yards")
+	}
+	if !iceLance.Cast(sim, mage.CurrentTarget) {
+		t.Fatal("Ice Lance did not cast")
+	}
+	if iceLance.Unit.SpellsInFlight[iceLance] != 1 {
+		t.Fatal("Ice Lance is not in flight")
+	}
+	stacks := func() int32 {
+		if !mage.FingersOfFrostAura.IsActive() {
+			return 0
+		}
+		return mage.FingersOfFrostAura.GetStacks()
+	}
+	inFlight = stacks()
+	end := sim.CurrentTime + iceLance.TravelTime() + 100*time.Millisecond
+	for sim.CurrentTime < end {
+		if sim.Step() {
+			break
+		}
+	}
+	return inFlight, stacks()
+}
+
+// Client 70425's combat log (Targetdummy, 16 October 2026) removes Fingers of Frost at Ice Lance's
+// SPELL_CAST_SUCCESS and lands the lance 0.1 sec later: Ice Lance spends its charge at cast, the bolts
+// keep spending theirs on impact (TestFingersOfFrostLastChargeCoversFrostboltAndIceLance).
+func TestIceLanceSpendsFingersOfFrostAtCast(t *testing.T) {
+	if inFlight, landed := iceLanceOnCharges(t, 2); inFlight != 1 || landed != 1 {
+		t.Errorf("two charges: %d left while Ice Lance flies, %d once it lands; want 1, 1", inFlight, landed)
+	}
+	if inFlight, landed := iceLanceOnCharges(t, 1); inFlight != 0 || landed != 0 {
+		t.Errorf("last charge: %d left while Ice Lance flies, %d once it lands; want 0, 0", inFlight, landed)
+	}
+
+	defer func(old bool) { IceLanceSpendsFingersOfFrostAtCast = old }(IceLanceSpendsFingersOfFrostAtCast)
+	IceLanceSpendsFingersOfFrostAtCast = false
+	if inFlight, landed := iceLanceOnCharges(t, 2); inFlight != 2 || landed != 1 {
+		t.Errorf("switch off: %d left while Ice Lance flies, %d once it lands; want 2, 1", inFlight, landed)
+	}
+}

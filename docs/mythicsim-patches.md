@@ -3811,3 +3811,43 @@ wider One-Handed Weapon Specialization adds 6.04% on top. No other class reads t
 Downstream: the Rust engine needs the shares and the wider specialization before its next repin.
 
 Drop each piece when upstream takes the measured shares or widens One-Handed Weapon Specialization.
+
+## 144. `mage: Ice Lance spends its Fingers of Frost charge at cast`
+
+Patch 139 spends a Fingers of Frost charge when the consuming spell lands, for any spell with a travel time.
+For the bolts that is what the beta shows (mixarxrt's Frostbolt plus Ice Lance on one charge). For Ice Lance
+it is not: Targetdummy's combat log on client 70425 (16 October 2026) removes Fingers of Frost
+(SPELL_AURA_REMOVED) at Ice Lance's SPELL_CAST_SUCCESS, 08.191, and the lance's damage lands at 08.288.
+
+**Now** Ice Lance takes its charge when the cast completes (`IceLanceSpendsFingersOfFrostAtCast` in
+`sim/mage/talents_frost.go`, default true); Frostbolt and Frostfire Bolt keep the landing spend of patch
+139, and upstream #776's launch proc still spends nothing. A Frostbolt on the last charge followed by an
+Ice Lance while it flies is still frozen for both: the lance takes the charge at its cast and the bolt's
+landing finds none to spend. False puts Ice Lance back on the landing spend.
+
+Tests (`sim/mage/fingers_of_frost_impact_test.go`): `TestIceLanceSpendsFingersOfFrostAtCast` (20 yards, no
+fresh charges: an Ice Lance on two charges leaves one while it flies, on the last charge none; the switch
+off restores the landing spend) fails on patch 143 ("two charges: 2 left while Ice Lance flies"). Patch
+139's three tests pass unchanged. Goldens: none move (`TestFrost` runs at 0 yards).
+
+Measured (native `wowsimcli`, MythicSim production default path, 10,000 iterations, board seed, board
+length, references of MythicSim #513, both at 20 yards, against patch 143, which matches `5af130344` for
+every mage):
+
+| Reference | Patch 143 | Patch 144 | Change |
+| --- | ---: | ---: | ---: |
+| Frost | 651.48 | 651.48 | 0 |
+| Frostfire hybrid | 742.95 | 742.95 | 0 |
+
+Neither moves to the hundredth: the Frost preset only throws Ice Lance on two charges or with a Frostbolt in
+flight, and Ice Lance's flight (about 0.5 sec at 20 yards) ends inside the GCD, so the next cast saw the
+same charges either way. A rotation that weaves an off-GCD spender, or a longer flight, would see it.
+
+Downstream: the Rust engine needs the cast spend for Ice Lance with patch 139's landing spend.
+
+Drop it when upstream spends Fingers of Frost on impact for the bolts and at cast for Ice Lance.
+
+### Open: negative resistance (Spell Vulnerability)
+
+A beta report on the same day says Spell Vulnerability takes a target's resistance below zero. The value is
+unknown, so nothing is modelled; it waits for a log or a stated number.
