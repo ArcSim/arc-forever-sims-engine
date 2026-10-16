@@ -331,8 +331,8 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-DreadmistRaiment"
  value: {
-  dps: 176.41667
-  tps: 110.67989
+  dps: 178.65688
+  tps: 111.99253
  }
 }
 dps_results: {
@@ -485,8 +485,8 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-EyeofMoam-21473"
  value: {
-  dps: 128.07061
-  tps: 82.59607
+  dps: 137.23754
+  tps: 88.015
  }
 }
 dps_results: {
@@ -751,8 +751,8 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-Magister'sRegalia"
  value: {
-  dps: 188.25395
-  tps: 120.59334
+  dps: 190.04685
+  tps: 121.64122
  }
 }
 dps_results: {
@@ -1052,8 +1052,8 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-Stormcaller'sGarb"
  value: {
-  dps: 208.91091
-  tps: 129.42089
+  dps: 210.90054
+  tps: 130.5851
  }
 }
 dps_results: {
@@ -1143,8 +1143,8 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-TheElements"
  value: {
-  dps: 187.60541
-  tps: 117.18886
+  dps: 192.36999
+  tps: 119.97925
  }
 }
 dps_results: {

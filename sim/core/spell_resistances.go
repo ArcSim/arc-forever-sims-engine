@@ -30,9 +30,13 @@ func (spell *Spell) ResistanceMultiplier(sim *Simulation, isPeriodic bool, attac
 		return attackTable.GetArmorDamageModifier(spell), OutcomeEmpty
 	}
 
+	// Spell Vulnerability: the attacker's penetration past the target's resistance adds damage, on
+	// binary spells too, on top of the partial resist roll below.
+	vulnerability := attackTable.Defender.spellVulnerabilityMultiplier(spell, attackTable.Attacker)
+
 	// Magical resistance.
 	if spell.Flags.Matches(SpellFlagBinary) {
-		return 1, OutcomeEmpty
+		return vulnerability, OutcomeEmpty
 	}
 
 	resistanceRoll := sim.RandomFloat("Partial Resist")
@@ -44,14 +48,49 @@ func (spell *Spell) ResistanceMultiplier(sim *Simulation, isPeriodic bool, attac
 
 	if resistanceRoll > threshold00 {
 		// No partial resist.
-		return 1, OutcomeEmpty
+		return vulnerability, OutcomeEmpty
 	} else if resistanceRoll > threshold25 {
-		return 0.75, OutcomePartial1_4
+		return 0.75 * vulnerability, OutcomePartial1_4
 	} else if resistanceRoll > threshold50 {
-		return 0.5, OutcomePartial2_4
+		return 0.5 * vulnerability, OutcomePartial2_4
 	} else {
-		return 0.25, OutcomePartial3_4
+		return 0.25 * vulnerability, OutcomePartial3_4
 	}
+}
+
+// SpellVulnerabilityBelowZeroResistance (MythicSim patch 146): Spell Piercing past the target's
+// resistance raises the spell's damage by 1 / (5 x target level) per point. Client tooltip (Spell
+// Piercing 7, beta 70425): "Spell Piercing may bring a creature below 0 Resistances, becoming Spell
+// Vulnerability, increasing their spell damage taken". Targetdummy's combat log (15 October 2026): a
+// Frostbolt from a mage with 7 against a level 28 target at 0 resistance hit for 460 with resisted -21,
+// 5.0% of 439 (7 / 140), truncated. Only the attacker's penetration counts, measured from the target's
+// resistance floored at 0: a debuff that pushes the resistance itself below 0 (Curse of the Elements)
+// adds nothing, as there is no evidence for it. False is the old clamp at 0.
+var SpellVulnerabilityBelowZeroResistance = true
+
+// The target's resistance to the spell's school, before the attacker's penetration.
+func (unit *Unit) rawMagicResistance(spell *Spell) float64 {
+	// Frostfire Bolt explicitly checks the lower resistance, even when both are nonzero.
+	if spell.SpellSchool == SpellSchoolFrostfire {
+		return min(unit.GetStat(stats.FireResistance), unit.GetStat(stats.FrostResistance))
+	}
+	return unit.GetStat(spell.SpellSchool.ResistanceStat())
+}
+
+// The damage multiplier of Spell Vulnerability, 1 without it. Schools with no resistance (Holy, and
+// combinations other than Frostfire) take none.
+func (unit *Unit) spellVulnerabilityMultiplier(spell *Spell, attacker *Unit) float64 {
+	if !SpellVulnerabilityBelowZeroResistance || spell.SchoolIndex <= stats.SchoolIndexPhysical || unit.Level <= 0 {
+		return 1
+	}
+	if spell.SpellSchool != SpellSchoolFrostfire && spell.SpellSchool.ResistanceStat() == 0 {
+		return 1
+	}
+	beyond := attacker.stats[stats.SpellPiercing] - max(0, unit.rawMagicResistance(spell))
+	if beyond <= 0 {
+		return 1
+	}
+	return 1 + beyond/(5*float64(unit.Level))
 }
 
 func (at *AttackTable) GetPartialResistThresholds(spell *Spell) (float64, float64, float64) {
@@ -70,12 +109,7 @@ func (unit *Unit) resistCoeff(spell *Spell, attacker *Unit, binary bool) float64
 		return 0
 	}
 
-	rawResistance := unit.GetStat(spell.SpellSchool.ResistanceStat())
-	// Frostfire Bolt explicitly checks the lower resistance, even when both are nonzero.
-	if spell.SpellSchool == SpellSchoolFrostfire {
-		rawResistance = min(unit.GetStat(stats.FireResistance), unit.GetStat(stats.FrostResistance))
-	}
-	resistance := max(0, rawResistance-attacker.stats[stats.SpellPiercing])
+	resistance := max(0, unit.rawMagicResistance(spell)-attacker.stats[stats.SpellPiercing])
 	if resistance <= 0 {
 		// Level-based resistance does not apply to binary spells.
 		if binary {

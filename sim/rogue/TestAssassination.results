@@ -310,8 +310,8 @@ dps_results: {
 dps_results: {
  key: "TestAssassination-AllItems-DreadmistRaiment"
  value: {
-  dps: 322.67844
-  tps: 160.37119
+  dps: 323.40214
+  tps: 160.73086
  }
 }
 dps_results: {
@@ -451,8 +451,8 @@ dps_results: {
 dps_results: {
  key: "TestAssassination-AllItems-EyeofMoam-21473"
  value: {
-  dps: 318.67514
-  tps: 158.38154
+  dps: 321.4395
+  tps: 159.75543
  }
 }
 dps_results: {
@@ -640,8 +640,8 @@ dps_results: {
 dps_results: {
  key: "TestAssassination-AllItems-Magister'sRegalia"
  value: {
-  dps: 321.53697
-  tps: 159.80388
+  dps: 322.07708
+  tps: 160.07231
  }
 }
 dps_results: {

@@ -310,8 +310,8 @@ dps_results: {
 dps_results: {
  key: "TestSubtlety-AllItems-DreadmistRaiment"
  value: {
-  dps: 281.49066
-  tps: 139.90086
+  dps: 282.00676
+  tps: 140.15736
  }
 }
 dps_results: {
@@ -451,8 +451,8 @@ dps_results: {
 dps_results: {
  key: "TestSubtlety-AllItems-EyeofMoam-21473"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 283.06831
+  tps: 140.68495
  }
 }
 dps_results: {
@@ -640,8 +640,8 @@ dps_results: {
 dps_results: {
  key: "TestSubtlety-AllItems-Magister'sRegalia"
  value: {
-  dps: 281.49066
-  tps: 139.90086
+  dps: 281.87774
+  tps: 140.09324
  }
 }
 dps_results: {

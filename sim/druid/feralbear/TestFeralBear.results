@@ -363,8 +363,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-DreadmistRaiment"
  value: {
-  dps: 160.91542
-  tps: 479.73464
+  dps: 160.99675
+  tps: 479.85663
   dtps: 1276.35909
  }
 }
@@ -531,8 +531,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-EyeofMoam-21473"
  value: {
-  dps: 168.58897
-  tps: 504.61331
+  dps: 168.9373
+  tps: 505.13581
   dtps: 1626.98713
  }
 }
@@ -779,8 +779,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Magister'sRegalia"
  value: {
-  dps: 164.92963
-  tps: 492.02102
+  dps: 164.99041
+  tps: 492.11219
   dtps: 1274.28632
  }
 }

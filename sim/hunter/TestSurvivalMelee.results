@@ -394,8 +394,8 @@ dps_results: {
 dps_results: {
  key: "TestSurvivalMelee-AllItems-DreadmistRaiment"
  value: {
-  dps: 431.07591
-  tps: 261.12344
+  dps: 431.75584
+  tps: 261.5994
  }
 }
 dps_results: {
@@ -549,8 +549,8 @@ dps_results: {
 dps_results: {
  key: "TestSurvivalMelee-AllItems-EyeofMoam-21473"
  value: {
-  dps: 407.55488
-  tps: 244.84346
+  dps: 410.34729
+  tps: 246.79814
  }
 }
 dps_results: {
@@ -822,8 +822,8 @@ dps_results: {
 dps_results: {
  key: "TestSurvivalMelee-AllItems-Magister'sRegalia"
  value: {
-  dps: 436.65903
-  tps: 265.18212
+  dps: 437.16925
+  tps: 265.53927
  }
 }
 dps_results: {
@@ -1186,8 +1186,8 @@ dps_results: {
 dps_results: {
  key: "TestSurvivalMelee-AllItems-TheElements"
  value: {
-  dps: 438.11004
-  tps: 266.12388
+  dps: 439.475
+  tps: 267.07935
  }
 }
 dps_results: {

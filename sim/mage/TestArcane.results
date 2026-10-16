@@ -268,8 +268,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-DreadmistRaiment"
  value: {
-  dps: 305.65924
-  tps: 258.34187
+  dps: 309.54063
+  tps: 261.44914
  }
 }
 dps_results: {
@@ -422,8 +422,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-EyeofMoam-21473"
  value: {
-  dps: 254.36448
-  tps: 218.99041
+  dps: 273.15525
+  tps: 233.28561
  }
 }
 dps_results: {
@@ -534,8 +534,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-IronweaveBattlesuit"
  value: {
-  dps: 272.13868
-  tps: 233.08325
+  dps: 276.45834
+  tps: 236.57174
  }
 }
 dps_results: {
@@ -597,8 +597,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-Magister'sRegalia"
  value: {
-  dps: 314.73826
-  tps: 266.92501
+  dps: 317.73576
+  tps: 269.31271
  }
 }
 dps_results: {

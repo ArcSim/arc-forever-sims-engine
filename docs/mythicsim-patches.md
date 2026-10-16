@@ -3850,7 +3850,7 @@ Drop it when upstream spends Fingers of Frost on impact for the bolts and at cas
 ### Open: negative resistance (Spell Vulnerability)
 
 A beta report on the same day says Spell Vulnerability takes a target's resistance below zero. The value is
-unknown, so nothing is modelled; it waits for a log or a stated number.
+unknown, so nothing is modelled; it waits for a log or a stated number. Patch 146 models it from a log.
 
 ## 145. `shaman: Water Shield spends a globe on the shaman's critical spells`
 
@@ -3897,3 +3897,93 @@ of mana). A cast before the pull is free mana.
 Downstream: the Rust engine needs the crit trigger before its next repin.
 
 Drop it when upstream lets the shaman's critical spells spend Water Shield's globes.
+
+## 146. `core: Spell Piercing past 0 resistance is Spell Vulnerability`
+
+The engine clamped a target's resistance at 0 after the attacker's Spell Piercing (`resistCoeff`,
+`max(0, resistance - SpellPiercing)`), so penetration did nothing against a target without resistance, which
+is every board target. Arcane Subtlety's 8 / 15 (client 11210, A_MOD_TARGET_RESISTANCE on all magic schools)
+was worth nothing, and the client 70425 Arcane reference moved its second point to Missile Barrage for that
+reason.
+
+Source: Targetdummy on the MythicSim Discord, client 70425, 15 October 2026. The Spell Piercing tooltip on
+that client: "Spell Piercing 7: increases the Resistances your Spells ignore by 7 ... Spell Piercing may
+bring a creature below 0 Resistances, becoming Spell Vulnerability, increasing their spell damage taken by
+0.0% per point" (the per point value prints as 0.0%). The same player's combat log, a level 30 Frost Mage
+with Spell Piercing 7 against a level 28 Feral Mountain Lion at 0 resistance, ends a Frostbolt
+SPELL_DAMAGE line with `...,28,460,209,-1,16,-21,0,0,1,nil,nil,ST`: 460 Frost damage, resisted -21 (negative
+is extra damage), a critical. Before the bonus that is 439, and 7 / (5 x 28) = 5.0% of 439 is 21.95,
+truncated to the logged 21. The caster's level gives 7 / (5 x 30) = 4.67%, 20.49, which is 20 truncated or
+rounded, so the log reads the target's level. Frostbolt is a binary spell, so binary spells take it too.
+
+**Now** `spellVulnerabilityMultiplier` (`sim/core/spell_resistances.go`) multiplies the damage of every
+magic spell that reaches the resistance step, binary or not, direct or periodic, by
+1 + (Spell Piercing - max(0, resistance)) / (5 x target level) when the attacker's Spell Piercing exceeds
+the target's resistance. The partial resist roll (25/50/75% buckets, level-based resist against a higher
+level target) is unchanged and the bonus multiplies its bucket; binary spells still skip the roll. Spells
+with `SpellFlagIgnoreResists` and Physical take none, nor do schools with no resistance stat (Holy, and
+school combinations other than Frostfire, which reads its lower resistance as before): nothing shows what
+Holy does. `SpellVulnerabilityBelowZeroResistance` (default true); false is the old clamp.
+
+Only the attacker's penetration past the target's resistance counts, the resistance floored at 0. The
+engine applies resistance debuffs to the target's resistance stat (Curse of the Elements, 1311680:
+A_MOD_RESISTANCE -75 on all magic schools, parsed by `resistanceStats` in
+`sim/core/spelldata/parse_effects_table.go`, plus its own A_MOD_DAMAGE_PERCENT_TAKEN 10%), so such a debuff
+can take the stat below 0; that adds nothing here, as there is no evidence that a debuffed resistance below
+0 is Spell Vulnerability. With a debuff and no piercing the damage is as before.
+
+Ice Lance: the same log shows an Ice Lance with resisted 0. Its client row (1312002) has no ignore
+resistances attribute (Attr0 0x50000, Attr2 0x100, Attr15 0x2000, the same families as Frostbolt's
+apart from Attr0 0x40000, the do not sheathe flag), and the engine's Ice Lance has no
+`SpellFlagIgnoreResists`, so it takes the bonus like Frostbolt. Open: the log line's amount was not kept, so
+it is not known whether the hit was small enough to truncate to 0 (under 20 at 5%) or Ice Lance is exempt
+by a server script.
+
+Who reads it: Arcane Subtlety (mage, all magic schools) and gear with Spell Piercing (56 items in the
+MythicSim catalog, the Ironweave Battlesuit 3 piece bonus, Eye of Moam's on use, 26166: 100 for 30 sec).
+Against the level 63 board target 8 piercing is +2.54%, 15 is +4.76%, Eye of Moam's 100 is +31.7% while it
+lasts.
+
+Tests: `TestSpellVulnerabilityBelowZeroResistance` (`sim/core/spell_vulnerability_test.go`: 7 piercing
+against a level 28 target at 0 resistance is x1.05 and turns 439 into 460; a level 63 target with 15 is
+x1.0476; 7 against 5 resistance is x1 + 2/140, against 7 it is x1; a resistance of -75 adds nothing past
+the piercing; spells that ignore resists, Holy and Physical take none; a non-binary Arcane spell gets x1.05
+with no partial resist against a lower level target, direct and periodic) and
+`TestArcaneSubtletyRaisesArcaneDamage` (`sim/mage/spell_vulnerability_test.go`: Arcane Subtlety 1/2 and
+2/2 give 8 and 15 Spell Piercing and Arcane Explosion hits a level 60 target x1.0267 and x1.05 harder) both
+fail on patch 145 ("multiplier 1.000000, want 1.050000"; "x1.0000, want x1.0500").
+`TestSpellVulnerabilitySwitchOff` checks the switch. Goldens: no Average-Default moves (the suites' talents
+have no Arcane Subtlety); only the AllItems rows of Spell Piercing gear move, in every class suite that
+lists them: Eye of Moam +0.1% (Protection Warrior) to +9.4% (Fire), Ironweave Battlesuit +0.2% to +1.6%,
+Dreadmist Raiment and Magister's Regalia up to +1.3%, The Elements and Stormcaller's Garb on the shaman,
+hunter, warrior and paladin suites.
+
+Measured (native `wowsimcli` with `with_db`, MythicSim production default path, 10,000 iterations, board
+seed, board length, empty trinkets, references of MythicSim #513; the harness gives the published
+`2a541e5fc` Arcane baseline, 775.71). Only the three mage references with Arcane Subtlety 1/2 have Spell
+Piercing (8; no reference's gear or set has any, checked on the computed final stats of all 30):
+
+| Reference | Patch 145 | Patch 146 | Change |
+| --- | ---: | ---: | ---: |
+| Arcane | 775.71 | 795.42 | +2.54% |
+| Fire | 776.78 | 796.51 | +2.54% |
+| Frost | 651.48 | 668.02 | +2.54% |
+
+Every other reference has no piercing and gives its patch 145 DPS (the multiplier is 1 and draws no random
+number). The Arcane reference with Arcane Subtlety at 2/2, one point taken from elsewhere (patch 146, board
+seed, and the race board seed 1179603525):
+
+| Arcane talents | Board seed | Race seed |
+| --- | ---: | ---: |
+| Reference, Arcane Subtlety 1/2 (`0552105003100301531-230500001-005`) | 795.42 | 795.13 |
+| 2/2, Improved Channeling 4/5 (`0542205003100301531-230500001-005`) | 812.65 | 812.36 |
+| 2/2, Elemental Precision 4/5 (`0552205003100301531-230500001-004`) | 812.32 | 812.07 |
+| 2/2, Arcane Meditation 2/3 (`0552205003100201531-230500001-005`) | 809.59 | |
+
+Open readings: the target level divisor rests on one log line (a level 28 target hit by a level 30 caster;
+a target above the caster has not been seen); the client may cap the bonus or differ for periodic damage,
+which the sample does not show; resistance debuffs below 0 are not counted (above); Ice Lance (above).
+
+Downstream: the Rust engine needs Spell Vulnerability before its next repin.
+
+Drop it when upstream lets Spell Piercing take a target below 0 resistance.

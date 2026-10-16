@@ -240,8 +240,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-DreadmistRaiment"
  value: {
-  dps: 305.4764
-  tps: 139.20354
+  dps: 308.51085
+  tps: 140.90992
  }
 }
 dps_results: {
@@ -394,8 +394,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-EyeofMoam-21473"
  value: {
-  dps: 251.91799
-  tps: 110.84497
+  dps: 260.11279
+  tps: 115.43406
  }
 }
 dps_results: {
@@ -499,8 +499,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-IronweaveBattlesuit"
  value: {
-  dps: 269.82534
-  tps: 120.18051
+  dps: 273.08113
+  tps: 122.01231
  }
 }
 dps_results: {
@@ -541,8 +541,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-Magister'sRegalia"
  value: {
-  dps: 305.98102
-  tps: 142.34156
+  dps: 308.25962
+  tps: 143.62504
  }
 }
 dps_results: {

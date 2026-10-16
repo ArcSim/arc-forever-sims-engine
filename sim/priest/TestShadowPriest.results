@@ -233,8 +233,8 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-DreadmistRaiment"
  value: {
-  dps: 426.59351
-  tps: 200.57909
+  dps: 431.9208
+  tps: 203.01471
  }
 }
 dps_results: {
@@ -380,8 +380,8 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-EyeofMoam-21473"
  value: {
-  dps: 368.17756
-  tps: 172.86018
+  dps: 387.32477
+  tps: 181.63884
  }
 }
 dps_results: {
@@ -492,8 +492,8 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-IronweaveBattlesuit"
  value: {
-  dps: 399.04415
-  tps: 188.1043
+  dps: 405.26847
+  tps: 190.95069
  }
 }
 dps_results: {
@@ -548,8 +548,8 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-Magister'sRegalia"
  value: {
-  dps: 430.48023
-  tps: 204.77972
+  dps: 434.51269
+  tps: 206.62347
  }
 }
 dps_results: {

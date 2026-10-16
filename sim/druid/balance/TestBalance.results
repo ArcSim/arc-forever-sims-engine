@@ -275,8 +275,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-DreadmistRaiment"
  value: {
-  dps: 238.35755
-  tps: 123.06395
+  dps: 241.38431
+  tps: 124.54706
  }
 }
 dps_results: {
@@ -422,8 +422,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-EyeofMoam-21473"
  value: {
-  dps: 191.04911
-  tps: 99.92379
+  dps: 202.58376
+  tps: 105.57576
  }
 }
 dps_results: {
@@ -660,8 +660,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-Magister'sRegalia"
  value: {
-  dps: 240.75939
-  tps: 126.85557
+  dps: 243.05233
+  tps: 127.97911
  }
 }
 dps_results: {

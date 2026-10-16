@@ -394,8 +394,8 @@ dps_results: {
 dps_results: {
  key: "TestSurvival-AllItems-DreadmistRaiment"
  value: {
-  dps: 387.90745
-  tps: 229.74312
+  dps: 388.20623
+  tps: 229.95227
  }
 }
 dps_results: {
@@ -549,8 +549,8 @@ dps_results: {
 dps_results: {
  key: "TestSurvival-AllItems-EyeofMoam-21473"
  value: {
-  dps: 367.02606
-  tps: 215.44909
+  dps: 368.14548
+  tps: 216.23269
  }
 }
 dps_results: {
@@ -822,8 +822,8 @@ dps_results: {
 dps_results: {
  key: "TestSurvival-AllItems-Magister'sRegalia"
  value: {
-  dps: 393.74407
-  tps: 233.80789
+  dps: 393.96816
+  tps: 233.96475
  }
 }
 dps_results: {
@@ -1186,8 +1186,8 @@ dps_results: {
 dps_results: {
  key: "TestSurvival-AllItems-TheElements"
  value: {
-  dps: 394.63745
-  tps: 234.45575
+  dps: 395.23501
+  tps: 234.87404
  }
 }
 dps_results: {

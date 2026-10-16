@@ -394,8 +394,8 @@ dps_results: {
 dps_results: {
  key: "TestMarksmanship-AllItems-DreadmistRaiment"
  value: {
-  dps: 384.76994
-  tps: 232.25146
+  dps: 385.77844
+  tps: 232.9574
  }
 }
 dps_results: {
@@ -548,8 +548,8 @@ dps_results: {
 dps_results: {
  key: "TestMarksmanship-AllItems-EyeofMoam-21473"
  value: {
-  dps: 343.74349
-  tps: 202.82566
+  dps: 349.78486
+  tps: 207.05462
  }
 }
 dps_results: {
@@ -821,8 +821,8 @@ dps_results: {
 dps_results: {
  key: "TestMarksmanship-AllItems-Magister'sRegalia"
  value: {
-  dps: 398.99102
-  tps: 241.72719
+  dps: 399.8179
+  tps: 242.30601
  }
 }
 dps_results: {
@@ -1185,8 +1185,8 @@ dps_results: {
 dps_results: {
  key: "TestMarksmanship-AllItems-TheElements"
  value: {
-  dps: 389.13417
-  tps: 235.17218
+  dps: 391.20347
+  tps: 236.62069
  }
 }
 dps_results: {

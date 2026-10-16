@@ -394,8 +394,8 @@ dps_results: {
 dps_results: {
  key: "TestBeastMastery-AllItems-DreadmistRaiment"
  value: {
-  dps: 454.25441
-  tps: 246.55026
+  dps: 454.94511
+  tps: 247.03375
  }
 }
 dps_results: {
@@ -548,8 +548,8 @@ dps_results: {
 dps_results: {
  key: "TestBeastMastery-AllItems-EyeofMoam-21473"
  value: {
-  dps: 421.85281
-  tps: 222.89971
+  dps: 424.73509
+  tps: 224.91731
  }
 }
 dps_results: {
@@ -821,8 +821,8 @@ dps_results: {
 dps_results: {
  key: "TestBeastMastery-AllItems-Magister'sRegalia"
  value: {
-  dps: 460.27957
-  tps: 250.79164
+  dps: 460.80339
+  tps: 251.15832
  }
 }
 dps_results: {
@@ -1185,8 +1185,8 @@ dps_results: {
 dps_results: {
  key: "TestBeastMastery-AllItems-TheElements"
  value: {
-  dps: 457.50654
-  tps: 248.78173
+  dps: 458.91651
+  tps: 249.76871
  }
 }
 dps_results: {

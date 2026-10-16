@@ -268,8 +268,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-DreadmistRaiment"
  value: {
-  dps: 283.82176
-  tps: 177.69296
+  dps: 287.42585
+  tps: 179.80941
  }
 }
 dps_results: {
@@ -422,8 +422,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-EyeofMoam-21473"
  value: {
-  dps: 240.98458
-  tps: 149.9408
+  dps: 255.5743
+  tps: 158.3132
  }
 }
 dps_results: {
@@ -534,8 +534,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-IronweaveBattlesuit"
  value: {
-  dps: 259.94417
-  tps: 162.39366
+  dps: 264.07026
+  tps: 164.79723
  }
 }
 dps_results: {
@@ -597,8 +597,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-Magister'sRegalia"
  value: {
-  dps: 293.97314
-  tps: 186.08413
+  dps: 296.77289
+  tps: 187.72722
  }
 }
 dps_results: {
