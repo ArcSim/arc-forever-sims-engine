@@ -9,7 +9,7 @@
 	"1242688": {
 		"ability": "Resourcefulness",
 		"file": "sim/hunter/talents_survival.go",
-		"note": "Client 70009: the buff Resourcefulness grants (1242688), 50% for 30 sec. The talent curve (440529) takes 30/60% off Trap and melee ability costs, Strider Kick excepted (#432); the sim procs the buff on 50/100% of critical strikes.",
+		"note": "Client 70009: the buff Resourcefulness grants (1242688), 50% for 30 sec. The talent curve (440529) takes 30/60% off Trap and melee ability costs; its client mask leaves out Strider Kick, but dev AidanZMoon called that a bug fixed for the 15 Oct build (forever-bugs #271), so the sim discounts it too. The sim procs the buff on 50/100% of critical strikes.",
 		"source": "forever",
 		"tooltip": "30 sec duration\n50% of your Mana regeneration continues while casting."
 	},

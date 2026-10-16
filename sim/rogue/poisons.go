@@ -14,6 +14,11 @@ import (
 //	Instant Poison rank 6 (11340): 76-100 damage, 20% chance
 //	Deadly Poison rank 5 (25347): 23 damage a tick, 5 stacks over 12 sec, 30% chance
 //	Wound Poison rank 4 (13227): no damage, -135 healing, 5 stacks, 30% chance
+//
+// Attack power scaling is server-side, so the client rows carry no coefficient. The devs give 0.5%
+// of attack power for Instant and 0.45% for Deadly (forever-bugs #100, 2026-09-23). Deadly's share
+// is per tick per stack: beta log 2701 (Salty, AP ~363, rank 1 at 6 a tick, Vile Poisons ~1.2 from
+// Instant Poison II) ticks ~8.8 a stack, against 9.2 per tick and 7.7 spread over the 4 ticks.
 const (
 	instantImbueID = 26891
 	woundImbueID   = 27188
@@ -26,6 +31,8 @@ const (
 	instantPoisonBaseDamage = 76.0
 	instantPoisonVariance   = 24.0
 	deadlyPoisonTickDamage  = 23.0
+	instantPoisonAPShare    = 0.005
+	deadlyPoisonAPShare     = 0.0045
 )
 
 func (rogue *Rogue) applyPoisons() {
@@ -68,7 +75,9 @@ func (rogue *Rogue) registerDeadlyPoisonSpell() {
 			TickLength:    time.Second * 3,
 
 			OnSnapshot: func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-				dot.Snapshot(target, deadlyPoisonTickDamage*float64(dot.GetStacks()))
+				share := deadlyPoisonAPShare * float64(dot.GetStacks())
+				dot.Snapshot(target, deadlyPoisonTickDamage*float64(dot.GetStacks())+share*dot.Spell.MeleeAttackPower(target))
+				dot.SnapshotAttackPowerShare(target, share, false)
 			},
 			// The dot is 25349, which carries Periodic Can Crit in the client (25347 is the imbue).
 			OnTick: func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
@@ -168,7 +177,7 @@ func (rogue *Rogue) registerInstantPoisonSpell() {
 		ThreatMultiplier:         1,
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			damage := sim.Roll(instantPoisonBaseDamage, instantPoisonBaseDamage+instantPoisonVariance)
+			damage := sim.Roll(instantPoisonBaseDamage, instantPoisonBaseDamage+instantPoisonVariance) + instantPoisonAPShare*spell.MeleeAttackPower(target)
 			spell.CalcAndDealDamage(sim, target, damage, spell.OutcomeMagicHitAndCrit)
 		},
 	})

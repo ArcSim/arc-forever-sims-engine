@@ -342,3 +342,17 @@ func TestBloodFuryReportsItsTemporaryStats(t *testing.T) {
 		t.Errorf("expire reported %v attack power, want the reverse of the gain's %v", got, heard[0][stats.AttackPower])
 	}
 }
+
+// 16 Oct build: Ruthless (human, 2%) and Savage (orc, 1%) replaced the weapon specializations, so the
+// crit no longer needs a sword or an axe and reaches melee, ranged and spells alike.
+func TestCritChanceRacialsNeedNoWeapon(t *testing.T) {
+	_, undead := setupRacialSim(proto.Race_RaceUndead)
+	for race, bonus := range map[proto.Race]float64{proto.Race_RaceHuman: 2, proto.Race_RaceOrc: 1} {
+		_, fw := setupRacialSim(race)
+		for _, stat := range []stats.Stat{stats.PhysicalCritPercent, stats.SpellCritPercent} {
+			if got, want := fw.GetStat(stat), undead.GetStat(stat)+bonus; !WithinToleranceFloat64(want, got, 1e-9) {
+				t.Errorf("%s: stat %d %.2f unarmed, want %.2f", race, stat, got, want)
+			}
+		}
+	}
+}

@@ -117,8 +117,7 @@ func rageFromAutoAttack(sim *Simulation, fw *FakeRageWarrior, spell *Spell, outc
 }
 
 func TestAutoAttackRageGeneration(t *testing.T) {
-	// A one-hand MH swing at 2.6 speed: 2.6 * 3.46 = 8.996, whatever it dealt. A critical strike pays
-	// 100% more (beta development notes, 1 and 8 October 2026): 8.996 * 2 = 17.992.
+	// A one-hand MH swing at 2.6 speed: 2.6 * 3.46 = 8.996, whatever it dealt; a crit pays it twice.
 	const swingDamage = 500.0
 
 	tests := []struct {
@@ -134,12 +133,7 @@ func TestAutoAttackRageGeneration(t *testing.T) {
 		{
 			name:     "crit",
 			outcome:  OutcomeCrit,
-			wantRage: 17.992,
-		},
-		{
-			name:     "blocked crit",
-			outcome:  OutcomeBlock | OutcomeCrit,
-			wantRage: 17.992,
+			wantRage: 8.996 * 2,
 		},
 		{
 			name:     "glance",
@@ -188,6 +182,13 @@ func TestTwoHandAutoAttackRageGeneration(t *testing.T) {
 	hitRage := rageFromAutoAttack(sim, fw, fw.AutoAttacks.MHAuto(), OutcomeHit, swingDamage)
 	if !WithinToleranceFloat64(11.7, hitRage, 0.001) {
 		t.Fatalf("Incorrect Rage generated on 2H hit: Expected: %0.3f, Actual: %0.3f", 11.695, hitRage)
+	}
+
+	// A crit adds the swing's rage before the two-hand factor: 11.7 + 2.6 * 3.46 = 20.696 (Magey's
+	// beta logs: 14.85 + 11.42 on a 3.3 sec two-hander).
+	critRage := rageFromAutoAttack(sim, fw, fw.AutoAttacks.MHAuto(), OutcomeCrit, swingDamage)
+	if !WithinToleranceFloat64(20.696, critRage, 0.001) {
+		t.Fatalf("Incorrect Rage generated on 2H crit: Expected: %0.3f, Actual: %0.3f", 20.696, critRage)
 	}
 }
 

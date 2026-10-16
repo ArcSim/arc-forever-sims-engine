@@ -92,7 +92,7 @@ func TestEarlyDemiseOnlyBelowItsHealthThreshold(t *testing.T) {
 }
 
 // Shadow Weaving 15258 gained the Always Hit attribute: the stack no longer rolls to land. The sim
-// applies it to the priest on every landed Shadow hit the talent's proc chance picks, which is every hit
+// applies it to the target (upstream #777) on every landed Shadow hit the talent's proc chance picks, which is every hit
 // at rank 3 (33/67/100%).
 func TestShadowWeavingAppliesOnEveryHitAtRankThree(t *testing.T) {
 	if got := spellData.ShadowWeaving.FractionAt(3); got != 1 {
@@ -101,7 +101,7 @@ func TestShadowWeavingAppliesOnEveryHitAtRankThree(t *testing.T) {
 	sim, character := newClient70170Sim(t, proto.Race_RaceUndead, false)
 	target := character.CurrentTarget
 	priest := sim.Raid.Parties[0].Players[0].(PriestAgent).GetPriest()
-	aura := priest.ShadowWeavingAura
+	aura := priest.ShadowWeavingAuras.Get(target)
 	if aura == nil {
 		t.Fatal("no Shadow Weaving aura")
 	}

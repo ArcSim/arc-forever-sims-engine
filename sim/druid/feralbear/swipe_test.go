@@ -38,11 +38,11 @@ func firstPlainSwipeHit(t *testing.T, extraAttackPower float64) (damage, attackP
 	return 0, 0
 }
 
-// Client 1.60.1.70170: Swipe "will now correctly gain 3% of the Druid's attack power". The client rows
-// carry no coefficient, so a hit is the rank's flat damage plus 0.03 attack power, times whatever damage
-// modifiers apply. Two casts of the same roll at different attack power give the coefficient without
+// Swipe gains 5% of attack power, a fit to beta logs (upstream #787; client 1.60.1.70170's patch note
+// said 3%). The client rows carry no coefficient, so a hit is the rank's flat damage plus 0.05 attack
+// power, times whatever damage modifiers apply. Two casts of the same roll at different attack power give the coefficient without
 // naming the modifiers: d1 / d2 = (flat + c AP1) / (flat + c AP2).
-func TestSwipeGainsThreePercentOfAttackPower(t *testing.T) {
+func TestSwipeGainsFivePercentOfAttackPower(t *testing.T) {
 	flat := spelldata.MustFind(9908).DamageEffect().Average(core.CharacterLevel)
 	if flat <= 0 {
 		t.Fatalf("Swipe flat damage %v", flat)
@@ -59,8 +59,8 @@ func TestSwipeGainsThreePercentOfAttackPower(t *testing.T) {
 	}
 
 	coefficient := flat * (d2 - d1) / (d1*ap2 - d2*ap1)
-	if !core.WithinToleranceFloat64(0.03, coefficient, 0.0001) {
-		t.Errorf("Swipe scales %0.5f of attack power, want 0.03 (flat %v, hits %v at %v AP and %v at %v AP)",
+	if !core.WithinToleranceFloat64(0.05, coefficient, 0.0001) {
+		t.Errorf("Swipe scales %0.5f of attack power, want 0.05 (flat %v, hits %v at %v AP and %v at %v AP)",
 			coefficient, flat, d1, ap1, d2, ap2)
 	}
 }

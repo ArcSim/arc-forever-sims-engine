@@ -1,5 +1,281 @@
 [
 	{
+		"number": 810,
+		"title": "paladin: Reckoning banks up to 4 charges, spent on the next swing (beta notes 16 Oct)",
+		"mergedAt": "2026-10-16",
+		"url": "https://github.com/ElliotWood/Forever/pull/810"
+	},
+	{
+		"number": 809,
+		"title": "racials: Eureka! is an 8 s buff with no charges (beta notes 16 Oct)",
+		"mergedAt": "2026-10-16",
+		"url": "https://github.com/ElliotWood/Forever/pull/809"
+	},
+	{
+		"number": 808,
+		"title": "mage: Fire Blast always adds a Heating Up stack; PoM Pyroblast keeps them (beta notes 16 Oct)",
+		"mergedAt": "2026-10-16",
+		"url": "https://github.com/ElliotWood/Forever/pull/808"
+	},
+	{
+		"number": 807,
+		"title": "mage: Ice Lance does +200% to frozen targets (was +300%, beta notes 16 Oct)",
+		"mergedAt": "2026-10-16",
+		"url": "https://github.com/ElliotWood/Forever/pull/807"
+	},
+	{
+		"number": 806,
+		"title": "racials: 16 Oct beta build rework (Ruthless, Savage, Earth Fury, Endurance, Wind Blessed)",
+		"mergedAt": "2026-10-16",
+		"url": "https://github.com/ElliotWood/Forever/pull/806"
+	},
+	{
+		"number": 805,
+		"title": "druid: Shifting Power can't be used at full Energy (beta notes 8 Oct)",
+		"mergedAt": "2026-10-15",
+		"url": "https://github.com/ElliotWood/Forever/pull/805"
+	},
+	{
+		"number": 804,
+		"title": "hunter: a pet's crit is its master's ranged crit (dev, forever-bugs #331)",
+		"mergedAt": "2026-10-15",
+		"url": "https://github.com/ElliotWood/Forever/pull/804"
+	},
+	{
+		"number": 803,
+		"title": "druid: Thorns scales with 6% of the druid's spell power (beta notes)",
+		"mergedAt": "2026-10-15",
+		"url": "https://github.com/ElliotWood/Forever/pull/803"
+	},
+	{
+		"number": 802,
+		"title": "warlock: Demonic Brand's Imp Fire hit carries normal threat (beta notes 8 Oct)",
+		"mergedAt": "2026-10-15",
+		"url": "https://github.com/ElliotWood/Forever/pull/802"
+	},
+	{
+		"number": 801,
+		"title": "paladin: Improved Seal of Fury and Shield Specialization mana makes no threat (client 70374)",
+		"mergedAt": "2026-10-15",
+		"url": "https://github.com/ElliotWood/Forever/pull/801"
+	},
+	{
+		"number": 800,
+		"title": "paladin: Retribution Aura scales 6% of the paladin's spell power (beta notes 8 Oct)",
+		"mergedAt": "2026-10-15",
+		"url": "https://github.com/ElliotWood/Forever/pull/800"
+	},
+	{
+		"number": 799,
+		"title": "Wowhead Forever data changed (2026-10-15)",
+		"mergedAt": "2026-10-15",
+		"url": "https://github.com/ElliotWood/Forever/pull/799"
+	},
+	{
+		"number": 798,
+		"title": "druid: Bear Form threat bonus 50% (client 70374), was 30%",
+		"mergedAt": "2026-10-15",
+		"url": "https://github.com/ElliotWood/Forever/pull/798"
+	},
+	{
+		"number": 797,
+		"title": "warrior: Blood Craze no longer triggers off Bloodthirst",
+		"mergedAt": "2026-10-15",
+		"url": "https://github.com/ElliotWood/Forever/pull/797"
+	},
+	{
+		"number": 796,
+		"title": "[DB] Update to 1.60.1.70374 with hotfixes as of 2026-10-15",
+		"mergedAt": "2026-10-15",
+		"url": "https://github.com/ElliotWood/Forever/pull/796"
+	},
+	{
+		"number": 795,
+		"title": "warrior: Last Stand reads its 30% from client 70291's health aura (no more panic)",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/795"
+	},
+	{
+		"number": 794,
+		"title": "rage: a critical auto attack adds its swing's rage again (100%, not 75%)",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/794"
+	},
+	{
+		"number": 793,
+		"title": "priest: Inner Focus crit no longer reaches DoT ticks",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/793"
+	},
+	{
+		"number": 792,
+		"title": "paladin: Reckoning swings at once without resetting the swing timer, 1.5 s proc cooldown",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/792"
+	},
+	{
+		"number": 791,
+		"title": "Human/Orc weapon racial crit follows the weapon's hand, not ranged",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/791"
+	},
+	{
+		"number": 790,
+		"title": "warlock: Succubus Lash of Pain can crit (~6% base spell crit)",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/790"
+	},
+	{
+		"number": 789,
+		"title": "Fire Nova crits don't trigger Elemental Devastation (forever-bugs #334)",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/789"
+	},
+	{
+		"number": 788,
+		"title": "Malediction raises Hellfire's area hits (forever-bugs #311)",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/788"
+	},
+	{
+		"number": 787,
+		"title": "druid: bear Swipe adds 5% of attack power",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/787"
+	},
+	{
+		"number": 786,
+		"title": "Wowhead Forever data changed (2026-10-14)",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/786"
+	},
+	{
+		"number": 785,
+		"title": "rogue: Mutilate spends Cold Blood (forever-bugs #224)",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/785"
+	},
+	{
+		"number": 784,
+		"title": "[DB] Update to 1.60.1.70374 with hotfixes as of 2026-10-14",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/784"
+	},
+	{
+		"number": 783,
+		"title": "Resourcefulness discounts Strider Kick too (forever-bugs #271)",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/783"
+	},
+	{
+		"number": 782,
+		"title": "Siphon Life ticks can crit",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/782"
+	},
+	{
+		"number": 781,
+		"title": "rogue: Instant and Deadly Poison scale with attack power",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/781"
+	},
+	{
+		"number": 780,
+		"title": "priest: Twin Disciplines reaches Mind Flay and SW:D; Shadowform crit bonus reaches SW:D",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/780"
+	},
+	{
+		"number": 779,
+		"title": "Wowhead Forever data changed (2026-10-14)",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/779"
+	},
+	{
+		"number": 778,
+		"title": "Forever client build 1.60.1.70374",
+		"mergedAt": "2026-10-14",
+		"url": "https://github.com/ElliotWood/Forever/pull/778"
+	},
+	{
+		"number": 777,
+		"title": "Shadow Weaving stacks on each target, not on the priest",
+		"mergedAt": "2026-10-13",
+		"url": "https://github.com/ElliotWood/Forever/pull/777"
+	},
+	{
+		"number": 776,
+		"title": "Fingers of Frost procs at Frostbolt's cast end, not its impact",
+		"mergedAt": "2026-10-13",
+		"url": "https://github.com/ElliotWood/Forever/pull/776"
+	},
+	{
+		"number": 775,
+		"title": "Maelstrom Weapon procs at 10 PPM at every rank",
+		"mergedAt": "2026-10-13",
+		"url": "https://github.com/ElliotWood/Forever/pull/775"
+	},
+	{
+		"number": 774,
+		"title": "hunter: Improved Tracking counts on the default Unknown target (#768)",
+		"mergedAt": "2026-10-13",
+		"url": "https://github.com/ElliotWood/Forever/pull/774"
+	},
+	{
+		"number": 773,
+		"title": "Cat default rotation keeps Rake up",
+		"mergedAt": "2026-10-13",
+		"url": "https://github.com/ElliotWood/Forever/pull/773"
+	},
+	{
+		"number": 772,
+		"title": "Rake scales with attack power (5% on the hit and each tick); the hit ignores armor",
+		"mergedAt": "2026-10-13",
+		"url": "https://github.com/ElliotWood/Forever/pull/772"
+	},
+	{
+		"number": 771,
+		"title": "[DB] Update to 1.60.1.70338 with hotfixes as of 2026-10-13",
+		"mergedAt": "2026-10-13",
+		"url": "https://github.com/ElliotWood/Forever/pull/771"
+	},
+	{
+		"number": 770,
+		"title": "Wowhead Forever data changed (2026-10-13)",
+		"mergedAt": "2026-10-13",
+		"url": "https://github.com/ElliotWood/Forever/pull/770"
+	},
+	{
+		"number": 767,
+		"title": "[DB] Update to 1.60.1.70338 with hotfixes as of 2026-10-12",
+		"mergedAt": "2026-10-12",
+		"url": "https://github.com/ElliotWood/Forever/pull/767"
+	},
+	{
+		"number": 766,
+		"title": "Wowhead Forever data changed (2026-10-12)",
+		"mergedAt": "2026-10-12",
+		"url": "https://github.com/ElliotWood/Forever/pull/766"
+	},
+	{
+		"number": 765,
+		"title": "[DB] Update to 1.60.1.70338 with hotfixes as of 2026-10-11",
+		"mergedAt": "2026-10-11",
+		"url": "https://github.com/ElliotWood/Forever/pull/765"
+	},
+	{
+		"number": 764,
+		"title": "Wowhead Forever data changed (2026-10-11)",
+		"mergedAt": "2026-10-11",
+		"url": "https://github.com/ElliotWood/Forever/pull/764"
+	},
+	{
+		"number": 763,
+		"title": "[DB] Update to 1.60.1.70338 with hotfixes as of 2026-10-10",
+		"mergedAt": "2026-10-10",
+		"url": "https://github.com/ElliotWood/Forever/pull/763"
+	},
+	{
 		"number": 762,
 		"title": "Update DB: read client 70291+'s new armor aura, follow two renames (#758)",
 		"mergedAt": "2026-10-10",

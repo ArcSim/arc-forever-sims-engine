@@ -27,7 +27,7 @@
 	"11340": {
 		"ability": "Instant Poison VI",
 		"file": "sim/rogue/poisons.go",
-		"note": "Beta client 1.60.1.70009: Instant Poison VI (enchant 625, proc 11337) hits for 76-100 where Classic hit for 112-148, 20% chance, and carries 175 charges, which the sim does not model. Every lower rank is about a third weaker too.",
+		"note": "Beta client 1.60.1.70009: Instant Poison VI (enchant 625, proc 11337) hits for 76-100 where Classic hit for 112-148, 20% chance, and carries 175 charges, which the sim does not model. Every lower rank is about a third weaker too. Plus 0.5% of attack power (devs, forever-bugs #100; beta logs: untalented rogues' rank 1, 13-17, tops out at 19).",
 		"source": "forever",
 		"tooltip": "3 sec cast\nCoats a weapon with poison that lasts for 30 minutes. Each strike has a 20% chance of poisoning the enemy which instantly inflicts 76 to 100 Nature damage. 175 charges."
 	},
@@ -204,7 +204,7 @@
 	"25347": {
 		"ability": "Deadly Poison V",
 		"file": "sim/rogue/poisons.go",
-		"note": "Beta client 1.60.1.70009: Deadly Poison V (enchant 2630) ticks 23 every 3 sec through 25349 (Classic 34), 5 stacks over 12 sec, 30% chance, 180 charges, which the sim does not model. The sim logs the ticks under the imbue's id 25347; 25349 carries Periodic Can Crit (#364).",
+		"note": "Beta client 1.60.1.70009: Deadly Poison V (enchant 2630) ticks 23 every 3 sec through 25349 (Classic 34), 5 stacks over 12 sec, 30% chance, 180 charges, which the sim does not model. The sim logs the ticks under the imbue's id 25347; 25349 carries Periodic Can Crit (#364). Each tick adds 0.45% of attack power per stack, read at the tick (devs, forever-bugs #100; log 2701: Salty's rank 1 ticks ~8.8 a stack fit per tick, 9.2, not spread over 4 ticks, 7.7).",
 		"source": "forever",
 		"tooltip": "3 sec cast\nCoats a weapon with poison that lasts for 30 minutes. Each strike has a 30% chance of poisoning the enemy for 92 Nature damage over 12 sec. Stacks up to 5 times on a single target. 180 charges."
 	},

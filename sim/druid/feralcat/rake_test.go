@@ -11,7 +11,7 @@ import (
 	"github.com/wowsims/forever/sim/druid"
 )
 
-// Rake adds 0.0526 of attack power to its hit and to every tick, and a running tick reads the attack
+// Rake adds 0.05 of attack power to its hit and to every tick, and a running tick reads the attack
 // power the druid has then (Hameru's beta logs, 7 October 2026). Measured through the live spell: the
 // non-crit hit and a tick, each divided by the multipliers that sit on top of its base damage.
 func TestRakeScalesWithAttackPower(t *testing.T) {
@@ -49,7 +49,7 @@ func TestRakeScalesWithAttackPower(t *testing.T) {
 		return damage / (rake.AttackerDamageMultiplier(attackTable, false) * armor * rake.TargetDamageMultiplier(sim, attackTable, false))
 	}
 
-	const share, extra = 0.0526, 99.0
+	const share, extra = 0.05, 99.0
 	ap1 := rake.MeleeAttackPower(target)
 	hit1 := hitBase()
 	dot := cat.Rake.Dot(target)

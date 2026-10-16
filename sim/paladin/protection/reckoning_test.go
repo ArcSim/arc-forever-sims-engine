@@ -10,8 +10,9 @@ import (
 	"github.com/wowsims/forever/sim/paladin"
 )
 
-// Reckoning works with charges (16 October 2026 beta notes): each trigger adds one, up to 4, and the
-// next main-hand swing spends them all for one extra attack each, leaving the swing timer alone.
+// A Reckoning proc banks a charge, at most once per 1.5 s (client 20177 ProcCategoryRecovery); the
+// next normal swing spends them all as extra attacks and leaves the swing timer alone (16 Oct build,
+// beta logs 2747-2749).
 func TestReckoningChargesSpendOnTheNextSwing(t *testing.T) {
 	sim := core.NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
@@ -30,56 +31,45 @@ func TestReckoningChargesSpendOnTheNextSwing(t *testing.T) {
 	}
 	pal.AutoAttacks.EnableAutoSwing(sim)
 	pal.AutoAttacks.StopMeleeUntil(sim, sim.CurrentTime) // a swing just landed
-	swingAt := pal.AutoAttacks.NextAttackAt()
-	speed := pal.AutoAttacks.MainhandSwingSpeed()
+	next := pal.AutoAttacks.NextAttackAt()
 
-	trigger := pal.GetAura("Reckoning - Crit" + pal.Label)
-	charges := pal.GetAura("Reckoning" + pal.Label)
+	reck := pal.GetAura("Reckoning - Crit" + pal.Label)
 	mh := pal.AutoAttacks.MHAuto()
-	extra := pal.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}.WithTag(20178))
-	if extra == nil {
-		t.Fatal("no Reckoning extra attack spell is registered")
-	}
-	casts := func(s *core.Spell) int32 { return s.SpellMetrics[pal.CurrentTarget.UnitIndex].Casts }
+	casts := func() int32 { return mh.SpellMetrics[pal.CurrentTarget.UnitIndex].Casts }
 	crit := &core.SpellResult{Outcome: core.OutcomeCrit, Target: &pal.Unit}
 
-	// Crits taken add charges, capped at 4, and swing nothing on their own. The triggers land after the
-	// spell batch window, so the charges are read once it has passed.
-	done := false
-	sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{DoAt: sim.CurrentTime, OnAction: func(sim *core.Simulation) {
-		for range 50 {
-			trigger.OnSpellHitTaken(trigger, sim, mh, crit)
+	// 50 crits taken at once (enough to proc), then read the result once the procs' batch window
+	// has passed, well before the next normal swing.
+	critsAt := func(at time.Duration) (swings int32, next time.Duration) {
+		done := false
+		sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{DoAt: at, OnAction: func(sim *core.Simulation) {
+			for i := 0; i < 50; i++ {
+				reck.OnSpellHitTaken(reck, sim, mh, crit)
+			}
+		}}))
+		sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{DoAt: at + core.SpellBatchWindow + time.Millisecond, OnAction: func(sim *core.Simulation) {
+			swings, next, done = casts(), pal.AutoAttacks.NextAttackAt(), true
+		}}))
+		for !done {
+			sim.Step()
 		}
-	}}))
-	sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{DoAt: sim.CurrentTime + core.SpellBatchWindow + time.Millisecond, OnAction: func(sim *core.Simulation) {
-		done = true
-	}}))
-	for !done {
-		sim.Step()
-	}
-	if !charges.IsActive() || charges.GetStacks() != paladin.ReckoningMaxCharges {
-		t.Fatalf("Reckoning holds %d charges after many crits taken, want %d", charges.GetStacks(), paladin.ReckoningMaxCharges)
-	}
-	if casts(mh) != 0 || casts(extra) != 0 {
-		t.Fatalf("a crit taken swung %d normal and %d extra attacks, want none before the next swing", casts(mh), casts(extra))
-	}
-	if got := pal.AutoAttacks.NextAttackAt(); got != swingAt {
-		t.Fatalf("the charges moved the next swing to %s, want it left at %s", got, swingAt)
+		return
 	}
 
-	for casts(mh) == 0 {
+	charges := pal.GetAura("Reckoning" + pal.Label)
+	if swings, got := critsAt(sim.CurrentTime); swings != 0 || got != next || charges.GetStacks() != 1 {
+		t.Errorf("Reckoning: %d swings, %d charges, next swing %s; want 0 swings, 1 charge, swing at %s", swings, charges.GetStacks(), got, next)
+	}
+	if critsAt(sim.CurrentTime + 1400*time.Millisecond); charges.GetStacks() != 1 {
+		t.Errorf("Reckoning charged inside the 1.5 s lockout: %d charges, want 1", charges.GetStacks())
+	}
+	if critsAt(sim.CurrentTime + 100*time.Millisecond); charges.GetStacks() != 2 {
+		t.Errorf("Reckoning after the 1.5 s lockout: %d charges, want 2", charges.GetStacks())
+	}
+	for sim.CurrentTime <= next {
 		sim.Step()
 	}
-	if casts(extra) != paladin.ReckoningMaxCharges {
-		t.Errorf("the next swing spent the charges on %d extra attacks, want %d", casts(extra), paladin.ReckoningMaxCharges)
-	}
-	if charges.IsActive() {
-		t.Errorf("Reckoning still holds %d charges after the swing", charges.GetStacks())
-	}
-	if got, want := pal.AutoAttacks.NextAttackAt(), swingAt+speed; got != want {
-		t.Errorf("the swing after the extra attacks is at %s, want one weapon speed after the last normal swing, %s", got, want)
-	}
-	if casts(mh) != 1 {
-		t.Errorf("%d normal swings by %s, want 1", casts(mh), sim.CurrentTime)
+	if casts() != 3 || charges.IsActive() || pal.AutoAttacks.NextAttackAt() != next+pal.AutoAttacks.MainhandSwingSpeed() {
+		t.Errorf("next swing: %d swings, charges active %v; want 1 swing + 2 extra attacks, charges spent, timer untouched", casts(), charges.IsActive())
 	}
 }

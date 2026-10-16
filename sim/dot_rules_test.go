@@ -88,7 +88,7 @@ func dotCases() []dotCase {
 	return []dotCase{
 		// Rake 34 a tick plus 5.26% of attack power, read at the tick (mythicsim patch 99: the client row
 		// has no attack power coefficient, the share is fitted to beta logs).
-		{name: "Rake", meleeAP: 0.0526, flat: 34, build: func(t *testing.T) dotProbe {
+		{name: "Rake", meleeAP: 0.05, flat: 34, build: func(t *testing.T) dotProbe {
 			sim, agent, target := probePlayer(t, catJSON)
 			cat := agent.(druid.DruidAgent).GetDruid()
 			dot := cat.Rake.Dot(target)

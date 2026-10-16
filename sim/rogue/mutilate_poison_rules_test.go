@@ -168,7 +168,10 @@ func TestMutilateRollsEachHandAndSealFateAddsOnePoint(t *testing.T) {
 	}
 }
 
-func TestPoisonsIgnoreAttackPowerAndSpellPowerAndCrit(t *testing.T) {
+// Poisons gain a share of attack power the client rows do not carry: 0.5% for Instant Poison and 0.45% a
+// stack a tick for Deadly Poison (upstream #781, from the devs, forever-bugs #100). Spell power adds nothing,
+// and both crit.
+func TestPoisonsScaleWithAttackPowerOnlyAndCrit(t *testing.T) {
 	sim, rogue, target := newRogueProbe(t, &proto.ConsumesSpec{MhImbueId: 26891, OhImbueId: 27186}) // Instant Poison, Deadly Poison
 	if rogue.InstantPoison == nil || rogue.DeadlyPoison == nil {
 		t.Fatal("the rogue has no Instant Poison or Deadly Poison")
@@ -179,7 +182,7 @@ func TestPoisonsIgnoreAttackPowerAndSpellPowerAndCrit(t *testing.T) {
 	var lines []string
 	sim.Log = func(format string, args ...interface{}) { lines = append(lines, fmt.Sprintf(format, args...)) }
 
-	// Instant Poison: 76 to 100 whatever the attack power or spell power, and it crits.
+	// Instant Poison: 76 to 100 plus 0.5% of attack power, whatever the spell power, and it crits.
 	type sample struct{ meanBase, minBase, maxBase, critRate, meanAP float64 }
 	instantSample := func() sample {
 		s := sample{minBase: math.MaxFloat64}
@@ -217,20 +220,23 @@ func TestPoisonsIgnoreAttackPowerAndSpellPowerAndCrit(t *testing.T) {
 	if after.meanAP < before.meanAP+1900 {
 		t.Fatalf("the attack power never rose (%.0f then %.0f)", before.meanAP, after.meanAP)
 	}
-	if before.minBase < 75.9 || before.maxBase > 100.1 || after.minBase < 75.9 || after.maxBase > 100.1 {
-		t.Errorf("Instant Poison's base damage left 76 to 100: %.1f to %.1f, then %.1f to %.1f", before.minBase, before.maxBase, after.minBase, after.maxBase)
+	const instantShare, deadlyShare = 0.005, 0.0045
+	for _, s := range []sample{before, after} {
+		if lo, hi := 76+instantShare*s.meanAP, 100+instantShare*s.meanAP; s.minBase < lo-0.1 || s.maxBase > hi+0.1 {
+			t.Errorf("Instant Poison's base damage %.1f to %.1f at %.0f attack power, want %.1f to %.1f", s.minBase, s.maxBase, s.meanAP, lo, hi)
+		}
 	}
-	if math.Abs(after.meanBase-before.meanBase) > 1.5 {
-		t.Errorf("Instant Poison's mean base damage moved %.2f -> %.2f with attack power and spell power", before.meanBase, after.meanBase)
+	if want := instantShare * (after.meanAP - before.meanAP); math.Abs(after.meanBase-before.meanBase-want) > 1.5 {
+		t.Errorf("Instant Poison's mean base damage moved %.2f -> %.2f with 2000 attack power and spell power, want +%.2f", before.meanBase, after.meanBase, want)
 	}
 	if before.critRate < 0.02 || math.Abs(before.critRate-rogue.InstantPoison.SpellCritChance(target)) > 0.04 {
 		t.Errorf("Instant Poison crit rate %.3f against a spell crit chance of %.3f", before.critRate, rogue.InstantPoison.SpellCritChance(target))
 	}
 
-	// Deadly Poison: 23 a tick a stack, and its ticks crit too.
+	// Deadly Poison: 23 plus 0.45% of attack power a tick a stack, and its ticks crit too.
 	tick := regexp.MustCompile(`\{SpellID: 25347, Tag: 100\} \[DEBUG\] MAP: (-?[0-9.]+), RAP: (-?[0-9.]+), SP: (-?[0-9.]+), BaseDamage:(-?[0-9.]+), AfterAttackerMods:`)
 	tickOutcome := regexp.MustCompile(`\{SpellID: 25347, Tag: 100\} tick (Crit|Hit)`)
-	var bases []float64
+	var bases, perStack []float64
 	var tickCrits, ticks int
 	lines = lines[:0]
 	rogue.DeadlyPoison.Cast(sim, target)
@@ -238,8 +244,10 @@ func TestPoisonsIgnoreAttackPowerAndSpellPowerAndCrit(t *testing.T) {
 		sim.Step()
 		for _, line := range lines {
 			if m := tick.FindStringSubmatch(line); m != nil {
+				ap, _ := strconv.ParseFloat(m[1], 64)
 				base, _ := strconv.ParseFloat(m[4], 64)
 				bases = append(bases, base)
+				perStack = append(perStack, 23+deadlyShare*ap)
 			}
 			if m := tickOutcome.FindStringSubmatch(line); m != nil {
 				ticks++
@@ -256,13 +264,13 @@ func TestPoisonsIgnoreAttackPowerAndSpellPowerAndCrit(t *testing.T) {
 	if len(bases) < 100 {
 		t.Fatalf("only %d Deadly Poison ticks logged", len(bases))
 	}
-	for _, base := range bases {
-		if math.Mod(base, 23) > 0.2 && 23-math.Mod(base, 23) > 0.2 {
-			t.Errorf("a Deadly Poison tick of %.1f is not a whole number of 23-damage stacks, so something other than stacks moved it", base)
+	for i, base := range bases {
+		if stacks := base / perStack[i]; math.Abs(stacks-math.Round(stacks)) > 0.01 {
+			t.Errorf("a Deadly Poison tick of %.2f is not a whole number of %.2f-damage stacks, so something other than stacks and attack power moved it", base, perStack[i])
 			break
 		}
 	}
-	t.Logf("Deadly Poison: %d ticks, base damage always a multiple of 23 with %.0f extra attack power and %.0f spell power up; %d of %d ticks crit (%.3f)",
+	t.Logf("Deadly Poison: %d ticks, base damage always a whole number of stacks with %.0f extra attack power and %.0f spell power up; %d of %d ticks crit (%.3f)",
 		len(bases), 2000.0, 2000.0, tickCrits, ticks, float64(tickCrits)/math.Max(1, float64(ticks)))
 	if tickCrits == 0 {
 		t.Error("no Deadly Poison tick crit")

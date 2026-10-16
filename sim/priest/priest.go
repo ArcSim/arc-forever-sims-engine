@@ -1,6 +1,8 @@
 package priest
 
 import (
+	"slices"
+
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
@@ -21,12 +23,15 @@ type Priest struct {
 
 	Shadowfiend    *core.Spell
 	InnerFocusAura *core.Aura
+	innerFocusCrit *core.SpellMod
+	// Inner Focus's crit chance, as a fraction.
+	innerFocusCritChance float64
 
 	VampiricEmbrace *core.Spell
 
-	SearingLightAura  *core.Aura
-	ShadowformAura    *core.Aura
-	ShadowWeavingAura *core.Aura
+	SearingLightAura   *core.Aura
+	ShadowformAura     *core.Aura
+	ShadowWeavingAuras core.AuraArray
 
 	// Every Holy Fire rank the priest knows, so Power in Light can ask whether its dot is running.
 	HolyFire []*core.Spell
@@ -133,8 +138,9 @@ type PriestAgent interface {
 // Word: Pain, Mind Flay, Holy Fire and Starshards carry it, and since client 1.60.1.70170 so does
 // Devouring Plague (it did not in 70009, and patch 14 rolled its ticks anyway).
 // shared.PeriodicTickOutcome cannot serve: its magic branches roll the hit again on every tick, which
-// would charge the miss twice.
-func priestTickOutcome(canCrit bool, dot *core.Dot) core.OutcomeApplier {
+// would charge the miss twice. Inner Focus's crit no longer reaches periodic effects: dev AidanZMoon,
+// forever-bugs #137 (dynamic DoTs ticking while it was up picked it up).
+func (priest *Priest) tickOutcome(canCrit bool, dot *core.Dot) core.OutcomeApplier {
 	if !canCrit {
 		return dot.OutcomeTick
 	}
@@ -143,7 +149,11 @@ func priestTickOutcome(canCrit bool, dot *core.Dot) core.OutcomeApplier {
 		metrics := &dot.Spell.SpellMetrics[result.Target.UnitIndex]
 		isPartialResist := result.DidResist()
 
-		if dot.Spell.MagicCritCheck(sim, result.Target) {
+		critChance := dot.Spell.SpellCritChance(result.Target)
+		if mod := priest.innerFocusCrit; mod != nil && mod.IsActive && slices.Contains(mod.AffectedSpells, dot.Spell) {
+			critChance = max(critChance-priest.innerFocusCritChance, 0)
+		}
+		if sim.RandomFloat("Magical Crit Roll") < critChance {
 			result.Outcome = core.OutcomeCrit
 			result.Damage *= dot.Spell.CritDamageMultiplier(attackTable)
 			metrics.CritTicks++

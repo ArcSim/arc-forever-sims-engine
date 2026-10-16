@@ -1,9 +1,9 @@
 # MythicSim downstream patches
 
 MythicSim runs this engine from its fork (`sage3648/mythicsim-forever-engine-go`, branch
-`mythicsim/upstream-sync-20261010`). The branch is ElliotWood/Forever master, which is built on the
+`mythicsim/oct16-upstream-sync`). The branch is ElliotWood/Forever master, which is built on the
 official wowsims/forever, plus the patches below. The first base was `442076902` (Merge
-wowsims/forever master ea5412873). The current base is `071e0cb439` (2026-10-10, client 1.60.1.70334); the 2026-10-10 sync merged #720 to #760, dropped patch 11 and gave patch 5 upstream's move into melee ("Upstream sync 2026-10-10, #720 to #760" at the end of this file). The base before it was `5c115f1725` (2026-10-07, client 1.60.1.70235 with the 2026-10-06 hotfixes); the 2026-10-07 sync merged #677 to #719 and dropped patches 3, 76, 91, 93 and 94 and folded upstream's Flametongue Totem into patches 70 to 72 ("Upstream sync 2026-10-07, #677 to #719" at the end of this file). The base before it was `67f14b04a5` (2026-10-04, client 1.60.1.70205); the 2026-10-05 sync merged #642 to #676 and dropped patches 13, 18, 19, 20, 22, 23, 27, 30 and 31, which upstream now carries ("Upstream sync 2026-10-05, #642 to #676" at the end of this file). The base before it was `f764984d8b` (2026-10-03), merged by "Upstream sync 2026-10-03, #613 to #641", and before that `f4b776b4f4`, and before that `ccfaacb5c3` (2026-10-02, client 1.60.1.70170 with the 2026-10-02 hotfix cache). The 2026-10-01 syncs merged 113 upstream commits and then 28 more ("Upstream sync 2026-10-01, second merge" below); the decisions are in "Upstream sync 2026-10-01". The 2026-10-02 sync merged the 12 commits #602 to #609 ("Upstream sync 2026-10-02, #602 to #609" at the end of this file): patches 50 and 61 are dropped, patch 63 is narrowed to Mystic Mushroom, and the interim 70170 regeneration is replaced by upstream's real one. The previous base was `8dc19a4241` (2026-09-27). It includes form-speed and actual spell cast-time Omen of Clarity proc corrections, life-drain weapon effects, Sword of Zeal, Argent Avenger, Fiery Weapon and Lifestealing enchants, Flurry Axe and Electrified Dagger, the 2026-09-27 client hotfix database, Stinging Viper and eight Classic weapon procs, Mage Scroll of Cryoblast, non-engineer explosives and SAF-T / EZ-Thro bombs, Deep Wounds weapon-only damage with outstanding bleed rollover, Raptor pet Savage Rend, Venomstrike procs, Defias Leather set effects, Barbaric Crossbow, Plaguefang and Wolfsbane weapon procs, the Stormshroud and Volcanic Armor proc chances, item effects below item level 50, the refreshed client database, Druid form Faerie Fire cost and timing, Hunter pet Lightning Breath scaling, Inspiration armor bonuses, the client hotfix databases, Hunter ranged scaling, Rogue Hack and Slash cooldown, Shaman Flametongue and Fire Nova fixes, and the merged Penance timing and cost fixes, Demonic Pact pre-pull sacrifice, Mana Tide Totem party restoration, Frost Mage talent fixes, and rank 4 Trueshot Aura. It also carries client 1.60.1.70009 and the earlier lower-rank spell, aura-cap, and consumable fixes.
+wowsims/forever master ea5412873). The current base is `d2a97739b7` (2026-10-16, client 1.60.1.70374 with the 2026-10-15 hotfixes); the 2026-10-16 sync merged #764 to #810 and dropped patches 51, 99, 109, 113, 128, 130, 136 and 137 and parts of 138 ("Upstream sync 2026-10-16, #764 to #810" at the end of this file). The base before it was `f7598154eb` (2026-10-11, #761 to #763), and before that `071e0cb439` (2026-10-10, client 1.60.1.70334); the 2026-10-10 sync merged #720 to #760, dropped patch 11 and gave patch 5 upstream's move into melee ("Upstream sync 2026-10-10, #720 to #760" at the end of this file). The base before it was `5c115f1725` (2026-10-07, client 1.60.1.70235 with the 2026-10-06 hotfixes); the 2026-10-07 sync merged #677 to #719 and dropped patches 3, 76, 91, 93 and 94 and folded upstream's Flametongue Totem into patches 70 to 72 ("Upstream sync 2026-10-07, #677 to #719" at the end of this file). The base before it was `67f14b04a5` (2026-10-04, client 1.60.1.70205); the 2026-10-05 sync merged #642 to #676 and dropped patches 13, 18, 19, 20, 22, 23, 27, 30 and 31, which upstream now carries ("Upstream sync 2026-10-05, #642 to #676" at the end of this file). The base before it was `f764984d8b` (2026-10-03), merged by "Upstream sync 2026-10-03, #613 to #641", and before that `f4b776b4f4`, and before that `ccfaacb5c3` (2026-10-02, client 1.60.1.70170 with the 2026-10-02 hotfix cache). The 2026-10-01 syncs merged 113 upstream commits and then 28 more ("Upstream sync 2026-10-01, second merge" below); the decisions are in "Upstream sync 2026-10-01". The 2026-10-02 sync merged the 12 commits #602 to #609 ("Upstream sync 2026-10-02, #602 to #609" at the end of this file): patches 50 and 61 are dropped, patch 63 is narrowed to Mystic Mushroom, and the interim 70170 regeneration is replaced by upstream's real one. The previous base was `8dc19a4241` (2026-09-27). It includes form-speed and actual spell cast-time Omen of Clarity proc corrections, life-drain weapon effects, Sword of Zeal, Argent Avenger, Fiery Weapon and Lifestealing enchants, Flurry Axe and Electrified Dagger, the 2026-09-27 client hotfix database, Stinging Viper and eight Classic weapon procs, Mage Scroll of Cryoblast, non-engineer explosives and SAF-T / EZ-Thro bombs, Deep Wounds weapon-only damage with outstanding bleed rollover, Raptor pet Savage Rend, Venomstrike procs, Defias Leather set effects, Barbaric Crossbow, Plaguefang and Wolfsbane weapon procs, the Stormshroud and Volcanic Armor proc chances, item effects below item level 50, the refreshed client database, Druid form Faerie Fire cost and timing, Hunter pet Lightning Breath scaling, Inspiration armor bonuses, the client hotfix databases, Hunter ranged scaling, Rogue Hack and Slash cooldown, Shaman Flametongue and Fire Nova fixes, and the merged Penance timing and cost fixes, Demonic Pact pre-pull sacrifice, Mana Tide Totem party restoration, Frost Mage talent fixes, and rank 4 Trueshot Aura. It also carries client 1.60.1.70009 and the earlier lower-rank spell, aura-cap, and consumable fixes.
 
 Keep the set small. Each patch exists because MythicSim needs something upstream does not do
 yet. Drop a patch as soon as upstream covers it; do not keep ours alongside an upstream version.
@@ -1014,7 +1014,9 @@ took of the patch notes, because for all three the client rows carry nothing the
 - **Drop it when** (now moot) upstream models the client's Rule of Rage, or measures a different factor: then change
   `core.CritRageMultiplier`.
 
-## 51. Swipe gains 3% of attack power
+## 51. Swipe gains 3% of attack power (dropped, upstream #787)
+
+Dropped in the 2026-10-16 sync: upstream #787 gives Swipe 5% of attack power, fitted to beta logs (Thebig, report 2756); the 70170 patch note's 3% goes. `TestSwipeGainsFivePercentOfAttackPower` now pins upstream's share.
 
 - **What it does.** `sim/druid/swipe.go` adds `0.03 * attack power` to each target's base Swipe damage, before
   Feral Instinct's and the other damage mods.
@@ -2186,7 +2188,9 @@ Goldens: none move; no suite preset puts a Flametongue Totem beside a Windfury T
 Drop it when upstream changes the rule, or keep it as long as upstream carries the same rule (then it is
 only the party-flag half, since upstream has no party Flametongue Totem).
 
-## 99. `druid: Rake adds 5.26% of attack power to its hit and every tick`
+## 99. `druid: Rake adds 5.26% of attack power to its hit and every tick` (dropped, upstream #769/#772)
+
+Dropped in the 2026-10-16 sync: upstream #772 adds 5% of attack power to the hit and each tick, fitted to two more beta logs (Moondre, Axl), and its hit ignores armor. Hameru's logs fit 0.0526; the Rake tests now pin 0.05.
 
 The client rows at the pinned build carry no BonusCoefficientFromAP on Rake, and Blizzard's Druid deep
 dive (30 September 2026) only says it "now gains increased damage from Attack Power". The share is a
@@ -2477,7 +2481,9 @@ Goldens: none move (no preset casts Light's Vigil).
 Light's Vigil is a 1.5 sec hard cast (`CastTimeMs: 1500`, Spiritual Focus covers its pushback) with no
 swing hook yet; a hold or restart would go in its `Cast.ModifyCast`, as in `holy_wrath.go`.
 
-## 109. `rogue: one switch for Cold Blood and Mutilate`
+## 109. `rogue: one switch for Cold Blood and Mutilate` (dropped, upstream #785)
+
+Dropped in the 2026-10-16 sync: upstream #785 spends Cold Blood on the off-hand Mutilate strike (dev AidanZMoon, forever-bugs #224). `ColdBloodSpentByMutilate` and its tests are gone; upstream's `TestMutilateSpendsColdBlood` stays.
 
 No behaviour change. Upstream #690 modelled what the beta logs (2701/2702) and the live client show:
 Mutilate's hand strikes take Cold Blood's crit without spending the charge, so Cold Blood stays up
@@ -2566,7 +2572,9 @@ The two small drops are the random stream shifting: the proc no longer draws its
 
 Drop this when the store generates these procs and honours the always-hit attribute.
 
-## 113. `core: a critical auto attack gives twice the rage`
+## 113. `core: a critical auto attack gives twice the rage` (dropped, upstream #794)
+
+Dropped in the 2026-10-16 sync: upstream #794 pays a critical auto attack's swing rage again, before the two-hander's factor (`core.CritRageBonus`). `CritRageMultiplier` goes; `TestCritAutoAttackRageIsTwiceAHit` stays and passes on upstream's code.
 
 Client 70170 brought back extra rage on a critical auto attack at 75% (WoW: Forever Podcast episode 2), and
 `CritRageMultiplier` in `sim/core/rage.go` was 1.75. The beta development notes raise it to 100% for both
@@ -2917,7 +2925,9 @@ and 5 stacks give 1.05x and 1.05^5 the main-hand swings over 120 seconds, 9 stac
 
 Drop it when upstream carries a Battle Squawk party option.
 
-## 128. `core: a crit's extra rage leaves out the two-hander's factor`
+## 128. `core: a crit's extra rage leaves out the two-hander's factor` (dropped, upstream #794)
+
+Dropped in the 2026-10-16 sync: upstream #794 reads the same Magey logs. `CritRageBonusSkipsTwoHand` and its switch test go.
 
 Patch 113 doubled a critical auto attack's whole rage. Magey's beta logs on client 70170 (after the 1
 October notes; github.com/magey/forever-warrior/issues/3) fit `crit = swing + 3.46 x speed x hand`: the
@@ -2976,7 +2986,9 @@ the engineer is what the game can give. `Party.battle_squawks` stays 0 to 5 in t
 one stack on the player.
 
 
-## 130. `warrior: Last Stand reads its 30% from client 70291's health aura`
+## 130. `warrior: Last Stand reads its 30% from client 70291's health aura` (dropped, upstream #795)
+
+Dropped in the 2026-10-16 sync: upstream #795 reads `A_MOD_INCREASE_HEALTH` as a share of maximum health; its `TestLastStandGrantsThirtyPercentOfMaximumHealth` replaces ours.
 
 Client 1.60.1.70291 moved Last Stand's buff (12976) from `A_MOD_MAX_HEALTH` (230) to
 `A_MOD_INCREASE_HEALTH` (34), still with 30, and the buff tooltip still reads "Health increased by
@@ -3324,7 +3336,9 @@ skill and the four lookups), and MythicSim's gear summary (`web/src/lib/forever-
 
 Drop it when upstream models weapon skill.
 
-## 136. `hunter: a pet's crit is its master's ranged crit`
+## 136. `hunter: a pet's crit is its master's ranged crit` (dropped, upstream #804, superseded by patch 138)
+
+Dropped in the 2026-10-16 sync: upstream #804 gives the pet its master's ranged crit. Patch 138's higher-of-melee-and-ranged crit and inherited expertise stay on top (`pet.go` keeps ours); upstream's test is kept as `TestPetCritIsTheAutoShotsPlusFerocity`.
 
 Raised by Bae in #hunter, 16 October: hunter pets do not scale with their master's crit. They had their
 own crit from Agility plus a base that a Forever developer called erroneous, and the developer's answer
@@ -3380,7 +3394,9 @@ Auto Shot spell mod carry-over, without the pet's Agility crit).
 
 Drop it when upstream gives the pet its owner's ranged crit.
 
-## 137. `core: racials from the 16 October beta development notes`
+## 137. `core: racials from the 16 October beta development notes` (dropped, upstream #806/#809)
+
+Dropped in the 2026-10-16 sync: upstream #806 and #809 model the same racials with the same numbers (Ruthless, Savage, Earth Fury, Endurance, Wind Blessed, Blood Fury, Shatter Curse, Eureka!, Touch of the Grave). `racials.go` takes upstream's, without the Ruthless and Savage auras. Kept: Touch of the Grave's `SpellFlagIgnoreModifiers` (upstream ignores only the caster's modifiers; the notes rule out Shadow increases on the target too), and the earlier `EurekaSpells` masks. Our racial tests stay.
 
 Blizzard updated the beta with a new build on 16 October 2026 and listed the racial changes in the
 [WoW Forever Beta Development Notes](https://us.forums.blizzard.com/en/wow/t/wow-forever-beta-development-notes-%E2%80%93-updated-october-8/2360696)
@@ -3432,6 +3448,22 @@ Drop it when upstream models the 16 October racials.
 
 ## 138. `classes: the 16 October beta development notes (part one)`
 
+Narrowed in the 2026-10-16 sync. Upstream now carries these pieces, and ours are gone:
+
+- Ice Lance +200% on frozen targets (#807).
+- Fire Blast and Heating Up (#808). Upstream adds a stack on every Fire Blast cast on top of its crit's,
+  which is what the notes say ("always gains an additional charge each time the Mage casts Fire Blast").
+  Ours gave a crit 2 and a non-crit none. A Pyroblast that Presence of Mind made instant keeps the stacks
+  (upstream checks the cast time, so `pyroblastUnderPresenceOfMind` goes).
+- Reckoning charges (#792, #810), with the client's 1.5 s proc cooldown that ours left off.
+- Cold Blood spent by Mutilate (#785, see patch 109).
+- Resourcefulness reaching Strider Kick (#783). Our crit-only proc stays.
+
+Kept against upstream: Twin Disciplines also reaches Starshards and Penance (upstream #780 adds only Mind
+Flay and Shadow Word: Death, from the 13 October bug answers); Malediction adds no damage (upstream #788
+fixed Hellfire's share on 13 October, before the notes replaced the talent with Grim Reach); the pet's
+crit (see patch 136). The rest of the table is still ours alone.
+
 The [WoW Forever Beta Development Notes](https://us.forums.blizzard.com/en/wow/t/wow-forever-beta-development-notes-%E2%80%93-updated-october-8/2360696) of 16 October 2026 change every class. This patch takes every note that states its numbers or rule outright and needs no new client row. The rest (talent tree moves, new talents and ranks, the Arcane Blast, Fire Power and Winter's Chill redesigns, Fire Nova's new base damage, the Seal of Righteousness and Judgement coefficients, Call of Thunder's removal) waits for the build's DB2 tables, which wago.tools did not list yet (newest `wow_cn_beta` 1.60.1.70374). Where the client row still has the old value, the code overrides it with a comment naming the notes.
 
 | Class | Change | Where |
@@ -3458,3 +3490,60 @@ Tests: new focused tests in every touched package (`sim/mage/oct16_notes_test.go
 Measured (native `wowsimcli`, MythicSim production default path, 10,000 iterations, board seed, board length, against `713b825aae`, MythicSim's buff defaults as of patch 137): Shockadin 999.24 to 898.68 (-10.1%), Assassination 605.38 to 545.73 (-9.9%), Ret-protection 587.36 to 532.63 (-9.3%), Retribution 900.96 to 821.28 (-8.8%), Holy-protection 575.02 to 542.38 (-5.7%), Frost 677.11 to 643.47 (-5.0%), Elehance 646.90 to 636.34 (-1.6%), Enhancement -0.8%, Destruction -0.8%, Survival weave -0.6%; Shadow 709.76 to 748.90 (+5.5%), Smite +1.8%, Affliction +1.6%, Fire +1.6%, Elemental +1.3%, Protection Paladin +0.3%, Beast Mastery +0.3%. The rest move under 0.2%.
 
 Downstream: the Rust engine needs these before its next repin. Drop each piece as upstream takes it.
+
+## Upstream sync 2026-10-16, #764 to #810
+
+Merged `ElliotWood/Forever` master `d2a97739b7` (83 commits, #764 to #810 plus data, changelog and arena
+commits) into the live pin `d0bd691f08` (patches 1 to 138). Client data moves from 1.60.1.70338 to
+1.60.1.70374 with the 2026-10-15 hotfixes (#771, #778, #784, #796), and Wowhead data through 2026-10-15.
+
+Behaviour adopted: Rake's attack power share and armor-ignoring hit (#769, #772) and the Cat rotation keeping
+Rake up (#773); Improved Tracking on the default Unknown target (#774); Maelstrom Weapon at 10 PPM (#775);
+Fingers of Frost at Frostbolt's and Frostfire Bolt's launch (#776); Shadow Weaving per target (#777); Siphon
+Life ticks crit (#782); poisons scale with attack power (#781); Resourcefulness on Strider Kick (#783); Cold
+Blood spent by Mutilate (#785); bear Swipe 5% of attack power (#787); Fire Nova crits leave Elemental
+Devastation alone (#789); Succubus Lash of Pain crit (#790); Reckoning charges with the 1.5 s proc cooldown
+(#792, #810); Inner Focus's crit kept off ticks (#793); crit rage (#794); Last Stand (#795); Blood Craze off
+Bloodthirst (#797); Bear Form threat 50% (#798); Retribution Aura 6% of the paladin's spell power (#800);
+Improved Seal of Fury and Shield Specialization mana without threat (#801); Demonic Brand's Imp hit at
+normal threat (#802); Thorns 6% of spell power (#803); pet crit (#804, under patch 138's); Shifting Power not
+at full Energy (#805); the 16 October racials (#806, #809), Ice Lance (#807) and Heating Up (#808).
+
+Patches upstream now carries, dropped here:
+
+| Patch | Upstream | Notes |
+|---|---|---|
+| 51 Swipe 3% of attack power | #787 | Upstream's 5% is fitted to beta logs; our test now pins 0.05. |
+| 99 Rake 5.26% of attack power | #772 | Upstream's 5% fits two more logs; Rake tests pin 0.05. |
+| 109 Cold Blood switch | #785 | The switch and its tests go. |
+| 113, 128 crit rage | #794 | Same rule; the Go switches go, the rage tests stay. |
+| 130 Last Stand | #795 | Upstream's test replaces ours. |
+| 136 pet ranged crit | #804 | Patch 138's higher-of-both crit and expertise stay on top. |
+| 137 16 October racials | #806, #809 | Same numbers. Touch of the Grave keeps `SpellFlagIgnoreModifiers`. |
+| 138, in part | #783, #785, #792, #807, #808, #810 | See patch 138. Heating Up and Reckoning now follow upstream. |
+
+Kept against upstream:
+
+- **60 Inner Focus.** Our mask follows the client's non-periodic list (no Shadow Word: Pain or Devouring
+  Plague); upstream's #793 tick rule sits on top. `TestInnerFocusSkipsPeriodicCrit` checks it on Holy Fire,
+  since Shadow Word: Pain never takes Inner Focus here.
+- **138 Twin Disciplines and Malediction.** The 16 October notes are newer than upstream's 13 October fixes.
+- **Demonic Brand.** Our per-target charges and 1293697/1293698 hits stay; upstream's threat (#802) is
+  merged in, and its `TestDemonicBrandImpSpendsWithFirebolt` reads the target's charges.
+
+Conflicts: `db.json` and `leftover_db.json` by `forever-merge-db.py` (15 new upstream items, Spell icon 15258
+removed; planner armor re-applied to 10 items, spell power raised on 2), then `sync_db_binary`. The Feral Cat
+rotation keeps our mana lines and takes upstream's Rake line after them. A silent double-count: patch 138's
+"Fire Blast crit adds 2" merged next to upstream's "every Fire Blast adds 1" without a conflict, giving 3, so
+the crit handler takes upstream's single stack. Our Frostfire Bolt test fires the launch roll
+(`SkipCastAndApplyEffects`) now that #776 no longer procs on hit.
+
+Goldens move with upstream's own over the same range, or match upstream exactly where no patch of ours
+reaches the suite (Feral Bear, Fire, Frost, Arcane, Protection Warrior): Feral Cat +12.5% (upstream +12.3%),
+Assassination +1.7%, Combat +1.3%, Subtlety +1.3% (the poisons, #781's own figures; upstream's further
+racial gains were already in patch 137), Affliction +1.1% (+1.8%). Beast Mastery, Marksmanship, Survival,
+Retribution, Shadow, Fury and Destruction do not move: upstream's gains there are the racials and pet crit
+patches 136 and 137 already carried. Protection Paladin is the exception, 292.98 to 283.72 (-3.2%) against
+upstream's +0.9%: with upstream's Reckoning proc cooldown in place, patch 138's Consecration coefficient
+(0.042, was 0.095) and Shield Specialization mana are no longer offset; at 0.095 the suite gives 290.81
+against upstream's 294.48. Every other test passes.

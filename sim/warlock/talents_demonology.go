@@ -259,9 +259,10 @@ func (warlock *Warlock) applyDemonicBrand() {
 	var latestTarget *core.Unit
 	warlock.RegisterResetEffect(func(_ *core.Simulation) { latestTarget = nil })
 	for _, pet := range warlock.BasePets {
-		brandID, school, powerStat := int32(1293697), core.SpellSchoolShadow, stats.ShadowDamage
+		// Only the Shadow hit carries the high threat (beta notes 8 Oct).
+		brandID, school, powerStat, threat := int32(1293697), core.SpellSchoolShadow, stats.ShadowDamage, 3.0
 		if pet == warlock.Imp {
-			brandID, school, powerStat = 1293698, core.SpellSchoolFire, stats.FireDamage
+			brandID, school, powerStat, threat = 1293698, core.SpellSchoolFire, stats.FireDamage, 1
 		}
 		brandSpell := pet.RegisterSpell(core.SpellConfig{
 			ActionID:    core.ActionID{SpellID: brandID},
@@ -271,7 +272,7 @@ func (warlock *Warlock) applyDemonicBrand() {
 			Flags:       core.SpellFlagPassiveSpell | core.SpellFlagNoOnCastComplete,
 
 			DamageMultiplier: 1,
-			ThreatMultiplier: 3,
+			ThreatMultiplier: threat,
 
 			ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 				levelBonus := float64(core.CharacterLevel-26) * 1.5

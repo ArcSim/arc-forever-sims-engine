@@ -7,15 +7,13 @@ import (
 var rakeRank = spellData.Rake.Highest()
 var rakeTick = rakeRank.PeriodicEffect()
 
-// Rake adds 5.26% of attack power to the hit and to every tick. The client rows at the pinned build
-// carry no BonusCoefficientFromAP on either, and Blizzard's Druid deep dive (30 September 2026,
-// worldofwarcraft.blizzard.com/en-us/news/24301515) only says "Rake: Now gains increased damage from
-// Attack Power", so the share is a fit to beta combat logs (Hameru, MythicSim Discord #bugs, 7 October
-// 2026, level 30, non-crits on many mobs): at 324 attack power Rake hit 40 and ticked 33, 33, 33; at
-// 225 it hit 35 and ticked 28, 28, 27. That rank's base is 23 on the hit and 16 a tick, which leaves
-// 0.0526 of attack power on both. The share rides on whatever rank is cast, which keeps its own base
-// from client data. A tick reads the share from the attack power it has then, as Rip's does.
-const rakeAttackPowerShare = 0.0526
+// The client states a flat hit and a flat tick with no BonusCoefficientFromAP, but Blizzard's Druid
+// deep dive (30 Sep) says Rake "now gains increased damage from Attack Power". Beta logs put it at
+// about 5% of attack power on the hit and on each tick (issue #769): Moondre (foreverlogs 2717,
+// ~310 AP) and Axl (2771, ~405 AP, both read off their Rip ticks) land rank 1 at 43/36 and 51/43
+// against the client's 23/16 before Savage Fury. The hit ignores armor too: each druid's hit is the
+// same on every mob while their white swings differ by armor. A tick reads its share at the tick, like Rip.
+const rakeAttackPowerShare = 0.05
 
 func rakeHitDamage(attackPower float64) float64 {
 	return rakeRank.DamageEffect().Average(core.CharacterLevel) + rakeAttackPowerShare*attackPower
@@ -32,7 +30,7 @@ func (druid *Druid) registerRakeSpell() {
 		DefenseType:    rakeRank.DefenseTypeCore(),
 		ProcMask:       core.ProcMaskMeleeMHSpecial,
 		ClassSpellMask: DruidSpellRake,
-		Flags:          core.SpellFlagMeleeMetrics | core.SpellFlagAPL,
+		Flags:          core.SpellFlagMeleeMetrics | core.SpellFlagAPL | core.SpellFlagIgnoreResists,
 		Rank:           rakeRank.RankNumber(),
 
 		EnergyCost: core.EnergyCostOptions{

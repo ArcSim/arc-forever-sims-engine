@@ -47,6 +47,59 @@ func TestDemonicPactKeepsTheSacrifice(t *testing.T) {
 	}
 }
 
+// The Imp has no melee, so its Firebolt spends the brand, and the branded hit is Fire (1293698);
+// the other demons' is Shadow (1293697). Both rows are Always Hit without Cannot Crit, so the hit
+// never misses and can crit.
+func TestDemonicBrandImpSpendsWithFirebolt(t *testing.T) {
+	for _, tc := range []struct {
+		summon  proto.WarlockOptions_Summon
+		school  core.SpellSchool
+		brandID int32
+	}{{proto.WarlockOptions_Imp, core.SpellSchoolFire, 1293698}, {proto.WarlockOptions_Succubus, core.SpellSchoolShadow, 1293697}} {
+		player := core.WithSpec(&proto.Player{
+			Race:          proto.Race_RaceOrc,
+			Class:         proto.Class_ClassWarlock,
+			Equipment:     &proto.EquipmentSpec{},
+			Consumables:   &proto.ConsumesSpec{},
+			TalentsString: "-00000000000003",
+			Rotation:      &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
+		}, &proto.Player_Warlock{Warlock: &proto.Warlock{Options: &proto.Warlock_Options{ClassOptions: &proto.WarlockOptions{
+			Summon: tc.summon,
+		}}}})
+		sim := core.NewSim(&proto.RaidSimRequest{
+			SimOptions: &proto.SimOptions{RandomSeed: 100},
+			Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+			Encounter:  core.MakeSingleTargetEncounter(0),
+		}, simsignals.CreateSignals())
+		sim.Reset()
+
+		warlock := sim.Raid.Parties[0].Players[0].(WarlockAgent).GetWarlock()
+		pet := warlock.ActivePet
+		// The charges sit on the branded target (MythicSim's per-target brand).
+		brand := warlock.DemonicBrandAuras.Get(pet.CurrentTarget)
+		brand.Activate(sim)
+		brand.SetStacks(sim, brand.MaxStacks)
+		for _, spell := range pet.AutoCastAbilities {
+			spell.SkipCastAndApplyEffects(sim, pet.CurrentTarget)
+		}
+
+		hit := pet.GetSpell(core.ActionID{SpellID: tc.brandID})
+		if hit.SpellSchool != tc.school {
+			t.Errorf("%v: branded hit is %v, want %v", tc.summon, hit.SpellSchool, tc.school)
+		}
+		if hit.SpellMetrics[0].Casts == 0 || brand.GetStacks() != brand.MaxStacks-hit.SpellMetrics[0].Casts {
+			t.Errorf("%v: pet spell spent %d of %d charges", tc.summon, brand.MaxStacks-brand.GetStacks(), brand.MaxStacks)
+		}
+
+		for i := 0; i < 2000; i++ {
+			hit.SkipCastAndApplyEffects(sim, pet.CurrentTarget)
+		}
+		if m := hit.SpellMetrics[0]; m.Misses != 0 || m.Crits == 0 {
+			t.Errorf("%v: branded hit missed %d and crit %d times in 2000, want 0 misses and some crits", tc.summon, m.Misses, m.Crits)
+		}
+	}
+}
+
 // Bane of Havoc copies 15% of the warlock's damage to other targets onto the baned target (client
 // 1225228), and nothing of the damage the baned target takes itself.
 func TestBaneOfHavocCopiesDamage(t *testing.T) {

@@ -105,23 +105,16 @@ func (warrior *Warrior) registerLastStand() {
 	actionID := core.ActionID{SpellID: lastStandRank.ID}
 	healthMetrics := warrior.NewHealthMetrics(actionID)
 
-	// Client 1.60.1.70291 moved the buff's "30% of maximum" from A_MOD_MAX_HEALTH to
-	// A_MOD_INCREASE_HEALTH with the same 30, and the tooltip still reads 30% of maximum health.
-	// Read whichever the client states, here, so a later move fails at registration and not in
-	// the middle of a fight.
-	healthShare := lastStandBuff.FindEffect(dbcenums.E_APPLY_AURA, dbcenums.A_MOD_MAX_HEALTH, 0)
-	if healthShare == spelldata.NilEffect {
-		healthShare = lastStandBuff.Effect(dbcenums.A_MOD_INCREASE_HEALTH, 0)
-	}
-	share := healthShare.Percent()
-
+	// Client 1.60.1.70291 moved the buff from A_MOD_MAX_HEALTH to A_MOD_INCREASE_HEALTH, still 30; the
+	// talent tooltip reads "30% of your maximum health", so it stays a share of maximum health.
+	healthPercent := lastStandBuff.Effect(dbcenums.A_MOD_INCREASE_HEALTH, 0).Percent()
 	var bonusHealth float64
 	aura := warrior.RegisterAura(core.Aura{
 		Label:    "Last Stand",
 		ActionID: actionID,
 		Duration: lastStandBuff.Duration(),
 		OnGain: func(aura *core.Aura, sim *core.Simulation) {
-			bonusHealth = warrior.MaxHealth() * share
+			bonusHealth = warrior.MaxHealth() * healthPercent
 			warrior.UpdateMaxHealth(sim, bonusHealth, healthMetrics)
 		},
 		OnExpire: func(aura *core.Aura, sim *core.Simulation) {

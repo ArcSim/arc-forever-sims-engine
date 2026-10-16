@@ -10,7 +10,7 @@ import (
 // from landing Critical Strikes increased to 100% increased Rage (was 75%)". A critical strike with an
 // auto attack pays the swing's rage again on top, and the damage it dealt does not matter: a crit that
 // deals three times a hit's damage still pays the same. The extra is the swing's rage before a
-// two-hander's factor (Magey, client 70170, CritRageBonusSkipsTwoHand), so a two-hander gets about 1.77
+// two-hander's factor (Magey, client 70170, upstream #794), so a two-hander gets about 1.77
 // times its swing, not 2.
 func TestCritAutoAttackRageIsTwiceAHit(t *testing.T) {
 	const hitDamage = 500.0
@@ -70,39 +70,6 @@ func TestCritAutoAttackRageIsTwiceAHit(t *testing.T) {
 				t.Fatalf("crit paid %0.4f Rage, want %0.4f", crit, tc.wantCrit)
 			}
 		})
-	}
-}
-
-// CritRageBonusSkipsTwoHand off multiplies a two-hander's whole swing again: twice a hit.
-func TestCritRageBonusOnTheWholeTwoHandSwingWhenSwitchedOff(t *testing.T) {
-	defer func(old bool) { CritRageBonusSkipsTwoHand = old }(CritRageBonusSkipsTwoHand)
-	CritRageBonusSkipsTwoHand = false
-
-	sim := SetupFakeRageSim()
-	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
-	fw.AutoAttacks.MH().NormalizedSwingSpeed = TwoHandNormalizedSwingSpeed
-	spell := fw.AutoAttacks.MHAuto()
-	hit := rageFromAutoAttack(sim, fw, spell, OutcomeHit, 500)
-	fw.ResetRageBar(sim, 0)
-	crit := rageFromAutoAttack(sim, fw, spell, OutcomeCrit, 1000)
-	if !WithinToleranceFloat64(2, crit/hit, 0.0000001) {
-		t.Fatalf("crit paid %0.6f times a hit, want 2", crit/hit)
-	}
-}
-
-// CritRageMultiplier set back to client 70170's 1.75 pays the 75% bonus again.
-func TestCritRageMultiplierSwitchesBackToSeventyFivePercent(t *testing.T) {
-	defer func(old float64) { CritRageMultiplier = old }(CritRageMultiplier)
-	CritRageMultiplier = 1.75
-
-	sim := SetupFakeRageSim()
-	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
-	spell := fw.AutoAttacks.MHAuto()
-	hit := rageFromAutoAttack(sim, fw, spell, OutcomeHit, 500)
-	fw.ResetRageBar(sim, 0)
-	crit := rageFromAutoAttack(sim, fw, spell, OutcomeCrit, 1000)
-	if !WithinToleranceFloat64(1.75, crit/hit, 0.0000001) {
-		t.Fatalf("crit paid %0.6f times a hit, want 1.75", crit/hit)
 	}
 }
 

@@ -114,7 +114,7 @@
 	"20178": {
 		"ability": "Reckoning",
 		"file": "sim/paladin/talents_protection.go",
-		"note": "The extra attack, which the sim models as the next main-hand swing pulled forward rather than under an id of its own. Beta client 1.60.1.70009: 8% a point on a block from 20177's curve, which Forever added; the crit half keeps Classic's 20% a point.",
+		"note": "The extra attack: a main-hand swing at once that leaves the swing timer alone (beta logs 2747-2749, 14 of 16 procs: the next normal swing comes one weapon speed after the previous one), at most once per 1.5 s (20177 ProcCategoryRecovery, client 1.60.1.70291+). Beta client 1.60.1.70009: 8% a point on a block from 20177's curve, which Forever added; the crit half keeps Classic's 20% a point.",
 		"source": "forever",
 		"tooltip": "Gives you an 8% chance per talent point to gain an extra attack after blocking a melee attack, and a 20% chance per talent point to gain an extra attack after being the victim of a non-periodic critical strike."
 	},

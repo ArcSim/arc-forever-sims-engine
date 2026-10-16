@@ -27,6 +27,8 @@ func TestHowlingIdolShortensShiftingPower(t *testing.T) {
 		sim.Reset()
 		cat := sim.Raid.Parties[0].Players[0].(druid.DruidAgent).GetDruid()
 		sim.CurrentTime = time.Second
+		// Shifting Power can't be used at full Energy (8 October beta notes, upstream #805).
+		cat.SpendEnergy(sim, 50, cat.EnergyRefundMetrics)
 		if !cat.ShiftingPower.Cast(sim, cat.CurrentTarget) {
 			t.Fatal("cast failed")
 		}

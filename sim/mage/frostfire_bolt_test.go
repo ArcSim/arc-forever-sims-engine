@@ -96,17 +96,20 @@ func TestFrostfireRanksAndTalents(t *testing.T) {
 func TestFrostfireFingersAndMissileBarrage(t *testing.T) {
 	sim, mage := frostfireSim(frostfireHybridTalents)
 	spell := mage.GetSpell(core.ActionID{SpellID: 1237313})
+	// Fingers of Frost rolls when the bolt launches, on the hit rolled there (upstream #776).
 	for i := 0; i < 200 && !mage.FingersOfFrostAura.IsActive(); i++ {
-		spell.CalcAndDealDamage(sim, mage.CurrentTarget, 1, spell.OutcomeAlwaysHit)
+		spell.SkipCastAndApplyEffects(sim, mage.CurrentTarget)
 	}
 	if mage.FingersOfFrostAura.GetStacks() != 2 {
 		t.Fatal("Frostfire chill did not grant two Fingers of Frost charges")
 	}
+	// The launching cast completes without spending a charge.
+	mage.FingersOfFrostAura.OnCastComplete(mage.FingersOfFrostAura, sim, spell)
 	if spell.BonusCritPercent != 56 {
 		t.Errorf("Shatter crit bonus = %v, want 56", spell.BonusCritPercent)
 	}
-	// Finish one real cast. Remove the hit proc trigger so it cannot replenish the charge.
-	mage.GetAura("Fingers of Frost Trigger").Deactivate(sim)
+	// Finish one real cast. Turn off the launch roll so it cannot replenish the charge.
+	mage.procFingersOfFrost = nil
 	if !spell.Cast(sim, mage.CurrentTarget) {
 		t.Fatal("Frostfire did not cast")
 	}

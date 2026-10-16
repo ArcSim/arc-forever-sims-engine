@@ -11,11 +11,11 @@ import (
 func applyRaceEffects(agent Agent) {
 	character := agent.GetCharacter()
 
+	// Blizzard beta development notes, 16 Oct build (us.forums.blizzard.com/en/wow/t/2360696 post 6).
 	switch character.Race {
 	case proto.Race_RaceDwarf:
-		// 16 October beta notes: "Mace Specialization: Replaced with Earth Fury: 2% increased critical
-		// damage and healing."
-		applyCritDamageRacial(character, "Earth Fury", 1259719)
+		// Earth Fury replaced Mace Specialization: 2% increased critical damage and healing.
+		character.PseudoStats.CritDamageMultiplier *= 1.02
 		applyCreatureTypeSlaying(character, proto.MobType_MobTypeBeast)
 
 		actionID := ActionID{SpellID: 20594}
@@ -54,9 +54,8 @@ func applyRaceEffects(agent Agent) {
 		applyEureka(agent)
 	case proto.Race_RaceHuman:
 		character.MultiplyStat(stats.Spirit, 1.05)
-		// 16 October beta notes: "Sword Specialization: Replaced with Ruthless: 2% increased critical
-		// strike chance."
-		applyCritRacial(character, "Ruthless", 20597, 2)
+		// Ruthless replaced Sword Specialization: 2% critical strike chance, any weapon.
+		character.AddStats(stats.Stats{stats.PhysicalCritPercent: 2, stats.SpellCritPercent: 2})
 	case proto.Race_RaceNightElf:
 		character.PseudoStats.BaseDodgeChance += 0.01
 		character.PseudoStats.MovementSpeedMultiplier *= 1.02
@@ -78,9 +77,8 @@ func applyRaceEffects(agent Agent) {
 				},
 			})
 	case proto.Race_RaceOrc:
-		// 16 October beta notes: "Axe Specialization: Replaced with Savage: 1% increased critical strike
-		// chance."
-		applyCritRacial(character, "Savage", 20574, 1)
+		// Savage replaced Axe Specialization: 1% critical strike chance, any weapon.
+		character.AddStats(stats.Stats{stats.PhysicalCritPercent: 1, stats.SpellCritPercent: 1})
 
 		bloodFuryID := ActionID{SpellID: 20572}
 
@@ -165,8 +163,7 @@ func applyRaceEffects(agent Agent) {
 		})
 	case proto.Race_RaceTauren:
 		character.MultiplyStat(stats.Health, 1.05)
-		// 16 October beta notes: "Endurance: Now grants 2% increased critical damage and healing (was 1%
-		// hit chance)."
+		// Endurance: 2% increased critical damage and healing (was 1% hit).
 		character.PseudoStats.CritDamageMultiplier *= 1.02
 	case proto.Race_RaceTroll:
 		applyCreatureTypeSlaying(character, proto.MobType_MobTypeBeast)
@@ -283,7 +280,7 @@ func applyRaceEffects(agent Agent) {
 func applySkyborneSharedRacials(character *Character) {
 	applyCreatureTypeSlaying(character, proto.MobType_MobTypeElemental)
 
-	// 16 October beta notes: "Wind Blessed: Haste bonus increased to 3% (was 1%)."
+	// Wind Blessed: 3% haste (was 1%).
 	character.PseudoStats.AttackSpeedMultiplier *= 1.03
 	character.PseudoStats.CastSpeedMultiplier *= 1.03
 }
@@ -299,34 +296,6 @@ func applyCreatureTypeSlaying(character *Character, mobType proto.MobType) {
 			}
 		}
 	})
-}
-
-// The 16 October 2026 beta notes replace the weapon racials (Human Sword, Orc Axe and Dwarf Mace
-// Specialization) with passives that need no weapon: Human Ruthless and Orc Savage raise critical
-// strike chance, Dwarf Earth Fury raises critical damage. The old specializations left the ranged auto
-// attack alone (forever-bugs #91); the new crit has no weapon behind it and counts for every attack and
-// spell. The spell IDs are the old specializations' until the client build carrying the new ones is
-// datamined. Player.disable_weapon_specialization and weapon_type_override no longer change any racial.
-func applyCritRacial(character *Character, label string, spellID int32, critPercent float64) {
-	MakePermanent(character.RegisterAura(Aura{
-		Label:      label,
-		ActionID:   ActionID{SpellID: spellID},
-		Duration:   NeverExpires,
-		BuildPhase: CharacterBuildPhaseBase,
-	}).
-		AttachStatBuff(stats.PhysicalCritPercent, critPercent).
-		AttachStatBuff(stats.SpellCritPercent, critPercent))
-}
-
-// "2% increased critical damage and healing", on the whole crit multiplier as the engine applies the
-// 3% crit damage meta gems (see Spell.CritDamageMultiplier).
-func applyCritDamageRacial(character *Character, label string, spellID int32) {
-	character.PseudoStats.CritDamageMultiplier *= 1.02
-	MakePermanent(character.RegisterAura(Aura{
-		Label:    label,
-		ActionID: ActionID{SpellID: spellID},
-		Duration: NeverExpires,
-	}))
 }
 
 func applyExpansiveMind(character *Character) {
@@ -426,6 +395,7 @@ func applyEureka(agent Agent) {
 	}
 
 	aura := character.RegisterAura(Aura{
+		// 16 Oct build: an 8 s buff with no charges (was 15 s / 3 charges).
 		Label:    "Eureka!",
 		ActionID: actionID,
 		Duration: time.Second * 8,

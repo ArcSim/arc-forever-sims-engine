@@ -14,7 +14,8 @@ import (
 // aura 768 and shapeshift mask 1) and is not a form change: the druid stays in Cat Form.
 //
 // Natural Shapeshifter's cost reduction reaches it: the talent's class mask names the family bit Cat, Bear,
-// Moonkin and Shifting Power share (word 0, 0x20000000).
+// Moonkin and Shifting Power share (word 0, 0x20000000). Since the 8 Oct beta build it can't be used at
+// full Energy (dev notes, upstream #805).
 var shiftingPowerRank = spellData.ShiftingPower.Highest()
 
 func (druid *Druid) registerShiftingPowerSpell() {
@@ -41,6 +42,10 @@ func (druid *Druid) registerShiftingPowerSpell() {
 				Timer:    druid.NewTimer(),
 				Duration: max(shiftingPowerRank.Cooldown(), shiftingPowerRank.CategoryCooldown()),
 			},
+		},
+
+		ExtraCastCondition: func(_ *core.Simulation, _ *core.Unit) bool {
+			return druid.CurrentEnergy() < druid.MaximumEnergy()
 		},
 
 		ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {

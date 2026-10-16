@@ -95,7 +95,9 @@
 	},
 	"1293696": {
 		"ability": "Demonic Brand",
-		"assumptions": ["The extra hit carries three times normal threat"],
+		"assumptions": [
+			"The Shadow hit carries three times normal threat (the 8 Oct beta notes say high threat, no number); the Imp's Fire hit carries normal threat, the notes saying high threat only on Shadow damage"
+		],
 		"file": "sim/warlock/talents_demonology.go",
 		"note": "A target debuff (10 sec, beta client 1.60.1.70009) whose charges the warlock's own demon spends; a pet-side compatibility aura mirrors the most recently branded target for saved APLs. Its id is the one the sim gives the branded hit. The talent is 1293695: 17/33/50% less Searing Pain threat and 2/4/6 branded attacks. #432 settled the hit from the client's SpellDescriptionVariables formula for 1293696/1293697 (1.60.1.69977, also resolved on Wowhead's Forever tooltip), ((level - 26) * 1.5) + 14 to + 17 plus 7.8% of spell power. The client (1.60.1.70009) splits the hit by pet: the Imp's is Fire (1293698, on fire spell power), the other demons' Shadow (1293697, on shadow spell power); 1293699 (Physical, 1 point) has no pet that uses it. The brand procs on the target taking melee or spell hits (ProcTypeMask 139944), so the Imp's Firebolt and the Succubus' Lash of Pain spend charges too (the Imp never spent one before, having no melee). Both hit rows (1293697/1293698, client 1.60.1.70205) carry Always Hit (Attributes[3] 0x40000) and no Cannot Crit, so the hit never misses and crits on the pet's spell crit; the sim rolled spell hit and never crit before.",
 		"source": "assumed",

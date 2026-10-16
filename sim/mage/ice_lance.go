@@ -5,7 +5,7 @@ import (
 )
 
 // Damage bonus against a target the mage counts as frozen, i.e. one held by Fingers of Frost.
-// The 16 October 2026 beta notes cut it to +200% (was +300%), so a frozen hit deals 3 times an unfrozen one.
+// +200% (was +300%) since the beta build of 2026-10-16 (Blizzard's beta notes, forums t/2360696 post 6).
 const IceLanceFrozenMultiplier = 3.0
 
 func (mage *Mage) registerIceLanceSpell() {

@@ -117,7 +117,9 @@ func (paladin *Paladin) applyAnticipation() {
 
 // Improved Seal of Fury - When Seal of Fury's shield is fully absorbed, restore 60 Mana, increased
 // by 15% per level the attacker is above you, up to 45%. The level is the current target's. The
-// client states the mana as one point per caster level, so it is read folded.
+// client states the mana as one point per caster level, so it is read folded. The mana is
+// restored by 1314104, which client 70374 flags No Threat (beta notes 8 Oct: no longer generates
+// threat when restoring Mana); that spell isn't in the store, so the flag is set here.
 func (paladin *Paladin) applyImprovedSealOfFury(shield *core.DamageAbsorptionAura) {
 	if !paladin.Talents.ImprovedSealOfFury {
 		return
@@ -128,6 +130,7 @@ func (paladin *Paladin) applyImprovedSealOfFury(shield *core.DamageAbsorptionAur
 	perLevel := rank.EffectN(2).Percent()
 	maxLevels := rank.EffectN(3).Average(core.CharacterLevel)
 	manaMetrics := paladin.NewManaMetrics(core.ActionID{SpellID: rank.ID})
+	manaMetrics.NoThreat = true
 
 	shield.AttachOnDamageAbsorbed(func(sim *core.Simulation, aura *core.DamageAbsorptionAura, _ *core.SpellResult, _ float64) {
 		if aura.ShieldStrength > 0 {
@@ -173,6 +176,7 @@ func (paladin *Paladin) applyShieldSpecialization() {
 	rank := spellData.ShieldSpecializationTriggered.Highest()
 	manaShare := shieldSpecializationManaShare
 	manaMetrics := paladin.NewManaMetrics(core.ActionID{SpellID: rank.ID})
+	manaMetrics.NoThreat = rank.NoThreat() // No Threat since client 70374 (beta notes 8 Oct)
 
 	paladin.MakeProcTriggerAura(core.ProcTrigger{
 		Name:               "Shield Specialization" + paladin.Label,
@@ -241,13 +245,6 @@ func (paladin *Paladin) applyWeaponSpecialization(bonus float64, handType proto.
 // Reckoning - Gives you a 8/16/24/32/40% chance to gain an extra attack after Blocking a melee
 // attack and a 20/40/60/80/100% chance to gain an extra attack after being the victim of a
 // non-periodic critical strike.
-//
-// The 16 October 2026 beta notes make it work with charges: each trigger adds a charge, up to 4, and
-// the next main-hand melee swing uses them all for one extra attack each, without resetting the auto
-// attack timer. The client rows (20177, 20178) still describe the old instant extra attack, so the
-// charges are modelled here. The notes give the charges no duration, so they wait for the next swing.
-// Client 70291+ also gives 20177 a 1.5 s proc cooldown, which the notes do not mention and the sim
-// has never applied; with charges it is left off.
 func (paladin *Paladin) applyReckoning() {
 	if paladin.Talents.Reckoning == 0 {
 		return
@@ -256,41 +253,36 @@ func (paladin *Paladin) applyReckoning() {
 	blockChance := spellData.Reckoning.FractionAt(paladin.Talents.Reckoning)
 	critChance := blockChance * 2.5
 
-	rank := spellData.ReckoningTriggered.Highest()
+	// 16 Oct build: each proc banks a charge (max 4) and the next melee swing (auto attack) spends
+	// them all, 1 extra attack each. An extra attack is a free swing that leaves the swing timer
+	// alone (beta logs 2747-2749). Client 70291+ gives 20177 a 1.5 s proc cooldown, shared by both
+	// triggers.
+	icd := core.Cooldown{Timer: paladin.NewTimer(), Duration: spellData.Reckoning.Highest().ICD()}
 	charges := paladin.RegisterAura(core.Aura{
 		Label:     "Reckoning" + paladin.Label,
-		ActionID:  core.ActionID{SpellID: rank.ID},
+		ActionID:  core.ActionID{SpellID: 20178},
 		Duration:  core.NeverExpires,
-		MaxStacks: ReckoningMaxCharges,
-	})
-
-	// The swing that spends the charges is watched by an aura that is always up, so that gaining and
-	// spending charges never reorders the unit's hit callbacks (and the rolls made in them) from one
-	// iteration to the next.
-	var extraAttack *core.Spell
-	core.MakePermanent(paladin.RegisterAura(core.Aura{
-		Label: "Reckoning Charges Spender" + paladin.Label,
-		OnInit: func(_ *core.Aura, _ *core.Simulation) {
-			// The extra attacks are main-hand swings booked under Reckoning's id, as Windfury's are.
-			config := *paladin.AutoAttacks.MHConfig()
-			config.ActionID = config.ActionID.WithTag(rank.ID)
-			extraAttack = paladin.GetOrRegisterSpell(config)
-		},
-		OnSpellHitDealt: func(_ *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-			// Any main-hand auto, landed or not, spends every charge. The charges are gone before the
-			// extra attacks swing, so those spend nothing and add nothing.
-			if !charges.IsActive() || !spell.ProcMask.Matches(core.ProcMaskMeleeMHAuto) {
+		MaxStacks: 4,
+		OnSpellHitDealt: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
+			if !spell.ProcMask.Matches(core.ProcMaskMeleeMHAuto) {
 				return
 			}
-			n := charges.GetStacks()
-			charges.Deactivate(sim)
-			for range n {
-				extraAttack.Cast(sim, result.Target)
-			}
+			// Spend after this swing resolves: deactivating inside the callback reorders the other
+			// hit-dealt auras mid-loop.
+			sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{DoAt: sim.CurrentTime, OnAction: func(sim *core.Simulation) {
+				n := aura.GetStacks()
+				aura.Deactivate(sim)
+				for range n {
+					paladin.AutoAttacks.InstantMHAttack(sim)
+				}
+			}}))
 		},
-	}))
-
-	addCharge := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+	})
+	extraAttack := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+		if !icd.IsReady(sim) {
+			return
+		}
+		icd.Use(sim)
 		charges.Activate(sim)
 		charges.AddStack(sim)
 	}
@@ -300,7 +292,7 @@ func (paladin *Paladin) applyReckoning() {
 		Callback:   core.CallbackOnSpellHitTaken,
 		Outcome:    core.OutcomeBlock,
 		ProcChance: blockChance,
-		Handler:    addCharge,
+		Handler:    extraAttack,
 	})
 
 	paladin.MakeProcTriggerAura(core.ProcTrigger{
@@ -308,12 +300,9 @@ func (paladin *Paladin) applyReckoning() {
 		Callback:   core.CallbackOnSpellHitTaken,
 		Outcome:    core.OutcomeCrit,
 		ProcChance: critChance,
-		Handler:    addCharge,
+		Handler:    extraAttack,
 	})
 }
-
-// ReckoningMaxCharges is the most Reckoning charges a paladin holds (16 October 2026 beta notes).
-const ReckoningMaxCharges = 4
 
 // Iron Creed - Increases the threat generated by your Holy Strike ability 5/10/15/20/25%. While
 // Righteous Fury is active, Holy Strike also reduces your damage taken by 3/6/9/12/15% for 6 sec.

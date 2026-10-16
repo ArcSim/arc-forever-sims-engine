@@ -203,13 +203,13 @@ func (mage *Mage) registerImprovedFireWard() {
 	}
 }
 
-// Heating Up (Hot Streak before client 1.60.1.70170, which renamed the talent and reworded the tooltip but
-// changed no row): Fireball, Frostfire Bolt, Fire Blast and Scorch crits each take 25% off Pyroblast's cast time,
-// stacking 3 times, so the stacks are worth holding rather than spending. Every crit stacks, so nothing here
-// depends on a streak of crits. The buff is 400625: its duration (20 sec since
-// build 70009), stack cap and per-stack cast time cut are read from the row. Frostfire Bolt, which
-// the tooltip also names, builds stacks too. Since the 16 October 2026 beta notes a Fire Blast crit adds 2
-// stacks, and a Pyroblast cast under Presence of Mind leaves the stacks in place.
+// Heating Up (Hot Streak before build 70170, same rows): Fireball, Fire Blast and Scorch crits each
+// take 25% off Pyroblast's cast time, stacking 3 times, so the stacks are worth holding rather than
+// spending. The buff is 400625: its duration (20 sec since build 70009), stack cap and per-stack cast
+// time cut are read from the row. Frostfire Bolt, which the tooltip also names, builds stacks too.
+// Since the beta build of 2026-10-16 (Blizzard's beta notes, forums t/2360696 post 6) every Fire Blast
+// cast adds a stack on top of its crit's (a Fire Blast crit gives 2), and a Pyroblast that Presence of
+// Mind made instant keeps the stacks.
 func (mage *Mage) registerHotStreak() {
 	if !mage.Talents.HeatingUp {
 		return
@@ -238,10 +238,9 @@ func (mage *Mage) registerHotStreak() {
 			castTimeMod.UpdateFloatValue(perStack * float64(newStacks))
 		},
 		OnCastComplete: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
-			// 400625 carries one charge: the next Pyroblast spends every stack. The 16 October 2026 beta
-			// notes exempt a Pyroblast cast under Presence of Mind. Presence of Mind drops its own aura in
-			// this same callback round, so read the state Pyroblast recorded when its cast began.
-			if spell.Matches(MageSpellPyroblast) && !mage.pyroblastUnderPresenceOfMind {
+			// 400625 carries one charge: the next Pyroblast spends every stack, unless Presence of Mind
+			// made it instant (3 stacks alone leave it a 1.5 sec cast).
+			if spell.Matches(MageSpellPyroblast) && spell.CurCast.CastTime > 0 {
 				aura.Deactivate(sim)
 			}
 		},
@@ -253,14 +252,20 @@ func (mage *Mage) registerHotStreak() {
 		ClassSpellMask:     MageSpellFireball | MageSpellFrostfireBolt | MageSpellFireBlast | MageSpellScorch,
 		Outcome:            core.OutcomeCrit,
 		TriggerImmediately: true,
-		Handler: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
+		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			mage.HotStreakAura.Activate(sim)
-			// 16 October 2026 beta notes: a Fire Blast crit grants 2 charges, every other crit 1 (cap 3).
-			if spell.Matches(MageSpellFireBlast) {
-				mage.HotStreakAura.AddStacks(sim, 2)
-			} else {
-				mage.HotStreakAura.AddStack(sim)
-			}
+			mage.HotStreakAura.AddStack(sim)
+		},
+	})
+
+	mage.MakeProcTriggerAura(core.ProcTrigger{
+		Name:           "Hot Streak Fire Blast Trigger",
+		Callback:           core.CallbackOnCastComplete,
+		ClassSpellMask:     MageSpellFireBlast,
+		TriggerImmediately: true,
+		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			mage.HotStreakAura.Activate(sim)
+			mage.HotStreakAura.AddStack(sim)
 		},
 	})
 }

@@ -76,7 +76,8 @@ func (priest *Priest) applyWandSpecialization() {
 // states it as two SPELL_AURA_ADD_PCT_MODIFIER effects, damage and dot, so it joins the additive
 // bucket rather than multiplying. 1225132's masks name Holy Nova, Chastise, Divine Grace and
 // Contingency Plan (damage) and Shadow Word: Pain and Devouring Plague (dot). The 16 October 2026 beta
-// notes add Shadow Word: Death, Mind Flay, Starshards and Penance beyond what those masks name.
+// notes add Shadow Word: Death, Mind Flay, Starshards and Penance beyond what those masks name (upstream
+// #780 adds the first two, which the devs called bugs, forever-bugs #322 and #328).
 func (priest *Priest) applyTwinDisciplines() {
 	if priest.Talents.TwinDisciplines == 0 {
 		return
@@ -165,11 +166,13 @@ func (priest *Priest) applyInnerFocus() {
 	// the channels Mind Flay and Starshards on, which do not count as periodic. Shadow Word: Death was never
 	// on it. See patch 60 in docs/mythicsim-patches.md.
 	rank := spellData.InnerFocus.Highest()
+	critPercent := rank.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_CRITICAL_CHANCE)).Average(core.CharacterLevel)
 	critMod := priest.AddDynamicMod(core.SpellModConfig{
 		ClassMask:  PriestSpellsAll &^ (PriestSpellShadowWordDeath | PriestSpellDevouringPlague | PriestSpellShadowWordPain),
-		FloatValue: rank.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_CRITICAL_CHANCE)).Average(core.CharacterLevel),
+		FloatValue: critPercent,
 		Kind:       core.SpellMod_BonusCrit_Percent,
 	})
+	priest.innerFocusCrit, priest.innerFocusCritChance = critMod, critPercent/100
 
 	var innerFocusSpell *core.Spell
 	costPercent := int32(rank.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_COST)).Average(core.CharacterLevel))

@@ -304,3 +304,77 @@ func TestReachTalentsExtendRange(t *testing.T) {
 		}
 	}
 }
+
+// Shadow Weaving's stacks (15258) sit on the target and raise only the priest's Shadow damage there:
+// five on one mob leave a second mob at +0%. Beta log 2726 shows each dotted mob with its own stacks.
+func TestShadowWeavingStacksPerTarget(t *testing.T) {
+	player := core.WithSpec(&proto.Player{
+		Race: proto.Race_RaceUndead, Class: proto.Class_ClassPriest, Equipment: &proto.EquipmentSpec{},
+		Consumables: &proto.ConsumesSpec{}, TalentsString: ShadowTalents, Rotation: &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
+	}, &proto.Player_DpsPriest{DpsPriest: &proto.DpsPriest{Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}}}})
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Targets = append(encounter.Targets, core.NewDefaultTarget())
+	sim := core.NewSim(&proto.RaidSimRequest{
+		SimOptions: &proto.SimOptions{RandomSeed: 100},
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  encounter,
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	priest := sim.Raid.Parties[0].Players[0].(PriestAgent).GetPriest()
+	first, second := sim.Encounter.AllTargetUnits[0], sim.Encounter.AllTargetUnits[1]
+
+	aura := priest.ShadowWeavingAuras.Get(first)
+	aura.Activate(sim)
+	aura.SetStacks(sim, 5)
+
+	mindBlast := priest.GetSpell(core.ActionID{SpellID: spellData.MindBlast.Highest().ID})
+	for _, c := range []struct {
+		target *core.Unit
+		want   float64
+	}{{first, 110}, {second, 100}} {
+		result := &core.SpellResult{Target: c.target, Damage: 100}
+		mindBlast.ApplyPostOutcomeDamageModifiers(sim, result, false)
+		if result.Damage < c.want-1e-9 || result.Damage > c.want+1e-9 {
+			t.Errorf("Mind Blast on %s: %.2f, want %.2f", c.target.Label, result.Damage, c.want)
+		}
+	}
+}
+
+// Inner Focus's +25% crit stays on the next spell but no longer reaches periodic ticks (dev
+// AidanZMoon, forever-bugs #137): a Shadow Word: Pain running while it is up ticks at its own crit.
+func TestInnerFocusSkipsPeriodicCrit(t *testing.T) {
+	player := core.WithSpec(&proto.Player{
+		Race:          proto.Race_RaceUndead,
+		Class:         proto.Class_ClassPriest,
+		Equipment:     &proto.EquipmentSpec{},
+		Consumables:   &proto.ConsumesSpec{},
+		TalentsString: "000000001", // Inner Focus
+		Rotation:      &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
+	}, &proto.Player_DpsPriest{DpsPriest: &proto.DpsPriest{Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}}}})
+	sim := core.NewSim(&proto.RaidSimRequest{
+		SimOptions: &proto.SimOptions{RandomSeed: 100},
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	priest := sim.Raid.Parties[0].Players[0].(PriestAgent).GetPriest()
+	target := priest.CurrentTarget
+	// Holy Fire: MythicSim's Inner Focus mask (patch 60, the client's non-periodic list) leaves out
+	// Shadow Word: Pain altogether, so its hit takes the crit and its ticks must not.
+	holyFire := priest.GetSpell(core.ActionID{SpellID: spellData.HolyFire.Highest().ID})
+
+	priest.InnerFocusAura.Activate(sim)
+	withIF := holyFire.SpellCritChance(target)
+	tick := priest.tickOutcome(true, holyFire.Dot(target))
+	crits := 0
+	for range 4000 {
+		result := &core.SpellResult{Target: target, Damage: 1}
+		tick(sim, result, priest.AttackTables[target.UnitIndex])
+		if result.Outcome == core.OutcomeCrit {
+			crits++
+		}
+	}
+	if rate := float64(crits) / 4000; rate > withIF-0.2 {
+		t.Errorf("ticks crit %.3f with Inner Focus up (spell %.3f), want its 25%% left out", rate, withIF)
+	}
+}

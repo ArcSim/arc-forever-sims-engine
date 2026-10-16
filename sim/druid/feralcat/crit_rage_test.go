@@ -12,7 +12,7 @@ import (
 
 // Client 1.60.1.70170: "Bear Form and Dire Bear Form now generate 75% increased Rage when landing a
 // Critical Strike"; the Druid development notes of 8 October 2026 raise it to 100%. The Cat registers the Bear Form aura without the spell, so its Rage bar is only ever
-// fed in that form; the bonus is on the same bar every Warrior and Bear uses (core.CritRageMultiplier) and
+// fed in that form; the bonus is on the same bar every Warrior and Bear uses (core.CritRageBonus) and
 // applies exactly once.
 func TestCatsBearFormCritAutoAttackGivesTwiceTheRage(t *testing.T) {
 	player := &proto.Player{Name: "Cat", Class: proto.Class_ClassDruid, Race: proto.Race_RaceNightElf,

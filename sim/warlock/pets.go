@@ -40,13 +40,18 @@ var petBaseStats = map[proto.WarlockOptions_Summon]stats.Stats{
 		stats.Spirit:    150,
 		stats.Mana:      1066,
 	},
+	// The Succubus' Lash of Pain crits ~6% at the beta cap, master's crit or not: 13 of 205 vs
+	// level 30 Cave Yetis (forever-bugs #331, staff skill 1-150, 4.58% sheet spell crit) and 11 of
+	// 149 rank 6 casts in foreverlogs 2698-2771 (scratch wl_petcrit.py). Dev AidanZMoon there: demons
+	// carry their own base crit and don't take the warlock's yet, 'base spell crit around normal levels'.
 	proto.WarlockOptions_Succubus: {
-		stats.Strength:  129,
-		stats.Agility:   85,
-		stats.Stamina:   234,
-		stats.Intellect: 70,
-		stats.Spirit:    150,
-		stats.Mana:      1066,
+		stats.Strength:         129,
+		stats.Agility:          85,
+		stats.Stamina:          234,
+		stats.Intellect:        70,
+		stats.Spirit:           150,
+		stats.Mana:             1066,
+		stats.SpellCritPercent: 6.2,
 	},
 	proto.WarlockOptions_Felhunter: {
 		stats.Strength:  129,

@@ -10,21 +10,13 @@ const ThreatPerRageGained = 5
 
 // TODO: Ingame test needed at higher levels
 const DamageTakenRageFactor = 10
-
-// CritRageMultiplier is what a critical auto attack's rage is multiplied by. Server side, so no
-// client table carries it. Client 70170 brought the bonus back at 75% (WoW: Forever Podcast episode 2,
-// "it won't be double rage on crits, it's 75% increase"); the beta development notes of 1 October
-// (Warrior) and 8 October 2026 (Druid) raise it: "Additional Rage generated from landing Critical
-// Strikes increased to 100% increased Rage (was 75%)". Every rage bar reads it: Warriors, Bear Form
-// and the Cat's Bear Form. Set 1.75 for the 70170 value.
-var CritRageMultiplier = 2.0
-
-// CritRageBonusSkipsTwoHand pays a critical auto attack's extra rage on the swing's rage before the
-// two-hander's factor (TwoHandRageMultiplier). Magey's beta logs on client 70170
-// (github.com/magey/forever-warrior/issues/3): a crit pays the swing plus 3.46 x speed x hand, without
-// the 1.3, so a one-hander doubles and a two-hander gets about 1.77 times its swing (2H warrior
-// bonus 11.3 to 11.5 measured, 11.42 predicted). False multiplies the whole swing.
-var CritRageBonusSkipsTwoHand = true
+// A critical auto attack adds its swing's rage again, before the two-hander's factor. Blizzard's
+// beta development notes (1 and 8 October, warrior and druid): "Additional Rage generated from
+// landing Critical Strikes increased to 100% increased Rage (was 75%)". The client hook, Rule of
+// Rage (DND) 1322574, is an A_DUMMY of 100 on melee autos. Magey's beta logs
+// (github.com/magey/forever-warrior/issues/3) fit crit = swing + 3.46 x speed: a one-hander doubles,
+// a two-hander's 3.3 sec swing gets 11.42 on top of 14.85 (measured 11.3-11.5).
+const CritRageBonus = 1.0
 
 const (
 	BaseRageHitFactor     = 3.46
@@ -93,11 +85,7 @@ func (unit *Unit) EnableRageBar(options RageBarOptions) {
 				generatedRage *= TwoHandRageMultiplier
 			}
 			if result.DidCrit() {
-				if CritRageBonusSkipsTwoHand {
-					generatedRage += baseRage * (CritRageMultiplier - 1)
-				} else {
-					generatedRage *= CritRageMultiplier
-				}
+				generatedRage += baseRage * CritRageBonus
 			}
 
 			var metrics *ResourceMetrics

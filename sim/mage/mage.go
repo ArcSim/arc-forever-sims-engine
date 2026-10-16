@@ -27,13 +27,12 @@ type Mage struct {
 	PresenceOfMindAura *core.Aura
 	WintersChillAura   *core.Aura
 
+	// procFingersOfFrost rolls Fingers of Frost for a chilling bolt at launch; nil without the talent.
+	procFingersOfFrost func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult)
+
 	ArcaneBlast *core.Spell
 	Ignite      *core.Spell
 	Flamestrike []*core.Spell
-
-	// Whether Presence of Mind was up when the current Pyroblast cast began; Heating Up reads it once
-	// Presence of Mind has already dropped for that cast.
-	pyroblastUnderPresenceOfMind bool
 }
 
 func (mage *Mage) GetCharacter() *core.Character {

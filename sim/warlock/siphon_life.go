@@ -5,7 +5,9 @@ import (
 )
 
 // Siphon Life is a Forever Affliction talent: a 30 sec shadow dot that heals the warlock for what
-// it deals.
+// it deals. The client rank lacks the periodic-can-crit attribute, but dev AidanZMoon called the
+// never-crits behaviour a bug, 'Fixed in the next build' (forever-bugs #303, 2026-10), and Pandemic
+// already names it, so its ticks crit like the other Affliction dots.
 func (warlock *Warlock) registerSiphonLifeSpell() {
 	if !warlock.Talents.SiphonLife {
 		return
@@ -50,7 +52,7 @@ func (warlock *Warlock) registerSiphonLifeSpell() {
 				dot.Snapshot(target, tick.Average(core.CharacterLevel))
 			},
 			OnTick: func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-				result := dot.CalcAndDealPeriodicSnapshotDamage(sim, target, periodicTickOutcome(rank, dot))
+				result := dot.CalcAndDealPeriodicSnapshotDamage(sim, target, dot.Spell.OutcomeTickMagicCrit)
 				warlock.GainHealth(sim, result.Damage*warlock.PseudoStats.SelfHealingMultiplier, healthMetrics)
 			},
 		},

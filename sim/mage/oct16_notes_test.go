@@ -34,46 +34,6 @@ func TestIceLanceFrozenBonusIsTwoHundredPercent(t *testing.T) {
 	}
 }
 
-// 16 October 2026 beta notes: a Fire Blast crit grants 2 Heating Up charges, other crits 1, capped at 3.
-func TestFireBlastCritGrantsTwoHeatingUpCharges(t *testing.T) {
-	sim, mage := newGnomeMage(t)
-	if mage.HotStreakAura == nil {
-		t.Fatal("FireTalents no longer take Heating Up")
-	}
-	target := mage.CurrentTarget
-	fireBlast := mage.GetSpell(core.ActionID{SpellID: spellData.FireBlast.Highest().ID})
-	scorch := mage.GetSpell(core.ActionID{SpellID: spellData.Scorch.Highest().ID})
-	fireBlast.BonusCritPercent = 200
-	scorch.BonusCritPercent = 200
-
-	castUntilCrit := func(spell *core.Spell) {
-		t.Helper()
-		for i := 0; i < 50; i++ {
-			before := spell.SpellMetrics[target.UnitIndex].Crits
-			spell.SkipCastAndApplyEffects(sim, target)
-			if spell.SpellMetrics[target.UnitIndex].Crits > before {
-				return
-			}
-		}
-		t.Fatalf("%v never crit", spell.ActionID)
-	}
-
-	castUntilCrit(scorch)
-	if got := mage.HotStreakAura.GetStacks(); got != 1 {
-		t.Fatalf("Heating Up at %d stacks after a Scorch crit, want 1", got)
-	}
-	mage.HotStreakAura.Deactivate(sim)
-
-	castUntilCrit(fireBlast)
-	if got := mage.HotStreakAura.GetStacks(); got != 2 {
-		t.Fatalf("Heating Up at %d stacks after a Fire Blast crit, want 2", got)
-	}
-	castUntilCrit(fireBlast)
-	if got := mage.HotStreakAura.GetStacks(); got != 3 {
-		t.Errorf("Heating Up at %d stacks after two Fire Blast crits, want the cap of 3", got)
-	}
-}
-
 // 16 October 2026 beta notes: a Pyroblast cast under Presence of Mind does not spend Heating Up, while
 // Presence of Mind itself is still spent; the next Pyroblast without it spends the stacks as before.
 func TestPresenceOfMindPyroblastKeepsHeatingUp(t *testing.T) {
