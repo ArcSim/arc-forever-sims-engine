@@ -176,9 +176,9 @@
 			"Spell power coefficient .1, fitted from the beta logs. The client row carries 0, as Season of Discovery's Ice Lance (400640) does: the scaling lives in a server script, and SoD's hotfix of 2024-12-04 raised it by 300% to .572. Each mage's spell power is read off their other spells in the same log (client base plus coefficient), since gear alone undercounts it. Mana (foreverlogs.gg report 2727, 2026-10-07): Fire Blast, both Frostbolt ranks, Cone of Cold, Frost Nova and Blizzard all give about 80 spell power, and rank 1 (base 27.6-32.6 at its max level 26) hit for 38.8 on average unfrozen (52 hits, 36-42) and 38.2 frozen before the x4 (32 hits), .10-.11. Toma (report 2687, 2026-09-30, level 20, about 33 spell power though gear shows 19) hit for 31.4 unfrozen, .09-.11. .143 would put every unfrozen hit of Mana's at 39 or more, but 13 land at 36-37."
 		],
 		"file": "sim/mage/ice_lance.go",
-		"note": "Rank 6, Forever's own id; Ice Lance is a later expansion spell, so the Classic database has no entry for it. Beta client 1.60.1.70009: 133-157 plus its growth to level 60 = 136-160, 160 mana, 300% against frozen targets. Wowhead's 140-164 is the same row at its max level of 64.",
+		"note": "Rank 6, Forever's own id; Ice Lance is a later expansion spell, so the Classic database has no entry for it. Beta client 1.60.1.70009: 133-157 plus its growth to level 60 = 136-160, 160 mana, 300% against frozen targets, cut to 200% by the beta build of 2026-10-16 (Blizzard's beta notes, us.forums.blizzard.com t/2360696 post 6: 'changed to a 200% increase (Was 300%)'). Wowhead's 140-164 is the same row at its max level of 64.",
 		"source": "assumed",
-		"tooltip": "160 Mana\nInstant\nDeals 136 to 160 Frost damage to an enemy target.\nDeals 300% increased damage to a frozen target, which against a raid boss means one held by Fingers of Frost."
+		"tooltip": "160 Mana\nInstant\nDeals 136 to 160 Frost damage to an enemy target.\nDeals 200% increased damage to a frozen target, which against a raid boss means one held by Fingers of Frost."
 	},
 	"12472": {
 		"ability": "Cold Snap",
