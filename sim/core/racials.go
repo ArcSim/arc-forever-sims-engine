@@ -311,7 +311,7 @@ func applyExpansiveMind(character *Character) {
 // effect 0 (SPELLMOD_COST), effect 1 (SPELLMOD_DAMAGE) and effect 2 (SPELLMOD_DOT) state them; core
 // cannot import spelldata, so they are mirrored here. 70170 made it "non-periodic damaging abilities":
 // the DoTs (Rend, Rupture, Garrote, Corruption, Shadow Word: Pain, Devouring Plague...) and the utility
-// spells (Sunder Armor, Life Tap...) take no bonus and spend no charge. SPELLMOD_DAMAGE is the direct
+// spells (Sunder Armor, Life Tap...) take no bonus. SPELLMOD_DAMAGE is the direct
 // part only: 70094 named Rend, Corruption and Immolate in both effects 1 and 2, which only adds up if
 // effect 1 skips their ticks. So Immolate, Fireball, Pyroblast and Holy Fire get +10% on the hit and
 // none on the DoT, while Drain Life/Drain Soul and Mind Flay keep theirs through effect 2.
@@ -401,23 +401,17 @@ func applyEureka(character *Character) {
 	})
 
 	aura := character.RegisterAura(Aura{
-		Label:     "Eureka!",
-		ActionID:  actionID,
-		Duration:  time.Second * 15,
-		MaxStacks: 3,
-		OnGain: func(aura *Aura, sim *Simulation) {
-			aura.SetStacks(sim, 3)
+		// 16 Oct build: an 8 s buff with no charges (was 15 s / 3 charges).
+		Label:    "Eureka!",
+		ActionID: actionID,
+		Duration: time.Second * 8,
+		OnGain: func(_ *Aura, _ *Simulation) {
 			costMod.Activate()
 			damageMod.Activate()
 		},
 		OnExpire: func(_ *Aura, _ *Simulation) {
 			costMod.Deactivate()
 			damageMod.Deactivate()
-		},
-		OnCastComplete: func(aura *Aura, sim *Simulation, spell *Spell) {
-			if spell.Matches(anyClassSpell) && (names(spell, costMask) || names(spell, directMask) || names(spell, dotMask)) {
-				aura.RemoveStack(sim)
-			}
 		},
 	})
 

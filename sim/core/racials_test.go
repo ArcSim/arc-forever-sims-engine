@@ -152,8 +152,8 @@ func TestGnomeWarrior(t *testing.T) {
 
 	castRacial(t, sim, fw, 1259813)
 	eureka := fw.GetAura("Eureka!")
-	if !eureka.IsActive() || eureka.GetStacks() != 3 {
-		t.Fatalf("Eureka! should start at 3 charges, got %d", eureka.GetStacks())
+	if !eureka.IsActive() || eureka.Duration != time.Second*8 || eureka.MaxStacks != 0 {
+		t.Fatalf("Eureka! should be an 8 s buff with no charges (16 Oct build)")
 	}
 
 
@@ -179,11 +179,11 @@ func TestGnomeWarrior(t *testing.T) {
 		DamageMultiplier: 1,
 	})
 	rend.Cast(sim, fw.CurrentTarget)
-	if rend.DamageMultiplier != 1 || eureka.GetStacks() != 3 {
+	if rend.DamageMultiplier != 1 {
 		t.Fatalf("Eureka! should leave Rend alone since build 70170 (non-periodic abilities only)")
 	}
 	itemSpell.Cast(sim, fw.CurrentTarget)
-	if itemSpell.DamageMultiplier != 1 || eureka.GetStacks() != 3 {
+	if itemSpell.DamageMultiplier != 1 {
 		t.Fatalf("Eureka! should ignore spells that are not class abilities")
 	}
 	if !WithinToleranceFloat64(1.1, ability.DamageMultiplier, 0.0001) {
@@ -200,9 +200,10 @@ func TestGnomeWarrior(t *testing.T) {
 	for range 3 {
 		ability.Cast(sim, fw.CurrentTarget)
 	}
-	if eureka.IsActive() {
-		t.Fatalf("Eureka! should end after 3 abilities")
+	if !eureka.IsActive() {
+		t.Fatalf("Eureka! should not spend charges since the 16 Oct build")
 	}
+	eureka.Deactivate(sim)
 	if !WithinToleranceFloat64(1, ability.DamageMultiplier, 0.0001) {
 		t.Fatalf("Eureka! should drop its damage bonus when it ends, got x%0.2f", ability.DamageMultiplier)
 	}
