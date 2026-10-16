@@ -54,9 +54,9 @@ func TestHellfireCritsWhereItsEffectRowAllows(t *testing.T) {
 	}
 }
 
-// Malediction is a dot modifier, and Hellfire's area hits are Hellfire Effect's direct School
-// Damage (client 70205 11682), so the talent raises Corruption's ticks but not Hellfire's.
-func TestMaledictionSkipsHellfire(t *testing.T) {
+// The 16 October 2026 beta notes replace Malediction with Grim Reach (range only): 5 points in the slot
+// raise neither Corruption's ticks nor Hellfire's.
+func TestMaledictionSlotAddsNoDamage(t *testing.T) {
 	player := core.WithSpec(&proto.Player{
 		Race:          proto.Race_RaceOrc,
 		Class:         proto.Class_ClassWarlock,
@@ -78,8 +78,8 @@ func TestMaledictionSkipsHellfire(t *testing.T) {
 	if got := warlock.Hellfire.AOEDot().PeriodicDamageMultiplier; got != 1 {
 		t.Errorf("Hellfire periodic multiplier with 5 Malediction = %v, want 1", got)
 	}
-	if got := warlock.Corruption.Dot(warlock.CurrentTarget).PeriodicDamageMultiplier; got <= 1 {
-		t.Errorf("Corruption periodic multiplier with 5 Malediction = %v, want > 1", got)
+	if got := warlock.Corruption.Dot(warlock.CurrentTarget).PeriodicDamageMultiplier; got != 1 {
+		t.Errorf("Corruption periodic multiplier with 5 Malediction = %v, want 1", got)
 	}
 }
 

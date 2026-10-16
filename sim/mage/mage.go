@@ -30,6 +30,10 @@ type Mage struct {
 	ArcaneBlast *core.Spell
 	Ignite      *core.Spell
 	Flamestrike []*core.Spell
+
+	// Whether Presence of Mind was up when the current Pyroblast cast began; Heating Up reads it once
+	// Presence of Mind has already dropped for that cast.
+	pyroblastUnderPresenceOfMind bool
 }
 
 func (mage *Mage) GetCharacter() *core.Character {

@@ -75,7 +75,7 @@ func DevotionAuraAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.
 }
 
 // Leader of the Pack
-var LeaderOfThePackCategory = "DruidCritAura"
+var LeaderOfThePackCategory = "LeaderOfThePack"
 var leaderOfThePackSpell = spelldata.MustFind(24932)
 var leaderOfThePackMeta = &Meta{
 	Label:      "Leader of the Pack",
@@ -139,7 +139,7 @@ func ManaTideTotemsAura(unit *core.Unit, isPlayer bool, talentPoints int32) *cor
 }
 
 // Moonkin Aura
-var MoonkinAuraCategory = "DruidCritAura"
+var MoonkinAuraCategory = "MoonkinAura"
 var moonkinAuraSpell = spelldata.MustFind(24907)
 var moonkinAuraMeta = &Meta{
 	Label:      "Moonkin Aura",
@@ -751,7 +751,7 @@ func applyGeneratedBuffs(char *core.Character, raid *proto.RaidBuffs, party *pro
 		core.MakePermanent(DevotionAuraAura(&char.Unit, false, 0))
 	}
 	if party.LeaderOfThePack {
-		core.MakePermanent(LeaderOfThePackAura(&char.Unit, false, 0))
+		driveLeaderOfThePack(char, party)
 	}
 	if party.ManaSpringTotem != proto.TristateEffect_TristateEffectMissing {
 		core.MakePermanent(ManaSpringTotemAura(&char.Unit, false, core.GetTristateValueInt32(party.ManaSpringTotem, 0, 5)))
@@ -760,7 +760,7 @@ func applyGeneratedBuffs(char *core.Character, raid *proto.RaidBuffs, party *pro
 		driveManaTideTotems(char, party)
 	}
 	if party.MoonkinAura {
-		core.MakePermanent(MoonkinAuraAura(&char.Unit, false, 0))
+		driveMoonkinAura(char, party)
 	}
 	if party.RetributionAura {
 		driveRetributionAura(char, party)

@@ -32,6 +32,7 @@ func (unit *Unit) initMovement() {
 		OnExpire: func(aura *Aura, sim *Simulation) {
 			unit.Moving = false
 			unit.movementAction = nil
+			unit.movementEndedAt = sim.CurrentTime
 		},
 	})
 

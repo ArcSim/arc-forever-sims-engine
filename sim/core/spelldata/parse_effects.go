@@ -18,6 +18,7 @@ type parseOptions struct {
 	only         []int32
 	skip         []int32
 	skipAuras    []dbcenums.EffectAuraType
+	readAs       map[dbcenums.EffectAuraType]dbcenums.EffectAuraType
 	cond         func() bool
 	ignoreStacks bool
 
@@ -51,6 +52,18 @@ func SkipEffects(idx ...int32) ParseOpt {
 func SkipAuras(auras ...dbcenums.EffectAuraType) ParseOpt {
 	return func(o *parseOptions) {
 		o.skipAuras = append(o.skipAuras, auras...)
+	}
+}
+
+// Every effect of aura from is read as if the row stated aura to, at the row's own amount: a patch
+// that narrows what an aura does before the client data catches up, such as a crit buff that a
+// development note keeps to one kind of crit.
+func ReadAuraAs(from, to dbcenums.EffectAuraType) ParseOpt {
+	return func(o *parseOptions) {
+		if o.readAs == nil {
+			o.readAs = map[dbcenums.EffectAuraType]dbcenums.EffectAuraType{}
+		}
+		o.readAs[from] = to
 	}
 }
 
@@ -347,6 +360,9 @@ const fullComboPoints = 5
 
 // The row the parse reads an aura with: a buff's own rows first where the caller asked for them.
 func (o *parseOptions) row(aura dbcenums.EffectAuraType) row {
+	if to, ok := o.readAs[aura]; ok {
+		aura = to
+	}
 	if o.buffAuras {
 		if r, ok := buffAuraTable[aura]; ok {
 			return r

@@ -147,12 +147,13 @@ func (rogue *Rogue) registerVilePoisons() {
 	})
 }
 
-// ColdBloodSpentByMutilate is the switch for the live Cold Blood bug. In the Forever client today
-// Mutilate's hand strikes take Cold Blood's crit without spending the charge, so Cold Blood stays up
-// through every Mutilate until a Sinister Strike, Backstab, Ambush or Eviscerate (false, the default).
-// When Blizzard fixes it, set this true: the Mutilate cast then spends Cold Blood once both hands
-// have struck, so one Mutilate gets the crit and the next does not.
-var ColdBloodSpentByMutilate = false
+// ColdBloodSpentByMutilate is the switch for the Cold Blood bug the 16 October 2026 beta notes fix
+// ("Cold Blood is now consumed when Mutilate crits"). True, the default: the Mutilate cast spends Cold
+// Blood once both hands have struck, if either hand crit (under Cold Blood both do), so one Mutilate gets
+// the crit and the next does not. False is the client before the fix: Mutilate's hand strikes took Cold
+// Blood's crit without spending the charge, so Cold Blood stayed up through every Mutilate until a
+// Sinister Strike, Backstab, Ambush or Eviscerate (MythicSim patch 109).
+var ColdBloodSpentByMutilate = true
 
 func (rogue *Rogue) registerColdBlood() {
 	if !rogue.Talents.ColdBlood {
@@ -162,24 +163,40 @@ func (rogue *Rogue) registerColdBlood() {
 	coldBloodRank := spellData.ColdBlood.Highest()
 	actionID := core.ActionID{SpellID: coldBloodRank.ID}
 
+	// Whether this Mutilate's main-hand strike crit, for the off-hand strike that follows it.
+	var mutilateCrit bool
 	cbAura := rogue.GetOrRegisterAura(core.Aura{
 		Label:    "Cold Blood",
 		ActionID: actionID,
 		Duration: core.NeverExpires,
 
-		// Mutilate's hand strikes are triggered spells: they take the crit but don't spend the
-		// charge, and the parent cast isn't in the mask, so Cold Blood stays up through every
-		// Mutilate until a Sinister Strike, Backstab, Ambush or Eviscerate. Beta logs 2701/2702:
-		// one rogue's Mutilates crit with both hands 191 of 192 times under Cold Blood (the other
-		// was blocked), and the buff dropped on the next Eviscerate.
+		// Mutilate's hand strikes are triggered spells: before the 16 October 2026 beta notes they
+		// took the crit but didn't spend the charge, and the parent cast isn't in the mask, so Cold
+		// Blood stayed up through every Mutilate until a Sinister Strike, Backstab, Ambush or
+		// Eviscerate. Beta logs 2701/2702: one rogue's Mutilates crit with both hands 191 of 192
+		// times under Cold Blood (the other was blocked), and the buff dropped on the next Eviscerate.
+		OnGain: func(aura *core.Aura, sim *core.Simulation) {
+			mutilateCrit = false
+		},
 		OnSpellHitDealt: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			if spell.Matches(RogueSpellColdBlooded &^ RogueSpellMutilateHit) {
 				aura.Deactivate(sim)
 			}
-			// Fixed-client behaviour: the off-hand strike lands after the main hand, so both
-			// hands keep the crit and the charge goes with the second.
-			if ColdBloodSpentByMutilate && spell == rogue.MutilateOH {
-				aura.Deactivate(sim)
+			// 16 October 2026 beta notes: "Cold Blood is now consumed when Mutilate crits". Both hands
+			// share the cast: the off-hand strike lands after the main hand, so both keep the crit and
+			// the charge goes with the second, once per Mutilate, if either hand crit.
+			if !ColdBloodSpentByMutilate {
+				return
+			}
+			switch spell {
+			case rogue.MutilateMH:
+				mutilateCrit = result.DidCrit()
+			case rogue.MutilateOH:
+				crit := mutilateCrit || result.DidCrit()
+				mutilateCrit = false
+				if crit {
+					aura.Deactivate(sim)
+				}
 			}
 		},
 	}).AttachSpellMod(core.SpellModConfig{

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
@@ -17,7 +18,7 @@ import (
 // field lives on, a debuff-scope row the *Unit the debuffs land on plus the
 // debuffs and the raid. The driver reads its own field out of the message, and
 // any other field it needs: Grace of Air lasts 9 seconds while the party is
-// twisting totems.
+// twisting totems without the party's Windfury Totem.
 
 // Spell 29166 states 100% mana regen while casting (aura 134) and +400% of it
 // (aura 110); neither is a stat or a pseudo-stat, so the regen is the driver's.
@@ -178,18 +179,13 @@ func NarrowWindfuryProc(character *core.Character, trigger *core.ProcTrigger, ma
 	}
 }
 
-// Since build 70009 Tranquil Air, Windfury and Grace of Air totems no longer
-// stack, even from different shamans in the group (Forever beta development
-// notes). One air totem stands: a totem the shaman casts replaces the one the
-// party buffs assume, and of the two party buffs Windfury holds.
-var AirTotemCategory = "AirTotem"
-
-const (
-	AirTotemPartyGraceOfAir = iota + 1
-	AirTotemPartyWindfury
-	AirTotemCastGraceOfAir
-	AirTotemCastWindfury
-)
+// Build 70009 made Tranquil Air, Windfury and Grace of Air totems exclusive,
+// even from different shamans in the group. The 16 October 2026 beta notes
+// take Grace of Air back out: it is no longer exclusive with Windfury Totem or
+// Flametongue Totem, while those two stay exclusive with each other
+// (WindfuryTotemDisablesFlametongueTotem). So the party's Grace of Air stacks
+// with either. A single shaman still has one air totem slot, which the
+// shaman's own cast totems keep (sim/shaman/totems.go, AirTotemAura).
 
 func driveWindfuryTotem(char *core.Character, _ *proto.PartyBuffs) {
 	procAura := WindfuryTotemAura(&char.Unit, false, 0)
@@ -250,8 +246,6 @@ func driveWindfuryTotem(char *core.Character, _ *proto.PartyBuffs) {
 		})
 	})
 
-	// Joined first, so a cast air totem refuses the aura before it arms the proc.
-	totemAura.NewExclusiveEffect(AirTotemCategory, true, core.ExclusiveEffect{Priority: AirTotemPartyWindfury})
 	WindfuryTotemDisablesFlametongueTotem(totemAura)
 	totemAura.NewExclusiveEffect(WindfuryTotemCategory, false, core.ExclusiveEffect{
 		Priority: WindfuryTotemValue(0),
@@ -267,12 +261,13 @@ func driveWindfuryTotem(char *core.Character, _ *proto.PartyBuffs) {
 
 // A shaman twisting totems keeps Grace of Air up for 9 seconds out of every 10,
 // because the air slot is holding another totem the rest of the time; a shaman
-// who is not twisting leaves it standing.
+// who is not twisting leaves it standing. With the party's Windfury Totem set
+// as well the two are taken as different shamans' totems, which stack since the
+// 16 October 2026 beta notes, so Grace of Air stands with no twisting downtime.
 func driveGraceOfAirTotem(char *core.Character, party *proto.PartyBuffs) {
 	aura := GraceOfAirTotemAura(&char.Unit, false, 0)
-	aura.NewExclusiveEffect(AirTotemCategory, true, core.ExclusiveEffect{Priority: AirTotemPartyGraceOfAir})
 
-	if !party.TotemTwisting {
+	if !party.TotemTwisting || party.WindfuryTotem {
 		core.MakePermanent(aura)
 		return
 	}
@@ -352,4 +347,21 @@ func driveSunderArmor(target *core.Unit, _ *proto.Debuffs, _ *proto.Raid) {
 			}
 		},
 	})
+}
+
+// Leader of the Pack and Moonkin Aura state A_MOD_CRIT_PCT, every kind of crit, and 17007 makes them
+// exclusive. The 16 October 2026 beta notes split them: Leader of the Pack is melee and ranged crit
+// only, Moonkin Aura spell crit only, and the two stack. Each bids in a category of its own, and the
+// row's crit is read as the one kind the notes leave it, at the client's amount, until the client
+// data moves.
+func driveLeaderOfThePack(char *core.Character, _ *proto.PartyBuffs) {
+	core.MakePermanent(narrowedCritBuff(&char.Unit, leaderOfThePackMeta, dbcenums.A_MOD_WEAPON_CRIT_PERCENT))
+}
+
+func driveMoonkinAura(char *core.Character, _ *proto.PartyBuffs) {
+	core.MakePermanent(narrowedCritBuff(&char.Unit, moonkinAuraMeta, dbcenums.A_MOD_SPELL_CRIT_CHANCE))
+}
+
+func narrowedCritBuff(unit *core.Unit, m *Meta, as dbcenums.EffectAuraType) *core.Aura {
+	return m.buff(unit, false, 0, append(m.Options(0), spelldata.ReadAuraAs(dbcenums.A_MOD_CRIT_PCT, as)))
 }

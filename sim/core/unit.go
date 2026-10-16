@@ -74,6 +74,9 @@ type Unit struct {
 	moveAura                *Aura
 	moveSpell               *Spell
 	movementAction          *MovementAction
+	// When the unit last stopped moving (16 October 2026 beta notes: Auto Shot needs 0.5 seconds of
+	// standing still). NeverExpires negated while it has not moved this iteration.
+	movementEndedAt time.Duration
 
 	// Environment in which this Unit exists. This will be nil until after the
 	// construction phase.
@@ -786,6 +789,7 @@ func (unit *Unit) reset(sim *Simulation, _ Agent) {
 	unit.ChanneledDot = nil
 	unit.QueuedSpell = nil
 	unit.DistanceFromTarget = unit.StartDistanceFromTarget
+	unit.movementEndedAt = -NeverExpires
 	unit.Metrics.reset()
 	unit.ResetStatDeps()
 	unit.statsWithoutDeps = unit.initialStatsWithoutDeps

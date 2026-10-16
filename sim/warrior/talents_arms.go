@@ -443,7 +443,10 @@ func (warrior *Warrior) registerWeaponmaster() {
 		ProcChance:         spellData.Weaponmaster.EffectAt(3).FractionAt(rank),
 		TriggerImmediately: true,
 		ExtraCondition: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-			return spell.ProcMask.Matches(swordMask) && spell != extraAttack
+			// 16 October 2026 beta notes: Sword Specialization no longer triggers from Shield Bash
+			// and Shield Slam.
+			return spell.ProcMask.Matches(swordMask) && spell != extraAttack &&
+				!spell.Matches(SpellMaskShieldBash|SpellMaskShieldSlam)
 		},
 		Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			warrior.AutoAttacks.MaybeReplaceMHSwing(sim, extraAttack).Cast(sim, result.Target)

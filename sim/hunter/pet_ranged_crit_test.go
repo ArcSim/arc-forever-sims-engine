@@ -41,6 +41,17 @@ func autoShotCritPercent(hunter *Hunter) float64 {
 		hunter.AutoAttacks.RangedAuto().BonusCritPercent
 }
 
+// meleeCritPercent is the crit the Hunter's main-hand swing rolls before the target's side of the table.
+func meleeCritPercent(hunter *Hunter) float64 {
+	return hunter.GetStat(stats.PhysicalCritPercent) + hunter.AutoAttacks.MHAuto().BonusCritPercent
+}
+
+// inheritedCritPercent is the pet's crit from its master: the higher of melee and ranged (16 October 2026
+// beta notes).
+func inheritedCritPercent(hunter *Hunter) float64 {
+	return max(autoShotCritPercent(hunter), meleeCritPercent(hunter))
+}
+
 // Patch 136: a Hunter pet's crit is its master's ranged crit (Forever, 16 October 2026). Its own 5% from
 // 100 base Agility is gone, the Auto Shot's crit is what it takes (an Orc's Savage goes in, a scope
 // goes in, TestPetCritFollowsTheOwner), the target's crit suppression applies to both the same, and
@@ -67,7 +78,10 @@ func TestPetCritIsTheOwnersRangedCrit(t *testing.T) {
 			if hunter.Talents.Ferocity > 0 {
 				ferocity = spellData.Ferocity.ValueAt(hunter.Talents.Ferocity)
 			}
-			want := autoShotCritPercent(hunter) + ferocity
+			if autoShotCritPercent(hunter) < meleeCritPercent(hunter) {
+				t.Fatalf("test setup: Auto Shot crit %.4f%% below melee %.4f%%", autoShotCritPercent(hunter), meleeCritPercent(hunter))
+			}
+			want := inheritedCritPercent(hunter) + ferocity
 			if got := pet.GetStat(stats.PhysicalCritPercent); !core.WithinToleranceFloat64(want, got, 1e-9) {
 				t.Errorf("pet crit %.4f%%, want the Auto Shot's %.4f%% plus Ferocity %.0f%%", got, want-ferocity, ferocity)
 			}
@@ -88,9 +102,9 @@ func TestPetCritIsTheOwnersRangedCrit(t *testing.T) {
 }
 
 // The pet's Agility no longer gives it crit, and crit the Hunter gains in the fight (Agility, crit, ranged-
-// only crit such as a scope's) reaches the pet through the dynamic inheritance (the pet heartbeat calls
-// AddOwnerStats with the owner's stat change); a melee-only crit (a sharpening stone's +2% physical, -2%
-// ranged) does not.
+// only crit such as a scope's, melee-only crit such as a sharpening stone's +2% physical, -2% ranged)
+// reaches the pet through the dynamic inheritance (the pet heartbeat calls AddOwnerStats with the owner's
+// stat change).
 func TestPetCritFollowsTheOwner(t *testing.T) {
 	sim, hunter, pet := petRangedCritSim(t, proto.Race_RaceNightElf, MarksmanshipTalents, 12784)
 
@@ -106,12 +120,74 @@ func TestPetCritFollowsTheOwner(t *testing.T) {
 	hunter.AddStatDynamic(sim, stats.RangedCritPercent, 2)
 	hunter.AddStatsDynamic(sim, stats.Stats{stats.PhysicalCritPercent: 2, stats.RangedCritPercent: -2})
 	pet.AddOwnerStats(sim, hunter.GetStats().Subtract(ownerBefore))
-	want := autoShotCritPercent(hunter)
+	want := inheritedCritPercent(hunter)
 	if got := pet.GetStat(stats.PhysicalCritPercent); !core.WithinToleranceFloat64(want, got, 1e-9) {
 		t.Errorf("after the Hunter gained 106 Agility and 3%% crit the pet crits %.4f%%, want %.4f%%", got, want)
 	}
 	wantGain := 106*core.CritPerAgiMaxLevel[proto.Class_ClassHunter] + 3 + 2
 	if gain := pet.GetStat(stats.PhysicalCritPercent) - before; !core.WithinToleranceFloat64(wantGain, gain, 1e-9) {
 		t.Errorf("pet crit rose %.4f%%, want %.4f%%", gain, wantGain)
+	}
+}
+
+// 16 October 2026 beta notes: "Pets now inherit whichever crit is higher, melee or ranged (fix of pets only
+// inheriting melee crit)". An Elemental Sharpening Stone (+2% physical, -2% ranged) puts the melee swing
+// 2% above the Auto Shot, so the pet takes the melee value; a scope on top (+3% ranged) puts the Auto Shot
+// back in front, and the pet follows it. Taking the stone off leaves the pet on the Auto Shot again.
+func TestPetCritTakesTheHigherOfMeleeAndRanged(t *testing.T) {
+	sim, hunter, pet := petRangedCritSim(t, proto.Race_RaceNightElf, MarksmanshipTalents, 12784)
+	sync := func(before stats.Stats) {
+		pet.AddOwnerStats(sim, hunter.GetStats().Subtract(before))
+	}
+	check := func(step string, want float64) {
+		t.Helper()
+		if got := pet.GetStat(stats.PhysicalCritPercent); !core.WithinToleranceFloat64(want, got, 1e-9) {
+			t.Errorf("%s: pet crits %.4f%%, want %.4f%%", step, got, want)
+		}
+	}
+	start := pet.GetStat(stats.PhysicalCritPercent)
+	check("start", inheritedCritPercent(hunter))
+
+	before := hunter.GetStats()
+	stone := stats.Stats{stats.PhysicalCritPercent: 2, stats.RangedCritPercent: -2}
+	hunter.AddStatsDynamic(sim, stone)
+	sync(before)
+	if meleeCritPercent(hunter) <= autoShotCritPercent(hunter) {
+		t.Fatalf("test setup: with the stone melee %.4f%% should beat ranged %.4f%%", meleeCritPercent(hunter), autoShotCritPercent(hunter))
+	}
+	check("stone", meleeCritPercent(hunter))
+	check("stone gain", start+2)
+
+	before = hunter.GetStats()
+	hunter.AddStatDynamic(sim, stats.RangedCritPercent, 3)
+	sync(before)
+	check("stone and scope", autoShotCritPercent(hunter))
+	check("stone and scope gain", start+3)
+
+	before = hunter.GetStats()
+	hunter.AddStatsDynamic(sim, stone.Invert())
+	sync(before)
+	check("scope", autoShotCritPercent(hunter))
+	check("scope gain", start+3)
+
+	// Dismissing the pet takes back everything it inherited; summoning it again starts over.
+	pet.Disable(sim)
+	pet.Enable(sim, pet)
+	check("resummoned", inheritedCritPercent(hunter))
+}
+
+// 16 October 2026 beta notes: "Pets now benefit from Expertise". The pet takes its master's expertise,
+// at summon and as it changes.
+func TestPetInheritsExpertise(t *testing.T) {
+	sim, hunter, pet := petRangedCritSim(t, proto.Race_RaceNightElf, MarksmanshipTalents, 12784)
+	if got, want := pet.GetStat(stats.ExpertisePercent), hunter.GetStat(stats.ExpertisePercent); !core.WithinToleranceFloat64(want, got, 1e-9) {
+		t.Errorf("pet expertise %.4f%%, want the Hunter's %.4f%%", got, want)
+	}
+	before := hunter.GetStats()
+	petBefore := pet.GetStat(stats.ExpertisePercent)
+	hunter.AddStatDynamic(sim, stats.ExpertiseRating, 2*core.ExpertiseRatingPerExpertisePercent)
+	pet.AddOwnerStats(sim, hunter.GetStats().Subtract(before))
+	if gain := pet.GetStat(stats.ExpertisePercent) - petBefore; !core.WithinToleranceFloat64(2, gain, 1e-9) {
+		t.Errorf("the Hunter gained 2%% expertise, the pet %.4f%%, want 2%%", gain)
 	}
 }

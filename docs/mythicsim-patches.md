@@ -3429,3 +3429,32 @@ Night Elf reference, the two Human sword wielders (Arms, Retribution) and Gnome 
 Downstream: the Rust engine needs the same racials before its next repin.
 
 Drop it when upstream models the 16 October racials.
+
+## 138. `classes: the 16 October beta development notes (part one)`
+
+The [WoW Forever Beta Development Notes](https://us.forums.blizzard.com/en/wow/t/wow-forever-beta-development-notes-%E2%80%93-updated-october-8/2360696) of 16 October 2026 change every class. This patch takes every note that states its numbers or rule outright and needs no new client row. The rest (talent tree moves, new talents and ranks, the Arcane Blast, Fire Power and Winter's Chill redesigns, Fire Nova's new base damage, the Seal of Righteousness and Judgement coefficients, Call of Thunder's removal) waits for the build's DB2 tables, which wago.tools did not list yet (newest `wow_cn_beta` 1.60.1.70374). Where the client row still has the old value, the code overrides it with a comment naming the notes.
+
+| Class | Change | Where |
+| --- | --- | --- |
+| Mage | Ice Lance on frozen targets +200% (was +300%) | `ice_lance.go` |
+| Mage | A Fire Blast crit gives 2 Heating Up charges | `talents_fire.go` |
+| Mage | A Pyroblast cast under Presence of Mind keeps Heating Up | `pyroblast.go`, `talents_fire.go` |
+| Priest | Devouring Plague cooldown 24 s, Shadow Word: Death 18 s, Vampiric Embrace 30 s and always lands | `devouring_plague.go`, `shadow_word_death.go`, `talents_shadow.go` |
+| Priest | Power in Light also counts the priest's Shadow Word: Pain; Twin Disciplines adds Shadow Word: Death, Mind Flay, Starshards, Penance | `talents_discipline.go` |
+| Warlock | Shadow Mastery 2% a point (was 1%); Malediction's DoT bonus gone (Grim Reach is range only) | `talents_affliction.go` |
+| Shaman | Party Grace of Air stacks with Windfury and Flametongue Totems (no twisting downtime beside Windfury); a shaman's own air totems still share a slot | `core/buffs/drivers.go`, `totems.go` |
+| Shaman | Chain Lightning cost x0.65, Fire Nova coefficient 0.143 (base and cost unchanged until the client gives them), Stormstrike 8% of base mana, Call of Flame +1 Flame Shock tick a rank | `chain_lightning.go`, `fire_totems.go`, `stormstrike.go`, `talents_elemental.go` |
+| Paladin | Consecration bonus tick coefficient 0.042, Righteous Fury 90% Holy threat, Shield Specialization 4% mana, Champion of the Light 10/20/30% of Intellect | `consecration.go`, `righteous_fury.go`, `talents_protection.go`, `talents_retribution.go` |
+| Paladin | Reckoning charges: each trigger adds one (max 4), the next main-hand swing spends all for one extra attack each, no swing reset | `talents_protection.go` |
+| Druid | Moonkin Aura is spell crit only, Leader of the Pack melee and ranged crit only, separate categories, both raid-wide; Faerie Fire in Cat or Bear no longer triggers Omen of Clarity | `tools/database/buffmanifest`, `core/buffs/drivers.go`, `core/raid.go`, `omen_of_clarity.go` |
+| Hunter | Auto Shot waits 0.5 s after movement ends; pets take the higher of melee and ranged crit (patch 136 gave ranged) and the owner's expertise; Resourcefulness cuts Strider Kick's cost and procs only from ability crits | `core/attack.go`, `core/movement.go`, `pet.go`, `talents_survival.go` |
+| Rogue | Cold Blood is spent by the Mutilate that crits | `talents_assassination.go` |
+| Warrior | Weaponmaster's sword proc ignores Shield Bash and Shield Slam | `talents_arms.go` |
+
+Open readings: Reckoning ignores the client's 1.5 s proc cooldown (the fork never applied it and the notes don't mention it) and its charges never expire; "about 35%" off Chain Lightning is taken as exactly 35%; Power in Light reads the priest's own Shadow Word: Pain.
+
+Tests: new focused tests in every touched package (`sim/mage/oct16_notes_test.go`, `sim/priest/oct16_notes_test.go`, `TestShadowMasteryTwoPercentAPoint`, `TestMaledictionSlotAddsNoDamage`, the air totem cases, `elemental/oct16_notes_test.go`, `stormstrike_cost_test.go`, `protection/reckoning_test.go`, `raid_wide_buffs_test.go`, `feralcat/omen_faerie_fire_test.go`, `auto_shot_stand_still_test.go`, `TestPetCritTakesTheHigherOfMeleeAndRanged`, `TestPetInheritsExpertise`, `resourcefulness_test.go`, `TestColdBloodSpentByMutilate`, `sword_specialization_test.go`), each failing on patch 137. Goldens regenerated for TestFire, TestFrost, TestShadowPriest, TestSmitePriest, TestAffliction, TestElemental, TestEnhancement, TestProtection, TestRetribution, TestFeralBear, TestFeralCat, TestSurvival, TestSurvivalMelee, TestAssassination.
+
+Measured (native `wowsimcli`, MythicSim production default path, 10,000 iterations, board seed, board length, against `713b825aae`, MythicSim's buff defaults as of patch 137): Shockadin 999.24 to 898.68 (-10.1%), Assassination 605.38 to 545.73 (-9.9%), Ret-protection 587.36 to 532.63 (-9.3%), Retribution 900.96 to 821.28 (-8.8%), Holy-protection 575.02 to 542.38 (-5.7%), Frost 677.11 to 643.47 (-5.0%), Elehance 646.90 to 636.34 (-1.6%), Enhancement -0.8%, Destruction -0.8%, Survival weave -0.6%; Shadow 709.76 to 748.90 (+5.5%), Smite +1.8%, Affliction +1.6%, Fire +1.6%, Elemental +1.3%, Protection Paladin +0.3%, Beast Mastery +0.3%. The rest move under 0.2%.
+
+Downstream: the Rust engine needs these before its next repin. Drop each piece as upstream takes it.

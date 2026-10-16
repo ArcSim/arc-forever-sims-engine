@@ -99,15 +99,14 @@ func (shaman *Shaman) registerWindfuryTotemSpell() {
 		ActionID: config.ActionID,
 		Duration: duration,
 	})
-	wfAura.NewExclusiveEffect(buffs.AirTotemCategory, true, core.ExclusiveEffect{Priority: buffs.AirTotemCastWindfury})
 	buffs.WindfuryTotemDisablesFlametongueTotem(wfAura)
 	wfAura.ApplyOnInit(func(aura *core.Aura, sim *core.Simulation) {
 		mhConfig := *shaman.AutoAttacks.MHConfig()
 		mhConfig.ActionID = mhConfig.ActionID.WithTag(windfuryTotemBuff.ID)
 		windfurySpell = shaman.GetOrRegisterSpell(mhConfig)
 	}).ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
-		// Since build 70009 the totem's effect is a party aura that no other air totem stacks with, so it
-		// ends with the totem instead of lingering on the weapon for a twist.
+		// Since build 70009 the totem's effect is a party aura, so it ends with the totem instead of
+		// lingering on the weapon for a twist.
 		wfIntermediateAuraForExclusitivity.Deactivate(sim)
 		wfPartyWeaponBuffTrackingAura.Deactivate(sim)
 	}).AttachPeriodicAction(core.PeriodicActionOptions{
@@ -131,6 +130,9 @@ func (shaman *Shaman) registerWindfuryTotemSpell() {
 		},
 	})
 
+	// The shaman has one air totem slot, so its own Windfury Totem replaces its own Grace of Air and the
+	// other way round. Since the 16 October 2026 beta notes neither replaces another shaman's (the party
+	// buffs): Grace of Air stacks with Windfury Totem there.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		if shaman.AirTotemAura != nil {
 			shaman.AirTotemAura.Deactivate(sim)
@@ -186,7 +188,6 @@ func (shaman *Shaman) registerGraceOfAirTotemSpell() {
 		ActionID: config.ActionID,
 		Duration: duration,
 	})
-	buffAura.NewExclusiveEffect(buffs.AirTotemCategory, true, core.ExclusiveEffect{Priority: buffs.AirTotemCastGraceOfAir})
 	buffAura.NewExclusiveEffect(buffs.GraceOfAirTotemCategory+stats.Agility.StatName()+"Add", false, core.ExclusiveEffect{
 		Priority: value,
 		OnGain: func(ee *core.ExclusiveEffect, sim *core.Simulation) {

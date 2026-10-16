@@ -63,6 +63,12 @@ func (druid *Druid) applyOmenOfClarity() {
 	}, spelldata.Chance(1))
 
 	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+		// "Omen of Clarity can no longer be triggered by Faerie Fire while in Cat, Bear or Dire Bear
+		// Form" (16 October 2026 beta notes). The sim's Bear Form is Dire Bear Form too.
+		if spell.Matches(DruidSpellFaerieFire|DruidSpellFaerieFireFeral) && druid.InForm(Cat|Bear) {
+			return false
+		}
+
 		var seconds float64
 		switch {
 		case spell.ProcMask.Matches(core.ProcMaskSpellDamage | core.ProcMaskSpellHealing):

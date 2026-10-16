@@ -76,23 +76,11 @@ func (warlock *Warlock) applyImprovedCorruption() {
 	})
 }
 
-// Forever moved Malediction off the curse: the beta client's 1225177 is a flat 1% a point on the
-// warlock's own damage and dot damage, not a bonus on Curse of the Elements.
+// The 16 October 2026 beta notes replace Malediction (1225177, +1% periodic damage a point) with
+// Grim Reach, +10/20% range on Affliction spells and nothing for damage. The new client tree is not
+// out yet, so the talent keeps Malediction's proto field and tree slot, and points in it do nothing
+// here: the sim models no spell range for Grim Reach to extend.
 func (warlock *Warlock) applyMalediction() {
-	if warlock.Talents.Malediction == 0 {
-		return
-	}
-
-	// Periodic damage only ("Increases all periodic damage done"). The row also states the same
-	// value on op 0, but a tick already takes DamageDone, so taking both would count it twice.
-	// The mask names Hellfire, but its area hits are Hellfire Effect (11682), a direct School
-	// Damage effect, so a dot modifier never reaches them; only the self-burn is periodic.
-	points := warlock.Talents.Malediction
-	warlock.AddStaticMod(core.SpellModConfig{
-		Kind:       core.SpellMod_DotDamageDone_Pct,
-		FloatValue: spellData.Malediction.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_DOT)).FractionAt(points),
-		ClassMask:  WarlockSpellAll &^ WarlockSpellHellfire,
-	})
 }
 
 // Improved Drains: 7/13/20% more drain damage (403511, a dot modifier).
@@ -183,9 +171,13 @@ func (warlock *Warlock) applyNightfall() {
 	})
 }
 
-// Shadow Mastery is 1% a point on both damage and dot damage in Forever: 18271 kept its op 0 and
+// Shadow Mastery is a bonus on both damage and dot damage in Forever: 18271 kept its op 0 and
 // op 22 modifiers and dropped Classic's op 8, so every shadow spell takes it the same way. Neither
-// mask names Life Tap, so its mana is left alone.
+// mask names Life Tap, so its mana is left alone. The 16 October 2026 beta notes double it to 2% a
+// point (2/4/6/8/10%, was 1..5%); the client row still states 1%, so the notes' value stands in.
+// ShadowMasteryPerPoint is the 16 October 2026 beta notes' Shadow damage bonus per point.
+const ShadowMasteryPerPoint = 0.02
+
 func (warlock *Warlock) applyShadowMastery() {
 	if warlock.Talents.ShadowMastery == 0 {
 		return
@@ -194,7 +186,7 @@ func (warlock *Warlock) applyShadowMastery() {
 	points := warlock.Talents.ShadowMastery
 	warlock.AddStaticMod(core.SpellModConfig{
 		Kind:       core.SpellMod_DamageDone_Flat,
-		FloatValue: spellData.ShadowMastery.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_DAMAGE)).FractionAt(points),
+		FloatValue: ShadowMasteryPerPoint * float64(points),
 		ClassMask:  WarlockShadowDamage,
 	})
 	// The row's op 22 (dot) modifier carries the same value as op 0: one bonus stated for both

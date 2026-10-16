@@ -2,6 +2,7 @@ package priest
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
@@ -12,6 +13,9 @@ import (
 // heal the priest for what they deal. Client 1.60.1.70170 sets Periodic Can Crit on every rank (2944 and
 // 19276 to 19280), so the ticks crit by the row, as patch 14 had them do while the flag was off.
 var DevouringPlagueRankMap = spellData.DevouringPlague
+
+// DevouringPlagueCooldown is the 16 October 2026 beta notes' cooldown (was 60 sec).
+const DevouringPlagueCooldown = 24 * time.Second
 
 func (priest *Priest) registerDevouringPlagueSpell(rank *spelldata.Spell, cdTimer *core.Timer) {
 	tick := rank.PeriodicEffect()
@@ -35,9 +39,11 @@ func (priest *Priest) registerDevouringPlagueSpell(rank *spelldata.Spell, cdTime
 			DefaultCast: core.Cast{
 				GCD: rank.GCD(),
 			},
+			// The 16 October 2026 beta notes cut the cooldown to 24 sec; the client row still states a
+			// 60 sec category cooldown, so the notes' number stands in until the client catches up.
 			CD: core.Cooldown{
 				Timer:    cdTimer,
-				Duration: max(rank.Cooldown(), rank.CategoryCooldown()),
+				Duration: DevouringPlagueCooldown,
 			},
 		},
 

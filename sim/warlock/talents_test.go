@@ -244,3 +244,37 @@ func TestDestructiveReachExtendsRange(t *testing.T) {
 		}
 	}
 }
+
+// The 16 October 2026 beta notes double Shadow Mastery to 2% Shadow damage a point (was 1%).
+func TestShadowMasteryTwoPercentAPoint(t *testing.T) {
+	shadowBolt := func(talents string) *core.Spell {
+		player := core.WithSpec(&proto.Player{
+			Race:          proto.Race_RaceOrc,
+			Class:         proto.Class_ClassWarlock,
+			Equipment:     &proto.EquipmentSpec{},
+			Consumables:   &proto.ConsumesSpec{},
+			TalentsString: talents,
+			Rotation:      &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
+		}, &proto.Player_Warlock{Warlock: &proto.Warlock{Options: &proto.Warlock_Options{ClassOptions: &proto.WarlockOptions{
+			Summon: proto.WarlockOptions_NoSummon,
+		}}}})
+		sim := core.NewSim(&proto.RaidSimRequest{
+			SimOptions: &proto.SimOptions{RandomSeed: 1},
+			Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+			Encounter:  core.MakeSingleTargetEncounter(0),
+		}, simsignals.CreateSignals())
+		sim.Reset()
+		warlock := sim.Raid.Parties[0].Players[0].(WarlockAgent).GetWarlock()
+		return warlock.GetSpell(core.ActionID{SpellID: spellData.ShadowBolt.Highest().ID})
+	}
+
+	base := shadowBolt("")
+	for points := 1; points <= 5; points++ {
+		// Shadow Mastery is the 16th Affliction talent.
+		talents := "000000000000000" + string(rune('0'+points))
+		got := shadowBolt(talents).DamageMultiplierAdditive - base.DamageMultiplierAdditive
+		if want := 0.02 * float64(points); math.Abs(got-want) > 1e-9 {
+			t.Errorf("Shadow Mastery %d adds %v to Shadow Bolt, want %v", points, got, want)
+		}
+	}
+}

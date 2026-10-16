@@ -21,10 +21,17 @@ var ConsecrationRankMap = spellData.Consecration
 // first few targets take, the only part of the spell the client gives a spell power coefficient.
 // The rank's own periodic dummy carries no damage: it times the ticks and states how many targets
 // take the bonus.
+// Consecration's per-tick spell power coefficient (16 October 2026 beta notes; was 0.095).
+const consecrationTickCoefficient = 0.042
+
 func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 	tickSpell := spellData.ConsecrationTriggered.Rank(n)
 	tick := tickSpell.EffectN(1)
 	bonus := tickSpell.EffectN(2)
+
+	// The 16 October 2026 beta notes cut the per-tick spell power coefficient to 0.042; the client rows
+	// still carry 0.095 on the bonus effect, the only one with a coefficient.
+	bonusCoeff := consecrationTickCoefficient
 
 	dummy := rank.Effect(dbcenums.A_PERIODIC_DUMMY, 0)
 	bonusTargets := int(dummy.Average(core.CharacterLevel))
@@ -39,7 +46,7 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 		for i, target := range sim.Encounter.ActiveTargetUnits {
 			damage := tick.Average(core.CharacterLevel)
 			if i < bonusTargets {
-				damage += bonus.Average(core.CharacterLevel) + bonus.Coeff()*dot.Spell.BonusDamage(dot.Spell.Unit.AttackTables[target.UnitIndex])
+				damage += bonus.Average(core.CharacterLevel) + bonusCoeff*dot.Spell.BonusDamage(dot.Spell.Unit.AttackTables[target.UnitIndex])
 				if paladin.consecratedGroundAuras != nil {
 					paladin.consecratedGroundAuras.Get(target).Activate(sim)
 				}

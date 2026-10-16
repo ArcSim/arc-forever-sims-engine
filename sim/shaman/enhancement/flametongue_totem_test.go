@@ -370,6 +370,7 @@ func TestWindfuryTotemSwitchesFlametongueTotemOff(t *testing.T) {
 		{"the cast Windfury Totem and the party's Flametongue Totem", ftCase{party: &proto.PartyBuffs{FlametongueTotem: true}, casts: []int32{windfuryTotemCastID}}},
 		{"both the party's", ftCase{party: &proto.PartyBuffs{WindfuryTotem: true, FlametongueTotem: true}}},
 		{"the party's Windfury Totem and Grace of Air", ftCase{party: &proto.PartyBuffs{WindfuryTotem: true, GraceOfAirTotem: true, FlametongueTotem: true}}},
+		{"the party's Windfury Totem beside a cast Grace of Air", ftCase{party: &proto.PartyBuffs{WindfuryTotem: true, FlametongueTotem: true}, casts: []int32{graceOfAirCast}}},
 	} {
 		t.Run(row.name, func(t *testing.T) {
 			r := runFlametongueTotem(t, row.c)
@@ -389,9 +390,8 @@ func TestWindfuryTotemSwitchesFlametongueTotemOff(t *testing.T) {
 	}
 }
 
-// Grace of Air is the other air totem, and the notes do not tie it to Flametongue Totem: beside it, or when
-// a cast Grace of Air takes the air slot from the party's Windfury Totem, Flametongue Totem adds its hit on
-// every landed main-hand swing.
+// Grace of Air is no longer exclusive with Flametongue Totem (16 October 2026 beta notes): beside it,
+// Flametongue Totem adds its hit on every landed main-hand swing.
 func TestGraceOfAirLeavesFlametongueTotemAlone(t *testing.T) {
 	for _, row := range []struct {
 		name string
@@ -400,7 +400,6 @@ func TestGraceOfAirLeavesFlametongueTotemAlone(t *testing.T) {
 		{"both cast", ftCase{mh: crestedScepter, casts: []int32{graceOfAirCast, flametongueTotemCast}}},
 		{"the party's Grace of Air and the cast Flametongue Totem", ftCase{mh: crestedScepter, party: &proto.PartyBuffs{GraceOfAirTotem: true}, casts: []int32{flametongueTotemCast}}},
 		{"both the party's", ftCase{mh: crestedScepter, party: &proto.PartyBuffs{GraceOfAirTotem: true, FlametongueTotem: true}}},
-		{"a cast Grace of Air replacing the party's Windfury Totem", ftCase{mh: crestedScepter, party: &proto.PartyBuffs{WindfuryTotem: true, FlametongueTotem: true}, casts: []int32{graceOfAirCast}}},
 	} {
 		t.Run(row.name, func(t *testing.T) {
 			r := runFlametongueTotem(t, row.c)

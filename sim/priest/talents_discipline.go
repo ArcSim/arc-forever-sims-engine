@@ -44,7 +44,8 @@ func (priest *Priest) registerDisciplineTalents() {
 
 // Power in Light is new in Forever: Smite and Penance hit 2% harder per point while this priest's
 // Holy Fire is burning the target. The client states the ladder on a dummy effect (1309969), so the
-// spells it names come from the tooltip.
+// spells it names come from the tooltip. The 16 October 2026 beta notes add this priest's Shadow Word:
+// Pain as a second trigger: either dot on the target is enough.
 func (priest *Priest) applyPowerInLight() {
 	if priest.Talents.PowerInLight == 0 {
 		return
@@ -54,7 +55,7 @@ func (priest *Priest) applyPowerInLight() {
 
 	for _, target := range priest.Env.Encounter.AllTargetUnits {
 		target.AddDynamicDamageTakenModifier(func(_ *core.Simulation, spell *core.Spell, result *core.SpellResult, _ bool) {
-			if spell.Unit == &priest.Unit && spell.Matches(PriestSpellSmite|PriestSpellPenance) && priest.hasActiveHolyFire(result.Target) {
+			if spell.Unit == &priest.Unit && spell.Matches(PriestSpellSmite|PriestSpellPenance) && (priest.hasActiveHolyFire(result.Target) || priest.hasActiveShadowWordPain(result.Target)) {
 				result.Damage *= multiplier
 			}
 		})
@@ -74,8 +75,8 @@ func (priest *Priest) applyWandSpecialization() {
 // Twin Disciplines is new in Forever: +1% damage and healing per point on instant spells. The client
 // states it as two SPELL_AURA_ADD_PCT_MODIFIER effects, damage and dot, so it joins the additive
 // bucket rather than multiplying. 1225132's masks name Holy Nova, Chastise, Divine Grace and
-// Contingency Plan (damage) and Shadow Word: Pain and Devouring Plague (dot) - not Mind Flay,
-// Penance, Shadow Word: Death or Starshards.
+// Contingency Plan (damage) and Shadow Word: Pain and Devouring Plague (dot). The 16 October 2026 beta
+// notes add Shadow Word: Death, Mind Flay, Starshards and Penance beyond what those masks name.
 func (priest *Priest) applyTwinDisciplines() {
 	if priest.Talents.TwinDisciplines == 0 {
 		return
@@ -83,7 +84,8 @@ func (priest *Priest) applyTwinDisciplines() {
 
 	priest.AddStaticMod(core.SpellModConfig{
 		ClassMask: PriestSpellHolyNova | PriestSpellChastise | PriestSpellDivineGrace | PriestSpellContingencyPlan |
-			PriestSpellShadowWordPain | PriestSpellDevouringPlague,
+			PriestSpellShadowWordPain | PriestSpellDevouringPlague |
+			PriestSpellShadowWordDeath | PriestSpellMindFlay | PriestSpellStarshards | PriestSpellPenance,
 		FloatValue: spellData.TwinDisciplines.EffectAt(1).FractionAt(priest.Talents.TwinDisciplines),
 		Kind:       core.SpellMod_DamageDone_Flat,
 	})

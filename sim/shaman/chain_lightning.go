@@ -1,6 +1,8 @@
 package shaman
 
 import (
+	"math"
+
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
@@ -10,6 +12,14 @@ var ChainLightningRankMap = spellData.ChainLightning
 // Lightning Overload's Chain Lightning, one client row per rank (client 1.60.1.70205). Not exactly
 // half the rank: its damage grows 1.25-1.5x faster per level, so rank 4 at 60 averages 66, not 63.
 var chainLightningOverloadRanks = spelldata.Ranked(408479, 408481, 408482, 408484)
+
+// "Chain Lightning mana cost reduced by approximately 35%" on every rank (16 October 2026 beta notes). The
+// client data still carries the old costs, so the rank's cost is cut here until it moves.
+const chainLightningCostMultiplier = 0.65
+
+func chainLightningCost(config *spelldata.Spell) int32 {
+	return int32(math.Round(config.Cost() * chainLightningCostMultiplier))
+}
 
 func (shaman *Shaman) registerChainLightningSpell() {
 	maxHits := min(3, shaman.Env.TotalTargetCount())
@@ -32,7 +42,7 @@ func (shaman *Shaman) newChainLightningSpell(config *spelldata.Spell, rank int32
 		ActionID:            core.ActionID{SpellID: config.ID},
 		Rank:                rank,
 		IsElementalOverload: isElementalOverload,
-		BaseFlatCost:        int32(config.Cost()),
+		BaseFlatCost:        chainLightningCost(config),
 		BonusCoefficient:    damage.Coeff(),
 		SpellSchool:         core.SpellSchoolNature,
 		Overloads:           shaman.ChainLightningOverloads,

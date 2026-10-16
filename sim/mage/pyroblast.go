@@ -31,6 +31,10 @@ func (mage *Mage) registerPyroblastSpell() {
 				GCD:      pyroblastRank.GCD(),
 				CastTime: pyroblastRank.CastTime(),
 			},
+			// Runs before Presence of Mind's OnCastComplete drops its aura for this same cast.
+			ModifyCast: func(_ *core.Simulation, _ *core.Spell, _ *core.Cast) {
+				mage.pyroblastUnderPresenceOfMind = mage.PresenceOfMindAura != nil && mage.PresenceOfMindAura.IsActive()
+			},
 		},
 
 		Dot: core.DotConfig{

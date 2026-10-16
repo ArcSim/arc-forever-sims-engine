@@ -311,13 +311,34 @@ func (raid *Raid) updatePlayersAndPets() {
 	})
 }
 
+// Leader of the Pack and Moonkin Aura reach the whole raid since the 16 October 2026 beta notes, but
+// stay PartyBuffs fields: a druid's aura in any party, or either input on any party, reaches every
+// party.
+func spreadRaidWidePartyBuffs(all []*proto.PartyBuffs) {
+	var pack, moonkin bool
+	for _, buffs := range all {
+		pack = pack || buffs.LeaderOfThePack
+		moonkin = moonkin || buffs.MoonkinAura
+	}
+	for _, buffs := range all {
+		buffs.LeaderOfThePack = buffs.LeaderOfThePack || pack
+		buffs.MoonkinAura = buffs.MoonkinAura || moonkin
+	}
+}
+
 func (raid *Raid) applyCharacterEffects(raidConfig *proto.Raid) *proto.RaidStats {
 	raidBuffs := raid.GetRaidBuffs(raidConfig.Buffs)
 	raidStats := &proto.RaidStats{}
 
+	allPartyBuffs := make([]*proto.PartyBuffs, len(raid.Parties))
+	for partyIdx, party := range raid.Parties {
+		allPartyBuffs[partyIdx] = party.GetPartyBuffs(raidConfig.Parties[partyIdx].Buffs)
+	}
+	spreadRaidWidePartyBuffs(allPartyBuffs)
+
 	for partyIdx, party := range raid.Parties {
 		partyConfig := raidConfig.Parties[partyIdx]
-		partyBuffs := party.GetPartyBuffs(partyConfig.Buffs)
+		partyBuffs := allPartyBuffs[partyIdx]
 		partyStats := &proto.PartyStats{
 			Players: make([]*proto.PlayerStats, 5),
 		}

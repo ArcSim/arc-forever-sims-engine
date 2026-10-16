@@ -238,6 +238,9 @@ func (priest *Priest) applyImprovedFade() {
 	}
 }
 
+// VampiricEmbraceCooldown is the 16 October 2026 beta notes' cooldown (was 60 sec).
+const VampiricEmbraceCooldown = 30 * time.Second
+
 // The Forever client heals the priest's whole party for a share of the Shadow damage it deals, where
 // Classic healed only the priest. Only the priest who applied the debuff heals from it.
 func (priest *Priest) applyVampiricEmbrace() {
@@ -287,14 +290,16 @@ func (priest *Priest) applyVampiricEmbrace() {
 			DefaultCast: core.Cast{
 				GCD: core.GCDDefault,
 			},
+			// The 16 October 2026 beta notes cut the cooldown to 30 sec; the client row still states 60.
 			CD: core.Cooldown{
 				Timer:    priest.NewTimer(),
-				Duration: max(rank.Cooldown(), rank.CategoryCooldown()),
+				Duration: VampiricEmbraceCooldown,
 			},
 		},
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHit)
+			// 16 October 2026 beta notes: Vampiric Embrace can no longer be resisted, so it always lands.
+			result := spell.CalcOutcome(sim, target, spell.OutcomeAlwaysHit)
 			if result.Landed() {
 				veAuras.Get(target).Activate(sim)
 			}

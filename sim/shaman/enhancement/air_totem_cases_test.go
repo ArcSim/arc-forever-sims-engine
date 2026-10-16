@@ -8,9 +8,11 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
-// A party holds one air totem (build 70009), and a totem the shaman casts replaces the one the party's
-// buffs assume. Windfury Weapon is not an air totem: it only disables the Windfury Totem proc its own
-// wielder would get, so it works beside Grace of Air.
+// Grace of Air Totem is no longer exclusive with Windfury Totem (16 October 2026 beta notes), so the
+// party's Grace of Air and Windfury Totem stack, and a totem the shaman casts stacks with the other one
+// from the party. The shaman's own air slot still holds one totem: of its own casts, the last stands.
+// Windfury Weapon is not an air totem: it only disables the Windfury Totem proc its own wielder would get,
+// so it works beside Grace of Air.
 
 const (
 	graceOfAirCast    = 25359 // the totem spell the shaman casts
@@ -116,29 +118,29 @@ func TestPartyWindfuryTotemAloneProcs(t *testing.T) {
 	}
 }
 
-// Redfall and Kerani's report: a Windfury Totem from the party buffs and a Grace of Air the rotation
-// casts were both up. The cast totem replaces the party's, so the party's Windfury Totem never procs.
-func TestCastGraceOfAirReplacesPartyWindfuryTotem(t *testing.T) {
+// Redfall and Kerani's report had a Windfury Totem from the party buffs and a Grace of Air the rotation
+// casts both up. Since the 16 October 2026 notes that is right: both stand and Windfury procs.
+func TestCastGraceOfAirStacksWithPartyWindfuryTotem(t *testing.T) {
 	r := runAirTotems(t, rockbiter, &proto.PartyBuffs{WindfuryTotem: true}, graceOfAirCast)
 	if r.castGrace < totemPlayed {
 		t.Fatalf("cast Grace of Air up %.1f s, want it standing", r.castGrace)
 	}
-	if r.partyWindfury > totemAbsent || r.partyExtra != 0 {
-		t.Fatalf("party Windfury Totem up %.1f s with %.2f extra attacks beside a cast Grace of Air, want neither", r.partyWindfury, r.partyExtra)
+	if r.partyWindfury < totemPlayed || r.partyExtra < procExpected {
+		t.Fatalf("party Windfury Totem up %.1f s with %.2f extra attacks beside a cast Grace of Air, want it up and proccing", r.partyWindfury, r.partyExtra)
 	}
 }
 
-func TestCastWindfuryTotemReplacesPartyGraceOfAir(t *testing.T) {
+func TestCastWindfuryTotemStacksWithPartyGraceOfAir(t *testing.T) {
 	r := runAirTotems(t, rockbiter, &proto.PartyBuffs{GraceOfAirTotem: true}, windfuryTotemCast)
 	if r.castWindfury < totemPlayed || r.castExtra < procExpected {
 		t.Fatalf("cast Windfury Totem up %.1f s with %.2f extra attacks a fight, want it up and proccing", r.castWindfury, r.castExtra)
 	}
-	if r.partyGrace > totemAbsent {
-		t.Fatalf("party Grace of Air up %.1f s beside a cast Windfury Totem, want it replaced", r.partyGrace)
+	if r.partyGrace < totemPlayed {
+		t.Fatalf("party Grace of Air up %.1f s beside a cast Windfury Totem, want it standing", r.partyGrace)
 	}
 }
 
-// A shaman who casts one air totem and then the other holds the second only.
+// A shaman who casts one air totem and then the other holds the second only: one air slot.
 func TestCastAirTotemsReplaceEachOther(t *testing.T) {
 	r := runAirTotems(t, rockbiter, &proto.PartyBuffs{}, graceOfAirCast, windfuryTotemCast)
 	if r.castWindfury < totemPlayed || r.castGrace > totemAbsent {
@@ -150,14 +152,20 @@ func TestCastAirTotemsReplaceEachOther(t *testing.T) {
 	}
 }
 
-// A request that sets both party air totems holds Windfury Totem only.
-func TestPartyAirTotemsAreExclusive(t *testing.T) {
-	r := runAirTotems(t, rockbiter, &proto.PartyBuffs{WindfuryTotem: true, GraceOfAirTotem: true})
-	if r.partyWindfury < totemPlayed || r.partyExtra < procExpected {
-		t.Fatalf("both party air totems: Windfury up %.1f s with %.2f extra attacks, want it up and proccing", r.partyWindfury, r.partyExtra)
-	}
-	if r.partyGrace > totemAbsent {
-		t.Fatalf("both party air totems: Grace of Air up %.1f s, want it replaced", r.partyGrace)
+// A request that sets both party air totems holds both, and the twisting toggle takes nothing off Grace
+// of Air when Windfury Totem is the party's as well.
+func TestPartyAirTotemsStack(t *testing.T) {
+	for name, party := range map[string]*proto.PartyBuffs{
+		"plain":    {WindfuryTotem: true, GraceOfAirTotem: true},
+		"twisting": {WindfuryTotem: true, GraceOfAirTotem: true, TotemTwisting: true},
+	} {
+		r := runAirTotems(t, rockbiter, party)
+		if r.partyWindfury < totemPlayed || r.partyExtra < procExpected {
+			t.Fatalf("%s, both party air totems: Windfury up %.1f s with %.2f extra attacks, want it up and proccing", name, r.partyWindfury, r.partyExtra)
+		}
+		if r.partyGrace < 0.99*r.partyWindfury {
+			t.Fatalf("%s, both party air totems: Grace of Air up %.1f s against Windfury's %.1f s, want it standing the fight", name, r.partyGrace, r.partyWindfury)
+		}
 	}
 }
 

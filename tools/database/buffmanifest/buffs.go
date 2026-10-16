@@ -155,17 +155,18 @@ var Party = []BuffSpec{
 			proto.Stat_StatArmor,
 		},
 	},
-	// A_MOD_CRIT_PCT names no school, so the 3 goes on every kind of crit. 17007 calls the aura
-	// exclusive with Moonkin Aura, which is the category the two share.
+	// The client row is A_MOD_CRIT_PCT, every kind of crit, and 17007 calls it exclusive with Moonkin
+	// Aura. The 16 October 2026 beta notes keep it to melee and ranged crit and let the two stack, so
+	// it has a category of its own and is driven: the driver reads the row's crit as physical crit.
 	{
 		Field:      "leader_of_the_pack",
 		SpellID:    24932,
 		CastID:     17007,
-		Category:   "DruidCritAura",
+		Category:   "LeaderOfThePack",
 		SingleAura: true,
+		Driver:     true,
 		Stats: []proto.Stat{
 			proto.Stat_StatMeleeCritRating,
-			proto.Stat_StatSpellCritRating,
 		},
 	},
 	{
@@ -190,14 +191,15 @@ var Party = []BuffSpec{
 		},
 		Label: "Mana Tide Totem",
 	},
-	// See leader_of_the_pack.
+	// See leader_of_the_pack: since the 16 October 2026 beta notes Moonkin Aura is spell crit alone,
+	// in a category of its own, and driven so the row's crit is read as spell crit.
 	{
 		Field:      "moonkin_aura",
 		SpellID:    24907,
-		Category:   "DruidCritAura",
+		Category:   "MoonkinAura",
 		SingleAura: true,
+		Driver:     true,
 		Stats: []proto.Stat{
-			proto.Stat_StatMeleeCritRating,
 			proto.Stat_StatSpellCritRating,
 		},
 	},

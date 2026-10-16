@@ -158,8 +158,11 @@ func (paladin *Paladin) applyImprovedRighteousFury() {
 }
 
 // Shield Specialization - Increases the amount of damage absorbed by your shield by 10/20/30%, and
-// gives your blocks a 33/66/100% chance to restore 6% of your maximum Mana. May only occur once
-// every 3 sec.
+// gives your blocks a 33/66/100% chance to restore 4% of your maximum Mana. May only occur once
+// every 3 sec. The 16 October 2026 beta notes cut the restore from 6% to 4%; the client row still says
+// 6, so the share is set here.
+const shieldSpecializationManaShare = 0.04
+
 func (paladin *Paladin) applyShieldSpecialization() {
 	if paladin.Talents.ShieldSpecialization == 0 {
 		return
@@ -168,7 +171,7 @@ func (paladin *Paladin) applyShieldSpecialization() {
 	paladin.PseudoStats.BlockValueMultiplier *= spellData.ShieldSpecialization.Effect(dbcenums.A_MOD_BLOCK_VALUE_PCT, 0).MultiplierAt(paladin.Talents.ShieldSpecialization)
 
 	rank := spellData.ShieldSpecializationTriggered.Highest()
-	manaShare := rank.EffectN(1).Percent()
+	manaShare := shieldSpecializationManaShare
 	manaMetrics := paladin.NewManaMetrics(core.ActionID{SpellID: rank.ID})
 
 	paladin.MakeProcTriggerAura(core.ProcTrigger{
@@ -238,6 +241,13 @@ func (paladin *Paladin) applyWeaponSpecialization(bonus float64, handType proto.
 // Reckoning - Gives you a 8/16/24/32/40% chance to gain an extra attack after Blocking a melee
 // attack and a 20/40/60/80/100% chance to gain an extra attack after being the victim of a
 // non-periodic critical strike.
+//
+// The 16 October 2026 beta notes make it work with charges: each trigger adds a charge, up to 4, and
+// the next main-hand melee swing uses them all for one extra attack each, without resetting the auto
+// attack timer. The client rows (20177, 20178) still describe the old instant extra attack, so the
+// charges are modelled here. The notes give the charges no duration, so they wait for the next swing.
+// Client 70291+ also gives 20177 a 1.5 s proc cooldown, which the notes do not mention and the sim
+// has never applied; with charges it is left off.
 func (paladin *Paladin) applyReckoning() {
 	if paladin.Talents.Reckoning == 0 {
 		return
@@ -246,17 +256,51 @@ func (paladin *Paladin) applyReckoning() {
 	blockChance := spellData.Reckoning.FractionAt(paladin.Talents.Reckoning)
 	critChance := blockChance * 2.5
 
-	// The extra attack (20178) is the Classic one, as on master: it pulls the next main-hand
-	// swing to now rather than adding a free swing.
+	rank := spellData.ReckoningTriggered.Highest()
+	charges := paladin.RegisterAura(core.Aura{
+		Label:     "Reckoning" + paladin.Label,
+		ActionID:  core.ActionID{SpellID: rank.ID},
+		Duration:  core.NeverExpires,
+		MaxStacks: ReckoningMaxCharges,
+	})
+
+	// The swing that spends the charges is watched by an aura that is always up, so that gaining and
+	// spending charges never reorders the unit's hit callbacks (and the rolls made in them) from one
+	// iteration to the next.
+	var extraAttack *core.Spell
+	core.MakePermanent(paladin.RegisterAura(core.Aura{
+		Label: "Reckoning Charges Spender" + paladin.Label,
+		OnInit: func(_ *core.Aura, _ *core.Simulation) {
+			// The extra attacks are main-hand swings booked under Reckoning's id, as Windfury's are.
+			config := *paladin.AutoAttacks.MHConfig()
+			config.ActionID = config.ActionID.WithTag(rank.ID)
+			extraAttack = paladin.GetOrRegisterSpell(config)
+		},
+		OnSpellHitDealt: func(_ *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+			// Any main-hand auto, landed or not, spends every charge. The charges are gone before the
+			// extra attacks swing, so those spend nothing and add nothing.
+			if !charges.IsActive() || !spell.ProcMask.Matches(core.ProcMaskMeleeMHAuto) {
+				return
+			}
+			n := charges.GetStacks()
+			charges.Deactivate(sim)
+			for range n {
+				extraAttack.Cast(sim, result.Target)
+			}
+		},
+	}))
+
+	addCharge := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+		charges.Activate(sim)
+		charges.AddStack(sim)
+	}
 
 	paladin.MakeProcTriggerAura(core.ProcTrigger{
 		Name:       "Reckoning - Block" + paladin.Label,
 		Callback:   core.CallbackOnSpellHitTaken,
 		Outcome:    core.OutcomeBlock,
 		ProcChance: blockChance,
-		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-			paladin.AutoAttacks.ExtraMHAttack(sim)
-		},
+		Handler:    addCharge,
 	})
 
 	paladin.MakeProcTriggerAura(core.ProcTrigger{
@@ -264,11 +308,12 @@ func (paladin *Paladin) applyReckoning() {
 		Callback:   core.CallbackOnSpellHitTaken,
 		Outcome:    core.OutcomeCrit,
 		ProcChance: critChance,
-		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-			paladin.AutoAttacks.ExtraMHAttack(sim)
-		},
+		Handler:    addCharge,
 	})
 }
+
+// ReckoningMaxCharges is the most Reckoning charges a paladin holds (16 October 2026 beta notes).
+const ReckoningMaxCharges = 4
 
 // Iron Creed - Increases the threat generated by your Holy Strike ability 5/10/15/20/25%. While
 // Righteous Fury is active, Holy Strike also reduces your damage taken by 3/6/9/12/15% for 6 sec.

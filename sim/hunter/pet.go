@@ -78,9 +78,9 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 	hp.Pet.MobType = proto.MobType_MobTypeBeast
 
 	hp.AddStatDependency(stats.Strength, stats.AttackPower, 2.0)
-	// No Agility crit: the pet's physical crit is its owner's ranged crit (patch 136, makeStatInheritance).
+	// No Agility crit: the pet's physical crit is its owner's (patch 136, makeStatInheritance).
 	hp.AddStatDependency(stats.Intellect, stats.SpellCritPercent, core.CritPerIntMaxLevel[proto.Class_ClassWarrior])
-	hp.inheritAutoShotCritMods()
+	hp.trackPetCritOffset()
 
 	// Bestial Discipline buys the pet 10% focus regen a rank (19590 effect 1).
 	hp.EnableFocusBar(spellData.BestialDiscipline.EffectAt(1).MultiplierAt(hunter.Talents.BestialDiscipline))
@@ -207,48 +207,57 @@ func (hp *HunterPet) starves(sim *core.Simulation, ability *core.Spell, left flo
 	return left+regen < ability.Cost.GetCurrentCost()
 }
 
-// Forever is a Classic-era realm: the pet takes none of its owner's stats, where TBC's does, but one.
-// From 16 October 2026 the pet's crit is its master's ranged crit (MythicSim patch 136; Forever dev to
-// Bae in #hunter: "Pets will use Ranged Crit starting Thursday"). It replaces the pet's own crit, which
-// came from its 100 base Agility at the Warrior's 20 Agility a point (5%) plus any Agility it gained.
+// Forever is a Classic-era realm: the pet takes none of its owner's stats, where TBC's does, but two.
+// From 16 October 2026 the pet's crit is its master's crit (MythicSim patch 136; Forever dev to Bae in
+// #hunter: "Pets will use Ranged Crit starting Thursday"). It replaces the pet's own crit, which came from
+// its 100 base Agility at the Warrior's 20 Agility a point (5%) plus any Agility it gained.
 //
-// The Hunter's Auto Shot rolls PhysicalCritPercent (Agility, gear, buffs, Lethal Attacks) plus
-// RangedCritPercent (the ranged-only offset: scopes, less a melee-only stone), so the pet inherits that
-// sum. The owner's stat changes reach the pet on the pet heartbeat (core.PetUpdateInterval), as every
-// dynamic inheritance does. Crit modifiers on the Auto Shot spell itself are added by
-// inheritAutoShotCritMods. The target's side (crit suppression, ReducedCritTakenPercent) stays on the
-// pet's own attack table, as for any attacker. Crit auras on the pet itself still add: Ferocity
-// ("Increases the critical strike chance of your pets and hawks", 19598) and Intimidation's next attack.
+// 16 October 2026 beta notes: "Pets now inherit whichever crit is higher, melee or ranged (fix of pets
+// only inheriting melee crit)", and "Pets now benefit from Expertise". The Hunter's Auto Shot rolls
+// PhysicalCritPercent (Agility, gear, buffs, Lethal Attacks) plus RangedCritPercent (the ranged-only
+// offset: scopes, less a melee-only stone) plus the Auto Shot spell's own crit mods; the melee swing rolls
+// PhysicalCritPercent plus the main-hand auto's crit mods. The pet takes PhysicalCritPercent plus the
+// higher of the two offsets, so an Elemental Sharpening Stone (+2% physical, -2% ranged) leaves the pet
+// on the melee value. It also takes the owner's ExpertisePercent (rating already converted).
+//
+// The owner's stat changes reach the pet on the pet heartbeat (core.PetUpdateInterval), as every dynamic
+// inheritance does. The core passes stat deltas, which suits the linear parts; the max is not linear, so
+// petCritOffset holds the offset currently on the pet and each update moves it to the offset the owner's
+// current stats and spell mods give (a spell mod gained or lost is picked up at the next owner stat
+// change). The target's side (crit suppression, ReducedCritTakenPercent) stays on the pet's own attack
+// table, as for any attacker. Crit auras on the pet itself still add: Ferocity ("Increases the critical
+// strike chance of your pets and hawks", 19598) and Intimidation's next attack.
 func (hunter *Hunter) makeStatInheritance() core.PetStatInheritance {
 	return func(ownerStats stats.Stats) stats.Stats {
+		offset := hunter.petCritOffsetNow()
+		change := offset - hunter.petCritOffset
+		hunter.petCritOffset = offset
 		return stats.Stats{
-			stats.PhysicalCritPercent: ownerStats[stats.PhysicalCritPercent] + ownerStats[stats.RangedCritPercent],
+			stats.PhysicalCritPercent: ownerStats[stats.PhysicalCritPercent] + change,
+			stats.ExpertisePercent:    ownerStats[stats.ExpertisePercent],
 		}
 	}
 }
 
-// inheritAutoShotCritMods carries the crit modifiers on the Hunter's Auto Shot spell over to the pet while
-// it is out (the weapon racials took their crit back off Auto Shot this way until the 16 October 2026 beta
-// notes replaced them with crit that needs no weapon), so the pet gets the crit the Auto Shot rolls, not
-// the Hunter's melee crit. Read when the pet is enabled
-// (the owner's permanent auras are up by then); a spell mod gained or lost while the pet is out is not
-// followed.
-func (hp *HunterPet) inheritAutoShotCritMods() {
-	var applied float64
-	hp.OnPetEnable = func(sim *core.Simulation) {
-		applied = 0
-		if autoShot := hp.hunterOwner.AutoAttacks.RangedAuto(); autoShot != nil {
-			applied = autoShot.BonusCritPercent
-		}
-		if applied != 0 {
-			hp.AddStatDynamic(sim, stats.PhysicalCritPercent, applied)
-		}
+// petCritOffsetNow is the crit the pet takes on top of the owner's PhysicalCritPercent: the higher of the
+// Auto Shot's ranged-only crit and the main-hand swing's melee-only crit (16 October 2026 beta notes).
+func (hunter *Hunter) petCritOffsetNow() float64 {
+	ranged := hunter.GetStat(stats.RangedCritPercent)
+	if autoShot := hunter.AutoAttacks.RangedAuto(); autoShot != nil {
+		ranged += autoShot.BonusCritPercent
 	}
+	melee := 0.0
+	if swing := hunter.AutoAttacks.MHAuto(); swing != nil {
+		melee = swing.BonusCritPercent
+	}
+	return max(ranged, melee)
+}
+
+// trackPetCritOffset clears petCritOffset once the pet is dismissed: the core has taken back everything
+// the pet inherited, offset included, so the next summon starts from nothing.
+func (hp *HunterPet) trackPetCritOffset() {
 	hp.OnPetDisable = func(sim *core.Simulation) {
-		if applied != 0 {
-			hp.AddStatDynamic(sim, stats.PhysicalCritPercent, -applied)
-			applied = 0
-		}
+		hp.hunterOwner.petCritOffset = 0
 	}
 }
 

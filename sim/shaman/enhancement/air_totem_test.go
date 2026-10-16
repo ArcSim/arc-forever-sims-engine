@@ -8,10 +8,9 @@ import (
 	"github.com/wowsims/forever/sim/core/simsignals"
 )
 
-// Tranquil Air, Windfury and Grace of Air totems no longer stack, even from different shamans in the
-// group (Forever beta development notes). The party's two air totems hold Windfury; a totem the shaman
-// casts replaces whichever the party had.
-func TestOneAirTotemPerParty(t *testing.T) {
+// Grace of Air Totem is no longer exclusive with Windfury Totem (16 October 2026 beta notes): the party's
+// two air totems both stand, and a Grace of Air the shaman casts leaves the party's Windfury Totem alone.
+func TestPartyAirTotemsStackOnTheUnit(t *testing.T) {
 	player := &proto.Player{
 		Name: "enh", Class: proto.Class_ClassShaman, Race: proto.Race_RaceOrc, TalentsString: DefaultTalents,
 		Equipment: &proto.EquipmentSpec{Items: []*proto.ItemSpec{
@@ -38,8 +37,8 @@ func TestOneAirTotemPerParty(t *testing.T) {
 				up("Windfury Totem Trigger"), up("Grace of Air Totem (External)"), up("Grace Of Air Totem (Self)"), windfury, grace, ownGrace)
 		}
 	}
-	check("both party totems", true, false, false)
+	check("both party totems", true, true, false)
 
 	char.GetSpell(core.ActionID{SpellID: 25359}).Cast(sim, char.CurrentTarget)
-	check("after casting Grace of Air", false, false, true)
+	check("after casting Grace of Air", true, true, true)
 }

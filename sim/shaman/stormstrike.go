@@ -69,8 +69,9 @@ func (shaman *Shaman) newStormstrikeSpellConfig(spellID int32, ssDebuffAuras *co
 		ProcMask:       core.ProcMaskEmpty,
 		Flags:          core.SpellFlagMeleeMetrics | core.SpellFlagAPL,
 		ClassSpellMask: SpellMaskStormstrikeCast,
+		// 8% of base mana, not the client's flat 125 (16 October 2026 beta notes).
 		ManaCost: core.ManaCostOptions{
-			FlatCost: int32(stormstrikeRank.Cost()),
+			BaseCostPercent: 8,
 		},
 		Cast: core.CastConfig{
 			DefaultCast: core.Cast{

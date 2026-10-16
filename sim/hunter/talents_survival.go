@@ -80,10 +80,11 @@ func (hunter *Hunter) registerResourcefulness() {
 		return
 	}
 
-	// 440529's cost mask leaves out Strider Kick.
+	// 440529's cost mask leaves out Strider Kick; the 16 October 2026 beta notes put it in
+	// ("Resourcefulness now reduces the mana cost of Strider Kick").
 	hunter.AddStaticMod(core.SpellModConfig{
 		Kind:       core.SpellMod_PowerCost_Pct_Add,
-		ClassMask:  HunterSpellsTraps | HunterSpellsMelee&^HunterSpellStriderKick,
+		ClassMask:  HunterSpellsTraps | HunterSpellsMelee,
 		FloatValue: spellData.Resourcefulness.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_COST)).FractionAt(hunter.Talents.Resourcefulness),
 	})
 
@@ -104,9 +105,12 @@ func (hunter *Hunter) registerResourcefulness() {
 		},
 	})
 
+	// 16 October 2026 beta notes: it triggers only on critical strikes from melee and ranged abilities,
+	// not from traps (spell damage) or auto attacks.
 	hunter.MakeProcTriggerAura(core.ProcTrigger{
 		Name:       "Resourcefulness Trigger",
 		Callback:   core.CallbackOnSpellHitDealt,
+		ProcMask:   core.ProcMaskMeleeSpecial | core.ProcMaskRangedSpecial,
 		Outcome:    core.OutcomeCrit,
 		ProcChance: 0.5 * float64(hunter.Talents.Resourcefulness),
 		Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {

@@ -47,8 +47,12 @@ func TestMutilateHitsDoNotRollAvoidance(t *testing.T) {
 	}
 }
 
-// Cold Blood crits both Mutilate hands and isn't spent by them; the next Eviscerate spends it.
-func TestColdBloodLastsThroughMutilate(t *testing.T) {
+// Before the 16 October 2026 beta notes (ColdBloodSpentByMutilate false): Cold Blood crits both Mutilate
+// hands and isn't spent by them; the next Eviscerate spends it.
+func TestColdBloodLastsThroughMutilateBeforeTheFix(t *testing.T) {
+	ColdBloodSpentByMutilate = false
+	defer func() { ColdBloodSpentByMutilate = true }()
+
 	sim, rogue := kidneyShotSim(AssassinationTalents)
 	target := rogue.CurrentTarget
 	coldBlood := rogue.GetAura("Cold Blood")
@@ -77,27 +81,44 @@ func TestColdBloodLastsThroughMutilate(t *testing.T) {
 	}
 }
 
-// With ColdBloodSpentByMutilate (the client once Blizzard fixes the bug), one Mutilate crits with
-// both hands and spends Cold Blood.
-func TestColdBloodSpentByMutilateWhenFixed(t *testing.T) {
-	ColdBloodSpentByMutilate = true
-	defer func() { ColdBloodSpentByMutilate = false }()
-
+// 16 October 2026 beta notes: "Cold Blood is now consumed when Mutilate crits". One Mutilate crits with
+// both hands and spends Cold Blood, once for the cast: the main hand's crit leaves it up for the off
+// hand.
+func TestColdBloodSpentByMutilate(t *testing.T) {
+	if !ColdBloodSpentByMutilate {
+		t.Fatal("ColdBloodSpentByMutilate is off by default")
+	}
 	sim, rogue := kidneyShotSim(AssassinationTalents)
 	target := rogue.CurrentTarget
 	coldBlood := rogue.GetAura("Cold Blood")
 
 	rogue.ColdBlood.SkipCastAndApplyEffects(sim, target)
-	for i := 0; i < 20 && coldBlood.IsActive(); i++ {
+	casts := 0
+	for ; casts < 20 && coldBlood.IsActive(); casts++ {
+		before := rogue.MutilateMH.SpellMetrics[target.UnitIndex].Crits
 		rogue.Mutilate.SkipCastAndApplyEffects(sim, target)
+		if rogue.MutilateMH.SpellMetrics[target.UnitIndex].Crits == before {
+			continue // the cast missed, was dodged or parried: no hand strikes, Cold Blood stays
+		}
+		break
 	}
 	if coldBlood.IsActive() {
-		t.Fatal("Cold Blood survived Mutilate with ColdBloodSpentByMutilate set")
+		t.Fatal("Cold Blood survived a Mutilate crit")
 	}
 	for _, hand := range []*core.Spell{rogue.MutilateMH, rogue.MutilateOH} {
 		m := hand.SpellMetrics[target.UnitIndex]
 		if m.Crits != 1 || m.Hits != 0 {
 			t.Errorf("%v under Cold Blood: %d crits, %d hits; want 1 crit", hand.ActionID, m.Crits, m.Hits)
 		}
+	}
+
+	// The next Mutilate has no Cold Blood: it is not spent again, and a recast is spent by the next crit.
+	rogue.ColdBlood.CD.Reset()
+	rogue.ColdBlood.SkipCastAndApplyEffects(sim, target)
+	for i := 0; i < 20 && coldBlood.IsActive(); i++ {
+		rogue.Mutilate.SkipCastAndApplyEffects(sim, target)
+	}
+	if coldBlood.IsActive() {
+		t.Error("a second Cold Blood survived Mutilate")
 	}
 }

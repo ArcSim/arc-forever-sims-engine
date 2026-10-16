@@ -20,6 +20,10 @@ const SpellPushbackDuration = time.Millisecond * 500
 
 // How often a ranged auto that came due while moving checks whether it can fire.
 const RangedAutoRetryInterval = time.Millisecond * 500
+
+// How long a unit has to stand still before its ranged auto can fire (16 October 2026 beta notes: "Auto
+// Shot now requires 0.5 seconds of standing still before shooting").
+const RangedAutoStandStill = time.Millisecond * 500
 const MaxMeleeRange = 5.0  // in yards
 const MinRangedRange = 8.0 // in yards; bows, guns, crossbows and thrown weapons cannot fire inside this, leaving a deadzone above melee range
 

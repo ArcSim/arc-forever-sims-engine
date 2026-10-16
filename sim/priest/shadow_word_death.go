@@ -1,12 +1,14 @@
 package priest
 
 import (
+	"time"
+
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
 // Shadow Word: Death is new in Forever: trained on the Shadow Magic line, four ranks, an instant
-// shadow nuke on a 15 second cooldown. The generated table already carries the level-60 damage of
+// shadow nuke on an 18 second cooldown (15 before the 16 October 2026 beta notes). The generated table already carries the level-60 damage of
 // every rank, which matches the beta client 1.60.1.69893 our sim reads.
 //
 // Not modelled, deliberately:
@@ -15,6 +17,9 @@ import (
 //   - Effect 1, a script effect worth 150 that no tooltip names. It could be an execute bonus;
 //     until a combat log says what it does, guessing would put an invented number in the DPS.
 var ShadowWordDeathRankMap = spellData.ShadowWordDeath
+
+// ShadowWordDeathCooldown is the 16 October 2026 beta notes' cooldown (was 15 sec).
+const ShadowWordDeathCooldown = 18 * time.Second
 
 func (priest *Priest) registerShadowWordDeathSpell(rank *spelldata.Spell, cdTimer *core.Timer) {
 	// Early Demise (1310076): +15% crit per point against a target at or below 20% health.
@@ -37,9 +42,10 @@ func (priest *Priest) registerShadowWordDeathSpell(rank *spelldata.Spell, cdTime
 			DefaultCast: core.Cast{
 				GCD: rank.GCD(),
 			},
+			// The 16 October 2026 beta notes raise the cooldown to 18 sec; the client row still states 15.
 			CD: core.Cooldown{
 				Timer:    cdTimer,
-				Duration: max(rank.Cooldown(), rank.CategoryCooldown()),
+				Duration: ShadowWordDeathCooldown,
 			},
 		},
 

@@ -208,7 +208,8 @@ func (mage *Mage) registerImprovedFireWard() {
 // stacking 3 times, so the stacks are worth holding rather than spending. Every crit stacks, so nothing here
 // depends on a streak of crits. The buff is 400625: its duration (20 sec since
 // build 70009), stack cap and per-stack cast time cut are read from the row. Frostfire Bolt, which
-// the tooltip also names, builds stacks too.
+// the tooltip also names, builds stacks too. Since the 16 October 2026 beta notes a Fire Blast crit adds 2
+// stacks, and a Pyroblast cast under Presence of Mind leaves the stacks in place.
 func (mage *Mage) registerHotStreak() {
 	if !mage.Talents.HeatingUp {
 		return
@@ -237,8 +238,10 @@ func (mage *Mage) registerHotStreak() {
 			castTimeMod.UpdateFloatValue(perStack * float64(newStacks))
 		},
 		OnCastComplete: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
-			// 400625 carries one charge: the next Pyroblast spends every stack.
-			if spell.Matches(MageSpellPyroblast) {
+			// 400625 carries one charge: the next Pyroblast spends every stack. The 16 October 2026 beta
+			// notes exempt a Pyroblast cast under Presence of Mind. Presence of Mind drops its own aura in
+			// this same callback round, so read the state Pyroblast recorded when its cast began.
+			if spell.Matches(MageSpellPyroblast) && !mage.pyroblastUnderPresenceOfMind {
 				aura.Deactivate(sim)
 			}
 		},
@@ -250,9 +253,14 @@ func (mage *Mage) registerHotStreak() {
 		ClassSpellMask:     MageSpellFireball | MageSpellFrostfireBolt | MageSpellFireBlast | MageSpellScorch,
 		Outcome:            core.OutcomeCrit,
 		TriggerImmediately: true,
-		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+		Handler: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
 			mage.HotStreakAura.Activate(sim)
-			mage.HotStreakAura.AddStack(sim)
+			// 16 October 2026 beta notes: a Fire Blast crit grants 2 charges, every other crit 1 (cap 3).
+			if spell.Matches(MageSpellFireBlast) {
+				mage.HotStreakAura.AddStacks(sim, 2)
+			} else {
+				mage.HotStreakAura.AddStack(sim)
+			}
 		},
 	})
 }

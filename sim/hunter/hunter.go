@@ -30,6 +30,8 @@ type Hunter struct {
 	windFuryEnabled bool
 
 	Pet *HunterPet
+	// The ranged-or-melee crit offset the pet currently inherits (makeStatInheritance).
+	petCritOffset float64
 
 	AmmoDPS         float64
 	AmmoDamageBonus float64

@@ -50,7 +50,19 @@ func (shaman *Shaman) applyCallOfFlame() {
 		FloatValue: spellData.CallOfFlame.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_DAMAGE)).FractionAt(shaman.Talents.CallOfFlame),
 		ClassMask:  SpellMaskFireTotem | SpellMaskFlameShock | SpellMaskFireNova | SpellMaskLavaBurst,
 	})
+
+	// "Call of Flame now also increases the duration of Flame Shock by 3/6/9 sec" (16 October 2026 beta
+	// notes). The client row has no duration modifier yet, so the extra time is added here as ticks of the
+	// dot's own period: 3 sec a rank.
+	shaman.AddStaticMod(core.SpellModConfig{
+		Kind:      core.SpellMod_DotNumberOfTicks_Flat,
+		IntValue:  int32(callOfFlameFlameShockSeconds * time.Duration(shaman.Talents.CallOfFlame) / flameShockRank.PeriodicEffect().Period()),
+		ClassMask: SpellMaskFlameShockDot,
+	})
 }
+
+// The seconds Call of Flame adds to Flame Shock a rank (16 October 2026 beta notes).
+const callOfFlameFlameShockSeconds = 3 * time.Second
 
 func (shaman *Shaman) applyCallOfThunder() {
 	if !shaman.Talents.CallOfThunder {

@@ -26,6 +26,11 @@ var fireNovaRank = spellData.FireNova.Highest()
 // row 11307 its tooltip cites: beta logs record every Fire Nova hit under the rank 1 sibling 408423.
 var fireNovaDamage = spellData.FireNovaTriggered.ByID(408428)
 
+// The 16 October 2026 beta notes cut Fire Nova's spell power coefficient to 0.143 (the client row still
+// says 0.214). They also say its base damage and mana cost are "significantly reduced" without giving
+// numbers, so those stay at the client's values until a client build or a beta log states them.
+const fireNovaCoefficient = 0.143
+
 func (shaman *Shaman) registerSearingTotemSpell() {
 	attack := shaman.RegisterSpell(core.SpellConfig{
 		ActionID:         core.ActionID{SpellID: searingTotemAttack.ID},
@@ -188,7 +193,7 @@ func (shaman *Shaman) registerFireNovaSpell() {
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
-		BonusCoefficient: fireNovaDamage.DamageEffect().Coeff(),
+		BonusCoefficient: fireNovaCoefficient,
 
 		ApplyEffects: func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 			spell.CalcAoeDamage(sim, fireNovaDamage.DamageEffect().Average(core.CharacterLevel), spell.OutcomeMagicHitAndCrit)

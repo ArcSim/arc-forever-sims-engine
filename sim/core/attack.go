@@ -357,11 +357,21 @@ func (wa *WeaponAttack) swing(sim *Simulation) time.Duration {
 	}
 
 	// A ranged auto can't fire while moving. The hidden retry timer then
-	// checks every 500ms, and the shot goes off at the first check after the
-	// move ends. Casts never hold it.
+	// checks every 500ms. Casts never hold it (it still fires while casting
+	// Aimed Shot or Sniper Shot).
 	if isRanged && wa.unit.Moving {
 		wa.swingAt = sim.CurrentTime + RangedAutoRetryInterval
 		return wa.swingAt
+	}
+	// 16 October 2026 beta notes: Auto Shot needs 0.5 seconds of standing
+	// still before it shoots, so a shot that comes due (or is retried) less
+	// than that after the last move ended waits until it has passed. A shot
+	// with no move before it keeps its timing.
+	if isRanged {
+		if readyAt := wa.unit.movementEndedAt + RangedAutoStandStill; sim.CurrentTime < readyAt {
+			wa.swingAt = readyAt
+			return wa.swingAt
+		}
 	}
 
 	if wa.replaceSwing != nil {
