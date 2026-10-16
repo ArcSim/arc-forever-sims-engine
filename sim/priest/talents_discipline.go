@@ -43,8 +43,8 @@ func (priest *Priest) registerDisciplineTalents() {
 }
 
 // Power in Light is new in Forever: Smite and Penance hit 2% harder per point while this priest's
-// Holy Fire is burning the target. The client states the ladder on a dummy effect (1309969), so the
-// spells it names come from the tooltip.
+// Holy Fire or Shadow Word: Pain is on the target (SW:P added by the 16 Oct beta notes). The client
+// states the ladder on a dummy effect (1309969), so the spells it names come from the tooltip.
 func (priest *Priest) applyPowerInLight() {
 	if priest.Talents.PowerInLight == 0 {
 		return
@@ -54,7 +54,7 @@ func (priest *Priest) applyPowerInLight() {
 
 	for _, target := range priest.Env.Encounter.AllTargetUnits {
 		target.AddDynamicDamageTakenModifier(func(_ *core.Simulation, spell *core.Spell, result *core.SpellResult, _ bool) {
-			if spell.Unit == &priest.Unit && spell.Matches(PriestSpellSmite|PriestSpellPenance) && priest.hasActiveHolyFire(result.Target) {
+			if spell.Unit == &priest.Unit && spell.Matches(PriestSpellSmite|PriestSpellPenance) && priest.hasPowerInLightDot(result.Target) {
 				result.Damage *= multiplier
 			}
 		})
@@ -75,8 +75,8 @@ func (priest *Priest) applyWandSpecialization() {
 // states it as two SPELL_AURA_ADD_PCT_MODIFIER effects, damage and dot, so it joins the additive
 // bucket rather than multiplying. 1225132's masks name Holy Nova, Chastise, Divine Grace and
 // Contingency Plan (damage) and Shadow Word: Pain and Devouring Plague (dot). The devs called the
-// missing Mind Flay and Shadow Word: Death bugs, fixed for the next build (forever-bugs #322, #328,
-// 2026-10-13), so both are added; Penance and Starshards stay out.
+// missing Mind Flay and Shadow Word: Death bugs (forever-bugs #322, #328, 2026-10-13), and the 16 Oct
+// beta notes add Starshards and Penance too, so all four join the masks.
 func (priest *Priest) applyTwinDisciplines() {
 	if priest.Talents.TwinDisciplines == 0 {
 		return
@@ -84,7 +84,8 @@ func (priest *Priest) applyTwinDisciplines() {
 
 	priest.AddStaticMod(core.SpellModConfig{
 		ClassMask: PriestSpellHolyNova | PriestSpellChastise | PriestSpellDivineGrace | PriestSpellContingencyPlan |
-			PriestSpellShadowWordPain | PriestSpellDevouringPlague | PriestSpellMindFlay | PriestSpellShadowWordDeath,
+			PriestSpellShadowWordPain | PriestSpellDevouringPlague | PriestSpellMindFlay | PriestSpellShadowWordDeath |
+			PriestSpellStarshards | PriestSpellPenance,
 		FloatValue: spellData.TwinDisciplines.EffectAt(1).FractionAt(priest.Talents.TwinDisciplines),
 		Kind:       core.SpellMod_DamageDone_Flat,
 	})
@@ -95,10 +96,11 @@ func (priest *Priest) applySilentResolve() {
 		return
 	}
 
+	// Client 14523 still names Holy (misc 2); the 16 Oct beta notes widen it to all spells, so read
+	// the first effect by position and drop the school.
 	priest.AddStaticMod(core.SpellModConfig{
 		ClassMask:  PriestSpellsAll,
-		School:     core.SpellSchoolHoly,
-		FloatValue: spellData.SilentResolve.Effect(dbcenums.A_MOD_THREAT, 2).FractionAt(priest.Talents.SilentResolve),
+		FloatValue: spellData.SilentResolve.EffectAt(1).FractionAt(priest.Talents.SilentResolve),
 		Kind:       core.SpellMod_ThreatMultiplier_Pct,
 	})
 }

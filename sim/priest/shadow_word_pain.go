@@ -13,7 +13,7 @@ func (priest *Priest) registerShadowWordPainSpell(rank *spelldata.Spell) {
 	tick := rank.PeriodicEffect()
 	tickLength := tick.Period()
 
-	priest.RegisterSpell(core.SpellConfig{
+	priest.ShadowWordPain = append(priest.ShadowWordPain, priest.RegisterSpell(core.SpellConfig{
 		ActionID:       core.ActionID{SpellID: rank.ID},
 		SpellSchool:    rank.SpellSchool(),
 		DefenseType:    rank.DefenseTypeCore(),
@@ -66,5 +66,5 @@ func (priest *Priest) registerShadowWordPainSpell(rank *spelldata.Spell) {
 			}
 			return spell.CalcPeriodicDamage(sim, target, tick.Average(core.CharacterLevel), spell.OutcomeExpectedMagicHit)
 		},
-	})
+	}))
 }
