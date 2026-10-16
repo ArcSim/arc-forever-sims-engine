@@ -68,13 +68,3 @@ func (priest *Priest) registerShadowWordPainSpell(rank *spelldata.Spell) {
 		},
 	}))
 }
-
-// hasActiveShadowWordPain reports whether any of this priest's Shadow Word: Pain ranks is on the target.
-func (priest *Priest) hasActiveShadowWordPain(target *core.Unit) bool {
-	for _, spell := range priest.ShadowWordPain {
-		if spell.Dot(target).IsActive() {
-			return true
-		}
-	}
-	return false
-}

@@ -33,9 +33,8 @@ type Priest struct {
 	ShadowformAura     *core.Aura
 	ShadowWeavingAuras core.AuraArray
 
-	// Every Holy Fire rank the priest knows, so Power in Light can ask whether its dot is running.
-	HolyFire []*core.Spell
-	// Every Shadow Word: Pain rank the priest knows, which Power in Light also reads.
+	// Every Holy Fire and Shadow Word: Pain rank the priest knows, so Power in Light can ask whether a dot is running.
+	HolyFire       []*core.Spell
 	ShadowWordPain []*core.Spell
 }
 
