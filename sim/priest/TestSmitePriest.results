@@ -982,43 +982,43 @@ dps_results: {
 dps_results: {
  key: "TestSmitePriest-Settings-Undead-Naked-Default-smite-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 169.35447
-  tps: 292.03068
+  dps: 168.13048
+  tps: 291.53317
  }
 }
 dps_results: {
  key: "TestSmitePriest-Settings-Undead-Naked-Default-smite-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 169.35447
-  tps: 123.69991
+  dps: 168.13048
+  tps: 122.91094
  }
 }
 dps_results: {
  key: "TestSmitePriest-Settings-Undead-Naked-Default-smite-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 248.07146
-  tps: 180.77162
+  dps: 246.14304
+  tps: 179.57603
  }
 }
 dps_results: {
  key: "TestSmitePriest-Settings-Undead-Naked-Default-smite-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 61.32914
-  tps: 138.88034
+  dps: 61.37658
+  tps: 138.97033
  }
 }
 dps_results: {
  key: "TestSmitePriest-Settings-Undead-Naked-Default-smite-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 61.32914
-  tps: 60.71395
+  dps: 61.37658
+  tps: 60.82716
  }
 }
 dps_results: {
  key: "TestSmitePriest-Settings-Undead-Naked-Default-smite-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 138.54678
-  tps: 136.7012
+  dps: 137.75228
+  tps: 136.10402
  }
 }
 dps_results: {

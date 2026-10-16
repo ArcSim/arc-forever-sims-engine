@@ -1143,43 +1143,43 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-Tauren-Naked-Standard-launch-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 1912.73385
-  tps: 1001.81181
+  dps: 1886.64793
+  tps: 988.70193
  }
 }
 dps_results: {
  key: "TestBalance-Settings-Tauren-Naked-Standard-launch-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 184.83817
-  tps: 96.93779
+  dps: 186.10097
+  tps: 97.52378
  }
 }
 dps_results: {
  key: "TestBalance-Settings-Tauren-Naked-Standard-launch-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 190.86512
-  tps: 99.89099
+  dps: 190.67796
+  tps: 99.75012
  }
 }
 dps_results: {
  key: "TestBalance-Settings-Tauren-Naked-Standard-launch-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 861.08259
-  tps: 602.75781
+  dps: 857.13957
+  tps: 599.9977
  }
 }
 dps_results: {
  key: "TestBalance-Settings-Tauren-Naked-Standard-launch-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 65.02732
-  tps: 45.51912
+  dps: 65.06002
+  tps: 45.54202
  }
 }
 dps_results: {
  key: "TestBalance-Settings-Tauren-Naked-Standard-launch-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 141.00746
-  tps: 98.70522
+  dps: 140.82898
+  tps: 98.58029
  }
 }
 dps_results: {

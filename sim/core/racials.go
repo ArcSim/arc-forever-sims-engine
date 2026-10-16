@@ -11,9 +11,11 @@ import (
 func applyRaceEffects(agent Agent) {
 	character := agent.GetCharacter()
 
+	// Blizzard beta development notes, 16 Oct build (us.forums.blizzard.com/en/wow/t/2360696 post 6).
 	switch character.Race {
 	case proto.Race_RaceDwarf:
-		applyWeaponSpecialization(character, "Mace Specialization", 1259719, 1, proto.WeaponType_WeaponTypeMace)
+		// Earth Fury replaced Mace Specialization: 2% increased critical damage and healing.
+		character.PseudoStats.CritDamageMultiplier *= 1.02
 		applyCreatureTypeSlaying(character, proto.MobType_MobTypeBeast)
 
 		actionID := ActionID{SpellID: 20594}
@@ -52,7 +54,8 @@ func applyRaceEffects(agent Agent) {
 		applyEureka(character)
 	case proto.Race_RaceHuman:
 		character.MultiplyStat(stats.Spirit, 1.05)
-		applyWeaponSpecialization(character, "Sword Specialization", 20597, 2, proto.WeaponType_WeaponTypeSword)
+		// Ruthless replaced Sword Specialization: 2% critical strike chance, any weapon.
+		character.AddStats(stats.Stats{stats.PhysicalCritPercent: 2, stats.SpellCritPercent: 2})
 	case proto.Race_RaceNightElf:
 		character.PseudoStats.BaseDodgeChance += 0.01
 		character.PseudoStats.MovementSpeedMultiplier *= 1.02
@@ -74,7 +77,8 @@ func applyRaceEffects(agent Agent) {
 				},
 			})
 	case proto.Race_RaceOrc:
-		applyWeaponSpecialization(character, "Axe Specialization", 20574, 1, proto.WeaponType_WeaponTypeAxe)
+		// Savage replaced Axe Specialization: 1% critical strike chance, any weapon.
+		character.AddStats(stats.Stats{stats.PhysicalCritPercent: 1, stats.SpellCritPercent: 1})
 
 		bloodFuryID := ActionID{SpellID: 20572}
 
@@ -91,7 +95,7 @@ func applyRaceEffects(agent Agent) {
 
 		bloodFuryCD := Cooldown{
 			Timer:    character.NewTimer(),
-			Duration: time.Minute * 2,
+			Duration: time.Minute * 3,
 		}
 		bloodFuryAura.Icd = &bloodFuryCD
 
@@ -129,7 +133,7 @@ func applyRaceEffects(agent Agent) {
 			stats.SchoolIndexNature,
 			stats.SchoolIndexShadow,
 		} {
-			shatterCurseAura.AttachMultiplicativePseudoStatBuff(&character.PseudoStats.SchoolDamageTakenMultiplier[school], 0.85)
+			shatterCurseAura.AttachMultiplicativePseudoStatBuff(&character.PseudoStats.SchoolDamageTakenMultiplier[school], 0.95)
 		}
 
 		shatterCurse := character.RegisterSpell(SpellConfig{
@@ -157,8 +161,8 @@ func applyRaceEffects(agent Agent) {
 		})
 	case proto.Race_RaceTauren:
 		character.MultiplyStat(stats.Health, 1.05)
-		character.AddStat(stats.PhysicalHitPercent, 1)
-		character.AddStat(stats.SpellHitPercent, 1)
+		// Endurance: 2% increased critical damage and healing (was 1% hit).
+		character.PseudoStats.CritDamageMultiplier *= 1.02
 	case proto.Race_RaceTroll:
 		applyCreatureTypeSlaying(character, proto.MobType_MobTypeBeast)
 
@@ -274,8 +278,9 @@ func applyRaceEffects(agent Agent) {
 func applySkyborneSharedRacials(character *Character) {
 	applyCreatureTypeSlaying(character, proto.MobType_MobTypeElemental)
 
-	character.PseudoStats.AttackSpeedMultiplier *= 1.01
-	character.PseudoStats.CastSpeedMultiplier *= 1.01
+	// Wind Blessed: 3% haste (was 1%).
+	character.PseudoStats.AttackSpeedMultiplier *= 1.03
+	character.PseudoStats.CastSpeedMultiplier *= 1.03
 }
 
 // Beast Slaying (troll 20557), Big Game Hunter (dwarf 1259721) and Elemental Insight (Skyborne
@@ -287,51 +292,6 @@ func applyCreatureTypeSlaying(character *Character, mobType proto.MobType) {
 			if at.Defender.MobType == mobType {
 				at.DamageDealtMultiplier *= 1.05
 			}
-		}
-	})
-}
-
-// The physical crit follows the hand holding the weapon: the client's aura (290) carries a
-// SpellEquippedItems weapon requirement, so it counts per attack weapon. A sword in the off hand
-// crits only off-hand swings, and ranged attacks never get it (forever-bugs #91: orc with an axe,
-// 500+ auto shots against a level higher target and not one crit, melee still critting).
-func applyWeaponSpecialization(character *Character, label string, spellID int32, critPercent float64, weaponType proto.WeaponType) {
-	hasWeaponEquipped := func() bool { return character.GetProcMaskForTypes(weaponType).Matches(ProcMaskMelee) }
-
-	aura := character.RegisterAura(Aura{
-		Label:      label,
-		ActionID:   ActionID{SpellID: spellID},
-		Duration:   NeverExpires,
-		BuildPhase: Ternary(hasWeaponEquipped(), CharacterBuildPhaseBase, CharacterBuildPhaseNone),
-	}).
-		AttachStatBuff(stats.SpellCritPercent, critPercent)
-
-	if hasWeaponEquipped() {
-		MakePermanent(aura)
-	}
-
-	critMods := map[ProcMask]*SpellMod{
-		ProcMaskMeleeMH: character.AddDynamicMod(SpellModConfig{Kind: SpellMod_BonusCrit_Percent, ProcMask: ProcMaskMeleeMH, FloatValue: critPercent}),
-		ProcMaskMeleeOH: character.AddDynamicMod(SpellModConfig{Kind: SpellMod_BonusCrit_Percent, ProcMask: ProcMaskMeleeOH, FloatValue: critPercent}),
-	}
-	setHands := func() {
-		held := character.GetProcMaskForTypes(weaponType)
-		for hand, mod := range critMods {
-			if held.Matches(hand) {
-				mod.Activate()
-			} else {
-				mod.Deactivate()
-			}
-		}
-	}
-	setHands()
-
-	character.RegisterItemSwapCallback(AllWeaponSlots(), func(sim *Simulation, _ proto.ItemSlot) {
-		setHands()
-		if hasWeaponEquipped() {
-			aura.Activate(sim)
-		} else {
-			aura.Deactivate(sim)
 		}
 	})
 }
@@ -484,10 +444,11 @@ func applyEureka(character *Character) {
 }
 
 func applyTouchOfTheGrave(character *Character) {
-	auraID, procChance := int32(1260201), 0.1
+	// 16 Oct build: 30% for casters, 20% for paladins, rogues and warriors, 25 sec internal cooldown.
+	auraID, procChance := int32(1260201), 0.3
 	switch character.Class {
 	case proto.Class_ClassWarrior, proto.Class_ClassPaladin, proto.Class_ClassRogue:
-		auraID, procChance = 1260189, 0.05
+		auraID, procChance = 1260189, 0.2
 	}
 
 	drainID := ActionID{SpellID: 1260198}
@@ -518,7 +479,7 @@ func applyTouchOfTheGrave(character *Character) {
 		ProcMask:   ProcMaskMelee | ProcMaskRanged | ProcMaskSpellDamage,
 		Outcome:    OutcomeLanded,
 		ProcChance: procChance,
-		ICD:        time.Second,
+		ICD:        time.Second * 25,
 		Handler: func(sim *Simulation, spell *Spell, result *SpellResult) {
 			drain.Cast(sim, result.Target)
 		},

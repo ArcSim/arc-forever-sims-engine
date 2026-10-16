@@ -211,12 +211,17 @@ func TestGnomeWarrior(t *testing.T) {
 	}
 }
 
-func TestTaurenEndurance(t *testing.T) {
+// 16 Oct build: Endurance (tauren) and Earth Fury (dwarf) are 2% critical damage and healing; Endurance lost its 1% hit.
+func TestCritDamageRacials(t *testing.T) {
 	_, human := setupRacialSim(proto.Race_RaceHuman)
-	_, tauren := setupRacialSim(proto.Race_RaceTauren)
-
-	if !WithinToleranceFloat64(human.GetStat(stats.PhysicalHitPercent)+1, tauren.GetStat(stats.PhysicalHitPercent), 0.0001) {
-		t.Fatalf("Endurance should grant 1%% hit")
+	for _, race := range []proto.Race{proto.Race_RaceTauren, proto.Race_RaceDwarf} {
+		_, fw := setupRacialSim(race)
+		if got := fw.PseudoStats.CritDamageMultiplier; got != 1.02 {
+			t.Errorf("%s: crit damage x%.4f, want x1.02", race, got)
+		}
+		if got, want := fw.GetStat(stats.PhysicalHitPercent), human.GetStat(stats.PhysicalHitPercent); got != want {
+			t.Errorf("%s: hit %.2f, want %.2f (no hit racial)", race, got, want)
+		}
 	}
 }
 
@@ -240,8 +245,8 @@ func TestSkyborneRacials(t *testing.T) {
 		_, fw := setupRacialSim(race)
 
 		swingRatio := human.AutoAttacks.MainhandSwingSpeed().Seconds() / fw.AutoAttacks.MainhandSwingSpeed().Seconds()
-		if !WithinToleranceFloat64(1.01, swingRatio, 0.001) {
-			t.Errorf("%s: Wind Blessed should swing 1%% faster, got x%0.4f", race, swingRatio)
+		if !WithinToleranceFloat64(1.03, swingRatio, 0.001) {
+			t.Errorf("%s: Wind Blessed should swing 3%% faster, got x%0.4f", race, swingRatio)
 		}
 		if at := fw.AttackTables[fw.CurrentTarget.UnitIndex]; !WithinToleranceFloat64(1.05, at.DamageDealtMultiplier, 0.0001) {
 			t.Errorf("%s: Elemental Insight should grant 5%% damage against elementals, got x%0.4f", race, at.DamageDealtMultiplier)
@@ -334,70 +339,16 @@ func TestBloodFuryReportsItsTemporaryStats(t *testing.T) {
 	}
 }
 
-// Sword Specialization crits only the hand holding the sword and never ranged attacks: the client's
-// crit aura carries a weapon requirement (forever-bugs #91, an axe orc's auto shots never crit).
-func TestSwordSpecializationFollowsTheSword(t *testing.T) {
-	const maceID, swordID int32 = 991101, 991102
-	oneHander := func(id int32, weaponType proto.WeaponType) *proto.SimItem {
-		return &proto.SimItem{
-			Id:             id,
-			Name:           "Test One-Hander",
-			Type:           proto.ItemType_ItemTypeWeapon,
-			WeaponType:     weaponType,
-			HandType:       proto.HandType_HandTypeOneHand,
-			WeaponSpeed:    2.6,
-			ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {WeaponDamageMin: 50, WeaponDamageMax: 90}},
-		}
-	}
-	addToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{
-		oneHander(maceID, proto.WeaponType_WeaponTypeMace),
-		oneHander(swordID, proto.WeaponType_WeaponTypeSword),
-	}})
-
-	setup := func(mainHand, offHand int32) *FakeRageWarrior {
-		items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotOffHand+1)
-		for i := range items {
-			items[i] = &proto.ItemSpec{}
-		}
-		items[proto.ItemSlot_ItemSlotMainHand] = &proto.ItemSpec{Id: mainHand}
-		items[proto.ItemSlot_ItemSlotOffHand] = &proto.ItemSpec{Id: offHand}
-		sim := NewSim(&proto.RaidSimRequest{
-			SimOptions: &proto.SimOptions{RandomSeed: 100},
-			Raid: &proto.Raid{Parties: []*proto.Party{{
-				Players: []*proto.Player{{
-					Name:      "Warrior",
-					Class:     proto.Class_ClassWarrior,
-					Race:      proto.Race_RaceHuman,
-					Buffs:     &proto.IndividualBuffs{},
-					Spec:      &proto.Player_DpsWarrior{},
-					Equipment: &proto.EquipmentSpec{Items: items},
-					Rotation:  &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
-				}},
-				Buffs: &proto.PartyBuffs{},
-			}}},
-			Encounter: &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 63}}, Duration: 180},
-		}, simsignals.CreateSignals())
-		sim.Reset()
-		return sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
-	}
-
-	maces := setup(maceID, maceID)
-	swordOH := setup(maceID, swordID)
-	swordMH := setup(swordID, maceID)
-
-	if got, want := swordOH.GetStat(stats.PhysicalCritPercent), maces.GetStat(stats.PhysicalCritPercent); got != want {
-		t.Errorf("physical crit (ranged attacks read it) with a sword %.2f, without %.2f, want equal", got, want)
-	}
-	if got, want := swordOH.GetStat(stats.SpellCritPercent), maces.GetStat(stats.SpellCritPercent)+2; got != want {
-		t.Errorf("spell crit with a sword %.2f, want %.2f", got, want)
-	}
-	for _, c := range []struct {
-		name   string
-		fw     *FakeRageWarrior
-		mh, oh float64
-	}{{"maces", maces, 0, 0}, {"sword off hand", swordOH, 0, 2}, {"sword main hand", swordMH, 2, 0}} {
-		if mh, oh := c.fw.AutoAttacks.MHAuto().BonusCritPercent, c.fw.AutoAttacks.OHAuto().BonusCritPercent; mh != c.mh || oh != c.oh {
-			t.Errorf("%s: main-hand bonus crit %.0f, off-hand %.0f, want %.0f and %.0f", c.name, mh, oh, c.mh, c.oh)
+// 16 Oct build: Ruthless (human, 2%) and Savage (orc, 1%) replaced the weapon specializations, so the
+// crit no longer needs a sword or an axe and reaches melee, ranged and spells alike.
+func TestCritChanceRacialsNeedNoWeapon(t *testing.T) {
+	_, undead := setupRacialSim(proto.Race_RaceUndead)
+	for race, bonus := range map[proto.Race]float64{proto.Race_RaceHuman: 2, proto.Race_RaceOrc: 1} {
+		_, fw := setupRacialSim(race)
+		for _, stat := range []stats.Stat{stats.PhysicalCritPercent, stats.SpellCritPercent} {
+			if got, want := fw.GetStat(stat), undead.GetStat(stat)+bonus; !WithinToleranceFloat64(want, got, 1e-9) {
+				t.Errorf("%s: stat %d %.2f unarmed, want %.2f", race, stat, got, want)
+			}
 		}
 	}
 }

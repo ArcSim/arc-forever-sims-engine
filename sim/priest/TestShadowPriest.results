@@ -982,43 +982,43 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-Settings-Undead-Naked-Default-shadow-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 371.6054
-  tps: 416.86274
+  dps: 369.02921
+  tps: 415.8345
  }
 }
 dps_results: {
  key: "TestShadowPriest-Settings-Undead-Naked-Default-shadow-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 371.6054
-  tps: 264.39744
+  dps: 369.02921
+  tps: 262.69056
  }
 }
 dps_results: {
  key: "TestShadowPriest-Settings-Undead-Naked-Default-shadow-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 375.51242
-  tps: 263.53551
+  dps: 373.87267
+  tps: 262.55411
  }
 }
 dps_results: {
  key: "TestShadowPriest-Settings-Undead-Naked-Default-shadow-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 194.79154
-  tps: 245.5877
+  dps: 196.10089
+  tps: 247.51193
  }
 }
 dps_results: {
  key: "TestShadowPriest-Settings-Undead-Naked-Default-shadow-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 194.79154
-  tps: 192.7863
+  dps: 196.10089
+  tps: 194.20005
  }
 }
 dps_results: {
  key: "TestShadowPriest-Settings-Undead-Naked-Default-shadow-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 301.08363
-  tps: 295.06791
+  dps: 304.30491
+  tps: 298.60236
  }
 }
 dps_results: {

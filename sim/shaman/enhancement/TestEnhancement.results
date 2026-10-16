@@ -1235,57 +1235,57 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-Settings-Dwarf-Weapon-Standard-forever-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 1190.91267
-  tps: 1232.1285
+  dps: 1195.83704
+  tps: 1234.54145
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Dwarf-Weapon-Standard-forever-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 336.91722
-  tps: 176.46333
+  dps: 338.55292
+  tps: 177.26482
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Dwarf-Weapon-Standard-forever-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 375.6527
-  tps: 196.73024
+  dps: 377.52651
+  tps: 197.64841
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Dwarf-Weapon-Standard-forever-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 242.86775
-  tps: 170.00743
+  dps: 243.57347
+  tps: 170.50143
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Dwarf-Weapon-Standard-forever-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 128.02459
-  tps: 89.61721
+  dps: 128.45587
+  tps: 89.91911
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Dwarf-Weapon-Standard-forever-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 171.53297
-  tps: 120.07308
+  dps: 172.17283
+  tps: 120.52098
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-Weapon-Standard-forever-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 1199.9
-  tps: 1241.10646
+  dps: 1198.73584
+  tps: 1240.53602
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-Weapon-Standard-forever-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 343.27027
-  tps: 179.78938
+  dps: 342.27212
+  tps: 179.30028
  }
 }
 dps_results: {
@@ -1298,15 +1298,15 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-Settings-Orc-Weapon-Standard-forever-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 244.77464
-  tps: 171.34225
+  dps: 244.48971
+  tps: 171.14279
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-Weapon-Standard-forever-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 131.76207
-  tps: 92.23345
+  dps: 131.44456
+  tps: 92.01119
  }
 }
 dps_results: {
