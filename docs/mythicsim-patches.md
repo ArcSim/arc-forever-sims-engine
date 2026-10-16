@@ -3645,3 +3645,55 @@ Downstream: the Rust engine needs the same split before its next repin.
 
 Drop it when upstream stops Earth Shock spending Stormstrike, or put Earth Shock back if a beta log shows
 it spending the charge.
+
+## 141. `buffs: Windfury Weapon's main-hand strikes proc Flametongue Totem`
+
+Flametongue Totem's party aura (15036) hears landed melee auto attacks (ProcTypeMask 4), narrowed to the
+main hand (patch 70). Windfury Weapon's strikes (439440 main hand, 439441 off hand) are yellow
+SPELL_EFFECT_WEAPON_DAMAGE hits (`ProcMaskMeleeMHSpecial`), so they never procced it. Redfall relayed beta
+testing on the MythicSim Discord (16 October 2026): "Windfury extra attacks appear to be proccing FTT".
+The same report says the game sometimes loses a Windfury strike when it does; that is a bug and is not
+modelled.
+
+**Now** `FlametongueTotemTrigger` (`sim/core/buffs/flametongue_totem.go`) also hears 439440:
+`FlametongueTotemHearsWindfuryWeapon` (default true) widens the trigger to the main hand's specials and an
+`ExtraCondition` keeps only the main hand's autos and `WindfuryWeaponMainHandStrikeID`, which
+`sim/shaman/weapon_imbues.go` now uses for the strike's ActionID. The condition runs before any roll, so
+another class's specials reach it and change nothing. The off hand's strike (439441) stays out: the totem
+is main hand only, and Forever shamans cannot dual wield anyway. False is the old trigger.
+
+Windfury Weapon's strikes still roll the special table, so they never glance. The same report says "WFW,
+despite being changed to a white attack, does not appear to glance"; the engine already did this.
+
+Windfury Totem, unchanged: a Windfury Totem the shaman benefits from still switches Flametongue Totem off
+(patch 98, `WindfuryTotemDisablesFlametongueTotem`), so with the party's Windfury Totem and no Windfury
+Weapon nothing here applies. With Windfury Weapon on the main hand the imbue displaces the party's
+Windfury Totem (`WindfuryTotemCategory`), whose expiry deactivates the totem aura, so Flametongue Totem
+stands; but the party totem's 5 second refresh reactivates the aura, which then stays up as the loser of
+the Windfury category and holds the Flametongue category, so Flametongue Totem is off from 5 seconds on.
+That is how `771c6349a` and patch 140 already behave (a probe shows the trigger on from the pull to 5 s, then off for
+good); this patch leaves the totem rules alone and only widens what the trigger hears. Whether a
+displaced Windfury Totem should still switch Flametongue Totem off needs its own decision.
+
+Tests (`sim/shaman/enhancement/windfury_flametongue_totem_test.go`):
+`TestWindfuryWeaponStrikesProcFlametongueTotem` (Sulfuras, main-hand Windfury Weapon, the party's
+Flametongue Totem: one totem hit for every landed main-hand auto and landed 439440 strike) fails on
+`771c6349a` (883 totem hits for 883 autos and 315 strikes, want 1198);
+`TestOffHandWindfuryWeaponDoesNotProcFlametongueTotem` and `TestWindfuryWeaponStrikesDoNotGlance` (the
+boss glances autos, never a strike) pass on both. Goldens: none move (`TestEnhancement` has Windfury
+Weapon and no Flametongue Totem; `TestArms` and `TestFury` have the totem and no Windfury Weapon).
+
+Measured (native `wowsimcli`, MythicSim production default path, 10,000 iterations, board seed, board
+length, references of MythicSim #502). No reference has both: the Enhancement and Elehance references wear Flametongue Weapon, and every
+reference's party has Windfury Totem. All 31 give their patch 140 DPS to the hundredth. The Enhancement
+reference with Windfury Weapon on the main hand:
+
+| Enhancement variant | 771c6349a | Patch 140 | Patch 141 | 141 vs 140 |
+| --- | ---: | ---: | ---: | ---: |
+| Windfury Weapon, party Flametongue Totem, no Windfury Totem | 693.58 | 696.23 | 699.24 | +0.43% |
+| Windfury Weapon, party Windfury and Flametongue Totems | 730.33 | 733.10 | 734.48 | +0.19% |
+| Windfury Weapon, party Windfury Totem only | 728.87 | 731.65 | 731.65 | 0 |
+
+Downstream: the Rust engine needs the wider trigger before its next repin.
+
+Drop it when upstream lets Windfury Weapon proc Flametongue Totem.

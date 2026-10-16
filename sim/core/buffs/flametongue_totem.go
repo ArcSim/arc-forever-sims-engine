@@ -118,11 +118,24 @@ func FlametongueTotemAttack(char *core.Character) *core.Spell {
 	})
 }
 
+// WindfuryWeaponMainHandStrikeID is Windfury Weapon's main-hand strike (439440), a yellow
+// SPELL_EFFECT_WEAPON_DAMAGE hit the shaman's imbue casts twice on a proc (sim/shaman/weapon_imbues.go).
+const WindfuryWeaponMainHandStrikeID int32 = 439440
+
+// FlametongueTotemHearsWindfuryWeapon (MythicSim patch 141) lets Windfury Weapon's main-hand strikes proc
+// Flametongue Totem as the main hand's auto attacks do. Redfall relayed beta testing on the MythicSim
+// Discord (16 October 2026): "Windfury extra attacks appear to be proccing FTT". The client's 15036 hears
+// only melee auto attacks (ProcTypeMask 4) and 439440 is a special hit, so the server decides it. The
+// report adds that the game sometimes loses a Windfury strike when it does; that bug is not modelled.
+// False hears the main hand's auto attacks alone, as before.
+var FlametongueTotemHearsWindfuryWeapon = true
+
 // FlametongueTotemTrigger is the aura that casts the hit off the character's main-hand auto attacks. It is
 // not on by itself: the totem aura that holds the personal benefit turns it on (JoinFlametongueTotem), so
 // that a main-hand Flametongue Weapon can turn it off. The row's own proc flags say what it hears, a landed
 // melee auto attack, narrowed to the main hand as the tooltip says: an off-hand swing does not add the
-// damage. The main hand's autos include the extra attacks Windfury grants, which are ordinary swings of it.
+// damage. The main hand's autos include the extra attacks Windfury Totem grants, which are ordinary swings
+// of it, and (FlametongueTotemHearsWindfuryWeapon) Windfury Weapon's main-hand strikes, which are not.
 func FlametongueTotemTrigger(char *core.Character) *core.Aura {
 	if aura := char.GetAura(FlametongueTotemTriggerLabel); aura != nil {
 		return aura
@@ -134,6 +147,12 @@ func FlametongueTotemTrigger(char *core.Character) *core.Aura {
 	trigger.Name = FlametongueTotemTriggerLabel
 	trigger.ActionID = core.ActionID{}
 	trigger.ProcMask &= core.ProcMaskMeleeMH
+	if FlametongueTotemHearsWindfuryWeapon && trigger.ProcMask.Matches(core.ProcMaskMeleeMHAuto) {
+		trigger.ProcMask |= core.ProcMaskMeleeMHSpecial
+		trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+			return spell.ProcMask.Matches(core.ProcMaskMeleeMHAuto) || spell.ActionID.SpellID == WindfuryWeaponMainHandStrikeID
+		}
+	}
 	trigger.Duration = core.NeverExpires
 	trigger.TriggerImmediately = true
 	return char.MakeProcTriggerAura(trigger)

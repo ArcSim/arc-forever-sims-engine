@@ -82,7 +82,7 @@ func (shaman *Shaman) swapWeaponCarries(effectID int32) bool {
 func (shaman *Shaman) newWindfuryAttackSpell(isMH bool) *core.Spell {
 	apBonus := shaman.WindfuryAPBonus * (1 + spellData.ElementalWeapons.EffectAt(3).FractionAt(shaman.Talents.ElementalWeapons))
 	return shaman.RegisterSpell(core.SpellConfig{
-		ActionID:         core.ActionID{SpellID: core.TernaryInt32(isMH, 439440, 439441)},
+		ActionID:         core.ActionID{SpellID: core.TernaryInt32(isMH, buffs.WindfuryWeaponMainHandStrikeID, 439441)},
 		SpellSchool:      core.SpellSchoolPhysical,
 		DefenseType:      core.DefenseTypeMelee,
 		ProcMask:         core.Ternary(isMH, core.ProcMaskMeleeMHSpecial, core.ProcMaskMeleeOHSpecial),
