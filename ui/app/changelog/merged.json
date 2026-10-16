@@ -1,5 +1,11 @@
 [
 	{
+		"number": 809,
+		"title": "racials: Eureka! is an 8 s buff with no charges (beta notes 16 Oct)",
+		"mergedAt": "2026-10-16",
+		"url": "https://github.com/ElliotWood/Forever/pull/809"
+	},
+	{
 		"number": 808,
 		"title": "mage: Fire Blast always adds a Heating Up stack; PoM Pyroblast keeps them (beta notes 16 Oct)",
 		"mergedAt": "2026-10-16",
