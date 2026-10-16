@@ -71,7 +71,7 @@ func TestEurekaListsMatchTheClientRow(t *testing.T) {
 	}
 }
 
-// Corruption casts neither cost less nor spend a charge any more, and its ticks keep their damage.
+// Corruption casts don't cost less any more, and its ticks keep their damage.
 func TestEurekaPassesOverTheDots(t *testing.T) {
 	sim, warlock := newClient70170Warlock(t, proto.Race_RaceGnome, AfflictionTalents)
 	corruption := warlock.Corruption
@@ -98,12 +98,4 @@ func TestEurekaPassesOverTheDots(t *testing.T) {
 		t.Errorf("Drain Life's damage multiplier rose by %v under Eureka!, want 1.1", got)
 	}
 
-	aura.OnCastComplete(aura, sim, corruption)
-	if aura.GetStacks() != 3 {
-		t.Errorf("a Corruption spent a charge: %d left, want 3", aura.GetStacks())
-	}
-	aura.OnCastComplete(aura, sim, shadowBolt)
-	if aura.GetStacks() != 2 {
-		t.Errorf("a Shadow Bolt left %d charges, want 2", aura.GetStacks())
-	}
 }

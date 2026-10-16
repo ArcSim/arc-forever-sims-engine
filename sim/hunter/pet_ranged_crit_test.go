@@ -42,7 +42,7 @@ func autoShotCritPercent(hunter *Hunter) float64 {
 }
 
 // Patch 136: a Hunter pet's crit is its master's ranged crit (Forever, 16 October 2026). Its own 5% from
-// 100 base Agility is gone, the Auto Shot's crit is what it takes (an Orc's axe racial stays out, a scope
+// 100 base Agility is gone, the Auto Shot's crit is what it takes (an Orc's Savage goes in, a scope
 // goes in, TestPetCritFollowsTheOwner), the target's crit suppression applies to both the same, and
 // Ferocity still adds on top.
 func TestPetCritIsTheOwnersRangedCrit(t *testing.T) {
@@ -54,7 +54,7 @@ func TestPetCritIsTheOwnersRangedCrit(t *testing.T) {
 		mainHand int32
 	}{
 		{"Night Elf Marksmanship", proto.Race_RaceNightElf, MarksmanshipTalents, arcaniteReaper},
-		{"Orc with an axe (racial skips Auto Shot)", proto.Race_RaceOrc, MarksmanshipTalents, arcaniteReaper},
+		{"Orc Marksmanship (Savage)", proto.Race_RaceOrc, MarksmanshipTalents, arcaniteReaper},
 		{"Orc Beast Mastery (Ferocity)", proto.Race_RaceOrc, BeastMasteryTalents, arcaniteReaper},
 		{"Troll Survival", proto.Race_RaceTroll, SurvivalTalents, arcaniteReaper},
 	} {
@@ -79,8 +79,9 @@ func TestPetCritIsTheOwnersRangedCrit(t *testing.T) {
 			if !core.WithinToleranceFloat64(autoShot+ferocity/100, petSwing, 1e-9) {
 				t.Errorf("against the boss the pet's swing crits %.4f, the Auto Shot %.4f (+%.2f Ferocity)", petSwing, autoShot, ferocity/100)
 			}
-			if tc.race == proto.Race_RaceOrc && hunter.AutoAttacks.RangedAuto().BonusCritPercent != -1 {
-				t.Errorf("the Orc's Auto Shot carries %.2f%% bonus crit, want the axe racial's -1%%", hunter.AutoAttacks.RangedAuto().BonusCritPercent)
+			// Savage (16 October 2026) needs no weapon and counts for Auto Shot, so nothing takes it back.
+			if tc.race == proto.Race_RaceOrc && hunter.AutoAttacks.RangedAuto().BonusCritPercent != 0 {
+				t.Errorf("the Orc's Auto Shot carries %.2f%% bonus crit, want none", hunter.AutoAttacks.RangedAuto().BonusCritPercent)
 			}
 		})
 	}

@@ -1325,85 +1325,85 @@ dps_results: {
 dps_results: {
  key: "TestElemental-Settings-Dwarf-Naked-Standard-forever-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 520.21183
-  tps: 524.81784
+  dps: 522.95139
+  tps: 526.44199
  }
 }
 dps_results: {
  key: "TestElemental-Settings-Dwarf-Naked-Standard-forever-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 122.07589
-  tps: 78.80473
+  dps: 122.76725
+  tps: 79.21041
  }
 }
 dps_results: {
  key: "TestElemental-Settings-Dwarf-Naked-Standard-forever-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 167.59247
-  tps: 104.85914
+  dps: 168.52903
+  tps: 105.40348
  }
 }
 dps_results: {
  key: "TestElemental-Settings-Dwarf-Naked-Standard-forever-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 153.29051
-  tps: 129.76018
+  dps: 153.59995
+  tps: 130.0223
  }
 }
 dps_results: {
  key: "TestElemental-Settings-Dwarf-Naked-Standard-forever-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 38.55804
-  tps: 32.26957
+  dps: 38.66203
+  tps: 32.35707
  }
 }
 dps_results: {
  key: "TestElemental-Settings-Dwarf-Naked-Standard-forever-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 76.33101
-  tps: 64.03209
+  dps: 76.5157
+  tps: 64.18639
  }
 }
 dps_results: {
  key: "TestElemental-Settings-Orc-Naked-Standard-forever-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 507.74723
-  tps: 514.95551
+  dps: 512.26578
+  tps: 517.64562
  }
 }
 dps_results: {
  key: "TestElemental-Settings-Orc-Naked-Standard-forever-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 122.17222
-  tps: 78.78664
+  dps: 123.15038
+  tps: 79.36319
  }
 }
 dps_results: {
  key: "TestElemental-Settings-Orc-Naked-Standard-forever-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 167.41935
-  tps: 104.77516
+  dps: 168.8024
+  tps: 105.59807
  }
 }
 dps_results: {
  key: "TestElemental-Settings-Orc-Naked-Standard-forever-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 153.25536
-  tps: 129.72825
+  dps: 155.47012
+  tps: 131.61079
  }
 }
 dps_results: {
  key: "TestElemental-Settings-Orc-Naked-Standard-forever-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 38.43706
-  tps: 32.14472
+  dps: 38.75098
+  tps: 32.40403
  }
 }
 dps_results: {
  key: "TestElemental-Settings-Orc-Naked-Standard-forever-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 75.69946
-  tps: 63.48602
+  dps: 76.3262
+  tps: 63.99621
  }
 }
 dps_results: {

@@ -12,7 +12,7 @@ type hunterCritChances struct {
 	autoShot, aimedShot, multiShot, melee float64
 }
 
-func weaponRacialCritChances(t *testing.T, race proto.Race, mainHand int32, disableWeaponSpec bool) hunterCritChances {
+func racialCritChances(t *testing.T, race proto.Race, mainHand int32, disableRacials bool) hunterCritChances {
 	t.Helper()
 	sim := core.NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 1, Iterations: 1},
@@ -24,8 +24,8 @@ func weaponRacialCritChances(t *testing.T, race proto.Race, mainHand int32, disa
 				{},
 				{Id: 18713}, // Rhok'delar, Longbow of the Ancient Keepers
 			}},
-			DisableWeaponSpecialization: disableWeaponSpec,
-			Rotation:                    &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
+			DisableRacials: disableRacials,
+			Rotation:       &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
 			Spec: &proto.Player_Hunter{Hunter: &proto.Hunter{Options: &proto.Hunter_Options{ClassOptions: &proto.HunterOptions{
 				Ammo: proto.HunterOptions_Doomshot, PetType: proto.HunterOptions_PetNone}}}},
 		}, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
@@ -45,10 +45,11 @@ func weaponRacialCritChances(t *testing.T, race proto.Race, mainHand int32, disa
 	}
 }
 
-// Human Sword, Orc Axe and Dwarf Mace Specialization raise melee and ability crit but leave Auto
-// Shot alone (forever-bugs #91, patch 88). Each race is compared with itself with its weapon racial
-// switched off, so base agility drops out; a Night Elf, who has no weapon racial, moves nowhere.
-func TestWeaponRacialsSkipTheRangedAutoAttack(t *testing.T) {
+// The 16 October 2026 beta notes replace Human Sword and Orc Axe Specialization with Ruthless (+2% crit)
+// and Savage (+1% crit), which need no weapon and count for Auto Shot too (the specializations left it
+// alone, forever-bugs #91). Dwarf Mace Specialization became Earth Fury, crit damage, so a Dwarf's crit
+// chance stays put. Each race is compared with itself with its racials off, so base agility drops out.
+func TestCritRacialsNeedNoWeapon(t *testing.T) {
 	const (
 		arcaniteChampion = 12790 // two-hand sword
 		arcaniteReaper   = 12784 // two-hand axe
@@ -59,26 +60,26 @@ func TestWeaponRacialsSkipTheRangedAutoAttack(t *testing.T) {
 		mainHand int32
 		bonus    float64
 	}{
+		{proto.Race_RaceHuman, arcaniteReaper, 0.02},
 		{proto.Race_RaceHuman, arcaniteChampion, 0.02},
-		{proto.Race_RaceOrc, arcaniteReaper, 0.01},
-		{proto.Race_RaceDwarf, ironfoe, 0.01},
+		{proto.Race_RaceOrc, ironfoe, 0.01},
+		{proto.Race_RaceDwarf, ironfoe, 0},
 		{proto.Race_RaceNightElf, arcaniteChampion, 0},
 	} {
 		t.Run(tc.race.String(), func(t *testing.T) {
-			with := weaponRacialCritChances(t, tc.race, tc.mainHand, false)
-			without := weaponRacialCritChances(t, tc.race, tc.mainHand, true)
+			with := racialCritChances(t, tc.race, tc.mainHand, false)
+			without := racialCritChances(t, tc.race, tc.mainHand, true)
 			for _, c := range []struct {
 				name string
 				got  float64
-				want float64
 			}{
-				{"Auto Shot", with.autoShot - without.autoShot, 0},
-				{"Aimed Shot", with.aimedShot - without.aimedShot, tc.bonus},
-				{"Multi-Shot", with.multiShot - without.multiShot, tc.bonus},
-				{"melee auto attack", with.melee - without.melee, tc.bonus},
+				{"Auto Shot", with.autoShot - without.autoShot},
+				{"Aimed Shot", with.aimedShot - without.aimedShot},
+				{"Multi-Shot", with.multiShot - without.multiShot},
+				{"melee auto attack", with.melee - without.melee},
 			} {
-				if !core.WithinToleranceFloat64(c.want, c.got, 1e-9) {
-					t.Errorf("%s crit chance moves %.4f with the weapon racial, want %.4f", c.name, c.got, c.want)
+				if !core.WithinToleranceFloat64(tc.bonus, c.got, 1e-9) {
+					t.Errorf("%s crit chance moves %.4f with the racials, want %.4f", c.name, c.got, tc.bonus)
 				}
 			}
 		})

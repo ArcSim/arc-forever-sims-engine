@@ -228,9 +228,9 @@ func (hunter *Hunter) makeStatInheritance() core.PetStatInheritance {
 }
 
 // inheritAutoShotCritMods carries the crit modifiers on the Hunter's Auto Shot spell over to the pet while
-// it is out: today only the weapon racials' take-back (applyWeaponSpecialization adds +1% or +2% to
-// PhysicalCritPercent and takes it back off ProcMaskRangedAuto, forever-bugs #91), so an Orc with an axe
-// in hand gives the pet the crit his Auto Shot rolls, not his melee crit. Read when the pet is enabled
+// it is out (the weapon racials took their crit back off Auto Shot this way until the 16 October 2026 beta
+// notes replaced them with crit that needs no weapon), so the pet gets the crit the Auto Shot rolls, not
+// the Hunter's melee crit. Read when the pet is enabled
 // (the owner's permanent auras are up by then); a spell mod gained or lost while the pet is out is not
 // followed.
 func (hp *HunterPet) inheritAutoShotCritMods() {

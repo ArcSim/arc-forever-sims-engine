@@ -868,8 +868,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-IcebladeHacker-13952"
  value: {
-  dps: 298.55043
-  tps: 309.7477
+  dps: 303.71968
+  tps: 314.27271
   dtps: 1096.6865
  }
 }
@@ -900,8 +900,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Ironfoe-11684"
  value: {
-  dps: 289.80447
-  tps: 305.21255
+  dps: 294.67322
+  tps: 309.42492
   dtps: 1102.00645
  }
 }
@@ -1717,192 +1717,192 @@ dps_results: {
 dps_results: {
  key: "TestProtection-Settings-Dwarf-WeaponAndShield-DefaultTalents-Protection-default-FullBuffs-5.0yards-LongMultiTarget"
  value: {
-  dps: 1616.43636
-  tps: 2582.36504
+  dps: 1619.09774
+  tps: 2584.92465
   dtps: 20858.05056
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Dwarf-WeaponAndShield-DefaultTalents-Protection-default-FullBuffs-5.0yards-LongSingleTarget"
  value: {
-  dps: 319.74363
-  tps: 323.02606
+  dps: 320.28033
+  tps: 323.51845
   dtps: 1041.27112
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Dwarf-WeaponAndShield-DefaultTalents-Protection-default-FullBuffs-5.0yards-ShortSingleTarget"
  value: {
-  dps: 341.44658
-  tps: 349.08368
+  dps: 342.04025
+  tps: 349.62507
   dtps: 1042.23473
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Dwarf-WeaponAndShield-DefaultTalents-Protection-default-NoBuffs-5.0yards-LongMultiTarget"
  value: {
-  dps: 467.03496
-  tps: 1042.72571
+  dps: 467.12485
+  tps: 1042.85314
   dtps: 32361.89439
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Dwarf-WeaponAndShield-DefaultTalents-Protection-default-NoBuffs-5.0yards-LongSingleTarget"
  value: {
-  dps: 107.00047
-  tps: 147.96795
+  dps: 107.0081
+  tps: 147.98017
   dtps: 1620.70807
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Dwarf-WeaponAndShield-DefaultTalents-Protection-default-NoBuffs-5.0yards-ShortSingleTarget"
  value: {
-  dps: 129.57537
-  tps: 187.48548
+  dps: 129.59828
+  tps: 187.52214
   dtps: 1615.76357
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Dwarf-WeaponAndShield-DefaultTalents-Protection-p5-FullBuffs-5.0yards-LongMultiTarget"
  value: {
-  dps: 1262.66865
-  tps: 1946.58717
+  dps: 1264.06325
+  tps: 1947.83356
   dtps: 20909.33041
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Dwarf-WeaponAndShield-DefaultTalents-Protection-p5-FullBuffs-5.0yards-LongSingleTarget"
  value: {
-  dps: 311.81287
-  tps: 347.63169
+  dps: 312.26076
+  tps: 348.10627
   dtps: 1035.37446
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Dwarf-WeaponAndShield-DefaultTalents-Protection-p5-FullBuffs-5.0yards-ShortSingleTarget"
  value: {
-  dps: 315.7117
-  tps: 412.94988
+  dps: 316.11874
+  tps: 413.54901
   dtps: 1047.08033
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Dwarf-WeaponAndShield-DefaultTalents-Protection-p5-NoBuffs-5.0yards-LongMultiTarget"
  value: {
-  dps: 424.84361
-  tps: 997.63608
+  dps: 424.87346
+  tps: 997.70035
   dtps: 32411.11104
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Dwarf-WeaponAndShield-DefaultTalents-Protection-p5-NoBuffs-5.0yards-LongSingleTarget"
  value: {
-  dps: 102.33514
-  tps: 164.39616
+  dps: 102.33641
+  tps: 164.43184
   dtps: 1624.28939
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Dwarf-WeaponAndShield-DefaultTalents-Protection-p5-NoBuffs-5.0yards-ShortSingleTarget"
  value: {
-  dps: 116.60426
-  tps: 237.06932
+  dps: 116.60697
+  tps: 237.17527
   dtps: 1623.54939
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Dwarf-WeaponAndShield-Protection 0/45/6-Protection-default-FullBuffs-5.0yards-LongMultiTarget"
  value: {
-  dps: 1582.08112
-  tps: 2512.5174
+  dps: 1584.66009
+  tps: 2514.9981
   dtps: 20655.61587
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Dwarf-WeaponAndShield-Protection 0/45/6-Protection-default-FullBuffs-5.0yards-LongSingleTarget"
  value: {
-  dps: 308.54078
-  tps: 318.64694
+  dps: 309.11586
+  tps: 319.17922
   dtps: 970.29066
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Dwarf-WeaponAndShield-Protection 0/45/6-Protection-default-FullBuffs-5.0yards-ShortSingleTarget"
  value: {
-  dps: 326.45782
-  tps: 340.16527
+  dps: 327.01696
+  tps: 340.68473
   dtps: 958.87857
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Dwarf-WeaponAndShield-Protection 0/45/6-Protection-default-NoBuffs-5.0yards-LongMultiTarget"
  value: {
-  dps: 451.51055
-  tps: 1012.70079
+  dps: 451.5975
+  tps: 1012.82467
   dtps: 31556.16618
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Dwarf-WeaponAndShield-Protection 0/45/6-Protection-default-NoBuffs-5.0yards-LongSingleTarget"
  value: {
-  dps: 99.83993
-  tps: 142.19531
+  dps: 99.84757
+  tps: 142.20753
   dtps: 1530.67972
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Dwarf-WeaponAndShield-Protection 0/45/6-Protection-default-NoBuffs-5.0yards-ShortSingleTarget"
  value: {
-  dps: 126.60893
-  tps: 189.62399
+  dps: 126.63184
+  tps: 189.66065
   dtps: 1524.85527
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Dwarf-WeaponAndShield-Protection 0/45/6-Protection-p5-FullBuffs-5.0yards-LongMultiTarget"
  value: {
-  dps: 1229.62339
-  tps: 1899.03826
+  dps: 1230.94946
+  tps: 1900.22193
   dtps: 20725.90565
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Dwarf-WeaponAndShield-Protection 0/45/6-Protection-p5-FullBuffs-5.0yards-LongSingleTarget"
  value: {
-  dps: 298.63595
-  tps: 340.79143
+  dps: 299.06667
+  tps: 341.25505
   dtps: 965.58071
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Dwarf-WeaponAndShield-Protection 0/45/6-Protection-p5-FullBuffs-5.0yards-ShortSingleTarget"
  value: {
-  dps: 303.06308
-  tps: 406.41399
+  dps: 303.46358
+  tps: 407.01002
   dtps: 970.08758
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Dwarf-WeaponAndShield-Protection 0/45/6-Protection-p5-NoBuffs-5.0yards-LongMultiTarget"
  value: {
-  dps: 407.88503
-  tps: 966.51353
+  dps: 407.91538
+  tps: 966.5783
   dtps: 31429.82013
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Dwarf-WeaponAndShield-Protection 0/45/6-Protection-p5-NoBuffs-5.0yards-LongSingleTarget"
  value: {
-  dps: 95.51425
-  tps: 159.02704
+  dps: 95.51551
+  tps: 159.06272
   dtps: 1534.18553
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Dwarf-WeaponAndShield-Protection 0/45/6-Protection-p5-NoBuffs-5.0yards-ShortSingleTarget"
  value: {
-  dps: 114.0342
-  tps: 241.14447
+  dps: 114.03691
+  tps: 241.25041
   dtps: 1525.17632
  }
 }

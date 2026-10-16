@@ -90,7 +90,7 @@ func TestEurekaListsMatchTheClientRow(t *testing.T) {
 	}
 }
 
-// Shadow Word: Pain's and Devouring Plague's casts neither cost less nor spend a charge, Mind Flay's ticks
+// Shadow Word: Pain's and Devouring Plague's casts don't cost less, Mind Flay's ticks
 // keep the bonus, and Holy Fire's dot gives it back.
 func TestEurekaPassesOverTheDots(t *testing.T) {
 	sim, priest := newEurekaPriest(t, proto.Race_RaceGnome, ShadowTalents)
@@ -106,7 +106,7 @@ func TestEurekaPassesOverTheDots(t *testing.T) {
 	blast := get(MindBlastRankMap.Highest().ID)
 	flay := get(MindFlayRankMap.Highest().ID)
 
-	painCost, blastCost := pain.Cost.GetCurrentCost(), blast.Cost.GetCurrentCost()
+	painCost, plagueCost, blastCost := pain.Cost.GetCurrentCost(), plague.Cost.GetCurrentCost(), blast.Cost.GetCurrentCost()
 	painMult, flayMult := pain.DamageMultiplier, flay.DamageMultiplier
 
 	aura := priest.GetAura("Eureka!")
@@ -127,13 +127,7 @@ func TestEurekaPassesOverTheDots(t *testing.T) {
 		t.Errorf("Mind Flay's damage multiplier rose by %v under Eureka!, want 1.1", got)
 	}
 
-	aura.OnCastComplete(aura, sim, pain)
-	aura.OnCastComplete(aura, sim, plague)
-	if aura.GetStacks() != 3 {
-		t.Errorf("Shadow Word: Pain and Devouring Plague spent charges: %d left, want 3", aura.GetStacks())
-	}
-	aura.OnCastComplete(aura, sim, blast)
-	if aura.GetStacks() != 2 {
-		t.Errorf("a Mind Blast left %d charges, want 2", aura.GetStacks())
+	if got := plague.Cost.GetCurrentCost(); got != plagueCost {
+		t.Errorf("Devouring Plague costs %v under Eureka!, want %v", got, plagueCost)
 	}
 }

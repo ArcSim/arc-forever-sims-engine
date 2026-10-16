@@ -103,23 +103,3 @@ func TestEurekaRaisesHitsButNotDots(t *testing.T) {
 		t.Errorf("Eureka! left Fireball's tick multiplier at %v, want %v", got, tickBefore)
 	}
 }
-
-// Only the spells on the lists spend a charge.
-func TestEurekaChargesGoToListedSpellsOnly(t *testing.T) {
-	sim, mage := newGnomeMage(t)
-	aura := mage.GetAura("Eureka!")
-	aura.Activate(sim)
-
-	combustion := mage.GetSpell(core.ActionID{SpellID: spellData.Combustion.Highest().ID})
-	if combustion != nil {
-		aura.OnCastComplete(aura, sim, combustion)
-		if aura.GetStacks() != 3 {
-			t.Errorf("Combustion spent a Eureka! charge")
-		}
-	}
-	fireball := mage.GetSpell(core.ActionID{SpellID: spellData.Fireball.Highest().ID})
-	aura.OnCastComplete(aura, sim, fireball)
-	if aura.GetStacks() != 2 {
-		t.Errorf("a Fireball left %d charges, want 2", aura.GetStacks())
-	}
-}

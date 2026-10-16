@@ -3379,3 +3379,53 @@ Downstream: the Rust engine needs the port before its next repin (the pet's inhe
 Auto Shot spell mod carry-over, without the pet's Agility crit).
 
 Drop it when upstream gives the pet its owner's ranged crit.
+
+## 137. `core: racials from the 16 October beta development notes`
+
+Blizzard updated the beta with a new build on 16 October 2026 and listed the racial changes in the
+[WoW Forever Beta Development Notes](https://us.forums.blizzard.com/en/wow/t/wow-forever-beta-development-notes-%E2%80%93-updated-october-8/2360696)
+(Kaivax, 16 October 00:15). wago.tools did not list the build when this was written (newest
+`wow_cn_beta` 1.60.1.70374), so every value is the notes' and the spell rows still need checking:
+
+| Race | Notes | Engine before | Engine now |
+| --- | --- | --- | --- |
+| Human | Sword Specialization replaced by Ruthless: 2% increased critical strike chance | +2% crit with a sword in either hand, none on Auto Shot | +2% physical and spell crit, no weapon needed, Auto Shot included |
+| Orc | Axe Specialization replaced by Savage: 1% crit chance. Blood Fury cooldown 3 min (was 2). Shatter Curse: 5% less magic damage taken (was 15%) | +1% crit with an axe; Blood Fury 2 min; 15% | +1% crit, no weapon; 3 min; 5% |
+| Dwarf | Mace Specialization replaced by Earth Fury: 2% increased critical damage and healing | +1% crit with a mace | Crit damage multiplier x1.02 |
+| Tauren | Endurance: 2% increased critical damage and healing (was 1% hit) | +1% hit | Crit damage multiplier x1.02, no hit |
+| Skyborne | Wind Blessed haste 3% (was 1%) | x1.01 attack and cast speed | x1.03 |
+| Gnome | Eureka! is an 8 second buff with no charges, same effect on damage and costs | 15 s, 3 charges spent by listed abilities | 8 s, no charges; the class lists, +10% damage and -10% cost are unchanged |
+| Undead | Touch of the Grave (the notes also call it Touch of the Dead): 30% chance for casters, 20% for Paladins, Rogues and Warriors, 25 s internal cooldown; no longer scales with Shadow increases on the target or caster | 10% / 5%, 1 s cooldown, ignored caster modifiers only | 30% / 20%, 25 s, `SpellFlagIgnoreModifiers` |
+
+"Critical damage" is applied to the whole crit multiplier (`PseudoStats.CritDamageMultiplier`), as the
+engine applies the 3% crit damage meta gems: a melee crit goes from 200% to 204%, a spell crit from 150%
+to 153%. Ruthless, Savage and Earth Fury keep the old specializations' spell IDs (20597, 20574, 1259719)
+until the client rows are datamined. `Player.disable_weapon_specialization` and `weapon_type_override`
+stay in the proto (MythicSim's race sweep and saved requests set them) but no longer change a racial.
+
+Not modelled, as before: Troll Regeneration (20% health regeneration), Night Elf Quickness, Tauren
+Plainsrunning, Cultivation and War Stomp, Dwarf Find Treasure, Skyborne Skysight, Read Leyline and Walk
+on Air, Will of the Forsaken. Eureka! now also benefits Power Word: Shield, which the engine's healing
+lists do not carry.
+
+Tests: `TestCritRacials`, `TestCritDamageRacials`, `TestBloodFuryCooldown`, `TestGnomeWarrior` (8 s, no
+charges, casts do not end it), `TestTouchOfTheGraveUsesTheMeleeVariant` (25 s cooldown, ignores
+modifiers), `TestSkyborneRacials` (3%), `TestWeaponTypeOverrideNoLongerMovesRacials`,
+`TestCritRacialsNeedNoWeapon` (hunter: Ruthless and Savage reach Auto Shot, Earth Fury moves no crit
+chance), `TestPetCritIsTheOwnersRangedCrit` (an Orc's pet now carries Savage). The mage, warlock and
+priest Eureka! tests drop their charge checks. Goldens regenerated for the 26 suites with a race whose
+racials changed.
+
+Measured (native `wowsimcli`, MythicSim production default path, 10,000 iterations, board seed, board
+length, against `b1137248e6`): 18 of 31 references move. Undead loses the most, the 25 s cooldown
+outweighing the higher proc chance: Assassination 609.54 to 601.51 (-1.3%), Subtlety 622.82 to 615.92,
+Combat 644.07 to 637.27, Arcane 725.59 to 720.74, Holy-protection 579.19 to 575.02, Frost 667.43 to
+664.22, Protection Warrior 565.27 to 562.19, and the other Undead references -0.3% to -0.5%. Human
+Shockadin, which held no sword, gains Ruthless: 994.77 to 999.24 (+0.45%). Gnome Fire 696.29 to 697.33.
+Orc Enhancement 733.42 to 734.45, Orc Survival 808.86 to 807.81 (Blood Fury's 3 min cooldown). Tauren
+Elemental 502.57 to 501.85, Elehance 644.23 to 641.51 (hit for crit damage). Unchanged to 1e-4: every
+Night Elf reference, the two Human sword wielders (Arms, Retribution) and Gnome Frostfire.
+
+Downstream: the Rust engine needs the same racials before its next repin.
+
+Drop it when upstream models the 16 October racials.

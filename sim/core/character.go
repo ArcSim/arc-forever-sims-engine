@@ -45,8 +45,6 @@ type Character struct {
 
 	// Racial effects are skipped, but the race's base stats are kept.
 	disableRacials bool
-	// Player.disable_weapon_specialization.
-	disableWeaponSpec bool
 
 	// Current gear.
 	Equipment
@@ -117,8 +115,7 @@ func NewCharacter(party *Party, partyIndex int, player *proto.Player) Character 
 		Class: player.Class,
 		Spec:  PlayerProtoToSpec(player),
 
-		disableRacials:    player.DisableRacials,
-		disableWeaponSpec: player.DisableWeaponSpecialization,
+		disableRacials: player.DisableRacials,
 
 		Equipment: ProtoToEquipment(player.Equipment).inArea(party.areaTypes()),
 

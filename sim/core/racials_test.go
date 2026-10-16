@@ -126,6 +126,8 @@ func TestElunesLight(t *testing.T) {
 	}
 }
 
+// 16 October 2026 beta notes: Eureka! is "an 8 second buff with no charges. Same effect on damage and
+// ability costs."
 func TestGnomeWarrior(t *testing.T) {
 	sim, fw := setupRacialSim(proto.Race_RaceGnome)
 
@@ -135,8 +137,8 @@ func TestGnomeWarrior(t *testing.T) {
 
 	castRacial(t, sim, fw, 1259813)
 	eureka := fw.GetAura("Eureka!")
-	if !eureka.IsActive() || eureka.GetStacks() != 3 {
-		t.Fatalf("Eureka! should start at 3 charges, got %d", eureka.GetStacks())
+	if !eureka.IsActive() || eureka.Duration != time.Second*8 || eureka.MaxStacks != 0 {
+		t.Fatalf("Eureka! should be an 8 sec buff with no charges, got %s and %d stacks", eureka.Duration, eureka.MaxStacks)
 	}
 
 	ability := fw.RegisterSpell(SpellConfig{
@@ -154,30 +156,70 @@ func TestGnomeWarrior(t *testing.T) {
 		DamageMultiplier: 1,
 	})
 	itemSpell.Cast(sim, fw.CurrentTarget)
-	if itemSpell.DamageMultiplier != 1 || eureka.GetStacks() != 3 {
+	if itemSpell.DamageMultiplier != 1 {
 		t.Fatalf("Eureka! should ignore spells that are not class abilities")
 	}
 	if !WithinToleranceFloat64(1.1, ability.DamageMultiplier, 0.0001) {
 		t.Fatalf("Eureka! should raise ability damage by 10%%, got x%0.2f", ability.DamageMultiplier)
 	}
 
-	for range 3 {
+	for range 5 {
 		ability.Cast(sim, fw.CurrentTarget)
 	}
-	if eureka.IsActive() {
-		t.Fatalf("Eureka! should end after 3 abilities")
+	if !eureka.IsActive() || !WithinToleranceFloat64(1.1, ability.DamageMultiplier, 0.0001) {
+		t.Fatalf("Eureka! has no charges, so casts should not end it")
 	}
+
+	eureka.Deactivate(sim)
 	if !WithinToleranceFloat64(1, ability.DamageMultiplier, 0.0001) {
 		t.Fatalf("Eureka! should drop its damage bonus when it ends, got x%0.2f", ability.DamageMultiplier)
 	}
 }
 
-func TestTaurenEndurance(t *testing.T) {
+// 16 October 2026 beta notes: "Endurance: Now grants 2% increased critical damage and healing (was 1% hit
+// chance)", and Dwarf "Mace Specialization: Replaced with Earth Fury: 2% increased critical damage and
+// healing."
+func TestCritDamageRacials(t *testing.T) {
 	_, human := setupRacialSim(proto.Race_RaceHuman)
-	_, tauren := setupRacialSim(proto.Race_RaceTauren)
 
-	if !WithinToleranceFloat64(human.GetStat(stats.PhysicalHitPercent)+1, tauren.GetStat(stats.PhysicalHitPercent), 0.0001) {
-		t.Fatalf("Endurance should grant 1%% hit")
+	for _, race := range []proto.Race{proto.Race_RaceTauren, proto.Race_RaceDwarf} {
+		_, fw := setupRacialSim(race)
+		if got := fw.GetStat(stats.PhysicalHitPercent); got != human.GetStat(stats.PhysicalHitPercent) {
+			t.Errorf("%s: hit %0.2f%%, want no racial hit", race, got)
+		}
+		if !WithinToleranceFloat64(1.02, fw.PseudoStats.CritDamageMultiplier, 1e-9) {
+			t.Errorf("%s: crit damage x%0.4f, want x1.02", race, fw.PseudoStats.CritDamageMultiplier)
+		}
+	}
+	if human.PseudoStats.CritDamageMultiplier != 1 {
+		t.Errorf("a Human has no crit damage racial, got x%0.4f", human.PseudoStats.CritDamageMultiplier)
+	}
+}
+
+// 16 October 2026 beta notes: Human Ruthless (+2% crit) and Orc Savage (+1% crit) replace the weapon
+// specializations, with no weapon needed.
+func TestCritRacials(t *testing.T) {
+	_, nightElf := setupRacialSim(proto.Race_RaceNightElf)
+	for race, want := range map[proto.Race]float64{proto.Race_RaceHuman: 2, proto.Race_RaceOrc: 1} {
+		without := racialWarrior(race, disableRacials)
+		with := racialWarrior(race, nil)
+		if d := with.GetStat(stats.PhysicalCritPercent) - without.GetStat(stats.PhysicalCritPercent); d != want {
+			t.Errorf("%s: racials add %0.2f%% physical crit with no weapon, want %0.0f%%", race, d, want)
+		}
+		if d := with.GetStat(stats.SpellCritPercent) - without.GetStat(stats.SpellCritPercent); d != want {
+			t.Errorf("%s: racials add %0.2f%% spell crit, want %0.0f%%", race, d, want)
+		}
+	}
+	if nightElf.PseudoStats.CritDamageMultiplier != 1 {
+		t.Errorf("a Night Elf has no crit damage racial")
+	}
+}
+
+// 16 October 2026 beta notes: Blood Fury's cooldown is 3 minutes (was 2).
+func TestBloodFuryCooldown(t *testing.T) {
+	_, fw := setupRacialSim(proto.Race_RaceOrc)
+	if got := fw.GetSpell(ActionID{SpellID: 20572}).CD.Duration; got != time.Minute*3 {
+		t.Fatalf("Blood Fury's cooldown is %s, want 3m", got)
 	}
 }
 
@@ -185,12 +227,18 @@ func TestTouchOfTheGraveUsesTheMeleeVariant(t *testing.T) {
 	_, fw := setupRacialSim(proto.Race_RaceUndead)
 
 	if aura := fw.GetAura("Touch of the Grave"); aura == nil || aura.ActionIDForProc.SpellID != 1260189 {
-		t.Fatalf("An undead warrior should carry the 5%% Touch of the Grave")
+		t.Fatalf("An undead warrior should carry the melee Touch of the Grave")
 	} else if aura.OnSpellHitDealt == nil {
 		t.Fatalf("Touch of the Grave listens for no hit, so it never procs")
+	} else if aura.Icd == nil || aura.Icd.Duration != time.Second*25 {
+		t.Fatalf("Touch of the Grave should have a 25 sec internal cooldown (16 October 2026 beta notes)")
 	}
-	if fw.GetSpell(ActionID{SpellID: 1260198}) == nil {
+	drain := fw.GetSpell(ActionID{SpellID: 1260198})
+	if drain == nil {
 		t.Fatalf("Touch of the Grave's drain is not registered")
+	}
+	if !drain.Flags.Matches(SpellFlagIgnoreModifiers) {
+		t.Fatalf("Touch of the Grave no longer scales with Shadow increases on the target or the caster")
 	}
 }
 
@@ -201,8 +249,8 @@ func TestSkyborneRacials(t *testing.T) {
 		_, fw := setupRacialSim(race)
 
 		swingRatio := human.AutoAttacks.MainhandSwingSpeed().Seconds() / fw.AutoAttacks.MainhandSwingSpeed().Seconds()
-		if !WithinToleranceFloat64(1.01, swingRatio, 0.001) {
-			t.Errorf("%s: Wind Blessed should swing 1%% faster, got x%0.4f", race, swingRatio)
+		if !WithinToleranceFloat64(1.03, swingRatio, 0.001) {
+			t.Errorf("%s: Wind Blessed should swing 3%% faster (16 October 2026 beta notes), got x%0.4f", race, swingRatio)
 		}
 		if at := fw.AttackTables[fw.CurrentTarget.UnitIndex]; !WithinToleranceFloat64(1.05, at.DamageDealtMultiplier, 0.0001) {
 			t.Errorf("%s: Elemental Insight should grant 5%% damage against elementals, got x%0.4f", race, at.DamageDealtMultiplier)

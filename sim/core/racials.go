@@ -13,7 +13,9 @@ func applyRaceEffects(agent Agent) {
 
 	switch character.Race {
 	case proto.Race_RaceDwarf:
-		applyWeaponSpecialization(character, "Mace Specialization", 1259719, 1, proto.WeaponType_WeaponTypeMace)
+		// 16 October beta notes: "Mace Specialization: Replaced with Earth Fury: 2% increased critical
+		// damage and healing."
+		applyCritDamageRacial(character, "Earth Fury", 1259719)
 		applyCreatureTypeSlaying(character, proto.MobType_MobTypeBeast)
 
 		actionID := ActionID{SpellID: 20594}
@@ -52,7 +54,9 @@ func applyRaceEffects(agent Agent) {
 		applyEureka(agent)
 	case proto.Race_RaceHuman:
 		character.MultiplyStat(stats.Spirit, 1.05)
-		applyWeaponSpecialization(character, "Sword Specialization", 20597, 2, proto.WeaponType_WeaponTypeSword)
+		// 16 October beta notes: "Sword Specialization: Replaced with Ruthless: 2% increased critical
+		// strike chance."
+		applyCritRacial(character, "Ruthless", 20597, 2)
 	case proto.Race_RaceNightElf:
 		character.PseudoStats.BaseDodgeChance += 0.01
 		character.PseudoStats.MovementSpeedMultiplier *= 1.02
@@ -74,7 +78,9 @@ func applyRaceEffects(agent Agent) {
 				},
 			})
 	case proto.Race_RaceOrc:
-		applyWeaponSpecialization(character, "Axe Specialization", 20574, 1, proto.WeaponType_WeaponTypeAxe)
+		// 16 October beta notes: "Axe Specialization: Replaced with Savage: 1% increased critical strike
+		// chance."
+		applyCritRacial(character, "Savage", 20574, 1)
 
 		bloodFuryID := ActionID{SpellID: 20572}
 
@@ -89,9 +95,10 @@ func applyRaceEffects(agent Agent) {
 			{Stat: stats.HealingPower, Multiplier: 1.1},
 		})
 
+		// 16 October beta notes: "Blood Fury: Cooldown increased to 3 minutes (was 2 minutes)."
 		bloodFuryCD := Cooldown{
 			Timer:    character.NewTimer(),
-			Duration: time.Minute * 2,
+			Duration: time.Minute * 3,
 		}
 		bloodFuryAura.Icd = &bloodFuryCD
 
@@ -121,6 +128,7 @@ func applyRaceEffects(agent Agent) {
 			ActionID: shatterCurseID,
 			Duration: time.Second * 8,
 		})
+		// 16 October beta notes: "Magic damage taken reduced by 5% (was 15%)."
 		for _, school := range []stats.SchoolIndex{
 			stats.SchoolIndexArcane,
 			stats.SchoolIndexFire,
@@ -129,7 +137,7 @@ func applyRaceEffects(agent Agent) {
 			stats.SchoolIndexNature,
 			stats.SchoolIndexShadow,
 		} {
-			shatterCurseAura.AttachMultiplicativePseudoStatBuff(&character.PseudoStats.SchoolDamageTakenMultiplier[school], 0.85)
+			shatterCurseAura.AttachMultiplicativePseudoStatBuff(&character.PseudoStats.SchoolDamageTakenMultiplier[school], 0.95)
 		}
 
 		shatterCurse := character.RegisterSpell(SpellConfig{
@@ -157,8 +165,9 @@ func applyRaceEffects(agent Agent) {
 		})
 	case proto.Race_RaceTauren:
 		character.MultiplyStat(stats.Health, 1.05)
-		character.AddStat(stats.PhysicalHitPercent, 1)
-		character.AddStat(stats.SpellHitPercent, 1)
+		// 16 October beta notes: "Endurance: Now grants 2% increased critical damage and healing (was 1%
+		// hit chance)."
+		character.PseudoStats.CritDamageMultiplier *= 1.02
 	case proto.Race_RaceTroll:
 		applyCreatureTypeSlaying(character, proto.MobType_MobTypeBeast)
 
@@ -219,7 +228,7 @@ func applyRaceEffects(agent Agent) {
 			Flags:    SpellFlagAPL | SpellFlagNoOnCastComplete,
 			Cast: CastConfig{
 				DefaultCast: Cast{
-					GCD: GCDDefault,
+					GCD:      GCDDefault,
 					CastTime: time.Second * 2,
 				},
 				CD: Cooldown{
@@ -254,7 +263,7 @@ func applyRaceEffects(agent Agent) {
 			Flags:    SpellFlagAPL | SpellFlagNoOnCastComplete,
 			Cast: CastConfig{
 				DefaultCast: Cast{
-					GCD: GCDDefault,
+					GCD:      GCDDefault,
 					CastTime: time.Millisecond * 500,
 				},
 				CD: Cooldown{
@@ -274,8 +283,9 @@ func applyRaceEffects(agent Agent) {
 func applySkyborneSharedRacials(character *Character) {
 	applyCreatureTypeSlaying(character, proto.MobType_MobTypeElemental)
 
-	character.PseudoStats.AttackSpeedMultiplier *= 1.01
-	character.PseudoStats.CastSpeedMultiplier *= 1.01
+	// 16 October beta notes: "Wind Blessed: Haste bonus increased to 3% (was 1%)."
+	character.PseudoStats.AttackSpeedMultiplier *= 1.03
+	character.PseudoStats.CastSpeedMultiplier *= 1.03
 }
 
 // Beast Slaying (troll 20557), Big Game Hunter (dwarf 1259721) and Elemental Insight (Skyborne
@@ -291,42 +301,32 @@ func applyCreatureTypeSlaying(character *Character, mobType proto.MobType) {
 	})
 }
 
-// The weapon racials (Human Sword, Orc Axe, Dwarf Mace) raise melee, ability and spell crit, but not
-// the ranged auto attack: an Orc with an axe at 2% melee and 1% ranged crit took no crit from over
-// 500 Auto Shots against a level 21 target (forever-bugs #91), and the character select text says
-// physical abilities. Ranged abilities such as Aimed Shot and Multi-Shot keep it. The stat buffs
-// stay global and a crit modifier on ProcMaskRangedAuto takes the bonus back off the auto attack.
-func applyWeaponSpecialization(character *Character, label string, spellID int32, critPercent float64, weaponType proto.WeaponType) {
-	hasWeaponEquipped := func() bool {
-		mh, oh := character.MainHand(), character.OffHand()
-		return !character.disableWeaponSpec && ((mh != nil && mh.WeaponType == weaponType) || (oh != nil && oh.WeaponType == weaponType))
-	}
-
-	aura := character.RegisterAura(Aura{
+// The 16 October 2026 beta notes replace the weapon racials (Human Sword, Orc Axe and Dwarf Mace
+// Specialization) with passives that need no weapon: Human Ruthless and Orc Savage raise critical
+// strike chance, Dwarf Earth Fury raises critical damage. The old specializations left the ranged auto
+// attack alone (forever-bugs #91); the new crit has no weapon behind it and counts for every attack and
+// spell. The spell IDs are the old specializations' until the client build carrying the new ones is
+// datamined. Player.disable_weapon_specialization and weapon_type_override no longer change any racial.
+func applyCritRacial(character *Character, label string, spellID int32, critPercent float64) {
+	MakePermanent(character.RegisterAura(Aura{
 		Label:      label,
 		ActionID:   ActionID{SpellID: spellID},
 		Duration:   NeverExpires,
-		BuildPhase: Ternary(hasWeaponEquipped(), CharacterBuildPhaseBase, CharacterBuildPhaseNone),
+		BuildPhase: CharacterBuildPhaseBase,
 	}).
 		AttachStatBuff(stats.PhysicalCritPercent, critPercent).
-		AttachStatBuff(stats.SpellCritPercent, critPercent).
-		AttachSpellMod(SpellModConfig{
-			Kind:       SpellMod_BonusCrit_Percent,
-			ProcMask:   ProcMaskRangedAuto,
-			FloatValue: -critPercent,
-		})
+		AttachStatBuff(stats.SpellCritPercent, critPercent))
+}
 
-	if hasWeaponEquipped() {
-		MakePermanent(aura)
-	}
-
-	character.RegisterItemSwapCallback(AllWeaponSlots(), func(sim *Simulation, _ proto.ItemSlot) {
-		if hasWeaponEquipped() {
-			aura.Activate(sim)
-		} else {
-			aura.Deactivate(sim)
-		}
-	})
+// "2% increased critical damage and healing", on the whole crit multiplier as the engine applies the
+// 3% crit damage meta gems (see Spell.CritDamageMultiplier).
+func applyCritDamageRacial(character *Character, label string, spellID int32) {
+	character.PseudoStats.CritDamageMultiplier *= 1.02
+	MakePermanent(character.RegisterAura(Aura{
+		Label:    label,
+		ActionID: ActionID{SpellID: spellID},
+		Duration: NeverExpires,
+	}))
 }
 
 func applyExpansiveMind(character *Character) {
@@ -363,10 +363,11 @@ type EurekaAgent interface {
 	EurekaSpells() EurekaSpells
 }
 
-// Eureka! for the next three casts of the abilities the client's rows name. Client 1.60.1.70170 ("no
-// longer benefits periodic effects at all. Channeled spells do not count as periodics") takes the bleeds
-// and damage-over-time spells off every class's list, so a dot's ticks keep their damage unless the spell
-// is in Tick, and a cast of a spell on none of the three lists neither costs less nor spends a charge.
+// Eureka! raises the damage of the abilities the client's rows name by 10% and cuts their cost. The 16
+// October 2026 beta notes make it "an 8 second buff with no charges. Same effect on damage and ability
+// costs." Client 1.60.1.70170 ("no longer benefits periodic effects at all. Channeled spells do not count as
+// periodics") takes the bleeds and damage-over-time spells off every class's list, so a dot's ticks keep
+// their damage unless the spell is in Tick.
 func applyEureka(agent Agent) {
 	character := agent.GetCharacter()
 	var spellID int32
@@ -398,7 +399,6 @@ func applyEureka(agent Agent) {
 	if eurekaAgent, ok := agent.(EurekaAgent); ok {
 		spells = eurekaAgent.EurekaSpells()
 	}
-	spent := spells.Cost | spells.Damage | spells.Tick
 
 	costMod := character.AddDynamicMod(SpellModConfig{
 		Kind:         SpellMod_PowerCost_Pct,
@@ -426,12 +426,10 @@ func applyEureka(agent Agent) {
 	}
 
 	aura := character.RegisterAura(Aura{
-		Label:     "Eureka!",
-		ActionID:  actionID,
-		Duration:  time.Second * 15,
-		MaxStacks: 3,
-		OnGain: func(aura *Aura, sim *Simulation) {
-			aura.SetStacks(sim, 3)
+		Label:    "Eureka!",
+		ActionID: actionID,
+		Duration: time.Second * 8,
+		OnGain: func(_ *Aura, _ *Simulation) {
 			costMod.Activate()
 			damageMod.Activate()
 			if tickCancelMod != nil {
@@ -443,11 +441,6 @@ func applyEureka(agent Agent) {
 			damageMod.Deactivate()
 			if tickCancelMod != nil {
 				tickCancelMod.Deactivate()
-			}
-		},
-		OnCastComplete: func(aura *Aura, sim *Simulation, spell *Spell) {
-			if spell.Matches(spent) && spell.ProcMask.Matches(procMask) {
-				aura.RemoveStack(sim)
 			}
 		},
 	})
@@ -474,11 +467,15 @@ func applyEureka(agent Agent) {
 	})
 }
 
+// Touch of the Grave drains 5% of the caster's maximum health. The 16 October 2026 beta notes: "a 30%
+// chance to activate for casters and a 20% chance to activate for Paladins/Rogues/Warriors, as well as a
+// 25 second internal cooldown" (was 10% and 5% with a 1 sec cooldown), and it "no longer scales with
+// Shadow increases on the target or the caster".
 func applyTouchOfTheGrave(character *Character) {
-	auraID, procChance := int32(1260201), 0.1
+	auraID, procChance := int32(1260201), 0.3
 	switch character.Class {
 	case proto.Class_ClassWarrior, proto.Class_ClassPaladin, proto.Class_ClassRogue:
-		auraID, procChance = 1260189, 0.05
+		auraID, procChance = 1260189, 0.2
 	}
 
 	drainID := ActionID{SpellID: 1260198}
@@ -489,7 +486,7 @@ func applyTouchOfTheGrave(character *Character) {
 		SpellSchool: SpellSchoolShadow,
 		DefenseType: DefenseTypeMagic,
 		ProcMask:    ProcMaskEmpty,
-		Flags:       SpellFlagProc | SpellFlagPassiveSpell | SpellFlagIgnoreAttackerModifiers | SpellFlagNoSpellMods,
+		Flags:       SpellFlagProc | SpellFlagPassiveSpell | SpellFlagIgnoreModifiers | SpellFlagNoSpellMods,
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
@@ -509,7 +506,7 @@ func applyTouchOfTheGrave(character *Character) {
 		ProcMask:   ProcMaskMelee | ProcMaskRanged | ProcMaskSpellDamage,
 		Outcome:    OutcomeLanded,
 		ProcChance: procChance,
-		ICD:        time.Second,
+		ICD:        time.Second * 25,
 		Handler: func(sim *Simulation, spell *Spell, result *SpellResult) {
 			drain.Cast(sim, result.Target)
 		},
