@@ -6,6 +6,7 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
@@ -208,27 +209,62 @@ func (paladin *Paladin) applySacredDuty() {
 }
 
 // One-Handed Weapon Specialization - Increases the damage you deal with one-handed melee weapons
-// by 3/7/10%. The client puts it on the Physical school alone.
+// by 3/7/10%. The client puts it on the Physical school alone, but in game on client 70425 it raises
+// the paladin's damage of every school, spell power included, except Consecration and Retribution
+// Aura (Ashreon, MythicSim Discord, 16 October 2026; MythicSim patch 143). Heals take none of it.
 func (paladin *Paladin) applyOneHandedWeaponSpecialization() {
 	if paladin.Talents.OneHandedWeaponSpecialization == 0 {
 		return
 	}
 
-	paladin.applyWeaponSpecialization(
-		spellData.OneHandedWeaponSpecialization.FractionAt(paladin.Talents.OneHandedWeaponSpecialization),
-		proto.HandType_HandTypeOneHand,
-	)
+	bonus := spellData.OneHandedWeaponSpecialization.FractionAt(paladin.Talents.OneHandedWeaponSpecialization)
+	if !OneHandedWeaponSpecializationAllSchools {
+		paladin.applyWeaponSpecialization(bonus, proto.HandType_HandTypeOneHand)
+		return
+	}
+
+	retributionAura := map[int32]bool{}
+	RetributionAuraRankMap.Each(func(_ int32, rank *spelldata.Spell) {
+		retributionAura[rank.ID] = true
+	})
+	takesIt := func(spell *core.Spell) bool {
+		return !spell.Flags.Matches(core.SpellFlagHelpful) &&
+			!spell.Matches(SpellMaskConsecration|SpellMaskRetributionAura) &&
+			!retributionAura[spell.ActionID.SpellID]
+	}
+	paladin.followMainHand(paladin.AddDynamicMod(core.SpellModConfig{
+		School: core.SpellSchoolPhysical | core.SpellSchoolChaos,
+		Kind:   core.SpellMod_Custom,
+		ApplyCustom: func(_ *core.SpellMod, spell *core.Spell) {
+			if takesIt(spell) {
+				spell.DamageMultiplier *= 1 + bonus
+			}
+		},
+		RemoveCustom: func(_ *core.SpellMod, spell *core.Spell) {
+			if takesIt(spell) {
+				spell.DamageMultiplier /= 1 + bonus
+			}
+		},
+	}), proto.HandType_HandTypeOneHand)
 }
+
+// OneHandedWeaponSpecializationAllSchools puts One-Handed Weapon Specialization on every school but
+// Consecration and Retribution Aura, as measured in game on client 70425. False keeps the client row's
+// Physical school alone (MythicSim patch 143).
+var OneHandedWeaponSpecializationAllSchools = true
 
 // The one- and two-handed specializations: a physical damage bonus that follows the weapon in the
 // main hand, item swaps included.
 func (paladin *Paladin) applyWeaponSpecialization(bonus float64, handType proto.HandType) {
-	weaponMod := paladin.AddDynamicMod(core.SpellModConfig{
+	paladin.followMainHand(paladin.AddDynamicMod(core.SpellModConfig{
 		School:     core.SpellSchoolPhysical,
 		Kind:       core.SpellMod_DamageDone_Pct,
 		FloatValue: bonus,
-	})
+	}), handType)
+}
 
+// followMainHand keeps a weapon specialization's mod on while the main hand is of its type.
+func (paladin *Paladin) followMainHand(weaponMod *core.SpellMod, handType proto.HandType) {
 	if paladin.GetMainHandType() == handType {
 		weaponMod.Activate()
 	}

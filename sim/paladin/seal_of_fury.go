@@ -17,10 +17,17 @@ import (
 // Unleashing this Seal's energy causes Holy damage to an enemy and taunts the target to attack
 // you for 4 sec.
 //
-// The per-hit damage is the spell the tooltip names first, a flat number with a 10% coefficient,
-// read as the tooltip says; the seal's third effect names its judgement. The seal also carries a
+// The per-hit damage is the spell the tooltip names first, a flat number (its row's 10% coefficient
+// is replaced by the measured 15%); the seal's third effect names its judgement. The seal also carries a
 // weapon-speed dummy in Seal of Righteousness's shape that the tooltip never references, and it
 // is left alone. The taunt has no place in the sim.
+// Seal of Fury's spell power shares as measured in game on client 70425 (MythicSim patch 143): 15% on
+// each hit and 67% on the judgement, where the rows carry 0.10 and 0.429. The bases already matched.
+const (
+	SealOfFurySpellPowerCoefficient      = 0.15
+	JudgementOfFurySpellPowerCoefficient = 0.67
+)
+
 func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 	judgementRank := spellData.SealOfFuryTriggered.ByID(int32(rank.EffectN(3).BaseValue()))
 	judgementDamage := judgementRank.DamageEffect()
@@ -39,7 +46,7 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
-		BonusCoefficient: judgementDamage.Coeff(),
+		BonusCoefficient: JudgementOfFurySpellPowerCoefficient,
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealDamage(sim, target, judgementDamage.Roll(sim, core.CharacterLevel), spell.OutcomeMeleeSpecialNoBlockDodgeParry)
@@ -73,7 +80,7 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
-		BonusCoefficient: procDamage.Coeff(),
+		BonusCoefficient: SealOfFurySpellPowerCoefficient,
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			result := spell.CalcDamage(sim, target, damage, spell.OutcomeMeleeSpecialCritOnly)

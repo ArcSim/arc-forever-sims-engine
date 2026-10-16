@@ -39,6 +39,11 @@ var SealOfRighteousnessFollowsSwappedWeapon = true
 // two-hander (2670) also hit 25s on top of 16-18, the same step. No one-hander has been logged
 // under the debuff, so a one-hander keeps the bare 0.185 (Ms's 1.7 one-hander fits it).
 
+// JudgementOfRighteousnessSpellPowerCoefficient is the judgement's spell power share as measured in
+// game on client 70425 (MythicSim patch 143); the rows carry 0.429. The base already matched. The
+// seal's per-hit share is left on the dummy's number until a log with a known weapon speed settles it.
+const JudgementOfRighteousnessSpellPowerCoefficient = 0.70
+
 func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spell) {
 	judgeRank := spellData.JudgementOfRighteousness.ByID(int32(rank.EffectN(2).BaseValue()))
 	judgeDamage := judgeRank.DamageEffect()
@@ -56,7 +61,7 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
-		BonusCoefficient: judgeDamage.Coeff(),
+		BonusCoefficient: JudgementOfRighteousnessSpellPowerCoefficient,
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealDamage(sim, target, judgeDamage.Roll(sim, core.CharacterLevel), spell.OutcomeMeleeSpecialNoBlockDodgeParry)

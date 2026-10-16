@@ -17,6 +17,11 @@ var HolyStrikeRankMap = spellData.HolyStrike
 // weapon-percent-damage effect (31). The client adds the flat amount to the normalized swing and
 // then takes the percentage of the sum, the way it does for Backstab. Build 70009's ranks are
 // 25/29/32/36/39/43/46/50%, so rank 8 is 50% of (weapon + 81 to 105).
+// HolyStrikeSpellPowerCoefficient is Holy Strike's spell power share as measured in game on client
+// 70425 (MythicSim patch 143); the rows carry 0.429 on every rank. The base, 50% of the weapon plus the
+// flat Holy amount, already matched.
+const HolyStrikeSpellPowerCoefficient = 0.286
+
 func (paladin *Paladin) registerHolyStrike(_ int32, rank *spelldata.Spell) {
 	flat := rank.DamageEffect()
 	weaponPercent := rank.EffectN(2).Percent()
@@ -45,7 +50,7 @@ func (paladin *Paladin) registerHolyStrike(_ int32, rank *spelldata.Spell) {
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
-		BonusCoefficient: flat.Coeff(),
+		BonusCoefficient: HolyStrikeSpellPowerCoefficient,
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			baseDamage := weaponPercent * (spell.Unit.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target)) + flat.Roll(sim, core.CharacterLevel))

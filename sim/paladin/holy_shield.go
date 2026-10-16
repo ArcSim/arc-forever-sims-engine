@@ -20,6 +20,10 @@ var HolyShieldRankMap = spellData.HolyShield
 //
 // The per-block damage and its spell power share sit on the proc-trigger-damage aura effect,
 // beside the block chance on an aura of its own.
+// HolyShieldSpellPowerCoefficient is the per-block damage's spell power share as measured in game on
+// client 70425 (MythicSim patch 143); the rows carry 0.08.
+const HolyShieldSpellPowerCoefficient = 0.07
+
 func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 	actionID := core.ActionID{SpellID: rank.ID}
 	damageEffect := rank.Effect(dbcenums.A_PROC_TRIGGER_DAMAGE, 0)
@@ -37,7 +41,7 @@ func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1.2,
-		BonusCoefficient: damageEffect.Coeff(),
+		BonusCoefficient: HolyShieldSpellPowerCoefficient,
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealDamage(sim, target, damage, spell.OutcomeMagicHit)

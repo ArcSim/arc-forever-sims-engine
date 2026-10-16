@@ -3753,3 +3753,61 @@ Goldens move as 142's own did on its base, within 0.3 points, except Affliction 
 at 253.6 DPS, the sync having already added Siphon Life crits): Arcane -12.1%, Frost -7.5%, Fire +1.0%,
 Elemental -2.2%, Enhancement -1.2%, rogues -1.4% to -2.1%, Smite -0.9%, Protection Paladin -0.7%,
 Retribution -0.5%, Arms -0.7%, Shadow +0.3%.
+
+## 143. `paladin: spell power shares and One-Handed Weapon Specialization as measured on client 70425`
+
+Ashreon measured the paladin's spell power shares in game on client 70425 (MythicSim Discord, 16 October
+2026, and the bugs forum thread "Oh the prot paladin nerfs keeps giving"). Five of them differ from the
+client rows the engine reads, and One-Handed Weapon Specialization reaches more than the row's Physical
+school: "10% One Handed Weapon Specialization increase all this after SP is added except for Consecration
+and Retribution Aura".
+
+| Spell | Rows (and the engine on 5af130344) | Measured, now | Where |
+| --- | ---: | ---: | --- |
+| Holy Strike | 0.429 | 0.286 | `HolyStrikeSpellPowerCoefficient`, `sim/paladin/holy_strike.go` |
+| Judgement of Righteousness | 0.429 | 0.70 | `JudgementOfRighteousnessSpellPowerCoefficient`, `seal_of_righteousness.go` |
+| Seal of Fury, each hit | 0.10 | 0.15 | `SealOfFurySpellPowerCoefficient`, `seal_of_fury.go` |
+| Judgement of Fury | 0.429 | 0.67 | `JudgementOfFurySpellPowerCoefficient`, `seal_of_fury.go` |
+| Holy Shield, each block | 0.08 | 0.07 | `HolyShieldSpellPowerCoefficient`, `holy_shield.go` |
+
+Every rank takes the measured share. The bases already matched (Holy Strike's 50% of the weapon plus 40 to
+53 Holy, Judgement of Righteousness's 162 to 178, Seal of Fury's), and so does Consecration's 0.042 a tick,
+0.336 over its 8 ticks against the measured 33%.
+
+One-Handed Weapon Specialization (3/7/10%): **now** `applyOneHandedWeaponSpecialization`
+(`sim/paladin/talents_protection.go`) raises the paladin's damage of every school while a one-hander is in
+the main hand, on the whole hit with spell power in it, except Consecration and Retribution Aura (its damage
+spells carry no class mask, so they are matched by the ranks' spell ids). Heals (`SpellFlagHelpful`) take
+none of it, as the engine's heals read the damage multiplier. It still follows the main hand through item
+swaps. `OneHandedWeaponSpecializationAllSchools` (default true); false is the row's Physical school alone.
+Two-Handed Weapon Specialization is unchanged (Physical).
+
+Open: Seal of Righteousness's per-hit damage and the 0.07 share in the same report are not taken. The hit
+scales with weapon speed and the report gives none, so it needs a log with a known weapon speed; the engine
+keeps the judgement dummy's share (0.185 at rank 3, 0.20 from rank 4, x1.2 on a two-hander).
+
+Tests (`sim/paladin/protection/client_70425_values_test.go`): `TestPaladinSpellPowerCoefficientsFromClient70425`
+(the five shares) and `TestOneHandedWeaponSpecializationCoversEverySchoolButConsecrationAndRetributionAura`
+(Grand Marshal's Longsword against Arcanite Reaper: x1.1 on the auto attack, Holy Strike, Judgement of
+Righteousness, Seal of Fury's hit, Holy Shield and Exorcism, x1 on Consecration, Retribution Aura and Holy
+Light) both fail on `5af130344`. Goldens: `TestProtection` Average-Default 281.71 to 300.13 (+6.5%),
+`TestRetribution` 380.27 to 382.97 (+0.7%), `TestHolyPaladin` does not move.
+
+Measured (native `wowsimcli`, MythicSim production default path, 10,000 iterations, board seed, board
+length, references of MythicSim #513, against `5af130344`, whose numbers are the references'
+`expected_baseline_dps` and which this harness reproduces: Protection 612.41).
+
+| Reference | 5af130344 | Patch 143 | Change |
+| --- | ---: | ---: | ---: |
+| Retribution (two-hander) | 866.29 | 871.53 | +0.61% |
+| Protection | 612.41 | 673.78 | +10.02% |
+| Ret-prot hybrid | 574.85 | 629.15 | +9.45% |
+| Holy-prot hybrid | 577.44 | 636.48 | +10.22% |
+| Shockadin hybrid | 954.06 | 987.36 | +3.49% |
+
+Protection with the shares alone (`OneHandedWeaponSpecializationAllSchools` false) is 635.40 (+3.75%); the
+wider One-Handed Weapon Specialization adds 6.04% on top. No other class reads these spells.
+
+Downstream: the Rust engine needs the shares and the wider specialization before its next repin.
+
+Drop each piece when upstream takes the measured shares or widens One-Handed Weapon Specialization.
