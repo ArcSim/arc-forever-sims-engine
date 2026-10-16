@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
 func (shaman *Shaman) registerShieldsSpells() {
@@ -51,6 +52,14 @@ const waterShieldSpellID = 408510
 const waterShieldGlobes = 3
 const waterShieldManaFraction = 0.02
 
+// WaterShieldProcsOnSpellCrits (MythicSim patch 145) lets the shaman's own critical spells spend a globe,
+// as the 16 October 2026 beta notes say ("Water Shield: Can now trigger from any critical spell cast by
+// the Shaman (was only critical heals)"). Client 70425's 408510 states it too: ProcFlags 0x362a8 add
+// done magic spells, harmful and helpful, to the hits taken, with ProcHint Crit|Heals. Kerani's
+// Elemental sim on the MythicSim Discord kept all three globes for the whole fight. False leaves only
+// the hits the shaman takes, as before.
+var WaterShieldProcsOnSpellCrits = true
+
 func (shaman *Shaman) registerWaterShieldSpell() {
 	if !shaman.Talents.WaterShield {
 		return
@@ -58,6 +67,21 @@ func (shaman *Shaman) registerWaterShieldSpell() {
 
 	actionID := core.ActionID{SpellID: waterShieldSpellID}
 	waterShieldManaMetrics := shaman.NewManaMetrics(actionID)
+	row := spelldata.MustFind(waterShieldSpellID)
+
+	// One globe every 3.5 sec at most, whichever trigger spends it: the row has one internal cooldown.
+	icd := core.Cooldown{Timer: shaman.NewTimer(), Duration: time.Duration(row.ICDMs) * time.Millisecond}
+	ready := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
+		return icd.IsReady(sim)
+	}
+	spendGlobe := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+		if !icd.IsReady(sim) || !shaman.WaterShieldAura.IsActive() {
+			return
+		}
+		icd.Use(sim)
+		shaman.WaterShieldAura.RemoveStack(sim)
+		shaman.AddMana(sim, shaman.MaxMana()*waterShieldManaFraction, waterShieldManaMetrics)
+	}
 
 	shaman.WaterShieldAura = shaman.RegisterAura(core.Aura{
 		Label:     "Water Shield",
@@ -67,13 +91,30 @@ func (shaman *Shaman) registerWaterShieldSpell() {
 	}).AttachProcTrigger(core.ProcTrigger{
 		Name:           "Water Shield Trigger",
 		Callback:       core.CallbackOnSpellHitTaken,
-		ICD:            3500 * time.Millisecond,
 		ClassSpellMask: SpellMaskShieldSelfProc,
-		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-			shaman.WaterShieldAura.RemoveStack(sim)
-			shaman.AddMana(sim, shaman.MaxMana()*waterShieldManaFraction, waterShieldManaMetrics)
-		},
+		ExtraCondition: ready,
+		Handler:        spendGlobe,
 	})
+
+	if WaterShieldProcsOnSpellCrits {
+		// "Any critical spell cast by the Shaman": a direct spell hit or heal that crits, the done magic
+		// flags of the row. Melee specials (Stormstrike), weapon imbue procs (Flametongue's is a
+		// SpellDamageProc), Lightning Shield's orbs and the totems' attacks are not spells the shaman
+		// casts, and periodic ticks are not in the row's flags. The row lacks Can Proc From Procs, so
+		// Elemental Overload's copies do not spend a globe either. Fire Nova is left out as Elemental
+		// Devastation leaves it: a totem's effect, not the shaman's (forever-bugs #334).
+		shaman.WaterShieldAura.AttachProcTrigger(core.ProcTrigger{
+			Name:             "Water Shield Spell Crit Trigger",
+			Callback:         core.CallbackOnSpellHitDealt | core.CallbackOnHealDealt,
+			ProcMask:         core.ProcMaskSpellDamage | core.ProcMaskSpellHealing,
+			Outcome:          core.OutcomeCrit,
+			CanProcFromProcs: row.CanProcFromProcs(),
+			ExtraCondition: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
+				return spell.Unit == &shaman.Unit && !spell.Matches(SpellMaskFireNova) && ready(sim, spell, result)
+			},
+			Handler: spendGlobe,
+		})
+	}
 
 	shaman.RegisterSpell(core.SpellConfig{
 		ActionID:    actionID,

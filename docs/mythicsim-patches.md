@@ -3851,3 +3851,49 @@ Drop it when upstream spends Fingers of Frost on impact for the bolts and at cas
 
 A beta report on the same day says Spell Vulnerability takes a target's resistance below zero. The value is
 unknown, so nothing is modelled; it waits for a log or a stated number.
+
+## 145. `shaman: Water Shield spends a globe on the shaman's critical spells`
+
+The 16 October 2026 beta development notes: "Water Shield: Can now trigger from any critical spell cast
+by the Shaman (was only critical heals)". Client 70425's 408510 says the same: ProcFlags 0x362a8 add the
+done magic spell flags, harmful and helpful, to the hits taken, with ProcHint Crit|Heals; 3 globes
+(ProcCharges 3), 3.5 s internal cooldown, 2% of maximum mana a globe (408511, E_ENERGIZE_PCT 2), 10 min,
+15 s cooldown. The engine only spent globes on hits the shaman takes (`SpellMaskShieldSelfProc`, the
+`ShieldProcrate` emulation), so a DPS shaman never spent one. Kerani's Elemental sim on the MythicSim
+Discord (80ea78cd, Water Shield talented and cast): "Water Shield doesn't seem to consume orbs on crits
+yet. It's active whole fight, no recasts and no mana gains".
+
+**Now** `registerWaterShieldSpell` (`sim/shaman/shields.go`) also listens to the shaman's own direct spell
+hits and heals that crit (`ProcMaskSpellDamage | ProcMaskSpellHealing`, `OutcomeCrit`): each spends a globe
+and restores 2% of maximum mana. Both triggers share one 3.5 s cooldown (the row has one). The last globe
+ends the aura, so a rotation must recast it. What counts as "a spell cast by the Shaman": Lightning Bolt,
+Chain Lightning, the shocks, Lava Burst and heals. Not counted: melee specials (Stormstrike), weapon imbue
+procs (Flametongue's hit is a `ProcMaskSpellDamageProc`), Lightning Shield's orbs and totem attacks
+(`ProcMaskEmpty`), periodic ticks (not in the row's flags), Elemental Overload's copies (procs, and the row
+lacks Can Proc From Procs), and Fire Nova, left out as Elemental Devastation leaves it (a totem's effect,
+forever-bugs #334). `WaterShieldProcsOnSpellCrits` (default true); false is the hits-taken trigger alone.
+
+Test (`sim/shaman/elemental/water_shield_test.go`): `TestWaterShieldSpendsGlobesOnSpellCrits` (a shaman with
+Water Shield and 50% crit casting Lightning Bolt gains mana from it and recasts it; Fire Nova spends no
+globe; the switch off restores the old trigger) fails on patch 144 ("restored 0 mana and was cast 1.0
+times a fight"). Goldens: none move (no preset casts Water Shield).
+
+Measured (native `wowsimcli`, MythicSim production default path, 10,000 iterations, board seed, board
+length, references of MythicSim #513). No reference takes Water Shield (Elehance and Enhancement have no
+Restoration points; Elemental has 13), and neither MythicSim's presets nor the engine's APLs cast it, so
+every reference gives its patch 144 DPS. The Elemental reference with one Enhancement point moved to Water
+Shield (`5501331020011351-051-053050001`):
+
+| Elemental variant | Patch 144 | Patch 145 |
+| --- | ---: | ---: |
+| Water Shield talented, preset unchanged (never cast) | | 499.55 |
+| Water Shield before the pull only | | 501.11 (+0.31%, 391 mana) |
+| Before the pull and whenever it is down | 499.54 | 490.49 (-1.81%, 3.37 casts, 1,065 mana) |
+| Before the pull and when down under 60% mana | | 493.51 (-1.21%) |
+
+Recasting costs more in GCDs than the mana buys: the reference is not mana bound at board length (0.1 s out
+of mana). A cast before the pull is free mana.
+
+Downstream: the Rust engine needs the crit trigger before its next repin.
+
+Drop it when upstream lets the shaman's critical spells spend Water Shield's globes.
