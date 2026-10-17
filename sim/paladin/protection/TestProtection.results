@@ -612,8 +612,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 308.30844
-  tps: 350.66027
+  dps: 298.57896
+  tps: 337.72006
   dtps: 1090.96888
  }
 }
