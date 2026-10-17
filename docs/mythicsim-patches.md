@@ -4240,7 +4240,7 @@ unchanged, so Shadow Bolt still leads by 7.2%.
 Downstream: the Rust engine needs it before its next repin. Drop it when upstream applies the bonus to the
 whole hit, or a combat log shows the base-only reading.
 
-### Not patched: Revelation (154 reserved) and Elune's Light
+### Not patched: Revelation (154 reserved; now patch 157) and Elune's Light
 
 - **Revelation** (enchant 8217, 1248805). Client 70425: the equip aura 1248806 is an A_PROC_TRIGGER_SPELL
   on non-periodic spell hits (ProcFlags 0x14000) with no trigger spell, no PPM row and ProcChance 100; the
@@ -4250,7 +4250,8 @@ whole hit, or a combat log shows the base-only reading.
   trigger is diminished as your critical strike chance increases". The buff is clear; the trigger chance
   is the server script's and no row or tooltip states it, so the engine still registers nothing
   (`enchants_auto_gen.go`, "states no rate"). A combat log at a known crit chance (Revelation gains per
-  non-crit non-periodic hit) would give the rate.
+  non-crit non-periodic hit) would give the rate. The logs came on 18 October: patch 157 models it, and 154 stays
+  unused.
 - **Elune's Light** (1259799) is right in the engine: +10% crit with all spells and attacks (A_MOD_CRIT_PCT,
   290) for 15 sec, 3 min, as `racials.go` has it. The Shadow race board showed no change because
   MythicSim's Shadow preset never cast it (it read Shadow Weaving, a target debuff, on the priest); the fix
@@ -4298,3 +4299,95 @@ No MythicSim reference takes Windfury Weapon, so no reference moves.
 
 Downstream: the Rust engine needs it before its next repin. Drop it when upstream registers the
 exclusivity for the swap's weapon.
+
+## 157. `enchants: Revelation triggers its class buff on non-crit spell hits`
+
+Enchant Weapon - Revelation (enchant 8217, 1248805) did nothing in the sim: the generator left it commented
+out (`enchants_auto_gen.go`, "states no rate") because the trigger chance is the server script's. Client
+70425: the equip aura 1248806 is an A_PROC_TRIGGER_SPELL with ProcFlags 0x14000 (non-periodic spell damage
+and heals), ProcChance 100, no PPM row, no trigger spell, and Can Proc From Procs (Attributes[3]
+0x4000000). The buff is the class's own: 1248808 (mage), 1323377 (priest), 1323392 (warlock), 1323400
+(druid), 1323410 (hunter), 1323418 (shaman), 1323419 (paladin); warriors and rogues have none. Each is one
+charge (ProcCharges 1), 15 sec (duration index 8), A_ADD_FLAT_MODIFIER SPELLMOD_CRITICAL_CHANCE 100 on a
+class mask. The masks are the class's non-periodic spells: the mage's leaves out Fireball, Pyroblast and
+Frostfire Bolt, the warlock's Immolate and the dots, the shaman's Flame Shock, the priest's Shadow Word: Pain
+and Holy Fire, the druid's Moonfire and Insect Swarm; channels are on it (Arcane Missiles, Blizzard,
+Hellfire, Rain of Fire, Mind Flay, Hurricane) and so are the spells their ticks cast.
+
+The rate comes from public foreverlogs.gg reports (MythicSim `forever-logs-review-2026-10-18-hunter-mage.md`
+section 2, and `docs/forever-oct18-casters.md` item 2 there): a Frost Mage, a Warlock and a Shaman at levels
+20 to 35, 7.5% to 13% spell crit, 27 reports. 122 of 124 gains match an own non-crit hit within 60 ms.
+
+- **Trigger:** 8.85% per eligible non-crit hit (111 gains in 1443 hits, 95% CI 7.3% to 10.6%). Each target
+  of an area spell rolls on its own (Hellfire casts with 2, 3 and 4+ non-crit targets triggered 5/33, 9/35
+  and 29/65 times against 5.1, 7.7 and 29 expected). The chance is the same for Frostbolt (3 sec cast),
+  Searing Pain (1.5 sec) and Hellfire ticks (1 sec), so it is not a PPM, and it does not fall from 7.5% to
+  13% crit: 7.9% at 7.5%, 10.1% at 11.5%. The tooltip's "diminished as your critical strike chance
+  increases" is then the crit itself (a crit never triggers, so per spell hit it is 8.85% x (1 - crit)).
+  The data cannot tell this from k x (1 - crit) with k = 9.8%: they agree within 2% at these crit levels and
+  give 8.85% against 7.4% at 25% crit. A constant ships.
+- **Eligible:** direct magic damage and heals, including triggered spells (Frostbrand Attack and Lightning
+  Shield trigger it in the logs), and the area channels and burns whose ticks are cast spells in the game
+  (Hellfire's ticks are Hellfire Effect 5857, Flamestrike's burn 1279985; the sim deals both as the spell's
+  own periodic ticks, so a tick of a spell with an area dot and an A_PERIODIC_TRIGGER_SPELL or
+  A_PERIODIC_DUMMY row counts). Not eligible: dot ticks and periodic channels (Curse of Agony 1/294,
+  Corruption 0/48, Drain Life 0/18, Immolate 2/77, Flame Shock 0/88: 3 in 525, the background of a tick
+  landing near another hit), melee, wand, pets, Retribution Aura and Thorns, potions, zero-damage hits.
+- **Probably not eligible: the direct hits of a spell with a dot or hot part** (its client row carries
+  A_PERIODIC_DAMAGE, A_PERIODIC_LEECH or A_PERIODIC_HEAL): Immolate 0/22 and Flame Shock 1/23, 1 in 45
+  against 4 expected (Poisson P(<= 1) about 10%). That matches the class masks, which leave the same spells
+  out, but it is not settled. It takes Fireball, Pyroblast, Frostfire Bolt, Moonfire and Holy Fire off the
+  trigger too.
+- **Spending:** the charge goes on the next cast of a spell the class mask names, after that cast's hit is
+  computed, so that cast gets the +100% (a miss spends it too). Example, report 2785, encounter 10130:
+  Frostbolt non-crit at 5733 ms, Revelation at 5734, the next Frostbolt crits at 8452, the buff falls at
+  8468. The buff comes one batch window after the hit that triggered it, so an instant spell's own hit does
+  not spend what it just gained, and the rest of an area cast's targets do not take it. Triggered spells (a
+  tick, Lightning Overload) do not spend it. Spells off the mask (Fireball) neither take nor spend it.
+- **Channels:** a channel on the mask, cast with Revelation up or gaining it mid-channel, crits on every tick
+  and the buff falls when the channel ends (Hellfire 121 of 121 hits, report 2732; 100/100, report 2736;
+  Blizzard 36/36, report 2785). The buff's own 15 sec still runs: Hellfire's 15 sec channel cast at the gain
+  loses its last tick.
+- Switch `RevelationEnchantModelled` (default true, `sim/common/forever/revelation.go`); false registers
+  nothing, as before. `RevelationTriggerChance` holds the 0.0885. The class masks are written out there: the
+  store does not carry the buff rows. The generated TODO in `enchants_auto_gen.go` stays until the next db
+  run drops it.
+
+Tests (`sim/revelation_enchant_test.go`): `TestRevelationRegistersTheClassBuff` (the buff per class, none for
+a warrior, none without the enchant or with the switch off), `TestRevelationCritFollowsTheClassMask` (+100
+crit on Frostbolt, Fire Blast, Scorch, the Arcane Missiles and Blizzard ticks, Shadow Bolt, Hellfire,
+Lightning Bolt, Mind Blast, Mind Flay, Wrath, Hurricane; none on Fireball, Pyroblast, Immolate, Corruption,
+Flame Shock, Shadow Word: Pain, Holy Fire, Moonfire, Insect Swarm), `TestRevelationTriggersOnNonPeriodicSpellHits`
+(chance 1, crits suppressed: Frostbolt, Scorch, Arcane Explosion, Shadow Bolt, Searing Pain, Hellfire,
+Lightning Bolt and Mind Blast trigger it; Fireball, Immolate, Corruption, Drain Life, Flame Shock and Mind
+Flay do not), `TestRevelationIsSpentByTheNextCast` (a non-crit Fire Blast keeps its gain, Fireball leaves
+it, the next Frostbolt crits and spends it), `TestRevelationHoldsThroughAChannel` (Blizzard on three targets,
+Arcane Missiles, Hellfire on three: every tick crits and the buff falls with the channel), and
+`TestRevelationTriggerRate` (rank 1 Frostbolt, 1,000 x 60 sec: 2653 gains in 30181 non-crit hits, 8.79%,
+and the Frostbolt crit count matches one landed crit per gain). `sim/common/forever/registered_effects.txt`
+gains 8217. Goldens: every class suite gains an `AllItems-EnchantWeapon-Revelation-8217` entry (the
+AllItems sweep equips every registered enchant); no existing entry moves, and no reference equips it.
+
+Measured (native `wowsimcli` with `with_db`, MythicSim's production default path through its request
+harness, empty trinket slots, the reference's main-hand enchant, Enchant 2H Weapon - Spellblasting 7662 at
++65 spell power, swapped for Revelation; board length is 120 sec with 15 sec variation). 3,000 iterations,
+Arcane at 10,000:
+
+| Reference | Board seed, board | Alt seed, board | Board seed, 120 s | Alt seed, 120 s |
+| --- | ---: | ---: | ---: | ---: |
+| Arcane Mage (10,000) | 837.27 to 841.11 (+0.46%) | 835.35 to 840.96 (+0.67%) | 837.83 to 842.65 (+0.58%) | 838.46 to 841.87 (+0.41%) |
+| Fire Mage | 797.3 to 766.9 (-3.81%) | 796.8 to 768.7 (-3.52%) | 798.5 to 767.8 (-3.84%) | 798.4 to 767.9 (-3.82%) |
+| Frost Mage | 671.9 to 664.9 (-1.04%) | 673.5 to 664.2 (-1.38%) | 673.2 to 663.7 (-1.42%) | 673.6 to 664.5 (-1.35%) |
+| Destruction Warlock | 703.7 to 688.2 (-2.21%) | 703.7 to 688.2 (-2.21%) | 693.8 to 679.3 (-2.09%) | 693.7 to 678.2 (-2.23%) |
+| Affliction Warlock | 757.1 to 733.0 (-3.19%) | 755.5 to 731.2 (-3.21%) | 751.5 to 729.0 (-3.00%) | 749.9 to 725.8 (-3.22%) |
+| Elemental Shaman | 501.0 to 486.7 (-2.86%) | 499.9 to 486.6 (-2.66%) | 498.3 to 485.7 (-2.53%) | 498.4 to 485.1 (-2.67%) |
+| Shadow Priest | 752.4 to 732.4 (-2.66%) | 753.0 to 733.3 (-2.61%) | 753.4 to 733.3 (-2.67%) | 753.5 to 733.4 (-2.67%) |
+| Balance Druid | 634.2 to 612.4 (-3.44%) | 632.6 to 612.0 (-3.26%) | 633.7 to 612.8 (-3.30%) | 633.0 to 611.7 (-3.37%) |
+
+Gains a fight at board seed and length: Arcane 7.0, Fire 2.7 (Fireball neither triggers nor takes it),
+Destruction 2.5, Shadow 1.4. Arcane's win rests on the rate: at the CI's ends (10,000,
+board seed and length; alt seed, 120 sec) it is 834.12 and 835.03 at 7.3% (-0.4%) and 848.03 and 848.46 at
+10.6% (+1.3%). Every reference reproduces its current number without the enchant (Arcane 837.27).
+
+Downstream: the Rust engine needs it before its next repin. Drop it when upstream models Revelation, or
+change the rate when a log at level 60 crit shows how it falls with crit.
