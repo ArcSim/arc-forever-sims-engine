@@ -525,6 +525,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBeastMastery-AllItems-EnchantWeapon-Revelation-8217"
+ value: {
+  dps: 421.25059
+  tps: 222.47816
+ }
+}
+dps_results: {
  key: "TestBeastMastery-AllItems-EnergyCloak-9397"
  value: {
   dps: 425.97153

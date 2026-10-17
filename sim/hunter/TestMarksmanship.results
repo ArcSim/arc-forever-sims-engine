@@ -525,6 +525,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestMarksmanship-AllItems-EnchantWeapon-Revelation-8217"
+ value: {
+  dps: 342.48803
+  tps: 201.94684
+ }
+}
+dps_results: {
  key: "TestMarksmanship-AllItems-EnergyCloak-9397"
  value: {
   dps: 345.17137

@@ -505,6 +505,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-EnchantWeapon-Revelation-8217"
+ value: {
+  dps: 168.58897
+  tps: 504.61331
+  dtps: 1626.98713
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-EnergyCloak-9397"
  value: {
   dps: 168.58897

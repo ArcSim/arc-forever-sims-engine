@@ -456,6 +456,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-EnchantWeapon-Revelation-8217"
+ value: {
+  dps: 291.98972
+  tps: 164.23877
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-EnergyCloak-9397"
  value: {
   dps: 292.03676
