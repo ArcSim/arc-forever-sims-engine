@@ -91,6 +91,14 @@ func (warrior *Warrior) registerBattleStanceAura() *core.Aura {
 	return aura
 }
 
+// FlatThreatOnlyInDefensiveStance (MythicSim patch 151) gives the Warrior's abilities their flat
+// bonus threat (Sunder Armor's client E_THREAT, Heroic Strike's, Cleave's, Revenge's, Shield Slam's,
+// Hamstring's, Slam's and the shouts' engine values) only in Defensive Stance; their damage threat is
+// unchanged. Ashreon on the MythicSim Discord (18 October 2026) says the bonus is Defensive Stance
+// only in Forever; the client's only sign is the tank marker aura (668) on Defensive Stance 71, Bear
+// and Dire Bear Form and Righteous Fury from client 70170. Unverified, so off by default.
+var FlatThreatOnlyInDefensiveStance = false
+
 func (warrior *Warrior) registerDefensiveStanceAura() *core.Aura {
 	actionID := core.ActionID{SpellID: defensiveStanceRank.ID}
 
@@ -109,6 +117,14 @@ func (warrior *Warrior) registerDefensiveStanceAura() *core.Aura {
 		&warrior.PseudoStats.DamageDealtMultiplier,
 		spellData.DefensiveStancePassive.Effect(dbcenums.A_MOD_DAMAGE_PERCENT_DONE, 127).MultiplierAt(1),
 	)
+	if FlatThreatOnlyInDefensiveStance {
+		set := func(inStance bool) {
+			warrior.PseudoStats.ClassFlatThreatMultiplier = core.TernaryFloat64(inStance, 1, 0)
+		}
+		set(false)
+		aura.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) { set(true) })
+		aura.ApplyOnExpire(func(_ *core.Aura, _ *core.Simulation) { set(false) })
+	}
 	if warrior.Talents.Defiance > 0 {
 		defiance := spellData.Defiance.Effect(dbcenums.A_MOD_THREAT, 127).MultiplierAt(warrior.Talents.Defiance)
 		applied := false

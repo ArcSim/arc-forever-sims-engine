@@ -4119,3 +4119,55 @@ Retribution, Protection, Ret-prot and Shockadin give patch 148's numbers to the 
 Downstream: the Rust engine needs the exclusion with patch 143's specialization before its next repin.
 
 Drop it when Holy Shock is measured with One-Handed Weapon Specialization (keep it out, or switch it off).
+
+## 151. `warrior: flat bonus threat only in Defensive Stance (switch, off by default)`
+
+Ashreon on the MythicSim Discord (#general, 18 October 2026) says a Warrior's flat bonus threat only applies
+in Defensive Stance in Forever, which matters for Sunder Armor. The wording was not kept and nothing says
+whether it was measured, so the patch is a switch, `FlatThreatOnlyInDefensiveStance` in
+`sim/warrior/stances.go`, **default false**: the engine keeps the flat bonus in every stance until a log or
+a note confirms it.
+
+What the client shows. The flat threat the engine gives Warrior abilities:
+
+| Ability | Flat threat | Source |
+| --- | ---: | --- |
+| Sunder Armor rank 5 (11597) | 206 | client E_THREAT effect 1234496 (34/75/117/158/206 by rank, a Forever addition) |
+| Demoralizing Shout | 43.2 | engine (the client rank 5 carries E_THREAT 43) |
+| Heroic Strike | 173 | engine (Classic rank 9; no E_THREAT effect) |
+| Cleave | 100 | engine |
+| Revenge | 120 | engine (Defensive Stance only anyway) |
+| Shield Slam | 508 | engine |
+| Hamstring | 135 | engine |
+| Slam | 140 | engine |
+| Battle Shout | 0 | client (no E_THREAT effect on rank 7) |
+
+Every one is multiplied by the stance (Battle and Berserker 0.8, Defensive 1.3 and Defiance) and added in
+any stance (`Spell.ThreatFromDamage`). None of the E_THREAT effects has a stance condition, a required aura
+or an attribute that differs from the other effects; the only client sign is aura 668, the tank marker,
+which client 70170 added to Defensive Stance (71), Bear and Dire Bear Form and Righteous Fury
+(`docs/forever-client-70170-matrix.md` in MythicSim). It marks the tank auras but says nothing about what
+the server does with it.
+
+**With the switch on** `PseudoStats.ClassFlatThreatMultiplier` (new in `sim/core/stats`, 1 by default) is
+0 for the Warrior outside Defensive Stance and 1 in it, set on the stance aura's gain and expiry. It scales
+the flat bonus of class abilities only (spells with a `ClassSpellMask`), so item and consumable threat
+(Goblin Sapper, Dense Dynamite and the like) is unchanged, and damage threat is unchanged.
+
+Measured (native `wowsimcli` with `with_db`, the default flipped, MythicSim production default path,
+3,000 iterations, board seed, board length): DPS unchanged everywhere.
+
+| Reference | TPS off | TPS on | Change |
+| --- | ---: | ---: | ---: |
+| arms-warrior (Battle Stance) | 678.87 | 657.13 | -3.2% |
+| warrior (Fury, Berserker Stance) | 794.24 | 774.86 | -2.4% |
+| fury-protection-warrior | 918.07 | 918.03 | 0.0% |
+| protection-warrior (Defensive Stance) | 1068.22 | 1068.22 | 0 |
+
+Tests: `TestFlatThreatOnlyInDefensiveStance` (`sim/warrior/dps/flat_threat_stance_test.go`: Sunder Armor's
+206 is 0 threat in Battle Stance, 206 x the stance multiplier in Defensive Stance and 0 again back in Battle
+Stance; Heroic Strike for 100 keeps its damage threat outside and adds its 173 inside) and
+`TestFlatThreatInEveryStanceByDefault` (switch off). Goldens: none move (the switch is off).
+
+Turn it on (and default it to true) with a log of a Sunder Armor's threat in Battle or Berserker Stance, or
+a note that says so. Downstream: nothing for the Rust engine while the switch is off.
