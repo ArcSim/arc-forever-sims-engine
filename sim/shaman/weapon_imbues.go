@@ -58,6 +58,24 @@ func (shaman *Shaman) setupItemSwapImbue(imbue proto.ShamanImbue, imbueID int32)
 // when only the swap's weapon does, and Flametongue on only the swap's weapon never procs.
 var PerWeaponImbues = true
 
+// WindfuryImbueReplacesTotemAfterSwap (mythicsim patch 156): Windfury Weapon on only the item swap's main
+// hand switches off the party's Windfury Totem once that weapon is in the hand, as it does when the weapon
+// worn at the pull carries it. Before, the exclusivity registered only for the pull's weapon, so with the
+// Manual Crowd Pummeler opener (the Pummeler worn at the pull, the imbued weapon swapped in after it) Windfury
+// Weapon and the totem both procked for the rest of the fight. Until the swap the imbue holds nothing, so
+// the totem keeps procking on the pull's bare weapon. Off, as before.
+var WindfuryImbueReplacesTotemAfterSwap = true
+
+// swapMainHandCarries reports whether the main hand worn once the item swap's set is on carries the
+// temporary enchantment (a swap that leaves the main hand alone keeps the weapon worn at the pull).
+func (shaman *Shaman) swapMainHandCarries(effectID int32) bool {
+	item := shaman.ItemSwap.GetUnequippedItemBySlot(proto.ItemSlot_ItemSlotMainHand)
+	if item == nil || item.ID == 0 {
+		item = shaman.Equipment.GetItemBySlot(proto.ItemSlot_ItemSlotMainHand)
+	}
+	return item != nil && item.TempEnchant == effectID
+}
+
 // swapWeaponCarries reports whether a weapon in the hand once the item swap's set is worn carries the
 // temporary enchantment (a slot the swap leaves alone keeps the weapon worn at the pull).
 func (shaman *Shaman) swapWeaponCarries(effectID int32) bool {
@@ -162,10 +180,18 @@ func (shaman *Shaman) RegisterWindfuryImbue(procMask core.ProcMask) {
 
 	aura := shaman.makeWFProcTriggerAura(dpm, &mask)
 
-	if mask.Matches(core.ProcMaskMeleeMH) {
+	swapMainHand := WindfuryImbueReplacesTotemAfterSwap && shaman.ItemSwap.IsEnabled() &&
+		shaman.swapMainHandCarries(windfuryEnchantID)
+	if mask.Matches(core.ProcMaskMeleeMH) || swapMainHand {
 		aura.NewExclusiveEffect(buffs.WindfuryTotemCategory, false, core.ExclusiveEffect{
 			Priority: shaman.WindfuryAPBonus * 2, // Need to be higher than Windfury Totem priority
 		})
+	}
+	if swapMainHand && !mask.Matches(core.ProcMaskMeleeMH) {
+		// Imbued on the swap's weapon only: the aura (and with it the totem's category) waits for the
+		// swap, which activates it (RegisterOnItemSwapWithImbue). Its strikes need the enchant on the
+		// weapon in the hand anyway (the proc manager's mask), so nothing it did before the swap is lost.
+		aura.OnReset = nil
 	}
 
 	shaman.RegisterOnItemSwapWithImbue(windfuryEnchantID, &mask, aura)
