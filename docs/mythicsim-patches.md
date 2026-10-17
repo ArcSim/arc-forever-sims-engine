@@ -4298,3 +4298,75 @@ No MythicSim reference takes Windfury Weapon, so no reference moves.
 
 Downstream: the Rust engine needs it before its next repin. Drop it when upstream registers the
 exclusivity for the swap's weapon.
+
+## 158. `paladin: Seal of Righteousness takes half the judgement dummy's spell power share (the 16 October fix)`
+
+Blizzard's beta notes of 16 October: "Fixed an issue causing Seal of Righteousness to gain almost twice as
+much benefit from Spell Damage than intended." Patch 148 left the seal's hit on the judgement dummy's
+share (0.20 from rank 4, 0.185 at rank 3, x1.2 on a two-hander) and put the tooltip's 0.0765 / 0.12 behind a
+switch, waiting for a log. MythicSim's log review of 18 October (111 public foreverlogs.gg reports, all from
+before client 70425 and the fix) measured the per-hit share with Judgement of the Crusader rank 3 as a
+probe (+58 Holy taken, the step is multiplier x share x 58): 0.207 (rank 3) and 0.217 (rank 4) on two-handers,
+0.20 to 0.25 on Holy two-handers and 0.18 to 0.21 on one-handers once Improved Seals is divided out. That is
+the engine's dummy share to about 10%, so the dummy is the bugged value the fix halved.
+
+| Seal hit's share | Pre-fix logs | Dummy (patch 148 default) | Patch 158 (half the dummy) | Tooltip (switch) |
+| --- | ---: | ---: | ---: | ---: |
+| Two-hander, rank 4+ | 0.20 to 0.22 | 0.24 | **0.12** | 0.12 |
+| One-hander, rank 4+ | 0.18 to 0.21 | 0.20 | **0.10** | 0.0765 |
+| Rank 3 (one-hander / two-hander) | 0.207 (2H) | 0.185 / 0.222 | 0.0925 / 0.111 | 0.0765 / 0.12 |
+
+Half the dummy is the two-hander's tooltip exactly and the one-hander's logs halved (0.09 to 0.11); the
+one-hander's tooltip, 0.0765, is 15 to 30% under them.
+
+- **Seal of Righteousness spell power fixed** (on). The seal hit's share is the judgement dummy's (x1.2 on a
+  two-hander), halved, at every rank: 0.029 / 0.0348 at rank 1, 0.0625 / 0.075 at rank 2, 0.0925 / 0.111 at
+  rank 3, 0.10 / 0.12 from rank 4 (one-hander / two-hander). `SealOfRighteousnessSpellPowerFixed` (default
+  true), `sim/paladin/seal_of_righteousness.go`; false gives the pre-fix server's dummy share, as before.
+- **The tooltip switch is kept** (off), as the other reading of the fixed one-hander. When
+  `SealOfRighteousnessPerHitTooltipCoefficient` is on it replaces the share at every rank (0.0765 / 0.12) and
+  `SealOfRighteousnessSpellPowerFixed` does nothing; patch 158 applies only while it is off. The two agree on
+  a two-hander from rank 4 and differ by 0.0235 on a one-hander, which a log from after 16 October with a
+  known one-hander and spell power, against one Judgement of the Crusader, settles. Retiring it would drop
+  the only stated post-fix number for the one-hander, so it stays. `SealOfRighteousnessHitCoefficient(dummy,
+  twoHand)` gives the share under both switches.
+- **Rank 1's hit is 25741.** `sealOfRighteousnessProcIDs` gave rank 1 25742. The ladder's rank 1 is 21084, the
+  row that names Judgement of Righteousness rank 1 (20187); 20154, the older Rank 1 row with no judgement,
+  is on no ladder. The client's tooltips label 25742 "Rank 1" and 25741 "Rank 1.5" (the two Rank 1 rows,
+  20154 and 21084 in that order; ranks 2 to 7 are 25740 down to 25735, rank 8 25713), and the logs show a
+  rank 1 seal hitting as 25741 (foreverlogs 2768, Amicus). The proc rows carry no effects in the client data,
+  so nothing else links them. Only the hit's action ID changes (a level 1 to 9 paladin's metrics); no
+  reference casts rank 1.
+
+Tests: `TestSealOfRighteousnessSpellPowerFixedShares` (`sim/paladin/seal_of_righteousness_test.go`, new: every
+rank's dummy share and the hit's with each hand, with the fix off, and the tooltip first with the fix on or
+off) and `TestSealOfRighteousnessRankOneHitID` (rank 1 is 21084, judges as 20187, hits as 25741; ranks 2 to 8
+unchanged). `TestSealOfRighteousnessSpellPowerFixed` (`sim/paladin/retribution/client_70425_sor_test.go`,
+new: 1000 spell power adds half as much a hit as with the switch off, one- and two-hander);
+`TestSealOfRighteousnessPerHitTooltipCoefficient` now compares against the dummy with patch 158 off and checks
+that patch 158 moves nothing while the tooltip switch is on; `TestSealOfRighteousnessBasesAtSpellLevel` reads
+the multiplier off the share in force; `TestSealOfRighteousnessFollowsASwappedWeapon`'s switched-off margin
+is 0.12 against 0.10 (20 a hit before multipliers, was 0.24 against 0.20). Goldens: `TestProtection`
+Average-Default 297.66 to 287.72 (-3.34%), `TestRetribution` 380.64 to 370.77 (-2.59%), `TestHolyPaladin`
+does not move; with `SealOfRighteousnessSpellPowerFixed` false every golden reproduces, so the switch explains
+the whole move.
+
+Measured (native `wowsimcli` with `with_db`, requests from MythicSim main `b9a48acda3` through the worker's
+`BuildRequest`: board seed, board length 120 s, 10,000 iterations, empty trinket slots; the base reproduces
+the `0e457acbc` baselines to the last digit). The move is the seal's hit (25713); nothing else moves more than 0.1 DPS:
+
+| Reference | Weapon | `0e457acbc` | Patch 158 | Change | Tooltip switch instead |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Retribution | Warblade of Caer Darrow (2H) | 867.90 | 808.01 | -6.90% | 808.01 |
+| Protection | Ironfoe (1H) | 678.01 | 629.95 | -7.09% | 618.66 |
+| Ret-prot hybrid | Ironfoe (1H) | 633.37 | 591.23 | -6.65% | 581.33 |
+| Holy-prot hybrid | Hand of Edward the Odd (1H) | 641.99 | 586.22 | -8.69% | 573.12 |
+| Shockadin hybrid | Manual Crowd Pummeler (2H) | 982.78 | 878.23 | -10.64% | 878.23 |
+
+The two-handers give the tooltip column to the last digit (0.12 either way); the last column is patch 148's
+"+ tooltip share". No other class reads the seal.
+
+Downstream: the Rust engine needs the halved share and rank 1's 25741 before its next repin.
+
+Drop the halving when upstream fixes the seal's share or the proc rows carry a coefficient; switch to the
+tooltip's one-hander if a post-fix log gives about 0.077 rather than 0.10.

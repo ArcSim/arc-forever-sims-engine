@@ -7,7 +7,12 @@ import (
 )
 
 // The damage spell each rank fires on a hit. They carry no rank subtext, so no ladder holds them.
-var sealOfRighteousnessProcIDs = map[int32]int32{1: 25742, 2: 25740, 3: 25739, 4: 25738, 5: 25737, 6: 25736, 7: 25735, 8: 25713}
+//
+// Rank 1 is 21084, the row that names Judgement of Righteousness rank 1 (20187), and fires 25741.
+// 25742 belongs to 20154, the older Rank 1 row with no judgement, which no ladder registers: the
+// client's tooltips label 25742 "Rank 1" and 25741 "Rank 1.5" (20154 and 21084 in that order), and
+// the logs show a rank 1 seal hitting as 25741 (foreverlogs 2768, Amicus). MythicSim patch 158.
+var sealOfRighteousnessProcIDs = map[int32]int32{1: 25741, 2: 25740, 3: 25739, 4: 25738, 5: 25737, 6: 25736, 7: 25735, 8: 25713}
 
 // SealOfRighteousnessFollowsSwappedWeapon reads the main hand at each hit for the spell power share,
 // as the base damage already does, so a swap between a two-hander and a one-hander (a Manual Crowd
@@ -37,11 +42,13 @@ var SealOfRighteousnessFollowsSwappedWeapon = true
 // Judgement of the Crusader (20188, +35 Holy taken) was up: +7.4 to +7.8 a hit, where 0.185 gives
 // 6.5. Their Judgement of Righteousness rose 17.9 on the same debuff, the 0.5 it should. Jack's ~3.4
 // two-hander (2670) also hit 25s on top of 16-18, the same step. No one-hander has been logged
-// under the debuff, so a one-hander keeps the bare 0.185 (Ms's 1.7 one-hander fits it).
+// under the debuff, so a one-hander keeps the bare 0.185 (Ms's 1.7 one-hander fits it). Those logs
+// are all from before Blizzard's 16 October fix, so they measure the bugged share; patch 158
+// (SealOfRighteousnessSpellPowerFixed) halves it.
 
 // JudgementOfRighteousnessSpellPowerCoefficient is the judgement's spell power share as measured in
-// game on client 70425 (MythicSim patch 143); the rows carry 0.429. The seal's per-hit share is left
-// on the dummy's number until a log with a known weapon speed settles it.
+// game on client 70425 (MythicSim patch 143); the rows carry 0.429. The seal's per-hit share is the
+// dummy's, halved (SealOfRighteousnessSpellPowerFixed, MythicSim patch 158).
 const JudgementOfRighteousnessSpellPowerCoefficient = 0.70
 
 // SealOfRighteousnessBasesAtSpellLevel reads the judgement's damage and the seal's per-hit value at
@@ -53,18 +60,50 @@ const JudgementOfRighteousnessSpellPowerCoefficient = 0.70
 // (21.6 to 75.2) and 178 (170 to 186). False keeps the per-level gain.
 var SealOfRighteousnessBasesAtSpellLevel = true
 
+// SealOfRighteousnessSpellPowerFixed halves the seal hit's spell power share, Blizzard's 16 October
+// fix: "Fixed an issue causing Seal of Righteousness to gain almost twice as much benefit from Spell
+// Damage than intended" (MythicSim patch 158). Every public log is from before the fix and gives the
+// judgement dummy's share, 0.18 to 0.25 a hit on one- and two-handers (the 18 October log review), so
+// the dummy's number is the bugged one. Half of it is 0.10 a hit from rank 4 with a one-hander (0.0925
+// at rank 3) and 0.12 with a two-hander (the dummy x1.2, halved): the two-hander's tooltip
+// ($<2h> = 0.12) exactly, and the one-hander's logs halved (0.09 to 0.11), where the one-hander's
+// tooltip ($<1h> = 0.0765) is 15-30% under them. False keeps the dummy's share, the pre-fix server.
+var SealOfRighteousnessSpellPowerFixed = true
+
 // SealOfRighteousnessPerHitTooltipCoefficient gives each seal hit the spell power share client
 // 70425's tooltip prints, $<1h> = 0.0765 with a one-hander and $<2h> = 0.12 with a two-hander
-// (SpellDescriptionVariables 1023), in place of the judgement dummy's 0.20 (x1.2 on a two-hander).
-// Blizzard's 16 October note: "Fixed an issue causing Seal of Righteousness to gain almost twice as
-// much benefit from Spell Damage than intended". Ashreon measured 0.07 a hit without a weapon speed
-// (16 October). Off by default (MythicSim patch 148) until a log with a known weapon speed settles it.
+// (SpellDescriptionVariables 1023), at every rank (MythicSim patch 148). When on it replaces both the
+// dummy's share and patch 158's half of it, so SealOfRighteousnessSpellPowerFixed does nothing; the two
+// agree on a two-hander from rank 4 and differ on a one-hander (0.0765 against 0.10). Off by default:
+// it is the other reading of the fixed one-hander until a log from after 16 October settles it.
 var SealOfRighteousnessPerHitTooltipCoefficient = false
 
 const (
 	sealOfRighteousnessTooltipOneHandCoefficient = 0.0765
 	sealOfRighteousnessTooltipTwoHandCoefficient = 0.12
 )
+
+// SealOfRighteousnessHitCoefficient is the seal hit's spell power share under the switches as they
+// stand, from the judgement dummy's coefficient (0.058, 0.125, 0.185 and from rank 4 0.20) and the
+// main hand. The tooltip switch comes first; then the dummy's share, x1.2 on a two-hander, is halved
+// when SealOfRighteousnessSpellPowerFixed is on.
+func SealOfRighteousnessHitCoefficient(dummy float64, twoHand bool) float64 {
+	return sealOfRighteousnessHitCoefficient(dummy, twoHand, SealOfRighteousnessPerHitTooltipCoefficient, SealOfRighteousnessSpellPowerFixed)
+}
+
+func sealOfRighteousnessHitCoefficient(dummy float64, twoHand, tooltip, fixed bool) float64 {
+	if tooltip {
+		return core.TernaryFloat64(twoHand, sealOfRighteousnessTooltipTwoHandCoefficient, sealOfRighteousnessTooltipOneHandCoefficient)
+	}
+	coefficient := dummy
+	if twoHand {
+		coefficient *= 1.2
+	}
+	if fixed {
+		coefficient /= 2
+	}
+	return coefficient
+}
 
 // The level a Seal of Righteousness row is read at.
 func sealOfRighteousnessLevel(e *spelldata.Effect) int32 {
@@ -102,15 +141,10 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 	value := perHit.Average(sealOfRighteousnessLevel(perHit))
 	coefficient := perHit.Coeff()
 	tooltipCoefficient := SealOfRighteousnessPerHitTooltipCoefficient
+	spellPowerFixed := SealOfRighteousnessSpellPowerFixed
 	twoHandCoefficient := func() float64 {
 		twoHand := paladin.GetMainHandType() == proto.HandType_HandTypeTwoHand
-		if tooltipCoefficient {
-			return core.TernaryFloat64(twoHand, sealOfRighteousnessTooltipTwoHandCoefficient, sealOfRighteousnessTooltipOneHandCoefficient)
-		}
-		if twoHand {
-			return coefficient * 1.2
-		}
-		return coefficient
+		return sealOfRighteousnessHitCoefficient(coefficient, twoHand, tooltipCoefficient, spellPowerFixed)
 	}
 	procSpell := paladin.RegisterSpell(core.SpellConfig{
 		ActionID:    core.ActionID{SpellID: sealOfRighteousnessProcIDs[rank.RankNumber()]},
