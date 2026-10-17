@@ -4240,7 +4240,7 @@ unchanged, so Shadow Bolt still leads by 7.2%.
 Downstream: the Rust engine needs it before its next repin. Drop it when upstream applies the bonus to the
 whole hit, or a combat log shows the base-only reading.
 
-### Not patched: Revelation (154 reserved) and Elune's Light (156 reserved)
+### Not patched: Revelation (154 reserved) and Elune's Light
 
 - **Revelation** (enchant 8217, 1248805). Client 70425: the equip aura 1248806 is an A_PROC_TRIGGER_SPELL
   on non-periodic spell hits (ProcFlags 0x14000) with no trigger spell, no PPM row and ProcChance 100; the
@@ -4255,3 +4255,46 @@ whole hit, or a combat log shows the base-only reading.
   290) for 15 sec, 3 min, as `racials.go` has it. The Shadow race board showed no change because
   MythicSim's Shadow preset never cast it (it read Shadow Weaving, a target debuff, on the priest); the fix
   is in MythicSim's rotation adjustments.
+
+## 156. `shaman: Windfury Weapon on the item swap's main hand replaces the party Windfury Totem after the swap`
+
+Found while screening Enhancement weapons for MythicSim (`docs/forever-shaman-oct18.md` there): with the
+Manual Crowd Pummeler opener, Windfury Weapon on the shaman's own weapon simmed about 6% above the
+Rockbiter reference, and 7% below it without the opener. `RegisterWindfuryImbue`
+(`sim/shaman/weapon_imbues.go`) gives the imbue's proc aura the `WindfuryTotemCategory` exclusive effect,
+which is what switches the party's Windfury Totem off for a shaman with the imbue, only
+`if mask.Matches(core.ProcMaskMeleeMH)`, and that mask is the weapon worn at the pull. With the opener the
+pull's weapon is the Pummeler, so the effect never registered and after the swap Windfury Weapon and the
+totem both procked for the rest of the fight.
+
+- The exclusive effect now also registers when the main hand worn once the swap's set is on carries
+  Windfury Weapon (`swapMainHandCarries`). The aura already follows the weapon in the hand at a swap
+  (`RegisterOnItemSwapWithImbue`), so the effect, and the totem's suppression, follow it too.
+- In that case (Windfury on the swap's weapon only) the aura no longer switches itself on at reset: it
+  waits for the swap. Its strikes already needed the enchant on the weapon in the hand (the proc manager's
+  dynamic mask), so nothing it did before the swap is lost, and the totem keeps procking on the pull's
+  bare weapon until then.
+- Switch `WindfuryImbueReplacesTotemAfterSwap` (default true); false registers the effect for the pull's
+  weapon only, as before.
+
+Test: `TestWindfuryOnTheSwapWeaponReplacesTheTotemAfterTheSwap` (`sim/shaman/enhancement/
+windfury_swap_totem_test.go`): with a party Windfury Totem, Windfury on the swap's weapon only leaves the
+totem's trigger on and the imbue off before the swap and the reverse after it; on the pull's weapon only
+the imbue holds the category until the swap (the totem returns at its next drop); on both, the imbue holds
+it throughout; switched off, the totem stays on beside the imbue after the swap. No golden moves (no suite
+swaps onto a Windfury weapon).
+
+Measured (native `wowsimcli` with `with_db`, MythicSim's production default path, board seed and length,
+10,000 iterations, the Enhancement reference with the opener):
+
+| Enhancement | Before | Patch 156 | Change |
+| --- | ---: | ---: | ---: |
+| Reference (Ironbark Staff, Rockbiter) | 732.63 | 732.63 | 0 |
+| Windfury Weapon, Ironbark Staff, opener | 777.29 | 708.09 | -8.9% |
+| Windfury Weapon, Arcanite Reaper, opener | 759.24 | 692.25 | -8.8% |
+| Windfury Weapon, Ironbark Staff, no opener | 688.50 | 688.50 | 0 |
+
+No MythicSim reference takes Windfury Weapon, so no reference moves.
+
+Downstream: the Rust engine needs it before its next repin. Drop it when upstream registers the
+exclusivity for the swap's weapon.
