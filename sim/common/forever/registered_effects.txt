@@ -195,5 +195,6 @@
 7941 Enchant 2H Weapon - Grand Arcanist
 7942 Enchant Weapon - Grand Sorcerer
 8216 Enchant Weapon - Insight
+8217 Enchant Weapon - Revelation
 8220 Enchant Chest - Absorption
 8721 Enchant Weapon - Recovery

@@ -357,6 +357,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-EnchantWeapon-Revelation-8217"
+ value: {
+  dps: 364.82995
+  tps: 171.40048
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-EnergyCloak-9397"
  value: {
   dps: 368.30377
