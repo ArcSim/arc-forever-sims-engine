@@ -78,6 +78,14 @@ message Hunter {
 	message Options {
 		enum Ammo {
 			AmmoNone = 0;
+			RazorArrow = 1;
+			SolidShot = 2;
+			JaggedArrow = 3;
+			AccurateSlugs = 4;
+			MithrilGyroShot = 5;
+			RockshardPellets = 6;
+			IceThreadedArrow = 7;
+			ThoriumHeadedArrow = 8;
 			Doomshot = 9;
 			IceThreadedBullet = 10;
 			ThoriumShells = 11;
@@ -115,6 +123,9 @@ message Hunter {
 			Spider = 15;
 			Tallstrider = 16;
 			Turtle = 17;
+			Fox = 18;
+			CoreHound = 19;
+			BirdOfPrey = 20;
 		}
 		enum PetAttackSpeed {
 			One = 0;
@@ -134,6 +145,56 @@ message Hunter {
 		bool new_raptor_strike = 6;
 		PetAttackSpeed pet_attack_speed = 7;
 		bool lacerating_rollover = 8;
+		// Forever beta bug: every pet hits as hard as a 2.0-speed pet, so fast pets deal extra damage.
+		bool pet_speed_bug = 9;
+		// How a new Mongoose Bite bleed meets the one already ticking (Lacerating Strikes).
+		enum LaceratingMode {
+			LaceratingRefresh = 0;
+			LaceratingStrongest = 1;
+			LaceratingRolling = 2;
+		}
+		LaceratingMode lacerating_mode = 10;
+		// Forever's Windfury and Flametongue Totems are party auras, so a pet in range can get them.
+		bool pet_windfury_totem = 11;
+		bool pet_flametongue_totem = 12;
+		// Extra time before every step into or out of melee (turning, reaction), on top of the walk itself.
+		int32 move_delay_ms = 13;
+		// Abilities the pet does not use; every ability of its family is on by default.
+		enum PetAbility {
+			PetAbilityUnknown = 0;
+			PetAbilityBite = 1;
+			PetAbilityClaw = 2;
+			PetAbilityLightningBreath = 3;
+			PetAbilityScorpidPoison = 4;
+			PetAbilitySavageRend = 5;
+			PetAbilityFuriousHowl = 6;
+			PetAbilityThunderstomp = 7;
+			PetAbilityDismember = 8;
+			PetAbilityPinch = 9;
+			PetAbilityTendonRip = 10;
+			PetAbilityWeb = 11;
+			PetAbilitySwipe = 12;
+			PetAbilityMine = 13;
+			PetAbilityCharge = 14;
+			PetAbilityDemoralizingScreech = 15;
+			PetAbilityLavaBreath = 16;
+			PetAbilityDustCloud = 17;
+			PetAbilityTrickstersDance = 18;
+			PetAbilitySonicBlast = 19;
+		}
+		repeated PetAbility pet_disabled_abilities = 14;
+		// Cats only: Faster Attack rank 0-7 (+17/25/33/43/54/67/100% attack speed).
+		reserved 15; // pet_faster_attack_rank: the attack speed already includes Faster Attack
+		// Explosive Trap's burn also gets the attack power share of its first hit (off: the first hit only).
+		bool explosive_trap_burn_ap = 16;
+		// Forever bug: pressing Auto Shot over and over shortens every Auto Shot after the first.
+		bool auto_shot_spam_bug = 17;
+		// Run speed in yards per second before speed effects; 0 is the game's 7.
+		double run_speed = 18;
+		// Skyborne: Skysight / Read Leyline cast at an elemental convergence or leyline lasts 15 minutes, so it is up the
+		// whole fight; off, it is only cast if the rotation asks for it (30 s on a 2 min cooldown).
+		bool skyborne_convergence = 19;
+		reserved 20; // trap_reach: traps now always reach 6 yd (tested in game)
 	}
 
 	Options options = 2;

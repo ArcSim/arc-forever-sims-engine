@@ -1,66 +1,44 @@
-THIS IS A WOWSIM FORK, I AM NOT AFFILIATED WITH THEM IN ANY WAY. JUST A FUN PERSONAL PROJECT. THE ORIGINAL SIM IS HERE:  https://github.com/wowsims/classic
+# Arc's Forever Sims engine
 
-----------------------------------------------------------------------------------------------------------------------------------------------------------
-INSTRUCTIONS TO DOWNLOAD USING BASH:
+The simulation engine behind [Arc's Forever Sims](https://arcs-forever-sims.pages.dev), a hunter sim for WoW Forever.
+It is a fork of Sanctum's Forever version of the wowsims classic engine (MIT, see LICENSE):
+[compare with Sanctum's](https://github.com/Sanctumx/classic/compare/master...ArcSim:arc-forever-sims-engine:master).
 
-1. INSTALL TOOLS
+- [docs/FOREVER_CHANGES.md](docs/FOREVER_CHANGES.md): every change made for Forever, where it lives in the code, and
+  the assumptions behind it
+- `sim/`: the sim itself, every class (the hunter is the one tuned for Forever so far)
+- `ui/*/apls` and `ui/*/gear_sets`: the rotations and gear sets
+- `builds/`: the settings behind every reference number on the site
+- `assets/database`: the item database, built by `tools/database`
+- `proto/`: the settings and results formats
 
- Git: https://git-scm.com/download/win
+## Check a number
 
- Go 1.23.x (not 1.24+): https://go.dev/dl/ — pick go1.23.x.windows-amd64.msi
+```
+AB_SETTINGS=../../builds/ship_dw_weave.json AB_ITERS=50000 go test --tags=with_db ./sim/hunter/ -run TestForeverSettings -v
+```
 
- Node 20 or 22 LTS, not Node 24: https://nodejs.org/
+prints the DPS for that build (the path is relative to `sim/hunter`). A setup exported from the site (Export, JSON)
+runs the same way.
 
-2. CHECK VERSIONS
+## Build and test
 
- git --version
+Needs Go 1.23 or newer and protoc with protoc-gen-go. Generate the Go code from the protos once:
 
- go version
+```
+protoc -I=./proto --go_out=./sim/core ./proto/*.proto
+```
 
- node -v
+Then:
 
- npm -v
+```
+go test --tags=with_db ./sim/hunter/ -skip TestP1Hunter
+```
 
-Should be Go1.23, node v20 or v22
+`TestP1Hunter` compares against stored results from before the Forever changes, so it is skipped.
 
-3. CLONE REPO
+The WebAssembly build the site runs:
 
- cd ~
-
- git clone https://github.com/Sanctumx/classic.git
-
- cd classic
-
-4. INSTALL DEPENDENCIES
-
- npm install
-
-5. BUILD SIM
-
- make wasm
-
-6. START UI
-
- npx vite --port 8080 --host 127.0.0.1
-
-7. OPEN SIM
-
- http://127.0.0.1:8080/classic/hunter/ in your browser
-
-8. HOW TO UPDATE
-
- cd ~/classic
- 
- git remote set-url origin https://github.com/Sanctumx/classic.git
- 
- git fetch origin
- 
- git checkout master
- 
- git pull origin master
- 
- make wasm
-
-------------------------------------------------------------------------------------------------------------------------------------------
-
-
+```
+GOOS=js GOARCH=wasm go build -o lib.wasm ./sim/wasm/
+```

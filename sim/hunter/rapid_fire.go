@@ -12,18 +12,22 @@ func (hunter *Hunter) registerRapidFire() {
 	}
 
 	actionID := core.ActionID{SpellID: 3045}
-	cooldown := time.Minute * 5
+	// Forever: Rapid Killing (415405) takes 2 min off at 2/2 (the data stores the max-rank value).
+	cooldown := time.Minute*5 - time.Minute*time.Duration(hunter.Talents.RapidKilling)
 
 	hunter.RapidFireAura = hunter.RegisterAura(core.Aura{
 		Label:    "Rapid Fire",
 		ActionID: actionID,
 		Duration: time.Second * 15,
 
+		// Forever Rapid Fire: +40% ranged and +40% melee attack speed (effects 1 and 4).
 		OnGain: func(aura *core.Aura, sim *core.Simulation) {
 			aura.Unit.MultiplyRangedSpeed(sim, 1.4)
+			aura.Unit.MultiplyMeleeSpeed(sim, 1.4)
 		},
 		OnExpire: func(aura *core.Aura, sim *core.Simulation) {
 			aura.Unit.MultiplyRangedSpeed(sim, 1/1.4)
+			aura.Unit.MultiplyMeleeSpeed(sim, 1/1.4)
 		},
 	})
 

@@ -181,26 +181,23 @@ func init() {
 			Duration: core.NeverExpires,
 
 			OnGain: func(aura *core.Aura, sim *core.Simulation) {
-				if hunter.pet.focusDump != nil {
-					hunter.pet.focusDump.BonusCritRating += 100
-				}
-				if hunter.pet.specialAbility != nil {
-					hunter.pet.specialAbility.BonusCritRating += 100
+				for _, pa := range hunter.pet.abilities {
+					pa.spell.BonusCritRating += 100
 				}
 				trackingAura.Activate(sim)
 			},
 			OnExpire: func(aura *core.Aura, sim *core.Simulation) {
-				if hunter.pet.focusDump != nil {
-					hunter.pet.focusDump.BonusCritRating -= 100
-				}
-				if hunter.pet.specialAbility != nil {
-					hunter.pet.specialAbility.BonusCritRating -= 100
+				for _, pa := range hunter.pet.abilities {
+					pa.spell.BonusCritRating -= 100
 				}
 				trackingAura.Deactivate(sim)
 			},
 			OnSpellHitDealt: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-				if spell == hunter.pet.focusDump || spell == hunter.pet.specialAbility {
-					aura.Deactivate(sim)
+				for _, pa := range hunter.pet.abilities {
+					if spell == pa.spell {
+						aura.Deactivate(sim)
+						return
+					}
 				}
 			},
 		})

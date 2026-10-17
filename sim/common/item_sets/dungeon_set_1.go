@@ -9,79 +9,57 @@ import (
 
 //We can place these in the class items_sets_pve.go if wanted.
 
+// Forever's Dungeon Set 1 has bonuses at 2-6 pieces. Left out: the 4-piece when-struck effects and the caster 5-piece
+// procs, which do nothing for a hunter's damage.
+
 var ItemSetWildheartRaiment = core.NewItemSet(core.ItemSet{
 	Name: "Wildheart Raiment",
 	Bonuses: map[int32]core.ApplyEffect{
-		// +200 Armor.
+		// +8 All Resistances.
 		2: func(agent core.Agent) {
 			c := agent.GetCharacter()
-			c.AddStat(stats.Armor, 200)
+			c.AddResistances(8)
 		},
-		// +26 Attack Power,increases damage and healing done by magical spells and effects by up to 15.
-		4: func(agent core.Agent) {
+		// +30 Attack Power, and damage and healing done by magical spells and effects up to 18.
+		3: func(agent core.Agent) {
 			c := agent.GetCharacter()
 			c.AddStats(stats.Stats{
-				stats.AttackPower:       26,
-				stats.RangedAttackPower: 26,
-				stats.SpellDamage:       15,
-				stats.HealingPower:      15,
+				stats.AttackPower:       30,
+				stats.RangedAttackPower: 30,
+				stats.SpellDamage:       18,
+				stats.HealingPower:      18,
 			})
 		},
-		// When struck in combat has a chance of returning 300 mana, 10 rage, or 40 energy to the wearer.
+		// Restores 8 mana per 5 sec.
 		6: func(agent core.Agent) {
 			c := agent.GetCharacter()
-			actionID := core.ActionID{SpellID: 27781}
-			manaMetrics := c.NewManaMetrics(actionID)
-			energyMetrics := c.NewEnergyMetrics(actionID)
-			rageMetrics := c.NewRageMetrics(actionID)
-
-			core.MakeProcTriggerAura(&c.Unit, core.ProcTrigger{
-				ActionID:   actionID,
-				Name:       "Nature's Bounty",
-				Callback:   core.CallbackOnSpellHitTaken,
-				ProcMask:   core.ProcMaskMelee,
-				ProcChance: 0.02,
-				Handler: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
-					if c.HasManaBar() {
-						c.AddMana(sim, 300, manaMetrics)
-					}
-					if c.HasEnergyBar() {
-						c.AddEnergy(sim, 40, energyMetrics)
-					}
-					if c.HasRageBar() {
-						c.AddRage(sim, 10, rageMetrics)
-					}
-				},
-			})
-		},
-		// +8 All Resistances.
-		8: func(agent core.Agent) {
-			c := agent.GetCharacter()
-			c.AddResistances(8)
+			c.AddStat(stats.MP5, 8)
 		},
 	},
 })
 
+// Forever's Dungeon Set 1 bonuses are at 2-6 pieces (the 3-piece attack power is reported not to
+// apply in game; the sim follows the client data).
 var ItemSetBeaststalkerArmor = core.NewItemSet(core.ItemSet{
 	Name: "Beaststalker Armor",
 	Bonuses: map[int32]core.ApplyEffect{
-		// +200 Armor.
+		// +8 All Resistances.
 		2: func(agent core.Agent) {
 			c := agent.GetCharacter()
-			c.AddStat(stats.Armor, 200)
+			c.AddResistances(8)
 		},
-		// +40 Attack Power.
-		4: func(agent core.Agent) {
+		// +30 Attack Power.
+		3: func(agent core.Agent) {
 			c := agent.GetCharacter()
 			c.AddStats(stats.Stats{
-				stats.AttackPower:       40,
-				stats.RangedAttackPower: 40,
+				stats.AttackPower:       30,
+				stats.RangedAttackPower: 30,
 			})
 		},
-		// Your normal ranged attacks have a 4% chance of restoring 200 mana.
-		6: func(agent core.Agent) {
+		// Your melee and ranged autoattacks have a 5% chance to energize you for 200 mana.
+		5: func(agent core.Agent) {
 			c := agent.GetCharacter()
-			actionID := core.ActionID{SpellID: 27785}
+			actionID := core.ActionID{SpellID: 450577}
 			manaMetrics := c.NewManaMetrics(actionID)
 
 			core.MakeProcTriggerAura(&c.Unit, core.ProcTrigger{
@@ -90,7 +68,7 @@ var ItemSetBeaststalkerArmor = core.NewItemSet(core.ItemSet{
 				Callback:   core.CallbackOnSpellHitDealt,
 				Outcome:    core.OutcomeLanded,
 				ProcMask:   core.ProcMaskWhiteHit,
-				ProcChance: 0.04,
+				ProcChance: 0.05,
 				Handler: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
 					if c.HasManaBar() {
 						c.AddMana(sim, 200, manaMetrics)
@@ -98,10 +76,10 @@ var ItemSetBeaststalkerArmor = core.NewItemSet(core.ItemSet{
 				},
 			})
 		},
-		// +8 All Resistances.
-		8: func(agent core.Agent) {
+		// Restores 8 mana per 5 sec.
+		6: func(agent core.Agent) {
 			c := agent.GetCharacter()
-			c.AddResistances(8)
+			c.AddStat(stats.MP5, 8)
 		},
 	},
 })
@@ -109,24 +87,23 @@ var ItemSetBeaststalkerArmor = core.NewItemSet(core.ItemSet{
 var ItemSetMagistersRegalia = core.NewItemSet(core.ItemSet{
 	Name: "Magister's Regalia",
 	Bonuses: map[int32]core.ApplyEffect{
-		// +200 Armor.
+		// +8 All Resistances.
 		2: func(agent core.Agent) {
 			c := agent.GetCharacter()
-			c.AddStat(stats.Armor, 200)
-		},
-		// Increases damage and healing done by magical spells and effects by up to 23.
-		4: func(agent core.Agent) {
-			c := agent.GetCharacter()
-			c.AddStat(stats.SpellPower, 23)
-		},
-		// When struck in combat has a chance of freezing the attacker in place for 3 sec.
-		6: func(agent core.Agent) {
-			// No implementation in sim
-		},
-		// +8 All Resistances.
-		8: func(agent core.Agent) {
-			c := agent.GetCharacter()
 			c.AddResistances(8)
+		},
+		// Increases damage and healing done by magical spells and effects by up to 18.
+		3: func(agent core.Agent) {
+			c := agent.GetCharacter()
+			c.AddStats(stats.Stats{
+				stats.SpellDamage:  18,
+				stats.HealingPower: 18,
+			})
+		},
+		// Restores 8 mana per 5 sec.
+		6: func(agent core.Agent) {
+			c := agent.GetCharacter()
+			c.AddStat(stats.MP5, 8)
 		},
 	},
 })
@@ -178,24 +155,23 @@ var ItemSetLightforgeArmor = core.NewItemSet(core.ItemSet{
 var ItemSetVestmentsOfTheDevout = core.NewItemSet(core.ItemSet{
 	Name: "Vestments of the Devout",
 	Bonuses: map[int32]core.ApplyEffect{
-		// +200 Armor.
+		// +8 All Resistances.
 		2: func(agent core.Agent) {
 			c := agent.GetCharacter()
-			c.AddStat(stats.Armor, 200)
-		},
-		// Increases damage and healing done by magical spells and effects by up to 23.
-		4: func(agent core.Agent) {
-			c := agent.GetCharacter()
-			c.AddStat(stats.SpellPower, 23)
-		},
-		// 6 pieces: When struck in combat has a chance of shielding the wearer in a protective shield which will absorb 350 damage.
-		6: func(agent core.Agent) {
-			//No use case in Classic Sim
-		},
-		// +8 All Resistances.
-		8: func(agent core.Agent) {
-			c := agent.GetCharacter()
 			c.AddResistances(8)
+		},
+		// Increases damage and healing done by magical spells and effects by up to 18.
+		3: func(agent core.Agent) {
+			c := agent.GetCharacter()
+			c.AddStats(stats.Stats{
+				stats.SpellDamage:  18,
+				stats.HealingPower: 18,
+			})
+		},
+		// Restores 8 mana per 5 sec.
+		6: func(agent core.Agent) {
+			c := agent.GetCharacter()
+			c.AddStat(stats.MP5, 8)
 		},
 	},
 })
@@ -203,21 +179,21 @@ var ItemSetVestmentsOfTheDevout = core.NewItemSet(core.ItemSet{
 var ItemSetShadowcraftArmor = core.NewItemSet(core.ItemSet{
 	Name: "Shadowcraft Armor",
 	Bonuses: map[int32]core.ApplyEffect{
-		// +200 Armor.
+		// +8 All Resistances.
 		2: func(agent core.Agent) {
 			c := agent.GetCharacter()
-			c.AddStat(stats.Armor, 200)
+			c.AddResistances(8)
 		},
-		// +40 Attack Power.
-		4: func(agent core.Agent) {
+		// +30 Attack Power.
+		3: func(agent core.Agent) {
 			c := agent.GetCharacter()
 			c.AddStats(stats.Stats{
-				stats.AttackPower:       40,
-				stats.RangedAttackPower: 40,
+				stats.AttackPower:       30,
+				stats.RangedAttackPower: 30,
 			})
 		},
 		// Chance on melee attack to restore 35 energy.
-		6: func(agent core.Agent) {
+		5: func(agent core.Agent) {
 			c := agent.GetCharacter()
 			actionID := core.ActionID{SpellID: 27787}
 			energyMetrics := c.NewEnergyMetrics(actionID)
@@ -236,53 +212,29 @@ var ItemSetShadowcraftArmor = core.NewItemSet(core.ItemSet{
 				},
 			})
 		},
-		// +8 All Resistances.
-		8: func(agent core.Agent) {
-			c := agent.GetCharacter()
-			c.AddResistances(8)
-		},
 	},
 })
 
 var ItemSetTheElements = core.NewItemSet(core.ItemSet{
 	Name: "The Elements",
 	Bonuses: map[int32]core.ApplyEffect{
-		// +200 Armor.
+		// +8 All Resistances.
 		2: func(agent core.Agent) {
 			c := agent.GetCharacter()
-			c.AddStat(stats.Armor, 200)
+			c.AddResistances(8)
 		},
-		// Increases damage and healing done by magical spells and effects by up to 23.
-		4: func(agent core.Agent) {
+		// Increases damage and healing done by magical spells and effects by up to 18.
+		3: func(agent core.Agent) {
 			c := agent.GetCharacter()
 			c.AddStats(stats.Stats{
-				stats.SpellDamage:  23,
-				stats.HealingPower: 23,
+				stats.SpellDamage:  18,
+				stats.HealingPower: 18,
 			})
 		},
-		// Chance on spell cast to increase your damage and healing by up to 95 for 10 sec.
+		// Restores 8 mana per 5 sec.
 		6: func(agent core.Agent) {
 			c := agent.GetCharacter()
-			actionID := core.ActionID{SpellID: 27774}
-
-			procAura := c.NewTemporaryStatsAura("The Furious Storm", core.ActionID{SpellID: 27774}, stats.Stats{stats.SpellPower: 95}, time.Second*10)
-			handler := func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
-				procAura.Activate(sim)
-			}
-
-			core.MakeProcTriggerAura(&c.Unit, core.ProcTrigger{
-				ActionID:   actionID,
-				Name:       "Item - The Furious Storm Proc",
-				Callback:   core.CallbackOnCastComplete,
-				ProcMask:   core.ProcMaskSpellDamage | core.ProcMaskSpellHealing,
-				ProcChance: 0.04,
-				Handler:    handler,
-			})
-		},
-		// +8 All Resistances.
-		8: func(agent core.Agent) {
-			c := agent.GetCharacter()
-			c.AddResistances(8)
+			c.AddStat(stats.MP5, 8)
 		},
 	},
 })
@@ -290,24 +242,23 @@ var ItemSetTheElements = core.NewItemSet(core.ItemSet{
 var ItemSetDreadmistRaiment = core.NewItemSet(core.ItemSet{
 	Name: "Dreadmist Raiment",
 	Bonuses: map[int32]core.ApplyEffect{
-		// +200 Armor.
+		// +8 All Resistances.
 		2: func(agent core.Agent) {
 			c := agent.GetCharacter()
-			c.AddStat(stats.Armor, 200)
-		},
-		// Increases damage and healing done by magical spells and effects by up to 23.
-		4: func(agent core.Agent) {
-			c := agent.GetCharacter()
-			c.AddStat(stats.SpellPower, 23)
-		},
-		// When struck in combat has a chance of causing the attacker to flee in terror for 2 seconds.
-		6: func(agent core.Agent) {
-			//No use case in Classic Sim
-		},
-		// +8 All Resistances.
-		8: func(agent core.Agent) {
-			c := agent.GetCharacter()
 			c.AddResistances(8)
+		},
+		// Increases damage and healing done by magical spells and effects by up to 18.
+		3: func(agent core.Agent) {
+			c := agent.GetCharacter()
+			c.AddStats(stats.Stats{
+				stats.SpellDamage:  18,
+				stats.HealingPower: 18,
+			})
+		},
+		// Restores 8 mana per 5 sec.
+		6: func(agent core.Agent) {
+			c := agent.GetCharacter()
+			c.AddStat(stats.MP5, 8)
 		},
 	},
 })

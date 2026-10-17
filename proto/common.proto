@@ -36,6 +36,8 @@ enum Race {
 	RaceTauren = 6;
 	RaceTroll = 7;
 	RaceUndead = 8;
+	RaceSkyborneAlliance = 9;
+	RaceSkyborneHorde = 10;
 }
 
 enum Faction {
@@ -320,6 +322,12 @@ enum Explosive {
 	ExplosiveDenseDynamite = 2;
 	ExplosiveThoriumGrenade = 3;
 	ExplosiveGoblinLandMine = 4;
+	ExplosiveDarkIronBomb = 5;
+	ExplosiveEzThroDarkBomb = 6;
+	ExplosiveEzThroThoriumGrenade = 7;
+	ExplosiveSafTCleverDynamite = 8;
+	ExplosiveCrystalCharge = 9;
+	ExplosiveHolyHandGrenade = 10;
 }
 
 // NextIndex: 28
@@ -380,6 +388,10 @@ enum Flask {
 	FlaskOfDistilledWisdom = 2;
 	FlaskOfSupremePower = 3;
 	FlaskOfChromaticResistance = 4;
+	FlaskOfNaturalAccuracy = 5;
+	FlaskOfNaturalAggression = 6;
+	FlaskOfNaturalPrecision = 7;
+	FlaskOfNaturalSwiftness = 8;
 }
 
 enum Alcohol {
@@ -398,6 +410,8 @@ enum AgilityElixir {
 	ElixirOfLesserAgility = 3;
 	ScrollOfAgility = 4;
 	ElixirOfAgility = 5;
+	ElixirOfCunning = 6;
+	ElixirOfFerocity = 7;
 }
 
 enum ArmorElixir {
@@ -426,6 +440,7 @@ enum StrengthBuff {
 	ElixirOfGiants = 2;
 	ElixirOfOgresStrength = 3;
 	ScrollOfStrength = 4;
+	ElixirOfTheGrizzly = 5;
 }
 
 enum AttackPowerBuff {
@@ -548,6 +563,9 @@ enum Food {
 	FoodTenderWolfSteak = 9;
 	FoodSmokedSagefish = 10;
 	FoodSagefishDelight = 11;
+	FoodFlankAuPoivre = 12;
+	FoodSavoryTurtleStew = 13;
+	FoodBrinySeafoodStew = 14;
 }
 
 enum SaygesFortune {
@@ -625,6 +643,8 @@ message RaidBuffs {
 	bool sanctity_aura = 33;
 	int32 battle_squawk = 34;
 	bool windfury_totem = 40;
+	// Forever: a party aura, every main-hand white hit deals extra fire damage
+	bool flametongue_totem = 41;
 }
 
 // Buffs that affect a single party.
@@ -818,6 +838,10 @@ message Encounter {
 
 	// If type != Simple or Custom, then this may be empty.
 	repeated Target targets = 6;
+
+	// Forever: the fight is not in Mount Hyjal, Hyjal Summit or the Barrow Deeps, so the Natural flasks give only their
+	// Stamina. Unset (the default) counts the fight as there.
+	bool outside_hyjal = 8;
 }
 
 message PresetTarget {

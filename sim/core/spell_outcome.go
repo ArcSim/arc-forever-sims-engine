@@ -982,7 +982,7 @@ func (spell *Spell) CritMultiplier(at *AttackTable) float64 {
 	case DefenseTypeNone:
 		panic(fmt.Sprintf("using CritMultiplier() for spellID %d which has no DefenseType", spell.SpellID))
 	case DefenseTypeMagic:
-		return 1 + (1.5*at.CritMultiplier-1)*spell.CritDamageBonus
+		return 1 + (1.5*at.CritMultiplier*at.Attacker.PseudoStats.SpellCritMultiplier-1)*spell.CritDamageBonus
 	default:
 		return 1 + (2.0*at.CritMultiplier*at.Attacker.PseudoStats.MeleeCritMultiplier-1)*spell.CritDamageBonus
 	}

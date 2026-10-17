@@ -11,7 +11,8 @@ const ArcaneShotAPCoeff = 0.15
 
 func (hunter *Hunter) getArcaneShotConfig(rank int, timer *core.Timer) core.SpellConfig {
 	spellId := [9]int32{0, 3044, 14281, 14282, 14283, 14284, 14285, 14286, 14287}[rank]
-	baseDamage := [9]float64{0, 20, 30, 45, 70, 100, 135, 175, 217}[rank]
+	// Forever client data (ranks 2-7 are lower than Classic)
+	baseDamage := [9]float64{0, 20, 26, 39, 65, 94, 134, 170, 217}[rank]
 	manaCost := [9]float64{0, 25, 35, 50, 80, 105, 135, 160, 190}[rank]
 	level := [9]int{0, 6, 12, 20, 28, 36, 44, 52, 60}[rank]
 

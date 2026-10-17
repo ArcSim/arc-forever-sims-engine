@@ -251,6 +251,16 @@ func init() {
 		w.BaseDamageMax += 5
 	})
 
+	// 2H Weapon - Impact: Forever has its own effect id, at +6
+	core.AddWeaponEffect(8205, func(agent core.Agent, slot proto.ItemSlot) {
+		w := agent.GetCharacter().AutoAttacks.MH()
+		if slot == proto.ItemSlot_ItemSlotOffHand {
+			w = agent.GetCharacter().AutoAttacks.OH()
+		}
+		w.BaseDamageMin += 6
+		w.BaseDamageMax += 6
+	})
+
 	// Weapon - Lifestealing
 	core.AddWeaponEffect(1898, func(agent core.Agent, slot proto.ItemSlot) {
 		character := agent.GetCharacter()
@@ -330,6 +340,44 @@ func init() {
 
 		character.ItemSwap.RegisterOnSwapItemForEffectWithPPMManager(1900, 1.0, &ppmm, aura)
 	})
+
+	// Grand Crusader (one-hand) and Grand Inquisitor (two-hand) are Forever's stronger Crusaders. The client carries no
+	// proc rate for them, so they keep Crusader's 1 PPM.
+	newGrandCrusaderEffect := func(effectID int32, label string, spellID int32, strength float64) {
+		core.NewEnchantEffect(effectID, func(agent core.Agent) {
+			character := agent.GetCharacter()
+
+			procMask := character.GetProcMaskForEnchant(effectID)
+			ppmm := character.AutoAttacks.NewPPMManager(1.0, procMask)
+
+			mhAura := character.NewTemporaryStatsAura(label+" MH", core.ActionID{SpellID: spellID, Tag: 1}, stats.Stats{stats.Strength: strength}, time.Second*20)
+			ohAura := character.NewTemporaryStatsAura(label+" OH", core.ActionID{SpellID: spellID, Tag: 2}, stats.Stats{stats.Strength: strength}, time.Second*20)
+
+			aura := character.GetOrRegisterAura(core.Aura{
+				Label:    label + " Enchant",
+				Duration: core.NeverExpires,
+				OnReset: func(aura *core.Aura, sim *core.Simulation) {
+					aura.Activate(sim)
+				},
+				OnSpellHitDealt: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+					if !result.Landed() || spell.Flags.Matches(core.SpellFlagSuppressWeaponProcs) {
+						return
+					}
+					if ppmm.Proc(sim, spell.ProcMask, label) {
+						if spell.IsMH() {
+							mhAura.Activate(sim)
+						} else {
+							ohAura.Activate(sim)
+						}
+					}
+				},
+			})
+
+			character.ItemSwap.RegisterOnSwapItemForEffectWithPPMManager(effectID, 1.0, &ppmm, aura)
+		})
+	}
+	newGrandCrusaderEffect(7940, "Grand Crusader", 1231124, 120)
+	newGrandCrusaderEffect(7943, "Grand Inquisitor", 1232169, 200)
 
 	// Biznicks 247x128 Accurascope
 	core.AddWeaponEffect(2523, func(agent core.Agent, _ proto.ItemSlot) {

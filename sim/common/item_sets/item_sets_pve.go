@@ -90,26 +90,68 @@ var ItemSetThePostmaster = core.NewItemSet(core.ItemSet{
 var ItemSetCadaverousGarb = core.NewItemSet(core.ItemSet{
 	Name: "Cadaverous Garb",
 	Bonuses: map[int32]core.ApplyEffect{
-		// Increased Defense +3.
-		2: func(agent core.Agent) {
-			character := agent.GetCharacter()
-			character.AddStat(stats.Defense, 3)
-		},
 		// +10 Attack Power.
 		3: func(agent core.Agent) {
 			character := agent.GetCharacter()
 			character.AddStat(stats.AttackPower, 10)
 			character.AddStat(stats.RangedAttackPower, 10)
 		},
-		// +15 All Resistances.
+		// +5 All Resistances.
 		4: func(agent core.Agent) {
 			character := agent.GetCharacter()
-			character.AddResistances(15)
+			character.AddResistances(5)
 		},
 		// Improves your chance to hit by 2%.
 		5: func(agent core.Agent) {
 			character := agent.GetCharacter()
-			character.AddStat(stats.MeleeHit, 2)
+			character.AddStat(stats.MeleeHit, 2*core.MeleeHitRatingPerHitChance)
+			character.AddStat(stats.SpellHit, 2*core.SpellHitRatingPerHitChance)
+		},
+	},
+})
+
+// Forever's Savage Gladiator set bonuses. The client has no rate for Roar of the Crowd's chance on hit, so it uses
+// 1 PPM like other chance-on-hit attack procs (the doubled chance with no allies near never applies in a raid).
+var ItemSetTheGladiator = core.NewItemSet(core.ItemSet{
+	Name: "The Gladiator",
+	Bonuses: map[int32]core.ApplyEffect{
+		// +20 Attack Power.
+		3: func(agent core.Agent) {
+			character := agent.GetCharacter()
+			character.AddStat(stats.AttackPower, 20)
+			character.AddStat(stats.RangedAttackPower, 20)
+		},
+		// Chance on hit to gain 5% attack speed for 10 sec.
+		4: func(agent core.Agent) {
+			character := agent.GetCharacter()
+			buff := character.RegisterAura(core.Aura{
+				Label:    "Roar of the Crowd",
+				ActionID: core.ActionID{SpellID: 1301124},
+				Duration: time.Second * 10,
+				OnGain: func(aura *core.Aura, sim *core.Simulation) {
+					character.MultiplyMeleeSpeed(sim, 1.05)
+				},
+				OnExpire: func(aura *core.Aura, sim *core.Simulation) {
+					character.MultiplyMeleeSpeed(sim, 1/1.05)
+				},
+			})
+			core.MakeProcTriggerAura(&character.Unit, core.ProcTrigger{
+				ActionID: core.ActionID{SpellID: 1301123},
+				Name:     "Roar of the Crowd Trigger",
+				Callback: core.CallbackOnSpellHitDealt,
+				Outcome:  core.OutcomeLanded,
+				ProcMask: core.ProcMaskMelee,
+				PPM:      1,
+				Handler: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
+					buff.Activate(sim)
+				},
+			})
+		},
+		// Improves your chance to get a critical strike by 1%.
+		5: func(agent core.Agent) {
+			character := agent.GetCharacter()
+			character.AddStat(stats.MeleeCrit, 1*core.CritRatingPerCritChance)
+			character.AddStat(stats.SpellCrit, 1*core.SpellCritRatingPerCritChance)
 		},
 	},
 })

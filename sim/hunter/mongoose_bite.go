@@ -73,6 +73,10 @@ func (hunter *Hunter) registerMongooseBiteSpell() {
 		core.MakePermanent(hunter.RegisterAura(core.Aura{
 			Label: "Expose Prey",
 			OnSpellHitDealt: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+				// the hunter's own melee and ranged attacks only (not the hawk's swings or traps)
+				if !spell.ProcMask.Matches(core.ProcMaskMeleeOrRanged) || spell.ActionID == (core.ActionID{SpellID: 1293241}.WithTag(1)) {
+					return
+				}
 				if !result.Landed() || sim.RandomFloat("Expose Prey") >= procChance {
 					return
 				}

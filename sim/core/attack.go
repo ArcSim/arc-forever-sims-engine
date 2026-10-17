@@ -1,6 +1,7 @@
 package core
 
 import (
+	"os"
 	"slices"
 	"time"
 
@@ -122,8 +123,16 @@ func (weapon *Weapon) CalculateAverageWeaponDamage(attackPower float64) float64 
 	return weapon.AverageDamage() + (weapon.SwingSpeed*attackPower)/weapon.AttackPowerPerDPS
 }
 
+// Normalized instants (Strider Kick, Mongoose Bite): Forever logs (Zealot Blade 2.8 vs
+// Electrocutioner Leg 1.7, 30 Strider Kicks) show the slow weapon keeps its real speed while the fast
+// one is lifted to the normalized value, i.e. the higher of the two. Knob AB_NORM_MAX=0 restores
+// the plain normalized constant.
 func (weapon *Weapon) CalculateNormalizedWeaponDamage(sim *Simulation, attackPower float64) float64 {
-	return weapon.BaseDamage(sim) + (weapon.NormalizedSwingSpeed*attackPower)/weapon.AttackPowerPerDPS
+	speed := weapon.NormalizedSwingSpeed
+	if os.Getenv("AB_NORM_MAX") != "0" {
+		speed = max(speed, weapon.SwingSpeed)
+	}
+	return weapon.BaseDamage(sim) + (speed*attackPower)/weapon.AttackPowerPerDPS
 }
 
 func (unit *Unit) MHWeaponDamage(sim *Simulation, attackPower float64) float64 {
@@ -246,6 +255,9 @@ type WeaponAttack struct {
 
 	swingAt             time.Duration
 	lastSwingAt         time.Duration
+	// when the running timer is ready with nothing in the way (walking, the stand-still wait, the off-hand wait): the
+	// timeline draws the timer up to here and any time after it that the weapon sat ready
+	readyAt time.Duration
 	extraAttacks        int32 // extra attacks that happen right away
 	extraAttacksStored  int32 // extra attack that happen on next auto (e.g reckoning)
 	extraAttacksPending int32 // extraAttacks prior to previous ones resolving for spell metrics
@@ -262,6 +274,34 @@ func (wa *WeaponAttack) getWeapon() *Weapon {
 func (wa *WeaponAttack) setWeapon(weapon Weapon) {
 	wa.Weapon = weapon
 	wa.updateSwingDuration(wa.curSwingSpeed)
+}
+
+// startTimer starts a timer cycle now, ready at readyAt.
+func (wa *WeaponAttack) startTimer(sim *Simulation, readyAt time.Duration) {
+	wa.readyAt = readyAt
+	if sim.Log != nil && wa.spell != nil {
+		wa.unit.Log(sim, "Swing timer %s started, ready at %.3fs", wa.timerID(), readyAt.Seconds())
+	}
+}
+
+// moveReadyAt moves the running timer's ready time (an attack speed change).
+func (wa *WeaponAttack) moveReadyAt(sim *Simulation, readyAt time.Duration) {
+	wa.readyAt = readyAt
+	if sim.Log != nil && wa.spell != nil {
+		wa.unit.Log(sim, "Swing timer %s ready at %.3fs", wa.timerID(), readyAt.Seconds())
+	}
+}
+
+// timerID names the weapon in the log whatever metrics tag its spell carries at the moment (an extra attack from Hand of
+// Justice swings with the extra-attack tag but restarts the main hand's own timer).
+func (wa *WeaponAttack) timerID() ActionID {
+	switch aa := &wa.unit.AutoAttacks; wa {
+	case &aa.mh:
+		return ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: tagMainhand}
+	case &aa.oh:
+		return ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: tagOffhand}
+	}
+	return ActionID{OtherID: proto.OtherAction_OtherActionShoot}
 }
 
 // inlineable stub for swing
@@ -316,8 +356,15 @@ func (wa *WeaponAttack) swing(sim *Simulation) time.Duration {
 			}
 		}
 		wa.updateSwingDuration(wa.unit.RangedSwingSpeed())
-		wa.swingAt = sim.CurrentTime + wa.curSwingDuration
+		wa.swingAt = sim.CurrentTime + max(wa.curSwingDuration-wa.unit.AutoAttacks.RangedCycleCut, 0)
 		wa.lastSwingAt = sim.CurrentTime
+		wa.startTimer(sim, wa.swingAt)
+		wa.unit.AutoAttacks.shotSinceMelee = true
+		// the shot is a decision point like a melee swing: off-GCD actions (a move into melee) can start right after it
+		// instead of waiting out the GCD
+		if !sim.Options.Interactive && wa.unit.Rotation != nil {
+			wa.unit.Rotation.DoNextAction(sim)
+		}
 		return wa.swingAt
 	}
 
@@ -340,6 +387,8 @@ func (wa *WeaponAttack) swing(sim *Simulation) time.Duration {
 	if attackSpell.CanCast(sim, wa.unit.CurrentTarget) {
 		wa.swingAt = sim.CurrentTime + wa.curSwingDuration
 		wa.lastSwingAt = sim.CurrentTime
+		wa.startTimer(sim, wa.swingAt)
+		wa.unit.AutoAttacks.shotSinceMelee = false
 
 		var originalCastTime time.Duration
 		if isExtraAttack {
@@ -354,7 +403,7 @@ func (wa *WeaponAttack) swing(sim *Simulation) time.Duration {
 
 		// Forever: melee restarts Auto Shot from this instant (does not add a full bow cycle).
 
-		if wa.unit.AutoAttacks.AutoSwingRanged &&
+		if ForeverMeleeRestartsAutoShot && wa.unit.AutoAttacks.AutoSwingRanged &&
 			!attackSpell.ProcMask.Matches(ProcMaskRangedAuto) {
 
 			isWhite := attackSpell.ProcMask.Matches(ProcMaskMeleeMHAuto | ProcMaskMeleeOHAuto)
@@ -368,6 +417,7 @@ func (wa *WeaponAttack) swing(sim *Simulation) time.Duration {
 				aa.ranged.updateSwingDuration(wa.unit.RangedSwingSpeed())
 				aa.ranged.swingAt = sim.CurrentTime + aa.ranged.curSwingDuration
 				aa.ranged.lastSwingAt = sim.CurrentTime
+				aa.ranged.startTimer(sim, aa.ranged.swingAt)
 				sim.rescheduleWeaponAttack(aa.ranged.swingAt)
 			}
 		}
@@ -419,6 +469,13 @@ type AutoAttacks struct {
 	AutoSwingRanged bool
 
 	IsDualWielding bool
+
+	// RangedCycleCut comes off every Auto Shot timer that a shot starts (Forever's Auto Shot spam bug).
+	RangedCycleCut time.Duration
+	// an Auto Shot since the last melee swing: Auto Shot turning on is what turns the melee attack off
+	shotSinceMelee bool
+	// melee swings started on a walk in at 5 yd, before the walk ended
+	meleeWhileMoving bool
 
 	mh     WeaponAttack
 	oh     WeaponAttack
@@ -616,7 +673,9 @@ func (aa *AutoAttacks) reset(sim *Simulation) {
 			aa.oh.swingAt = 0
 
 			// Apply random delay of 0 - 50% swing time, to one of the weapons if dual wielding
-			if aa.oh.unit.Type == EnemyUnit {
+			if ForeverOffHandWaitsOnAttackStart && aa.oh.unit.Type != EnemyUnit {
+				// the attack turns on at the pull (startPull) or with the first walk in
+			} else if aa.oh.unit.Type == EnemyUnit {
 				aa.oh.swingAt = DurationFromSeconds(aa.mh.SwingSpeed / 2)
 			} else {
 				if sim.RandomFloat("SwingResetWeapon") < 0.5 {
@@ -629,6 +688,9 @@ func (aa *AutoAttacks) reset(sim *Simulation) {
 
 	}
 
+	// the melee attack is not on before the pull
+	aa.shotSinceMelee = true
+	aa.meleeWhileMoving = false
 	aa.ranged.swingAt = NeverExpires
 
 	if aa.AutoSwingRanged {
@@ -647,11 +709,21 @@ func (aa *AutoAttacks) startPull(sim *Simulation) {
 		return
 	}
 
+	// a walk already under way at the pull (it can start in the same instant, from the first Auto Shot) turns the attacks
+	// back on where it ends; turning them on here would use the distance it started from
+	if aa.mh.unit != nil && aa.mh.unit.IsMoving() {
+		return
+	}
+
 	aa.enabled = true
 
 	if aa.AutoSwingMelee && aa.mh.unit.DistanceFromTarget <= MaxMeleeAttackDistance {
 		aa.mh.addWeaponAttack(sim, aa.mh.unit.SwingSpeed())
 		if aa.IsDualWielding {
+			if ForeverOffHandWaitsOnAttackStart && aa.oh.unit.Type != EnemyUnit {
+				// the melee attack turns on at the pull
+				aa.oh.swingAt = max(aa.oh.swingAt, sim.CurrentTime+aa.OffHandWait())
+			}
 			aa.oh.addWeaponAttack(sim, aa.mh.curSwingSpeed)
 		}
 	}
@@ -666,6 +738,10 @@ func (aa *AutoAttacks) startPull(sim *Simulation) {
 func (aa *AutoAttacks) CancelAutoSwing(sim *Simulation) {
 	if !aa.AutoSwingMelee && !aa.AutoSwingRanged {
 		return
+	}
+
+	if aa.meleeWhileMoving {
+		aa.stopMeleeMidMove(sim)
 	}
 
 	if !aa.enabled {
@@ -698,7 +774,10 @@ func (aa *AutoAttacks) EnableAutoSwing(sim *Simulation) {
 
 	aa.enabled = true
 
-	if aa.AutoSwingMelee && aa.mh.unit.DistanceFromTarget <= MaxMeleeAttackDistance {
+	if aa.meleeWhileMoving {
+		// already swinging since the walk reached 5 yd
+		aa.meleeWhileMoving = false
+	} else if aa.AutoSwingMelee && aa.mh.unit.DistanceFromTarget <= MaxMeleeAttackDistance {
 		aa.mh.swingAt = max(aa.mh.swingAt, sim.CurrentTime, 0)
 		aa.mh.addWeaponAttack(sim, aa.mh.unit.SwingSpeed())
 		if aa.IsDualWielding {
@@ -729,7 +808,7 @@ func (aa *AutoAttacks) RangedSwingSpeed() time.Duration {
 }
 
 func (aa *AutoAttacks) UpdateSwingTimers(sim *Simulation) {
-	if !aa.enabled {
+	if !aa.enabled && !aa.meleeWhileMoving {
 		return
 	}
 
@@ -746,6 +825,9 @@ func (aa *AutoAttacks) UpdateSwingTimers(sim *Simulation) {
 		if remainingSwingTime := aa.mh.swingAt - sim.CurrentTime; remainingSwingTime > 0 {
 			aa.mh.swingAt = sim.CurrentTime + time.Duration(float64(remainingSwingTime)*f)
 		}
+		if remaining := aa.mh.readyAt - sim.CurrentTime; remaining > 0 && f != 1 {
+			aa.mh.moveReadyAt(sim, sim.CurrentTime+time.Duration(float64(remaining)*f))
+		}
 
 		sim.rescheduleWeaponAttack(aa.mh.swingAt)
 
@@ -754,6 +836,9 @@ func (aa *AutoAttacks) UpdateSwingTimers(sim *Simulation) {
 
 			if remainingSwingTime := aa.oh.swingAt - sim.CurrentTime; remainingSwingTime > 0 {
 				aa.oh.swingAt = sim.CurrentTime + time.Duration(float64(remainingSwingTime)*f)
+			}
+			if remaining := aa.oh.readyAt - sim.CurrentTime; remaining > 0 && f != 1 {
+				aa.oh.moveReadyAt(sim, sim.CurrentTime+time.Duration(float64(remaining)*f))
 			}
 
 			sim.rescheduleWeaponAttack(aa.oh.swingAt)
@@ -894,12 +979,13 @@ func (aa *AutoAttacks) DelayRangedUntil(sim *Simulation, readyAt time.Duration) 
 	sim.rescheduleWeaponAttack(aa.ranged.swingAt)
 }
 func (aa *AutoAttacks) RestartRangedSwing(sim *Simulation) {
-	if !aa.AutoSwingRanged || aa.ranged.spell == nil {
+	if !ForeverMeleeRestartsAutoShot || !aa.AutoSwingRanged || aa.ranged.spell == nil {
 		return
 	}
 	aa.ranged.updateSwingDuration(aa.ranged.unit.RangedSwingSpeed())
 	aa.ranged.swingAt = sim.CurrentTime + aa.ranged.curSwingDuration
 	aa.ranged.lastSwingAt = sim.CurrentTime
+	aa.ranged.startTimer(sim, aa.ranged.swingAt)
 	sim.rescheduleWeaponAttack(aa.ranged.swingAt)
 }
 
@@ -1089,4 +1175,86 @@ func (unit *Unit) applyParryHaste() {
 			sim.rescheduleWeaponAttack(newReadyAt)
 		},
 	})
+}
+
+// ForeverMeleeRestartsAutoShot: every melee swing and Raptor Strike restarts the Auto Shot timer (confirmed in game: the
+// swing timer events and logged Auto Shot casts both put the next shot one full cycle after the swing). False only for
+// comparisons.
+var ForeverMeleeRestartsAutoShot = true
+
+// ForeverOffHandWaitsOnAttackStart: when the melee attack turns on, the main hand swings as soon as it is ready but the
+// off hand's first swing comes half its swing time later, however long it has been ready. The wait runs from the moment
+// the attack turns on, even while still walking in (measured with the swing timer events for a 1.55 and a 2.33 off hand:
+// attack on + half the off-hand swing time, or arrival when the walk took longer). Shooting turns the attack off; with it
+// left on, walking out and back in swings both hands on arrival. False only for comparisons.
+var ForeverOffHandWaitsOnAttackStart = true
+
+// ForeverMeleeMidWalk: a walk into melee starts swinging the moment it reaches 5 yd, not when it ends (the swing timer
+// events show swings while moving). False only for comparisons.
+var ForeverMeleeMidWalk = true
+
+// StartMeleeMidMove starts the melee swings when a walk in reaches melee range; the walk turned the attack on as it
+// started (attackOn), so the off hand keeps that wait.
+func (aa *AutoAttacks) StartMeleeMidMove(sim *Simulation, attackOn time.Duration, wait time.Duration) {
+	if !ForeverMeleeMidWalk || !aa.AutoSwingMelee || aa.enabled || aa.meleeWhileMoving || aa.mh.spell == nil {
+		return
+	}
+	aa.meleeWhileMoving = true
+	// the same 50 ms start-of-attack delay as at the end of a walk
+	aa.mh.swingAt = max(aa.mh.swingAt, sim.CurrentTime) + 50*time.Millisecond
+	aa.mh.addWeaponAttack(sim, aa.mh.unit.SwingSpeed())
+	if aa.IsDualWielding {
+		aa.oh.swingAt = max(aa.oh.swingAt, sim.CurrentTime) + 50*time.Millisecond
+		aa.oh.addWeaponAttack(sim, aa.mh.unit.SwingSpeed())
+		aa.OffHandWaitsForAttackStart(sim, attackOn, wait)
+	}
+}
+
+// MeleeStartedMidMove: the walk that just ended already started the melee swings at 5 yd.
+func (aa *AutoAttacks) MeleeStartedMidMove() bool {
+	return aa.meleeWhileMoving
+}
+
+func (aa *AutoAttacks) stopMeleeMidMove(sim *Simulation) {
+	aa.meleeWhileMoving = false
+	sim.removeWeaponAttack(&aa.mh)
+	if aa.IsDualWielding {
+		sim.removeWeaponAttack(&aa.oh)
+	}
+}
+
+// logOffHandWait writes log-only markers (no cast, no effects) so the timeline can draw the off hand's wait as a bar
+// from the moment the melee attack turns on.
+func (aa *AutoAttacks) logOffHandWait(sim *Simulation) {
+	if !ForeverOffHandWaitsOnAttackStart || !aa.AutoSwingMelee || !aa.IsDualWielding || !aa.shotSinceMelee {
+		return
+	}
+	waitID := ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: 4}
+	wait := aa.OffHandWait()
+	aa.oh.unit.Log(sim, "Casting %s (Cost = 0.000, Cast Time = %s, Effective Time = 0s)", waitID, wait)
+	StartDelayedAction(sim, DelayedActionOptions{
+		DoAt: sim.CurrentTime + wait,
+		OnAction: func(sim *Simulation) {
+			aa.oh.unit.Log(sim, "Completed cast %s", waitID)
+		},
+	})
+}
+
+// OffHandWait is half the off hand's swing time at the current attack speed: its wait when the melee attack turns on now.
+func (aa *AutoAttacks) OffHandWait() time.Duration {
+	if !aa.IsDualWielding {
+		return 0
+	}
+	return DurationFromSeconds(aa.oh.SwingSpeed/aa.oh.unit.SwingSpeed()) / 2
+}
+
+// OffHandWaitsForAttackStart holds the off hand's next swing until the wait that started when the melee attack turned on.
+// The attack only turned off if Auto Shot fired: walking out and back in with the attack left on swings both hands on
+// arrival.
+func (aa *AutoAttacks) OffHandWaitsForAttackStart(sim *Simulation, attackOn time.Duration, wait time.Duration) {
+	if !ForeverOffHandWaitsOnAttackStart || !(aa.enabled || aa.meleeWhileMoving) || !aa.AutoSwingMelee || !aa.IsDualWielding || !aa.shotSinceMelee {
+		return
+	}
+	aa.oh.swingAt = max(aa.oh.swingAt, attackOn+wait)
+	sim.rescheduleWeaponAttack(aa.oh.swingAt)
 }

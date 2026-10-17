@@ -36,6 +36,9 @@ const CharacterBuildPhaseAll = CharacterBuildPhaseBase | CharacterBuildPhaseGear
 type Character struct {
 	Unit
 
+	// crit the main-hand weapon alone adds (Elemental Sharpening Stone): part of the melee sheet crit, not the ranged one
+	MainHandCritBonus float64
+
 	Name  string // Different from Label, needed for returned results.
 	Race  proto.Race
 	Class proto.Class

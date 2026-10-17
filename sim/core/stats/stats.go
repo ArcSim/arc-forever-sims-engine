@@ -403,6 +403,8 @@ type PseudoStats struct {
 	RangedSpeedMultiplier float64
 
 	MeleeCritMultiplier float64
+	// crit damage and healing of spells (DefenseTypeMagic), on top of their 1.5x
+	SpellCritMultiplier float64
 
 	FiveSecondRuleRefreshTime time.Duration // last time a spell was cast
 	SpiritRegenRateCasting    float64       // percentage of spirit regen allowed during casting. Spell effect MOD_MANA_REGEN_INTERRUPT (134)
@@ -510,6 +512,7 @@ func NewPseudoStats() PseudoStats {
 		SpiritRegenMultiplier: 1,
 
 		MeleeCritMultiplier: 1,
+		SpellCritMultiplier: 1,
 
 		ThreatMultiplier: 1,
 

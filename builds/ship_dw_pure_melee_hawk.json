@@ -1,0 +1,458 @@
+{
+  "settings": {
+    "iterations": 3000,
+    "phase": 6,
+    "showDamageMetrics": true,
+    "language": "en",
+    "faction": "Alliance",
+    "filters": {
+      "oneHandedWeapons": true,
+      "twoHandedWeapons": true
+    }
+  },
+  "raidBuffs": {
+    "giftOfTheWild": "TristateEffectImproved",
+    "strengthOfEarthTotem": "TristateEffectImproved",
+    "graceOfAirTotem": "TristateEffectImproved",
+    "arcaneBrilliance": true,
+    "divineSpirit": true,
+    "battleShout": "TristateEffectImproved",
+    "trueshotAura": true,
+    "leaderOfThePack": true,
+    "manaSpringTotem": "TristateEffectImproved",
+    "fireResistanceTotem": true,
+    "fireResistanceAura": true,
+    "windfuryTotem": true
+  },
+  "debuffs": {
+    "curseOfElements": true,
+    "curseOfRecklessness": true,
+    "exposeArmor": "TristateEffectRegular",
+    "faerieFire": true,
+    "huntersMark": "TristateEffectRegular",
+    "judgementOfWisdom": true,
+    "sunderArmor": true,
+    "giftOfArthas": true
+  },
+  "partyBuffs": {},
+  "player": {
+    "name": "Player",
+    "race": "RaceOrc",
+    "class": "ClassHunter",
+    "equipment": {
+      "items": [
+        {
+          "id": 252605,
+          "enchant": 2543
+        },
+        {
+          "id": 15411,
+          "enchant": 904
+        },
+        {
+          "id": 12927
+        },
+        {
+          "id": 13340,
+          "enchant": 7667
+        },
+        {
+          "id": 252483,
+          "enchant": 1891
+        },
+        {
+          "id": 18375,
+          "enchant": 7656
+        },
+        {
+          "id": 15063,
+          "enchant": 8206
+        },
+        {
+          "id": 18393
+        },
+        {
+          "id": 15062,
+          "enchant": 2543
+        },
+        {
+          "id": 14616,
+          "enchant": 1887
+        },
+        {
+          "id": 18500
+        },
+        {
+          "id": 13098
+        },
+        {
+          "id": 13965
+        },
+        {
+          "id": 11815
+        },
+        {
+          "id": 1728,
+          "enchant": 7940
+        },
+        {
+          "id": 12590,
+          "enchant": 7940
+        },
+        {
+          "id": 20722,
+          "enchant": 664
+        }
+      ]
+    },
+    "consumes": {
+      "food": "FoodFlankAuPoivre",
+      "agilityElixir": "ElixirOfTheMongoose",
+      "manaRegenElixir": "MagebloodPotion",
+      "strengthBuff": "ElixirOfTheGrizzly",
+      "attackPowerBuff": "JujuMight",
+      "spellPowerBuff": "GreaterArcaneElixir",
+      "mainHandImbue": "DenseSharpeningStone",
+      "defaultPotion": "MajorFrenzyPotion",
+      "dragonBreathChili": true,
+      "miscConsumes": {
+        "raptorPunch": true,
+        "boglingRoot": true
+      },
+      "zanzaBuff": "GroundScorpokAssay",
+      "healthElixir": "ElixirOfFortitude",
+      "alcohol": "AlcoholRumseyRumBlackLabel",
+      "offHandImbue": "DenseSharpeningStone",
+      "firePowerBuff": "ElixirOfGreaterFirepower",
+      "sapperExplosive": "SapperGoblinSapper",
+      "fillerExplosive": "ExplosiveCrystalCharge"
+    },
+    "buffs": {
+      "blessingOfKings": true,
+      "blessingOfWisdom": "TristateEffectImproved",
+      "blessingOfMight": "TristateEffectImproved"
+    },
+    "talentsString": "50230005001-005005-5002302300500221",
+    "profession1": "Enchanting",
+    "profession2": "Engineering",
+    "cooldowns": {},
+    "reactionTimeMs": 200,
+    "distanceFromTarget": 3,
+    "healingModel": {},
+    "hunter": {
+      "options": {
+        "ammo": "SwiftstrikeShot",
+        "quiverBonus": "Speed15",
+        "petType": "Cat",
+        "petUptime": 1,
+        "petSpeedBug": false,
+        "petWindfuryTotem": false,
+        "petFlametongueTotem": false,
+        "petDisabledAbilities": [],
+        "moveDelayMs": 0
+      }
+    },
+    "rotation": {
+      "type": "TypeAPL",
+      "prepullActions": [
+        {
+          "action": {
+            "castSpell": {
+              "spellId": {
+                "spellId": 1299447
+              }
+            }
+          },
+          "doAtValue": {
+            "const": {
+              "val": "-10s"
+            }
+          }
+        },
+        {
+          "action": {
+            "move": {
+              "rangeFromTarget": {
+                "const": {
+                  "val": "3"
+                }
+              }
+            }
+          },
+          "doAtValue": {
+            "const": {
+              "val": "-5s"
+            }
+          }
+        }
+      ],
+      "priorityList": [
+        {
+          "action": {
+            "condition": {
+              "cmp": {
+                "op": "OpGt",
+                "lhs": {
+                  "math": {
+                    "op": "OpSub",
+                    "lhs": {
+                      "maxMana": {}
+                    },
+                    "rhs": {
+                      "currentMana": {}
+                    }
+                  }
+                },
+                "rhs": {
+                  "const": {
+                    "val": "1300"
+                  }
+                }
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "itemId": 12662
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "castSpell": {
+              "spellId": {
+                "itemId": 13965
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "cmp": {
+                "op": "OpGt",
+                "lhs": {
+                  "math": {
+                    "op": "OpSub",
+                    "lhs": {
+                      "maxMana": {}
+                    },
+                    "rhs": {
+                      "currentMana": {}
+                    }
+                  }
+                },
+                "rhs": {
+                  "const": {
+                    "val": "1750"
+                  }
+                }
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "itemId": 13444
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "castSpell": {
+              "spellId": {
+                "spellId": 3045
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "autocastOtherCooldowns": {}
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "and": {}
+            },
+            "castSpell": {
+              "spellId": {
+                "spellId": 20572
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "castSpell": {
+              "spellId": {
+                "spellId": 20554
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "castSpell": {
+              "spellId": {
+                "spellId": 1259799
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "and": {}
+            },
+            "castSpell": {
+              "spellId": {
+                "itemId": 250943
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "castSpell": {
+              "spellId": {
+                "spellId": 14305
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "castSpell": {
+              "spellId": {
+                "spellId": 14266,
+                "tag": 1,
+                "rank": 8
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "castSpell": {
+              "spellId": {
+                "spellId": 14271,
+                "rank": 4
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "castSpell": {
+              "spellId": {
+                "spellId": 1317257
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "cmp": {
+                "op": "OpLt",
+                "lhs": {
+                  "auraNumStacks": {
+                    "auraId": {
+                      "spellId": 1293241,
+                      "tag": 2
+                    }
+                  }
+                },
+                "rhs": {
+                  "const": {
+                    "val": "2"
+                  }
+                }
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "spellId": 1293241
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "castSpell": {
+              "spellId": {
+                "spellId": 14268,
+                "rank": 3
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "encounter": {
+    "duration": 120,
+    "durationVariation": 15,
+    "executeProportion20": 0.2,
+    "executeProportion25": 0.25,
+    "executeProportion35": 0.35,
+    "targets": [
+      {
+        "id": 213336,
+        "name": "Level 60",
+        "level": 63,
+        "stats": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          805,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          3731,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          127393,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "minBaseDamage": 3000,
+        "damageSpread": 0.3333,
+        "swingSpeed": 2,
+        "parryHaste": true
+      }
+    ]
+  }
+}

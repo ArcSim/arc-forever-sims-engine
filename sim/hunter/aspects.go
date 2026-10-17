@@ -17,8 +17,9 @@ func (hunter *Hunter) registerAspectOfTheBeastSpell() {
 	var meleeHasteAura *core.Aura
 	if hunter.Talents.DeadlyAspects > 0 {
 		meleeHasteAura = hunter.GetOrRegisterAura(core.Aura{
-			Label:    "Quick Strikes Beast",
-			ActionID: core.ActionID{SpellID: 6150}.WithTag(2),
+			Label: "Quick Strikes Beast",
+			// the Forever Quick Strikes buff
+			ActionID: core.ActionID{SpellID: 1299448},
 			Duration: time.Second * 12,
 			OnGain: func(aura *core.Aura, sim *core.Simulation) {
 				aura.Unit.MultiplyMeleeSpeed(sim, 1.3)
@@ -54,6 +55,7 @@ func (hunter *Hunter) registerAspectOfTheBeastSpell() {
 			if meleeHasteAura == nil || !result.Landed() {
 				return
 			}
+			// melee auto attacks, Raptor Strike included (it replaces a swing)
 			if !spell.ProcMask.Matches(core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto) {
 				return
 			}
@@ -78,6 +80,43 @@ func (hunter *Hunter) registerAspectOfTheBeastSpell() {
 		},
 		ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
 			beastAura.Activate(sim)
+		},
+	})
+}
+
+// Aspect of the Cheetah (Forever client data, spell 5118): +30% run speed for 40 mana, Pathfinding adds 3% a point
+// (Forever's 19559 adds 6 at 2/2). The daze when struck is left out: a boss you are not tanking does not hit you.
+// Like other run speed bonuses it does not stack with Strider Kick; the stronger one counts.
+func (hunter *Hunter) registerAspectOfTheCheetahSpell() {
+	actionID := core.ActionID{SpellID: 5118}
+	speed := 1.30 + 0.03*float64(hunter.Talents.Pathfinding)
+
+	cheetahAura := hunter.GetOrRegisterAura(core.Aura{
+		Label:    "Aspect of the Cheetah",
+		ActionID: actionID,
+		Duration: core.NeverExpires,
+		OnGain: func(aura *core.Aura, sim *core.Simulation) {
+			aura.Unit.AddMoveSpeedModifier(&aura.ActionID, speed)
+		},
+		OnExpire: func(aura *core.Aura, sim *core.Simulation) {
+			aura.Unit.RemoveMoveSpeedModifier(&aura.ActionID)
+		},
+	})
+	cheetahAura.NewExclusiveEffect("Aspect", true, core.ExclusiveEffect{})
+
+	hunter.GetOrRegisterSpell(core.SpellConfig{
+		ActionID:      actionID,
+		Flags:         core.SpellFlagAPL,
+		RequiredLevel: 20,
+		ManaCost:      core.ManaCostOptions{FlatCost: 40},
+		Cast: core.CastConfig{
+			DefaultCast: core.Cast{GCD: core.GCDDefault},
+		},
+		ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {
+			return !cheetahAura.IsActive()
+		},
+		ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+			cheetahAura.Activate(sim)
 		},
 	})
 }

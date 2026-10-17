@@ -63,20 +63,20 @@ var BuffSpellValues = map[BuffName]stats.Stats{
 		stats.NatureResistance: 60,
 	},
 	BattleShout: {
-		stats.AttackPower: 140,
+		stats.AttackPower: 139,
 	},
 	BlessingOfMight: {
 		stats.AttackPower: 133,
 	},
 	BlessingOfWisdom: {
-		stats.MP5: 30,
+		stats.MP5: 40,
 	},
 	HornOfLordaeron: {
 		stats.Strength: TernaryFloat64(IncludeAQ, 89, 70.15),
 		stats.Agility:  TernaryFloat64(IncludeAQ, 89, 70.15),
 	},
 	BloodPact: {
-		stats.Stamina: 42,
+		stats.Stamina: 54,
 	},
 	CommandingShout: {
 		stats.Stamina: 42,
@@ -119,7 +119,7 @@ var BuffSpellValues = map[BuffName]stats.Stats{
 		stats.NatureResistance: 60,
 	},
 	PowerWordFortitude: {
-		stats.Stamina: 54,
+		stats.Stamina: 70,
 	},
 	ShadowProtection: {
 		stats.ShadowResistance: 60,
@@ -231,11 +231,18 @@ func applyBuffEffects(agent Agent, playerFaction proto.Faction, raidBuffs *proto
 
 	if raidBuffs.GiftOfTheWild > 0 {
 		updateStats := BuffSpellValues[MarkOfTheWild]
+		// Forever Improved Mark of the Wild: +35%
+		if raidBuffs.GiftOfTheWild == proto.TristateEffect_TristateEffectImproved {
+			updateStats = updateStats.Multiply(1.35).Floor()
+		}
 		character.AddStats(updateStats)
 		bonusResist = updateStats[stats.NatureResistance]
 	}
+	// Forever: Windfury Totem and Flametongue Totem do not stack, so Windfury wins a setup that asks for both
 	if raidBuffs.WindfuryTotem {
 		ApplyWindfury(character)
+	} else if raidBuffs.FlametongueTotem {
+		ApplyFlametongueTotem(character)
 	}
 
 	if raidBuffs.NatureResistanceTotem {
@@ -336,11 +343,11 @@ func applyBuffEffects(agent Agent, playerFaction proto.Faction, raidBuffs *proto
 	*/
 
 	if raidBuffs.DevotionAura != proto.TristateEffect_TristateEffectMissing {
-		MakePermanent(DevotionAuraAura(&character.Unit, GetTristateValueInt32(raidBuffs.DevotionAura, 0, 2)))
+		MakePermanent(DevotionAuraAura(&character.Unit, GetTristateValueInt32(raidBuffs.DevotionAura, 0, 1)))
 	}
 
 	if raidBuffs.StoneskinTotem != proto.TristateEffect_TristateEffectMissing {
-		MakePermanent(StoneskinTotemAura(&character.Unit, GetTristateValueInt32(raidBuffs.StoneskinTotem, 0, 2)))
+		MakePermanent(StoneskinTotemAura(&character.Unit, GetTristateValueInt32(raidBuffs.StoneskinTotem, 0, 1)))
 	}
 
 	if raidBuffs.RetributionAura != proto.TristateEffect_TristateEffectMissing {
@@ -348,25 +355,31 @@ func applyBuffEffects(agent Agent, playerFaction proto.Faction, raidBuffs *proto
 	}
 
 	if raidBuffs.BattleShout != proto.TristateEffect_TristateEffectMissing {
-		MakePermanent(BattleShoutAura(&character.Unit, 0, 0, false))
+		// Forever Improved Battle Shout: 5 ranks, +25%
+		MakePermanent(BattleShoutAura(&character.Unit, GetTristateValueInt32(raidBuffs.BattleShout, 0, 5), 0, false))
 	}
 
 	if individualBuffs.BlessingOfMight != proto.TristateEffect_TristateEffectMissing {
-		MakePermanent(BlessingOfMightAura(&character.Unit, 0))
+		// Forever Improved Blessing of Might: 5 ranks, +20%
+		MakePermanent(BlessingOfMightAura(&character.Unit, GetTristateValueInt32(individualBuffs.BlessingOfMight, 0, 5)))
 	}
 
 	if raidBuffs.StrengthOfEarthTotem != proto.TristateEffect_TristateEffectMissing {
-		MakePermanent(StrengthOfEarthTotemAura(&character.Unit, 1))
+		// Forever Enhancing Totems: +15%
+		MakePermanent(StrengthOfEarthTotemAura(&character.Unit, TernaryFloat64(raidBuffs.StrengthOfEarthTotem == proto.TristateEffect_TristateEffectImproved, 1.15, 1)))
 	}
 
 	if raidBuffs.GraceOfAirTotem > 0 {
-		MakePermanent(GraceOfAirTotemAura(&character.Unit, 1))
+		MakePermanent(GraceOfAirTotemAura(&character.Unit, TernaryFloat64(raidBuffs.GraceOfAirTotem == proto.TristateEffect_TristateEffectImproved, 1.15, 1)))
 	}
 
+	// separate auras in Forever, so they stack
+	// Forever Improved Blessing of Wisdom +20%, Restorative Totems (one rank) +5%
 	if individualBuffs.BlessingOfWisdom > 0 {
-		character.AddStats(BuffSpellValues[BlessingOfWisdom])
-	} else if raidBuffs.ManaSpringTotem > 0 {
-		character.AddStats(BuffSpellValues[ManaSpring])
+		character.AddStats(BuffSpellValues[BlessingOfWisdom].Multiply(TernaryFloat64(individualBuffs.BlessingOfWisdom == proto.TristateEffect_TristateEffectImproved, 1.2, 1)))
+	}
+	if raidBuffs.ManaSpringTotem > 0 {
+		character.AddStats(BuffSpellValues[ManaSpring].Multiply(TernaryFloat64(raidBuffs.ManaSpringTotem == proto.TristateEffect_TristateEffectImproved, 1.05, 1)))
 	}
 
 	if raidBuffs.BattleSquawk > 0 {
@@ -437,6 +450,7 @@ func applyBuffEffects(agent Agent, playerFaction proto.Faction, raidBuffs *proto
 
 // Applies buffs to pets.
 func applyPetBuffEffects(petAgent PetAgent, playerFaction proto.Faction, raidBuffs *proto.RaidBuffs, partyBuffs *proto.PartyBuffs, individualBuffs *proto.IndividualBuffs) {
+	// Forever: pets take no raid buffs, and Windfury and Flametongue Totem only affect players
 	return
 
 	raidBuffs = googleProto.Clone(raidBuffs).(*proto.RaidBuffs)
@@ -534,7 +548,8 @@ func ApplyInspiration(character *Character, uptime float64) {
 
 func DevotionAuraAura(unit *Unit, points int32) *Aura {
 	updateStats := BuffSpellValues[DevotionAura]
-	updateStats = updateStats.Multiply(1 + .125*float64(points))
+	// Forever Improved Devotion Aura: one rank, +5%
+	updateStats = updateStats.Multiply(1 + .05*float64(points))
 
 	return unit.RegisterAura(Aura{
 		Label:    "Devotion Aura",
@@ -550,6 +565,7 @@ func DevotionAuraAura(unit *Unit, points int32) *Aura {
 }
 
 func StoneskinTotemAura(unit *Unit, points int32) *Aura {
+	// Forever Guardian Totems: one rank, +10%
 	meleeDamageReduction := -30.0
 	meleeDamageReduction *= 1 + .1*float64(points)
 	meleeDamageReduction = math.Floor(meleeDamageReduction)
@@ -565,7 +581,7 @@ func StoneskinTotemAura(unit *Unit, points int32) *Aura {
 			aura.Unit.PseudoStats.BonusDamageTakenAfterModifiers[DefenseTypeMelee] += meleeDamageReduction
 		},
 		OnExpire: func(aura *Aura, sim *Simulation) {
-			aura.Unit.PseudoStats.BonusDamageTakenAfterModifiers[DefenseTypeMelee] += meleeDamageReduction
+			aura.Unit.PseudoStats.BonusDamageTakenAfterModifiers[DefenseTypeMelee] -= meleeDamageReduction
 		},
 	})
 }
@@ -1380,7 +1396,7 @@ var BattleShoutLevel = [BattleShoutRanks + 1]int{0, 1, 12, 22, 32, 42, 52, 60}
 
 func BattleShoutAura(unit *Unit, impBattleShout int32, boomingVoicePts int32, has3pcWrath bool) *Aura {
 	spellId := BattleShoutSpellId[7]
-	baseAP := BuffSpellValues[BattleShout][stats.AttackPower] // 140
+	baseAP := math.Floor(BuffSpellValues[BattleShout][stats.AttackPower] * (1 + 0.05*float64(impBattleShout)))
 
 	return unit.GetOrRegisterAura(Aura{
 		Label:      "Battle Shout",
@@ -1516,7 +1532,7 @@ func CreateExtraAttackAuraCommon(character *Character, buffActionID ActionID, au
 	apBuffAura := character.GetOrRegisterAura(Aura{
 		Label:     auraLabel + " Buff",
 		ActionID:  buffActionID,
-		Duration:  time.Millisecond * 1500,
+		Duration:  time.Millisecond * 1000, // Forever: the attack power buff lasts 1 s
 		MaxStacks: 2,
 		OnGain: func(aura *Aura, sim *Simulation) {
 			bonusAP = getBonusAP(aura, rank)
@@ -1527,9 +1543,10 @@ func CreateExtraAttackAuraCommon(character *Character, buffActionID ActionID, au
 		},
 	})
 
+	// Forever client data: 100 ms between procs
 	icd := Cooldown{
 		Timer:    character.NewTimer(),
-		Duration: time.Millisecond * 1500,
+		Duration: time.Millisecond * 100,
 	}
 	apBuffAura.Icd = &icd
 
@@ -1571,7 +1588,8 @@ const WindfuryRanks = 3
 
 var (
 	WindfuryBuffSpellId = [WindfuryRanks + 1]int32{0, 8516, 10608, 10610}
-	WindfuryBuffBonusAP = [WindfuryRanks + 1]float64{0, 122, 229, 315}
+	// Forever client values; Classic's 122 / 229 / 315 do not apply
+	WindfuryBuffBonusAP = [WindfuryRanks + 1]float64{0, 95, 179, 246}
 )
 
 func GetWindfuryAP(aura *Aura, rank int32) float64 {
@@ -1585,6 +1603,33 @@ func ApplyWindfury(character *Character) *Aura {
 
 	return CreateExtraAttackAuraCommon(character, buffActionID, "Windfury", rank, GetWindfuryAP)
 
+}
+
+// Forever Flametongue Totem (rank 4, 15036 / 16389): every main-hand white hit adds 13.63 fire damage
+// per second of weapon speed, speed counted from 1.3 to 4.0 (17.7 to 54.5 damage).
+func ApplyFlametongueTotem(character *Character) *Aura {
+	ftHit := character.GetOrRegisterSpell(SpellConfig{
+		ActionID:         ActionID{SpellID: 16389},
+		SpellSchool:      SpellSchoolFire,
+		DefenseType:      DefenseTypeMagic,
+		ProcMask:         ProcMaskEmpty,
+		Flags:            SpellFlagNoOnCastComplete | SpellFlagPassiveSpell,
+		DamageMultiplier: 1,
+		ThreatMultiplier: 1,
+		ApplyEffects: func(sim *Simulation, target *Unit, spell *Spell) {
+			speed := min(max(spell.Unit.AutoAttacks.MH().SwingSpeed, 1.3), 4.0)
+			spell.CalcAndDealDamage(sim, target, 13.63*speed, spell.OutcomeMagicHitAndCrit)
+		},
+	})
+	return MakePermanent(character.GetOrRegisterAura(Aura{
+		Label:    "Flametongue Totem",
+		ActionID: ActionID{SpellID: 15036},
+		OnSpellHitDealt: func(aura *Aura, sim *Simulation, spell *Spell, result *SpellResult) {
+			if result.Landed() && spell.ProcMask.Matches(ProcMaskMeleeMHAuto) {
+				ftHit.Cast(sim, result.Target)
+			}
+		},
+	}))
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1701,6 +1746,7 @@ func ApplyFengusFerocity(unit *Unit) {
 		Stats: []StatConfig{
 			{stats.AttackPower, 200, false},
 			{stats.RangedAttackPower, 200, false},
+			{stats.SpellDamage, 230, false},
 		},
 	})
 }
@@ -1730,6 +1776,8 @@ func ApplySlipkiksSavvy(unit *Unit) {
 	makeExclusiveBuff(aura, BuffConfig{
 		Category: "SlipkiksSavvy",
 		Stats: []StatConfig{
+			// Forever: all spells and attacks
+			{stats.MeleeCrit, 3 * CritRatingPerCritChance, false},
 			{stats.SpellCrit, 3 * SpellCritRatingPerCritChance, false},
 		},
 	})

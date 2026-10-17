@@ -376,7 +376,7 @@ func (unitMetrics *UnitMetrics) addSpellMetrics(spell *Spell, actionID ActionID,
 	if !ok {
 		actionMetrics = &ActionMetrics{
 			IsMelee:     spell.Flags.Matches(SpellFlagMeleeMetrics),
-			IsPassive:   spell.Flags.Matches(SpellFlagPassiveSpell),
+			IsPassive:   spell.Flags.Matches(SpellFlagPassiveSpell) && !spell.ProcMask.Matches(ProcMaskRangedAuto),
 			SpellSchool: spell.SpellSchool,
 			Targets:     make([]TargetedActionMetrics, len(spellMetrics)),
 		}
@@ -385,7 +385,8 @@ func (unitMetrics *UnitMetrics) addSpellMetrics(spell *Spell, actionID ActionID,
 
 	for i, spellTargetMetrics := range spellMetrics {
 		tam := &actionMetrics.Targets[i]
-		if !spell.Flags.Matches(SpellFlagPassiveSpell) {
+		// Passive actions do not count casts, except Auto Shot: it is a real swing like the melee autos.
+		if !spell.Flags.Matches(SpellFlagPassiveSpell) || spell.ProcMask.Matches(ProcMaskRangedAuto) {
 			tam.Casts += spellTargetMetrics.Casts
 		}
 		tam.Misses += spellTargetMetrics.Misses

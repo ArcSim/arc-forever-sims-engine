@@ -1,6 +1,7 @@
 package core
 
 import (
+	"slices"
 	"time"
 
 	"github.com/wowsims/classic/sim/core/proto"
@@ -62,6 +63,37 @@ func applyFlaskConsumes(character *Character, consumes *proto.Consumes) {
 		})
 	case proto.Flask_FlaskOfChromaticResistance:
 		character.AddResistances(25)
+
+	// Forever's Natural flasks: +60 Stamina, and a second effect that works only in Mount Hyjal, Hyjal Summit and the
+	// Barrow Deeps, which an encounter counts as unless it is set as outside them (the sims gear for that content).
+	case proto.Flask_FlaskOfNaturalAccuracy, proto.Flask_FlaskOfNaturalAggression, proto.Flask_FlaskOfNaturalPrecision,
+		proto.Flask_FlaskOfNaturalSwiftness:
+		character.AddStats(stats.Stats{
+			stats.Stamina: 60,
+		})
+		if character.Env.Encounter.OutsideHyjal {
+			break
+		}
+		switch consumes.Flask {
+		case proto.Flask_FlaskOfNaturalAccuracy:
+			character.AddStats(stats.Stats{
+				stats.MeleeHit: 5 * MeleeHitRatingPerHitChance,
+				stats.SpellHit: 5 * SpellHitRatingPerHitChance,
+			})
+		case proto.Flask_FlaskOfNaturalAggression:
+			character.AddStats(stats.Stats{
+				stats.MeleeCrit: 4 * CritRatingPerCritChance,
+				stats.SpellCrit: 4 * SpellCritRatingPerCritChance,
+			})
+		case proto.Flask_FlaskOfNaturalPrecision:
+			// 5% less chance to be dodged or parried
+			character.AddStats(stats.Stats{
+				stats.Expertise: 5 * ExpertiseRatingPerExpertiseChance,
+			})
+		case proto.Flask_FlaskOfNaturalSwiftness:
+			character.PseudoStats.MeleeSpeedMultiplier *= 1.05
+			character.PseudoStats.RangedSpeedMultiplier *= 1.05
+		}
 	}
 }
 
@@ -84,7 +116,29 @@ func applyWeaponImbueConsumes(character *Character, consumes *proto.Consumes) {
 	}
 }
 
+// imbueFitsWeapon mirrors the site's consumable picker: sharpening stones (Solid, Dense) only on axes, daggers, polearms
+// and swords, weightstones only on fist weapons, maces and staves; the site clears any other pairing when a build loads.
+func imbueFitsWeapon(imbue proto.WeaponImbue, weapon *Item) bool {
+	if weapon == nil {
+		return true
+	}
+	switch weapon.WeaponType {
+	case proto.WeaponType_WeaponTypeAxe, proto.WeaponType_WeaponTypeDagger, proto.WeaponType_WeaponTypePolearm, proto.WeaponType_WeaponTypeSword:
+		return imbue != proto.WeaponImbue_SolidWeightstone && imbue != proto.WeaponImbue_DenseWeightstone
+	case proto.WeaponType_WeaponTypeFist, proto.WeaponType_WeaponTypeMace, proto.WeaponType_WeaponTypeStaff:
+		return imbue != proto.WeaponImbue_SolidSharpeningStone && imbue != proto.WeaponImbue_DenseSharpeningStone
+	}
+	return true
+}
+
 func addImbueStats(character *Character, imbue proto.WeaponImbue, isMh bool, shadowOilIcd Cooldown) {
+	weapon := character.GetMHWeapon()
+	if !isMh {
+		weapon = character.GetOHWeapon()
+	}
+	if !imbueFitsWeapon(imbue, weapon) {
+		return
+	}
 	if imbue != proto.WeaponImbue_WeaponImbueUnknown {
 		switch imbue {
 		// Wizard Oils
@@ -154,10 +208,18 @@ func addImbueStats(character *Character, imbue proto.WeaponImbue, isMh bool, sha
 			}
 		case proto.WeaponImbue_ElementalSharpeningStone:
 			if !character.PseudoStats.FeralCombatEnabled {
-				character.AddStats(stats.Stats{
-					stats.MeleeCrit: 2 * CritRatingPerCritChance,
+				// weapon crit: only the attacks made with the stoned weapon (two stones are not +4% on both)
+				hand := ProcMaskMeleeMH
+				if !isMh {
+					hand = ProcMaskMeleeOH
+				} else {
+					character.MainHandCritBonus += 2 * CritRatingPerCritChance
+				}
+				character.OnSpellRegistered(func(spell *Spell) {
+					if spell.ProcMask.Matches(hand) {
+						spell.BonusCritRating += 2 * CritRatingPerCritChance
+					}
 				})
-				character.AddBonusRangedCritRating(-2.0)
 			}
 		case proto.WeaponImbue_ConsecratedSharpeningStone:
 			character.Env.RegisterPostFinalizeEffect(func() {
@@ -211,8 +273,9 @@ func addImbueStats(character *Character, imbue proto.WeaponImbue, isMh bool, sha
 func registerShadowOil(character *Character, isMh bool, icd Cooldown) {
 	procChance := 0.15
 
+	// Forever client data: the oil's bolt is spell 350026 (the Classic 1382 is not in Forever), 52 +-15%
 	procSpell := character.GetOrRegisterSpell(SpellConfig{
-		ActionID:    ActionID{SpellID: 1382},
+		ActionID:    ActionID{SpellID: 350026},
 		SpellSchool: SpellSchoolShadow,
 		DefenseType: DefenseTypeMagic,
 		ProcMask:    ProcMaskEmpty,
@@ -223,7 +286,7 @@ func registerShadowOil(character *Character, isMh bool, icd Cooldown) {
 		BonusCoefficient: 0.56,
 
 		ApplyEffects: func(sim *Simulation, target *Unit, spell *Spell) {
-			damage := sim.Roll(52, 61)
+			damage := sim.Roll(44, 60)
 			spell.CalcAndDealDamage(sim, target, damage, spell.OutcomeMagicHitAndCrit)
 		},
 	})
@@ -261,8 +324,9 @@ func registerShadowOil(character *Character, isMh bool, icd Cooldown) {
 func registerFrostOil(character *Character, isMh bool) {
 	procChance := 0.10
 
+	// Forever client data: the oil's bolt is spell 350025 (the Classic 1191 is not in Forever), 33 +-12%
 	procSpell := character.GetOrRegisterSpell(SpellConfig{
-		ActionID:    ActionID{SpellID: 1191},
+		ActionID:    ActionID{SpellID: 350025},
 		SpellSchool: SpellSchoolFrost,
 		DefenseType: DefenseTypeMagic,
 		ProcMask:    ProcMaskEmpty,
@@ -273,7 +337,7 @@ func registerFrostOil(character *Character, isMh bool) {
 		BonusCoefficient: 0.269,
 
 		ApplyEffects: func(sim *Simulation, target *Unit, spell *Spell) {
-			damage := sim.Roll(33, 38)
+			damage := sim.Roll(29, 37)
 			spell.CalcAndDealDamage(sim, target, damage, spell.OutcomeMagicHitAndCrit)
 		},
 	})
@@ -308,29 +372,40 @@ func registerFrostOil(character *Character, isMh bool) {
 ///////////////////////////////////////////////////////////////////////////
 
 func applyFoodConsumes(character *Character, consumes *proto.Consumes) {
+	// Forever values: its foods give one Well Fed stat each, several of them new
 	if consumes.Food != proto.Food_FoodUnknown {
 		switch consumes.Food {
 		case proto.Food_FoodHotWolfRibs:
 			character.AddStats(stats.Stats{
-				stats.Stamina: 8,
-				stats.Spirit:  8,
+				stats.Agility: 10,
 			})
 		case proto.Food_FoodSmokedSagefish:
 			character.AddStats(stats.Stats{
-				stats.MP5: 3,
+				stats.SpellDamage: 4,
 			})
 		case proto.Food_FoodSagefishDelight:
 			character.AddStats(stats.Stats{
-				stats.MP5: 6,
+				stats.SpellDamage: 7,
 			})
 		case proto.Food_FoodTenderWolfSteak:
 			character.AddStats(stats.Stats{
-				stats.Stamina: 12,
-				stats.Spirit:  12,
+				stats.Agility: 15,
 			})
 		case proto.Food_FoodGrilledSquid:
 			character.AddStats(stats.Stats{
-				stats.Agility: 10,
+				stats.MeleeCrit: 1 * CritRatingPerCritChance,
+			})
+		case proto.Food_FoodFlankAuPoivre:
+			character.AddStats(stats.Stats{
+				stats.Agility: 20,
+			})
+		case proto.Food_FoodSavoryTurtleStew:
+			character.AddStats(stats.Stats{
+				stats.Stamina: 20,
+			})
+		case proto.Food_FoodBrinySeafoodStew:
+			character.AddStats(stats.Stats{
+				stats.SpellDamage: 14,
 			})
 		case proto.Food_FoodSmokedDesertDumpling:
 			character.AddStats(stats.Stats{
@@ -338,11 +413,11 @@ func applyFoodConsumes(character *Character, consumes *proto.Consumes) {
 			})
 		case proto.Food_FoodNightfinSoup:
 			character.AddStats(stats.Stats{
-				stats.MP5: 8,
+				stats.SpellDamage: 22,
 			})
 		case proto.Food_FoodRunnTumTuberSurprise:
 			character.AddStats(stats.Stats{
-				stats.Intellect: 10,
+				stats.Intellect: 15,
 			})
 		case proto.Food_FoodDirgesKickChimaerokChops:
 			character.AddStats(stats.Stats{
@@ -391,7 +466,8 @@ func applyFoodConsumes(character *Character, consumes *proto.Consumes) {
 }
 
 func DragonBreathChiliAura(character *Character) *Aura {
-	baseDamage := 60.0
+	// Forever client data: 65 +-6%
+	minDamage, maxDamage := 61.0, 69.0
 	procChance := .05
 	icd := Cooldown{
 		Timer:    character.NewTimer(),
@@ -411,7 +487,7 @@ func DragonBreathChiliAura(character *Character) *Aura {
 
 		ApplyEffects: func(sim *Simulation, target *Unit, spell *Spell) {
 			for _, aoeTarget := range sim.Environment.Encounter.TargetUnits {
-				spell.CalcAndDealDamage(sim, aoeTarget, baseDamage, spell.OutcomeMagicHitAndCrit)
+				spell.CalcAndDealDamage(sim, aoeTarget, sim.Roll(minDamage, maxDamage), spell.OutcomeMagicHitAndCrit)
 			}
 		},
 	})
@@ -515,6 +591,16 @@ func applyPhysicalBuffConsumes(character *Character, consumes *proto.Consumes) {
 			})
 		case proto.AgilityElixir_ScrollOfAgility:
 			character.AddStats(BuffSpellValues[ScrollOfAgility])
+		case proto.AgilityElixir_ElixirOfCunning:
+			character.AddStats(stats.Stats{
+				stats.Agility:   25,
+				stats.Intellect: 25,
+			})
+		case proto.AgilityElixir_ElixirOfFerocity:
+			character.AddStats(stats.Stats{
+				stats.Agility:  18,
+				stats.Strength: 18,
+			})
 		}
 	}
 
@@ -534,6 +620,11 @@ func applyPhysicalBuffConsumes(character *Character, consumes *proto.Consumes) {
 			})
 		case proto.StrengthBuff_ScrollOfStrength:
 			character.AddStats(BuffSpellValues[ScrollOfStrength])
+		case proto.StrengthBuff_ElixirOfTheGrizzly:
+			character.AddStats(stats.Stats{
+				stats.Strength:  25,
+				stats.MeleeCrit: 2 * CritRatingPerCritChance,
+			})
 		}
 	}
 }
@@ -774,6 +865,15 @@ var DenseDynamiteActionID = ActionID{ItemID: 18641}
 var ThoriumGrenadeActionID = ActionID{ItemID: 15993}
 var GoblinLandMineActionID = ActionID{ItemID: 4395}
 
+// Forever: Dark Iron Bomb needs Engineering; the EZ-Thro / SAF-T line, Crystal Charge and the Holy Hand Grenade of
+// Alterac need no profession
+var DarkIronBombActionID = ActionID{ItemID: 16005}
+var EzThroDarkBombActionID = ActionID{ItemID: 260817}
+var EzThroThoriumGrenadeActionID = ActionID{ItemID: 260816}
+var SafTCleverDynamiteActionID = ActionID{ItemID: 260814}
+var CrystalChargeActionID = ActionID{ItemID: 11566}
+var HolyHandGrenadeActionID = ActionID{ItemID: 284868}
+
 func registerExplosivesCD(agent Agent, consumes *proto.Consumes) {
 	character := agent.GetCharacter()
 	hasFiller := consumes.FillerExplosive != proto.Explosive_ExplosiveUnknown
@@ -804,7 +904,9 @@ func registerExplosivesCD(agent Agent, consumes *proto.Consumes) {
 	}
 
 	if hasFiller {
-		if !character.HasProfession(proto.Profession_Engineering) {
+		engineerOnly := !slices.Contains([]proto.Explosive{proto.Explosive_ExplosiveEzThroDarkBomb, proto.Explosive_ExplosiveEzThroThoriumGrenade,
+			proto.Explosive_ExplosiveSafTCleverDynamite, proto.Explosive_ExplosiveCrystalCharge, proto.Explosive_ExplosiveHolyHandGrenade}, consumes.FillerExplosive)
+		if engineerOnly && !character.HasProfession(proto.Profession_Engineering) {
 			return
 		}
 
@@ -818,6 +920,18 @@ func registerExplosivesCD(agent Agent, consumes *proto.Consumes) {
 			filler = character.newThoriumGrenadeSpell(sharedTimer)
 		case proto.Explosive_ExplosiveGoblinLandMine:
 			filler = character.newGoblinLandMineSpell(sharedTimer)
+		case proto.Explosive_ExplosiveDarkIronBomb:
+			filler = character.newForeverExplosiveSpell(sharedTimer, DarkIronBombActionID, SpellSchoolFire, 225, 675)
+		case proto.Explosive_ExplosiveEzThroDarkBomb:
+			filler = character.newForeverExplosiveSpell(sharedTimer, EzThroDarkBombActionID, SpellSchoolFire, 225, 675)
+		case proto.Explosive_ExplosiveEzThroThoriumGrenade:
+			filler = character.newForeverExplosiveSpell(sharedTimer, EzThroThoriumGrenadeActionID, SpellSchoolFire, 300, 500)
+		case proto.Explosive_ExplosiveSafTCleverDynamite:
+			filler = character.newForeverExplosiveSpell(sharedTimer, SafTCleverDynamiteActionID, SpellSchoolFire, 340, 460)
+		case proto.Explosive_ExplosiveCrystalCharge:
+			filler = character.newForeverExplosiveSpell(sharedTimer, CrystalChargeActionID, SpellSchoolFire, 383, 517)
+		case proto.Explosive_ExplosiveHolyHandGrenade:
+			filler = character.newForeverExplosiveSpell(sharedTimer, HolyHandGrenadeActionID, SpellSchoolHoly, 300, 500)
 		}
 
 		character.AddMajorCooldown(MajorCooldown{
@@ -837,7 +951,8 @@ func (character *Character) newBasicExplosiveSpellConfig(sharedTimer *Timer, act
 	isSapper := actionID.SameAction(SapperActionID)
 
 	var defaultCast Cast
-	if !isSapper {
+	// the sapper and Crystal Charge are instant; the rest take 1 s
+	if !isSapper && !actionID.SameAction(CrystalChargeActionID) {
 		defaultCast = Cast{
 			CastTime: time.Second,
 		}
@@ -882,6 +997,12 @@ func (character *Character) newBasicExplosiveSpellConfig(sharedTimer *Timer, act
 		},
 	}
 }
+
+// Forever explosives: no cooldown of their own (only the shared minute), no self damage
+func (character *Character) newForeverExplosiveSpell(sharedTimer *Timer, actionID ActionID, school SpellSchool, minDamage float64, maxDamage float64) *Spell {
+	return character.GetOrRegisterSpell(character.newBasicExplosiveSpellConfig(sharedTimer, actionID, school, minDamage, maxDamage, Cooldown{}, 0, 0))
+}
+
 func (character *Character) newSapperSpell(sharedTimer *Timer) *Spell {
 	return character.GetOrRegisterSpell(character.newBasicExplosiveSpellConfig(sharedTimer, SapperActionID, SpellSchoolFire, 450, 750, Cooldown{Timer: character.NewTimer(), Duration: time.Minute * 5}, 375, 625))
 }

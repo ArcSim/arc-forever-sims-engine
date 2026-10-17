@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/wowsims/classic/sim/core/proto"
@@ -141,4 +142,36 @@ func (value *APLValueDistanceToTarget) GetFloat(sim *Simulation) float64 {
 }
 func (value *APLValueDistanceToTarget) String() string {
 	return "Distance to Target"
+}
+
+// APLValueWalkTime: how long walking from where the unit stands to a distance takes at its current run speed (racials
+// and speed buffs included), so weave rules read real walk times instead of fixed ones.
+type APLValueWalkTime struct {
+	DefaultAPLValueImpl
+	unit *Unit
+	to   APLValue
+}
+
+func (rot *APLRotation) newValueWalkTime(config *proto.APLValueWalkTime) APLValue {
+	to := rot.coerceTo(rot.newAPLValue(config.ToDistance), proto.APLValueType_ValueTypeFloat)
+	if to == nil {
+		return nil
+	}
+	return &APLValueWalkTime{unit: rot.unit, to: to}
+}
+func (value *APLValueWalkTime) GetInnerValues() []APLValue {
+	return []APLValue{value.to}
+}
+func (value *APLValueWalkTime) Type() proto.APLValueType {
+	return proto.APLValueType_ValueTypeDuration
+}
+func (value *APLValueWalkTime) GetDuration(sim *Simulation) time.Duration {
+	speed := value.unit.MovementHandler.MoveSpeed
+	if speed <= 0 {
+		return 0
+	}
+	return DurationFromSeconds(math.Abs(value.unit.DistanceFromTarget-value.to.GetFloat(sim)) / speed)
+}
+func (value *APLValueWalkTime) String() string {
+	return fmt.Sprintf("Walk Time(%s)", value.to)
 }

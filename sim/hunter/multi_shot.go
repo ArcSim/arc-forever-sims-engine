@@ -44,7 +44,7 @@ func (hunter *Hunter) registerMultiShotSpell(timer *core.Timer) {
 		},
 
 		CritDamageBonus:  hunter.mortalShots(),
-		DamageMultiplier: 1 + 0.03*float64(hunter.Talents.Barrage),
+		DamageMultiplier: 1 + hunter.barrageBonus(),
 		ThreatMultiplier: 1,
 		BonusCoefficient: 1,
 

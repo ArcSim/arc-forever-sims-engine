@@ -60,6 +60,12 @@ type Unit struct {
 	// for calculating spell travel time for certain spells.
 	StartDistanceFromTarget float64
 	DistanceFromTarget      float64
+	// wait before each step toward or away from the target (turning, reaction)
+	MoveDelay time.Duration
+	// run speed in yd/s before any speed effect; 0 is the game's 7
+	BaseRunSpeed float64
+	// Skyborne's Skysight / Read Leyline from a convergence or leyline: up the whole fight (cast before the pull)
+	SkyborneConvergence bool
 
 	MovementHandler *MovementHandler
 
@@ -146,6 +152,7 @@ type Unit struct {
 	// Cached mana return values per tick.
 	manaTickWhileCasting    float64
 	manaTickWhileNotCasting float64
+	manaTickMP5             float64
 
 	CastSpeed float64
 
@@ -518,6 +525,7 @@ func (unit *Unit) reset(sim *Simulation, _ Agent) {
 	}
 
 	unit.DistanceFromTarget = unit.StartDistanceFromTarget
+	unit.MovementHandler.PendingMove = false
 
 	unit.manaBar.reset()
 	unit.focusBar.reset(sim)

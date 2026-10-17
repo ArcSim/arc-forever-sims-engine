@@ -1,0 +1,948 @@
+{
+  "type": "TypeAPL",
+  "prepullActions": [
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 1299447
+          }
+        }
+      },
+      "doAtValue": {
+        "const": {
+          "val": "-10s"
+        }
+      },
+      "simple": {
+        "text": "**Aspect of the Beast** 10 s before the pull."
+      }
+    },
+    {
+      "action": {
+        "move": {
+          "rangeFromTarget": {
+            "const": {
+              "val": "9"
+            }
+          }
+        }
+      },
+      "doAtValue": {
+        "const": {
+          "val": "-5s"
+        }
+      },
+      "simple": {
+        "text": "**Move to 9 yd** 5 s before the pull."
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 20904
+          }
+        }
+      },
+      "doAtValue": {
+        "const": {
+          "val": "-2s"
+        }
+      },
+      "simple": {
+        "text": "**Aimed Shot** 2 s before the pull, from 9 yd."
+      }
+    }
+  ],
+  "priorityList": [
+    {
+      "action": {
+        "condition": {
+          "cmp": {
+            "op": "OpGt",
+            "lhs": {
+              "math": {
+                "op": "OpSub",
+                "lhs": {
+                  "maxMana": {}
+                },
+                "rhs": {
+                  "currentMana": {}
+                }
+              }
+            },
+            "rhs": {
+              "const": {
+                "val": "1350"
+              }
+            }
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "itemId": 12662
+          }
+        }
+      },
+      "simple": {
+        "text": "**Demonic Rune** when {Missing mana} or more mana is missing.",
+        "boxes": [
+          {
+            "label": "Missing mana",
+            "numbers": [
+              "condition/cmp/rhs"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "itemId": 13965
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "cmp": {
+            "op": "OpGt",
+            "lhs": {
+              "math": {
+                "op": "OpSub",
+                "lhs": {
+                  "maxMana": {}
+                },
+                "rhs": {
+                  "currentMana": {}
+                }
+              }
+            },
+            "rhs": {
+              "const": {
+                "val": "1800"
+              }
+            }
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "itemId": 13444
+          }
+        }
+      },
+      "simple": {
+        "text": "**Major Mana Potion** when {Missing mana} or more mana is missing.",
+        "boxes": [
+          {
+            "label": "Missing mana",
+            "numbers": [
+              "condition/cmp/rhs"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 3045
+          }
+        },
+        "condition": {
+          "or": {
+            "vals": [
+              {
+                "cmp": {
+                  "op": "OpGe",
+                  "lhs": {
+                    "currentTime": {}
+                  },
+                  "rhs": {
+                    "const": {
+                      "val": "5s"
+                    }
+                  }
+                }
+              },
+              {
+                "and": {
+                  "vals": [
+                    {
+                      "not": {
+                        "val": {
+                          "spellIsKnown": {
+                            "spellId": {
+                              "spellId": 1293241
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "not": {
+                        "val": {
+                          "spellIsKnown": {
+                            "spellId": {
+                              "spellId": 19574
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      "simple": {
+        "text": "**Rapid Fire** at the pull, or from 5 s into the fight with Summon Hawk or Bestial Wrath."
+      }
+    },
+    {
+      "action": {
+        "autocastOtherCooldowns": {}
+      },
+      "simple": {
+        "text": "**Any other cooldown** when ready (Bestial Wrath, Intimidation, trinkets)."
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 20572
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 20554
+          }
+        }
+      },
+      "simple": {
+        "text": "**Berserking**"
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 1259799
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "itemId": 250943
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "and": {
+            "vals": [
+              {
+                "cmp": {
+                  "op": "OpLe",
+                  "lhs": {
+                    "dotRemainingTime": {
+                      "spellId": {
+                        "spellId": 25295,
+                        "rank": 9
+                      }
+                    }
+                  },
+                  "rhs": {
+                    "const": {
+                      "val": "0.5"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 25295,
+            "rank": 9
+          }
+        }
+      },
+      "simple": {
+        "text": "**Serpent Sting** when it has {Refresh at} s or less left.",
+        "boxes": [
+          {
+            "label": "Refresh at",
+            "numbers": [
+              "condition/and/vals/0/cmp/rhs"
+            ],
+            "unit": "s"
+          }
+        ]
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 1293241
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 14287,
+            "rank": 8
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 2643,
+            "rank": 1
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "or": {
+            "vals": [
+              {
+                "cmp": {
+                  "op": "OpLe",
+                  "lhs": {
+                    "distanceToTarget": {}
+                  },
+                  "rhs": {
+                    "const": {
+                      "val": "5"
+                    }
+                  }
+                }
+              },
+              {
+                "cmp": {
+                  "op": "OpGe",
+                  "lhs": {
+                    "math": {
+                      "op": "OpAdd",
+                      "lhs": {
+                        "autoTimeToNext": {
+                          "autoType": "Ranged"
+                        }
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "0.6"
+                        }
+                      }
+                    }
+                  },
+                  "rhs": {
+                    "math": {
+                      "op": "OpAdd",
+                      "lhs": {
+                        "max": {
+                          "vals": [
+                            {
+                              "const": {
+                                "val": "0.857"
+                              }
+                            },
+                            {
+                              "autoTimeToNext": {
+                                "autoType": "MainHand"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "0.857"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 14266,
+            "tag": 1,
+            "rank": 8
+          }
+        }
+      },
+      "simple": {
+        "text": "**Raptor Strike** (queued on your next swing) when within {Melee range} yd, or as you move in: when you can walk in, swing, and walk back out before your next Auto Shot.",
+        "shown": true,
+        "boxes": [
+          {
+            "label": "Melee range",
+            "numbers": [
+              "condition/or/vals/0/cmp/rhs"
+            ],
+            "unit": "yd"
+          },
+          {
+            "label": "Auto Shot may slip",
+            "numbers": [
+              "condition/or/vals/1/cmp/lhs/math/rhs"
+            ],
+            "unit": "s"
+          },
+          {
+            "label": "Walk one way",
+            "numbers": [
+              "condition/or/vals/1/cmp/rhs/math/lhs/max/vals/0",
+              "condition/or/vals/1/cmp/rhs/math/rhs"
+            ],
+            "unit": "s"
+          }
+        ]
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "cmp": {
+            "op": "OpGe",
+            "lhs": {
+              "math": {
+                "op": "OpAdd",
+                "lhs": {
+                  "autoTimeToNext": {
+                    "autoType": "Ranged"
+                  }
+                },
+                "rhs": {
+                  "const": {
+                    "val": "0.6"
+                  }
+                }
+              }
+            },
+            "rhs": {
+              "math": {
+                "op": "OpAdd",
+                "lhs": {
+                  "max": {
+                    "vals": [
+                      {
+                        "const": {
+                          "val": "0.857"
+                        }
+                      },
+                      {
+                        "autoTimeToNext": {
+                          "autoType": "MainHand"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "rhs": {
+                  "const": {
+                    "val": "0.857"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "move": {
+          "rangeFromTarget": {
+            "const": {
+              "val": "3"
+            }
+          }
+        }
+      },
+      "simple": {
+        "text": "**Move in** to {Melee spot} yd when you can walk in, swing, and walk back out before your next Auto Shot.",
+        "shown": true,
+        "boxes": [
+          {
+            "label": "Melee spot",
+            "numbers": [
+              "move/rangeFromTarget"
+            ],
+            "unit": "yd"
+          },
+          {
+            "label": "Auto Shot may slip",
+            "numbers": [
+              "condition/cmp/lhs/math/rhs"
+            ],
+            "unit": "s"
+          },
+          {
+            "label": "Walk one way",
+            "numbers": [
+              "condition/cmp/rhs/math/lhs/max/vals/0",
+              "condition/cmp/rhs/math/rhs"
+            ],
+            "unit": "s"
+          }
+        ]
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 14271,
+            "rank": 4
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 1317257
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "and": {
+            "vals": [
+              {
+                "cmp": {
+                  "op": "OpLe",
+                  "lhs": {
+                    "distanceToTarget": {}
+                  },
+                  "rhs": {
+                    "const": {
+                      "val": "5"
+                    }
+                  }
+                }
+              },
+              {
+                "cmp": {
+                  "op": "OpLe",
+                  "lhs": {
+                    "spellTimeToReady": {
+                      "spellId": {
+                        "spellId": 14305
+                      }
+                    }
+                  },
+                  "rhs": {
+                    "const": {
+                      "val": "0.5"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "strictSequence": {
+          "actions": [
+            {
+              "castSpell": {
+                "spellId": {
+                  "spellId": 14305
+                }
+              }
+            }
+          ]
+        }
+      },
+      "simple": {
+        "text": "**Immolation Trap** when in melee range."
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "and": {
+            "vals": [
+              {
+                "cmp": {
+                  "op": "OpGt",
+                  "lhs": {
+                    "spellTimeToReady": {
+                      "spellId": {
+                        "spellId": 1317257
+                      }
+                    }
+                  },
+                  "rhs": {
+                    "const": {
+                      "val": "1.5"
+                    }
+                  }
+                }
+              },
+              {
+                "or": {
+                  "vals": [
+                    {
+                      "not": {
+                        "val": {
+                          "auraIsActive": {
+                            "auraId": {
+                              "spellId": 5302
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "cmp": {
+                        "op": "OpGt",
+                        "lhs": {
+                          "spellTimeToReady": {
+                            "spellId": {
+                              "spellId": 14271,
+                              "rank": 4
+                            }
+                          }
+                        },
+                        "rhs": {
+                          "const": {
+                            "val": "1.5"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "cmp": {
+                  "op": "OpGe",
+                  "lhs": {
+                    "math": {
+                      "op": "OpAdd",
+                      "lhs": {
+                        "autoTimeToNext": {
+                          "autoType": "MainHand"
+                        }
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "0.9"
+                        }
+                      }
+                    }
+                  },
+                  "rhs": {
+                    "const": {
+                      "val": "1.714"
+                    }
+                  }
+                }
+              },
+              {
+                "cmp": {
+                  "op": "OpGt",
+                  "lhs": {
+                    "spellTimeToReady": {
+                      "spellId": {
+                        "spellId": 14305
+                      }
+                    }
+                  },
+                  "rhs": {
+                    "const": {
+                      "val": "0.5"
+                    }
+                  }
+                }
+              },
+              {
+                "or": {
+                  "vals": [
+                    {
+                      "cmp": {
+                        "op": "OpLe",
+                        "lhs": {
+                          "autoSwingTime": {
+                            "autoType": "OffHand"
+                          }
+                        },
+                        "rhs": {
+                          "const": {
+                            "val": "0"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "cmp": {
+                        "op": "OpGe",
+                        "lhs": {
+                          "autoTimeToNext": {
+                            "autoType": "OffHand"
+                          }
+                        },
+                        "rhs": {
+                          "const": {
+                            "val": "0.9"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 14268,
+            "rank": 3
+          }
+        }
+      },
+      "simple": {
+        "text": "**Wing Clip** as you start moving out, while still in range (same moment as Move out, with the same waits: Strider Kick {Strider Kick} s, Mongoose Bite {Mongoose Bite} s, Immolation Trap {Immolation Trap} s).",
+        "shown": true,
+        "boxes": [
+          {
+            "label": "Strider Kick",
+            "numbers": [
+              "condition/and/vals/0/cmp/rhs"
+            ],
+            "unit": "s"
+          },
+          {
+            "label": "Mongoose Bite",
+            "numbers": [
+              "condition/and/vals/1/or/vals/1/cmp/rhs"
+            ],
+            "unit": "s"
+          },
+          {
+            "label": "Immolation Trap",
+            "numbers": [
+              "condition/and/vals/3/cmp/rhs"
+            ],
+            "unit": "s"
+          }
+        ]
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "and": {
+            "vals": [
+              {
+                "cmp": {
+                  "op": "OpGt",
+                  "lhs": {
+                    "spellTimeToReady": {
+                      "spellId": {
+                        "spellId": 1317257
+                      }
+                    }
+                  },
+                  "rhs": {
+                    "const": {
+                      "val": "1.5"
+                    }
+                  }
+                }
+              },
+              {
+                "or": {
+                  "vals": [
+                    {
+                      "not": {
+                        "val": {
+                          "auraIsActive": {
+                            "auraId": {
+                              "spellId": 5302
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "cmp": {
+                        "op": "OpGt",
+                        "lhs": {
+                          "spellTimeToReady": {
+                            "spellId": {
+                              "spellId": 14271,
+                              "rank": 4
+                            }
+                          }
+                        },
+                        "rhs": {
+                          "const": {
+                            "val": "1.5"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "cmp": {
+                  "op": "OpGe",
+                  "lhs": {
+                    "math": {
+                      "op": "OpAdd",
+                      "lhs": {
+                        "autoTimeToNext": {
+                          "autoType": "MainHand"
+                        }
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "0.9"
+                        }
+                      }
+                    }
+                  },
+                  "rhs": {
+                    "const": {
+                      "val": "1.714"
+                    }
+                  }
+                }
+              },
+              {
+                "cmp": {
+                  "op": "OpGt",
+                  "lhs": {
+                    "spellTimeToReady": {
+                      "spellId": {
+                        "spellId": 14305
+                      }
+                    }
+                  },
+                  "rhs": {
+                    "const": {
+                      "val": "0.5"
+                    }
+                  }
+                }
+              },
+              {
+                "or": {
+                  "vals": [
+                    {
+                      "cmp": {
+                        "op": "OpLe",
+                        "lhs": {
+                          "autoSwingTime": {
+                            "autoType": "OffHand"
+                          }
+                        },
+                        "rhs": {
+                          "const": {
+                            "val": "0"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "cmp": {
+                        "op": "OpGe",
+                        "lhs": {
+                          "autoTimeToNext": {
+                            "autoType": "OffHand"
+                          }
+                        },
+                        "rhs": {
+                          "const": {
+                            "val": "0.9"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "move": {
+          "rangeFromTarget": {
+            "const": {
+              "val": "9"
+            }
+          }
+        }
+      },
+      "simple": {
+        "text": "**Move out**: start moving to {Out to} yd once your swing lands, unless Strider Kick is ready within {Strider Kick} s, Mongoose Bite within {Mongoose Bite} s, or Immolation Trap within {Immolation Trap} s.",
+        "shown": true,
+        "boxes": [
+          {
+            "label": "Out to",
+            "numbers": [
+              "move/rangeFromTarget"
+            ],
+            "unit": "yd"
+          },
+          {
+            "label": "Strider Kick",
+            "numbers": [
+              "condition/and/vals/0/cmp/rhs"
+            ],
+            "unit": "s"
+          },
+          {
+            "label": "Mongoose Bite",
+            "numbers": [
+              "condition/and/vals/1/or/vals/1/cmp/rhs"
+            ],
+            "unit": "s"
+          },
+          {
+            "label": "Immolation Trap",
+            "numbers": [
+              "condition/and/vals/3/cmp/rhs"
+            ],
+            "unit": "s"
+          }
+        ]
+      }
+    }
+  ]
+}

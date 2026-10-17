@@ -9,7 +9,8 @@ import (
 )
 
 func (hunter *Hunter) getExplosiveTrapConfig(rank int, timer *core.Timer) core.SpellConfig {
-	spellId := [4]int32{0, 409532, 409534, 409535}[rank]
+	// the Forever trap spells (the 4095xx ids are not in the Forever data)
+	spellId := [4]int32{0, 13813, 14316, 14317}[rank]
 	dotDamage := [4]float64{0, 15, 24, 33}[rank]
 	minDamage := [4]float64{0, 104, 145, 208}[rank]
 	maxDamage := [4]float64{0, 135, 193, 265}[rank]
@@ -33,9 +34,10 @@ func (hunter *Hunter) getExplosiveTrapConfig(rank int, timer *core.Timer) core.S
 			FlatCost: manaCost,
 		},
 		Cast: core.CastConfig{
+			// 30 s in the Forever data (shared with Immolation Trap), 18 s with Survivalist's Discipline
 			CD: core.Cooldown{
 				Timer:    timer,
-				Duration: time.Second * 15,
+				Duration: time.Second * 30,
 			},
 			DefaultCast: core.Cast{
 				GCD: core.GCDDefault,
@@ -56,20 +58,27 @@ func (hunter *Hunter) getExplosiveTrapConfig(rank int, timer *core.Timer) core.S
 			TickLength:    time.Second * 2,
 
 			OnSnapshot: func(sim *core.Simulation, target *core.Unit, dot *core.Dot, isRollover bool) {
-				dot.Snapshot(target, dotDamage, isRollover)
+				// the first hit gets the AP share (T.N.T.); the burn only with the "burn scales" setting, spread over its ticks
+				tickDamage := dotDamage
+				if hunter.Options.ExplosiveTrapBurnAp {
+					tickDamage += trapAPBonus(dot.Spell, target) / float64(dot.NumberOfTicks)
+				}
+				dot.Snapshot(target, tickDamage, isRollover)
+				// the burn can crit in the Forever data (Periodic Can Crit), for 1.5x like Immolation Trap's
+				dot.SnapshotCritChance = dot.Spell.SpellCritChance(target)
 			},
 			OnTick: func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 				for _, aoeTarget := range sim.Encounter.TargetUnits {
 					// Explosive Trap DoT only does damage if the target does not have an immolation trap ticking on them
 					if !aoeTarget.HasActiveAuraWithTag("ImmolationTrap") {
-						dot.CalcAndDealPeriodicSnapshotDamage(sim, aoeTarget, dot.OutcomeTick)
+						dot.CalcAndDealPeriodicSnapshotDamage(sim, aoeTarget, dot.OutcomeTickPhysicalCrit)
 					}
 				}
 			},
 		},
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			if hunter.DistanceFromTarget > 5 {
+			if hunter.DistanceFromTarget > hunter.trapReach() {
 				return
 			}
 
@@ -79,7 +88,7 @@ func (hunter *Hunter) getExplosiveTrapConfig(rank int, timer *core.Timer) core.S
 				spellHit := spell.Unit.GetStat(stats.SpellHit) + target.PseudoStats.BonusSpellHitRatingTaken
 				spell.Unit.AddStatDynamic(sim, stats.SpellHit, spellHit*-1)
 				for hitIndex := int32(0); hitIndex < numHits; hitIndex++ {
-					baseDamage := sim.Roll(minDamage, maxDamage)
+					baseDamage := sim.Roll(minDamage, maxDamage) + trapAPBonus(spell, curTarget)
 					baseDamage *= sim.Encounter.AOECapMultiplier()
 					spell.CalcAndDealDamage(sim, curTarget, baseDamage, spell.OutcomeMagicHitAndCrit)
 					curTarget = sim.Environment.NextTargetUnit(curTarget)

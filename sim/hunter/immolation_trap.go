@@ -1,6 +1,7 @@
 package hunter
 
 import (
+	"os"
 	"strconv"
 	"time"
 
@@ -8,22 +9,54 @@ import (
 	"github.com/wowsims/classic/sim/core/stats"
 )
 
+// ImmolationTrapAPCoefficient: the share of attack power the burn adds over its 15 s.
+const ImmolationTrapAPCoefficient = 0.132
+
+// trapAPBonus: T.N.T. (428717) adds a share of the higher of melee and ranged AP to Immolation Trap's total burn and
+// to Explosive Trap's first hit. 0.132 from live Immolation Trap logs (the client's 25% is not what is live).
+// AB_TRAP_AP sets another coefficient for comparisons.
+func trapAPBonus(spell *core.Spell, target *core.Unit) float64 {
+	coef := ImmolationTrapAPCoefficient
+	if v, err := strconv.ParseFloat(os.Getenv("AB_TRAP_AP"), 64); err == nil {
+		coef = v
+	}
+	return coef * max(spell.RangedAttackPower(target, false), spell.MeleeAttackPower(target))
+}
+
+// trapReach: how far from the target a trap can be dropped and still catch it. In game it lands about a yard in front
+// of you: from 6 yd it hits, from 8 yd it does not (7 yd untested).
+func (hunter *Hunter) trapReach() float64 {
+	// AB_TRAP_REACH sets the reach in yards for comparisons
+	if v, err := strconv.ParseFloat(os.Getenv("AB_TRAP_REACH"), 64); err == nil {
+		return v
+	}
+	return core.MaxMeleeAttackDistance + 1
+}
+
 func (hunter *Hunter) getImmolationTrapConfig(rank int, timer *core.Timer) core.SpellConfig {
-	spellId := [6]int32{0, 409521, 409524, 409526, 409528, 409530}[rank]
+	// the Forever trap spells (the 4095xx ids are not in the Forever data)
+	spellId := [6]int32{0, 13795, 14302, 14303, 14304, 14305}[rank]
 	dotDamage := [6]float64{0, 105, 215, 340, 510, 690}[rank]
 	manaCost := [6]float64{0, 50, 90, 135, 190, 245}[rank]
 	level := [6]int{0, 16, 26, 36, 46, 56}[rank]
 
 	return core.SpellConfig{
-		SpellCode:     SpellCode_HunterImmolationTrap,
-		ActionID:      core.ActionID{SpellID: spellId},
-		SpellSchool:   core.SpellSchoolFire,
-		DefenseType:   core.DefenseTypeMelee,
-		ProcMask:      core.ProcMaskMeleeMHSpecial,
-		Flags:         core.SpellFlagAPL | core.SpellFlagPassiveSpell | SpellFlagTrap,
+		SpellCode:   SpellCode_HunterImmolationTrap,
+		ActionID:    core.ActionID{SpellID: spellId},
+		SpellSchool: core.SpellSchoolFire,
+		// a magic spell in the Forever data: its ticks crit for 1.5x (logs: 65 -> 98)
+		DefenseType: core.DefenseTypeMagic,
+		// a magic effect in Forever: it does not trigger melee procs (Windfury, Hand of Justice, Chili)
+		ProcMask: core.ProcMaskSpellDamage,
+		// a real cast on the GCD, not passive: the results count its casts, so it gets damage per cast and per execute time
+		Flags:         core.SpellFlagAPL | SpellFlagTrap,
 		Rank:          rank,
 		RequiredLevel: level,
 		MissileSpeed:  24,
+		// a trap at your feet only catches a target within its reach (it does nothing from further out)
+		ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {
+			return hunter.DistanceFromTarget <= hunter.trapReach()
+		},
 
 		ManaCost: core.ManaCostOptions{
 			FlatCost: manaCost,
@@ -48,11 +81,10 @@ func (hunter *Hunter) getImmolationTrapConfig(rank int, timer *core.Timer) core.
 				Tag:   "ImmolationTrap",
 			},
 			NumberOfTicks: 5,
-			TickLength:    time.Millisecond * 3000,
+			TickLength:    time.Second * 3,
 
 			OnSnapshot: func(sim *core.Simulation, target *core.Unit, dot *core.Dot, isRollover bool) {
-				ap := dot.Spell.RangedAttackPower(target, false)
-				tickDamage := (dotDamage + ap*0.15) / float64(dot.NumberOfTicks)
+				tickDamage := (dotDamage + trapAPBonus(dot.Spell, target)) / float64(dot.NumberOfTicks)
 				dot.Snapshot(target, tickDamage, isRollover)
 				dot.SnapshotCritChance = dot.Spell.SpellCritChance(target)
 			},
@@ -62,7 +94,7 @@ func (hunter *Hunter) getImmolationTrapConfig(rank int, timer *core.Timer) core.
 		},
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			if hunter.DistanceFromTarget > 5 {
+			if hunter.DistanceFromTarget > hunter.trapReach() {
 				return
 			}
 			// Traps gain no benefit from hit bonuses except for the Trap Mastery talent, since this is a unique interaction this is my workaround

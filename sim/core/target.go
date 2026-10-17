@@ -18,6 +18,9 @@ type Encounter struct {
 	ExecuteProportion_25 float64
 	ExecuteProportion_35 float64
 
+	// the fight is outside the zones where Forever's Natural flasks give their second effect
+	OutsideHyjal bool
+
 	EndFightAtHealth float64
 	// DamageTaken is used to track health fights instead of duration fights.
 	//  Once primary target has taken its health worth of damage, fight ends.
@@ -39,6 +42,7 @@ func NewEncounter(options *proto.Encounter) Encounter {
 		ExecuteProportion_20: max(options.ExecuteProportion_20, 0),
 		ExecuteProportion_25: max(options.ExecuteProportion_25, 0),
 		ExecuteProportion_35: max(options.ExecuteProportion_35, 0),
+		OutsideHyjal:         options.OutsideHyjal,
 		Targets:              []*Target{},
 	}
 	// If UseHealth is set, we use the sum of targets health.
@@ -308,12 +312,14 @@ func NewAttackTable(attacker *Unit, defender *Unit, weapon *Item) *AttackTable {
 		targetDefense := float64(defender.Level * 5)
 
 		if targetDefense-weaponSkill > 10 {
+			// Forever: no 1% hit suppression against +3 targets (log data); miss is 8% base.
 			table.HitSuppression = 0
 			table.BaseMissChance = 0.05 + (targetDefense-weaponSkill)*0.002
 		} else {
 			table.HitSuppression = 0
 			table.BaseMissChance = 0.05 + (targetDefense-weaponSkill)*0.001
 		}
+
 		if targetDefense-baseWeaponSkill > 10 {
 			table.BaseParryChance = 0.05 + (targetDefense-baseWeaponSkill)*0.006 // = 14
 		} else {

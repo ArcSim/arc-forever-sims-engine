@@ -21,6 +21,7 @@ const (
 	FlurryAxe                 = 871
 	SkullflameShield          = 1168
 	TeebusBlazingLongsword    = 1728
+	BlackhandsBreadth         = 13965
 	Nightblade                = 1982
 	Shadowblade               = 2163
 	GutRipper                 = 2164
@@ -183,7 +184,7 @@ func init() {
 	// https://www.wowhead.com/classic/item=14555/alcors-sunrazor
 	// Chance on hit: Blasts a target for 75 to 105 Fire damage.
 	// 1 PPM from Armaments Discord
-	itemhelpers.CreateWeaponCoHProcDamage(AlcorsSunrazor, "Alcor's Sunrazor", 1.0, 18833, core.SpellSchoolFire, 75, 30, 0, core.DefenseTypeMagic)
+	itemhelpers.CreateWeaponCoHProcDamage(AlcorsSunrazor, "Alcor's Sunrazor", 1.0, 18833, core.SpellSchoolFire, 95, 21, 0, core.DefenseTypeMagic)
 
 	//https://www.wowhead.com/classic/item=12798/annihilator
 	// Chance on hit: Reduces an enemy's armor by 200.  Stacks up to 3 times.
@@ -293,7 +294,7 @@ func init() {
 	// https://www.wowhead.com/classic/item=18671/baron-charrs-sceptre
 	// Chance on hit: Blasts a target for 35 Fire damage.
 	// 1 PPM assumed
-	itemhelpers.CreateWeaponCoHProcDamage(BaronCharrsSceptre, "Baron Charr's Sceptre", 1.0, 13442, core.SpellSchoolFire, 35, 0, 0, core.DefenseTypeMagic)
+	itemhelpers.CreateWeaponCoHProcDamage(BaronCharrsSceptre, "Baron Charr's Sceptre", 1.0, 13442, core.SpellSchoolFire, 90, 0, 0, core.DefenseTypeMagic)
 
 	// https://www.wowhead.com/classic/item=14541/barovian-family-sword
 	// Chance on hit: Deals 30 Shadow damage every 3 sec for 15 sec. All damage done is then transferred to the caster.
@@ -586,7 +587,7 @@ func init() {
 	// https://www.wowhead.com/classic/item=12583/blackhand-doomsaw
 	// Chance on hit: Wounds the target for 324 to 540 damage.
 	// TODO: Proc rate based on the original item
-	itemhelpers.CreateWeaponCoHProcDamage(BlackhandDoomsaw, "Blackhand Doomsaw", 0.4, 16549, core.SpellSchoolPhysical, 324, 216, 0, core.DefenseTypeMelee)
+	itemhelpers.CreateWeaponCoHProcDamage(BlackhandDoomsaw, "Blackhand Doomsaw", 0.4, 16549, core.SpellSchoolPhysical, 373, 150, 0, core.DefenseTypeMelee)
 
 	// https://www.wowhead.com/classic/item=17780/blade-of-eternal-darkness
 	// Equip: Chance on landing a damaging spell to deal 100 Shadow damage and restore 100 mana to you. (Proc chance: 10%)
@@ -660,10 +661,10 @@ func init() {
 	// https://www.wowhead.com/classic/item=11744/bloodfist
 	// Chance on hit: Wounds the target for 20 damage.
 	// 4 PPM from Armaments Discord
-	itemhelpers.CreateWeaponCoHProcDamage(Bloodfist, "Bloodfist", 4, 16433, core.SpellSchoolPhysical, 20, 0, 0, core.DefenseTypeMelee)
+	itemhelpers.CreateWeaponCoHProcDamage(Bloodfist, "Bloodfist", 4, 16433, core.SpellSchoolPhysical, 35, 0, 0, core.DefenseTypeMelee)
 
 	// https://www.wowhead.com/classic/item=9511/bloodletter-scalpel
-	itemhelpers.CreateWeaponCoHProcDamage(BloodletterScalpel, "Bloodletter Scalpel", 1.0, 18081, core.SpellSchoolPhysical, 60, 10, 0, core.DefenseTypeMelee)
+	itemhelpers.CreateWeaponCoHProcDamage(BloodletterScalpel, "Bloodletter Scalpel", 1.0, 18081, core.SpellSchoolPhysical, 77, 28, 0, core.DefenseTypeMelee)
 
 	// https://www.wowhead.com/classic/item=809/bloodrazor
 	itemhelpers.CreateWeaponProcSpell(Bloodrazor, "Bloodrazor", 1.0, func(character *core.Character) *core.Spell {
@@ -728,7 +729,7 @@ func init() {
 	// https://www.wowhead.com/classic/item=14487/bonechill-hammer
 	// Chance on hit: Blasts a target for 90 Frost damage.
 	// 1 PPM from Armaments Discord
-	itemhelpers.CreateWeaponCoHProcDamage(BonechillHammer, "Bonechill Hammer", 1.0, 18276, core.SpellSchoolFrost, 90, 0, 0, core.DefenseTypeMagic)
+	itemhelpers.CreateWeaponCoHProcDamage(BonechillHammer, "Bonechill Hammer", 1.0, 18276, core.SpellSchoolFrost, 105, 0, 0, core.DefenseTypeMagic)
 
 	// https://www.wowhead.com/classic/item=17076/bonereavers-edge
 	// Chance on hit: Your attacks ignore 700 of your enemies' armor for 10 sec. This effect stacks up to 3 times.
@@ -783,12 +784,12 @@ func init() {
 	// https://www.wowhead.com/classic/item=10761/coldrage-dagger
 	// Chance on hit: Launches a bolt of frost at the enemy causing 20 to 30 Frost damage and slowing movement speed by 50% for 5 sec.
 	// 2.2 PPM from Armaments Discord
-	itemhelpers.CreateWeaponCoHProcDamage(ColdrageDagger, "Coldrage Dagger", 2.2, 13439, core.SpellSchoolFrost, 20, 10, 0, core.DefenseTypeMagic)
+	itemhelpers.CreateWeaponCoHProcDamage(ColdrageDagger, "Coldrage Dagger", 2.2, 13439, core.SpellSchoolFrost, 40, 20, 0, core.DefenseTypeMagic)
 
 	// https://www.wowhead.com/classic/item=13984/darrowspike
 	// Chance on hit: Blasts a target for 90 Frost damage.
 	// 1 PPM from Armaments Discord
-	itemhelpers.CreateWeaponCoHProcDamage(Darrowspike, "Darrowspike", 1.0, 18276, core.SpellSchoolFrost, 90, 0, 0, core.DefenseTypeMagic)
+	itemhelpers.CreateWeaponCoHProcDamage(Darrowspike, "Darrowspike", 1.0, 18276, core.SpellSchoolFrost, 105, 0, 0, core.DefenseTypeMagic)
 
 	// https://www.wowhead.com/classic/item=17068/deathbringer
 	// Chance on hit: Sends a shadowy bolt at the enemy causing 110 to 140 Shadow damage.
@@ -838,12 +839,12 @@ func init() {
 	// https://www.wowhead.com/classic/item=19353/drake-talon-cleaver
 	// Chance on hit: Delivers a fatal wound for 240 damage.
 	// Original proc rate 1.0 increased to approximately 1.60 in SoD phase 5
-	itemhelpers.CreateWeaponCoHProcDamage(DrakeTalonCleaver, "Drake Talon Cleaver", 1.0, 467167, core.SpellSchoolPhysical, 240, 0, 0.0, core.DefenseTypeMelee) // TBD confirm 1 ppm in SoD
+	itemhelpers.CreateWeaponCoHProcDamage(DrakeTalonCleaver, "Drake Talon Cleaver", 1.0, 467167, core.SpellSchoolPhysical, 300, 0, 0.0, core.DefenseTypeMelee) // TBD confirm 1 ppm in SoD
 
 	// https://www.wowhead.com/classic/item=19170/ebon-hand
 	// Chance on hit: Sends a shadowy bolt at the enemy causing 125 to 275 Shadow damage.
 	// TODO: Proc rate assumed and needs testing
-	itemhelpers.CreateWeaponCoHProcDamage(EbonHand, "Ebon Hand", 1.0, 18211, core.SpellSchoolShadow, 125, 150, 0, core.DefenseTypeMagic)
+	itemhelpers.CreateWeaponCoHProcDamage(EbonHand, "Ebon Hand", 1.0, 18211, core.SpellSchoolShadow, 161, 140, 0, core.DefenseTypeMagic)
 
 	// https://www.wowhead.com/classic/item=14576/ebon-hilt-of-marduk
 	// Chance on hit: Corrupts the target, causing 210 damage over 3 sec.
@@ -1302,7 +1303,7 @@ func init() {
 	core.NewMobTypeAttackPowerEffect(GrileksGrinder, []proto.MobType{proto.MobType_MobTypeDragonkin}, 48)
 
 	// https://www.wowhead.com/classic/item=9651/gryphon-riders-stormhammer
-	itemhelpers.CreateWeaponCoHProcDamage(GryphonRidersStormhammer, "Gryphon Rider's Stormhammer", 1.0, 18081, core.SpellSchoolNature, 91, 34, 0, core.DefenseTypeMagic)
+	itemhelpers.CreateWeaponCoHProcDamage(GryphonRidersStormhammer, "Gryphon Rider's Stormhammer", 1.0, 18081, core.SpellSchoolNature, 77, 28, 0, core.DefenseTypeMagic)
 
 	// https://www.wowhead.com/classic/item=17071/gutgore-ripper
 	// Chance on hit: Sends a shadowy bolt at the enemy causing 75 Shadow damage and lowering all stats by 25 for 30 sec.
@@ -1382,7 +1383,7 @@ func init() {
 	})
 
 	// https://www.wowhead.com/classic/item=2164/gut-ripper
-	itemhelpers.CreateWeaponCoHProcDamage(GutRipper, "Gut Ripper", 1.0, 18107, core.SpellSchoolPhysical, 95, 26, 0, core.DefenseTypeMelee)
+	itemhelpers.CreateWeaponCoHProcDamage(GutRipper, "Gut Ripper", 1.0, 18107, core.SpellSchoolPhysical, 92, 26, 0, core.DefenseTypeMelee)
 
 	// https://www.wowhead.com/classic/item=19874/halberd-of-smiting
 	// Equip: Chance to decapitate the target on a melee swing, causing 452 to 676 damage.
@@ -1420,7 +1421,7 @@ func init() {
 	})
 
 	// https://www.wowhead.com/classic/item=810/hammer-of-the-northern-wind
-	itemhelpers.CreateWeaponCoHProcDamage(HammerOfTheNorthernWind, "Hammer of the Northern Wind", 3.5, 13439, core.SpellSchoolFrost, 20, 10, 0, core.DefenseTypeMagic)
+	itemhelpers.CreateWeaponCoHProcDamage(HammerOfTheNorthernWind, "Hammer of the Northern Wind", 3.5, 13439, core.SpellSchoolFrost, 40, 20, 0, core.DefenseTypeMagic)
 
 	// https://www.wowhead.com/classic/item=2243/hand-of-edward-the-odd
 	// Chance on hit: Next spell cast within 4 sec will cast instantly.
@@ -1584,7 +1585,7 @@ func init() {
 	})
 
 	// https://www.wowhead.com/classic/item=11902/linkens-sword-of-mastery
-	itemhelpers.CreateWeaponCoHProcDamage(LinkensSwordOfMastery, "Linken's Sword of Mastery", 1.0, 18089, core.SpellSchoolNature, 45, 30, 0, core.DefenseTypeMagic)
+	itemhelpers.CreateWeaponCoHProcDamage(LinkensSwordOfMastery, "Linken's Sword of Mastery", 1.0, 18089, core.SpellSchoolNature, 74, 49, 0, core.DefenseTypeMagic)
 
 	//https://www.wowhead.com/classic/item=19324/the-lobotomizer
 	// Chance on hit: Wounds the target for 200 to 300 damage and lowers Intellect of target by 25 for 30 sec.
@@ -1754,7 +1755,7 @@ func init() {
 	})
 
 	// https://www.wowhead.com/classic/item=1982/nightblade
-	itemhelpers.CreateWeaponCoHProcDamage(Nightblade, "Nightblade", 1.0, 18211, core.SpellSchoolShadow, 125, 150, 0, core.DefenseTypeMagic)
+	itemhelpers.CreateWeaponCoHProcDamage(Nightblade, "Nightblade", 1.0, 18211, core.SpellSchoolShadow, 161, 140, 0, core.DefenseTypeMagic)
 
 	// https://www.wowhead.com/classic/item=19169/nightfall
 	// Chance on hit: Spell damage taken by target increased by 15% for 5 sec.
@@ -1799,14 +1800,14 @@ func init() {
 	})
 
 	// https://www.wowhead.com/classic/item=9425/pendulum-of-doom
-	itemhelpers.CreateWeaponCoHProcDamage(PendulumOfDoom, "Pendulum of Doom", 0.5, 10373, core.SpellSchoolPhysical, 250, 100, 0, core.DefenseTypeMelee)
+	itemhelpers.CreateWeaponCoHProcDamage(PendulumOfDoom, "Pendulum of Doom", 0.5, 10373, core.SpellSchoolPhysical, 259, 104, 0, core.DefenseTypeMelee)
 
 	// https://www.wowhead.com/classic/item=12709/pips-skinner
 	core.NewMobTypeAttackPowerEffect(PipsSkinner, []proto.MobType{proto.MobType_MobTypeBeast}, 45)
 
 	// https://www.wowhead.com/classic/item=18816/perditions-blade
 	// Chance on hit: Blasts a target for 40 to 56 Fire damage.
-	itemhelpers.CreateWeaponCoHProcDamage(PerditionsBlade, "Perdition's Blade", 2.8, 23267, core.SpellSchoolFire, 40, 56, 0, core.DefenseTypeMagic)
+	itemhelpers.CreateWeaponCoHProcDamage(PerditionsBlade, "Perdition's Blade", 2.8, 23267, core.SpellSchoolFire, 40, 16, 0, core.DefenseTypeMagic)
 
 	// https://www.wowhead.com/classic/item=19963/pitchfork-of-madness
 	// +117 Attack Power when fighting Demons.
@@ -1963,7 +1964,7 @@ func init() {
 	itemhelpers.CreateWeaponCoHProcDamage(SatyrsLash, "Satyr's Lash", 1.0, 18205, core.SpellSchoolShadow, 55, 30, 0, core.DefenseTypeMagic)
 
 	// TODO Searing Needle adds an "Apply Aura: Mod Damage Done (Fire): 10" aura to the /target/, buffing it; not currently modelled
-	itemhelpers.CreateWeaponCoHProcDamage(SearingNeedle, "Searing Needle", 1.0, 16454, core.SpellSchoolFire, 60, 0, 0, core.DefenseTypeMagic)
+	itemhelpers.CreateWeaponCoHProcDamage(SearingNeedle, "Searing Needle", 1.0, 16454, core.SpellSchoolFire, 56, 0, 0, core.DefenseTypeMagic)
 
 	// https://www.wowhead.com/classic/item=12969/seeping-willow
 	// Chance on hit: Lowers all stats by 20 and deals 20 Nature damage every 3 sec to all enemies within an 8 yard radius of the caster for 30 sec.
@@ -2267,10 +2268,17 @@ func init() {
 		})
 	})
 
+	// https://www.wowhead.com/forever/item=13965/blackhands-breadth
+	// Forever: +1% crit (the item data carries Classic's 2%) and an on-use mark on the target:
+	// +5% crit against it for 20 sec, 5 min cooldown (doubled against Orcs and Ogres).
+	core.NewSimpleStatOffensiveTrinketEffectWithOtherEffects(BlackhandsBreadth, stats.Stats{stats.MeleeCrit: 5 * core.CritRatingPerCritChance}, time.Second*20, time.Minute*5, func(agent core.Agent) {
+		agent.GetCharacter().AddStat(stats.MeleeCrit, -1*core.CritRatingPerCritChance)
+	})
+
 	// https://www.wowhead.com/classic/item=1728/teebus-blazing-longsword
-	// Chance on hit: Blasts a target for 150 Fire damage.
+	// Forever: chance on hit Firebolt (1300753) blasts a target for 140 Fire damage.
 	// Chance on Hit Assumed: 1 PPM
-	itemhelpers.CreateWeaponCoHProcDamage(TeebusBlazingLongsword, "Teebu's Blazing Longsword", 1.0, 18086, core.SpellSchoolFire, 150, 0, 0, core.DefenseTypeMagic)
+	itemhelpers.CreateWeaponCoHProcDamage(TeebusBlazingLongsword, "Teebu's Blazing Longsword", 1.0, 1300753, core.SpellSchoolFire, 140, 0, 0, core.DefenseTypeMagic)
 
 	// https://www.wowhead.com/classic/item=13401/the-cruel-hand-of-timmy
 	// Chance on hit: Lowers all attributes of target by 15 for 1 min.
@@ -2821,7 +2829,8 @@ func init() {
 				if spell.Flags.Matches(core.SpellFlagSuppressEquipProcs) {
 					return
 				}
-				if result.Landed() && spell.ProcMask.Matches(core.ProcMaskMelee) && icd.IsReady(sim) && sim.Proc(0.02, "HandOfJustice") {
+				// Forever: 1% (the tooltip is a third of the stored 3%; 3x against Dwarves)
+				if result.Landed() && spell.ProcMask.Matches(core.ProcMaskMelee) && icd.IsReady(sim) && sim.Proc(0.01, "HandOfJustice") {
 					icd.Use(sim)
 					aura.Unit.AutoAttacks.ExtraMHAttackProc(sim, 1, core.ActionID{SpellID: 15600}, spell)
 				}
@@ -2957,7 +2966,7 @@ func init() {
 	core.NewSimpleStatOffensiveTrinketEffect(NatPaglesBrokenReel, stats.Stats{
 		stats.SpellHit: 10 * core.SpellHitRatingPerHitChance,
 		stats.MeleeHit: 10 * core.MeleeHitRatingPerHitChance,
-	}, time.Second*15, time.Second*90)
+	}, time.Second*15, time.Second*75)
 
 	// https://www.wowhead.com/classic/item=19812/rune-of-the-dawn
 	// Equip: Increases damage done to Undead by magical spells and effects by up to 48.

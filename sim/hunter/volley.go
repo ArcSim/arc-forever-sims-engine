@@ -26,7 +26,7 @@ func (hunter *Hunter) getVolleyConfig(rank int) core.SpellConfig {
 	manaCost := [4]float64{0, 350, 420, 490}[rank]
 	level := [4]int{0, 40, 50, 58}[rank]
 
-	manaCostModifer := 100 - 2*hunter.Talents.Efficiency
+	manaCostModifer := int32(100)
 
 	return core.SpellConfig{
 		SpellCode:   SpellCode_HunterVolley,
@@ -71,8 +71,8 @@ func (hunter *Hunter) getVolleyConfig(rank int) core.SpellConfig {
 			},
 		},
 
-		CritDamageBonus:  (1 + hunter.mortalShots()) * (1 + (0.05 * float64(hunter.Talents.Barrage))),
-		DamageMultiplier: 1,
+		CritDamageBonus:  hunter.mortalShots(),
+		DamageMultiplier: 1 + hunter.barrageBonus(),
 		ThreatMultiplier: 1,
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

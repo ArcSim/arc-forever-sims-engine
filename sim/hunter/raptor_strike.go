@@ -10,7 +10,8 @@ const RaptorStrikeRanks = 8
 
 var RaptorStrikeSpellId = [RaptorStrikeRanks + 1]int32{0, 2973, 14260, 14261, 14262, 14263, 14264, 14265, 14266}
 var RaptorStrikeSpellIdMeleeSpecialist = [RaptorStrikeRanks + 1]int32{0, 415335, 415336, 415337, 415338, 415340, 415341, 415342, 415343}
-var RaptorStrikeBaseDamage = [RaptorStrikeRanks + 1]float64{0, 5, 11, 21, 34, 50, 80, 110, 140}
+// Forever client data (the 34..140 values are the Season of Discovery rune version, not Forever's)
+var RaptorStrikeBaseDamage = [RaptorStrikeRanks + 1]float64{0, 5, 11, 21, 30, 35, 40, 55, 70}
 var RaptorStrikeManaCost = [RaptorStrikeRanks + 1]float64{0, 15, 25, 35, 45, 55, 70, 80, 100}
 var RaptorStrikeLevel = [RaptorStrikeRanks + 1]int{0, 1, 8, 16, 24, 32, 40, 48, 56}
 
@@ -23,6 +24,12 @@ func (hunter *Hunter) TryRaptorStrike(sim *core.Simulation, mhSwingSpell *core.S
 		return mhSwingSpell
 	}
 	return hunter.RaptorStrikeHit
+}
+
+func (hunter *Hunter) unqueueRaptorStrike(sim *core.Simulation) {
+	if hunter.curQueueAura != nil {
+		hunter.curQueueAura.Deactivate(sim)
+	}
 }
 
 func (hunter *Hunter) registerRaptorStrikeSpell() {
@@ -54,7 +61,6 @@ func (hunter *Hunter) registerRaptorStrikeSpell() {
 			FlatCost: manaCost,
 		},
 
-		CritDamageBonus:  hunter.mortalShots(),
 		DamageMultiplier: 1,
 		BonusCoefficient: 1,
 
@@ -85,19 +91,32 @@ func (hunter *Hunter) registerRaptorStrikeSpell() {
 		},
 	})
 
+	// any ranged attack (a shot, a sting, the Auto Shot) switches you out of melee mode, which unqueues Raptor Strike
+	core.MakePermanent(hunter.RegisterAura(core.Aura{
+		Label: "Raptor Strike Unqueued By Ranged",
+		OnCastComplete: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
+			if spell.DefenseType == core.DefenseTypeRanged {
+				hunter.unqueueRaptorStrike(sim)
+			}
+		},
+	}))
+
 	hunter.RaptorStrike = hunter.RegisterSpell(core.SpellConfig{
 		SpellCode: SpellCode_HunterRaptorStrike,
 		ActionID:  core.ActionID{SpellID: spellID}.WithTag(1),
 		Flags:     core.SpellFlagAPL | core.SpellFlagCastTimeNoGCD,
 		Cast:      core.CastConfig{},
 		ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {
+			// Forever: it queues at any range and waits for the next melee swing
 			return hunter.curQueueAura == nil &&
 				cd.IsReady(sim) &&
-				hunter.CurrentMana() >= manaCost &&
-				hunter.DistanceFromTarget <= core.MaxMeleeAttackDistance
+				hunter.CurrentMana() >= hunter.RaptorStrikeHit.Cost.GetCurrentCost()
 		},
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			hunter.raptorQueueAura.Activate(sim)
 		},
 	})
+	// the hit starts the 6 s cooldown on cd; pointing the castable spell at it lets rotations read Raptor Strike's
+	// cooldown (a cast only happens when cd is ready, so its zero-length Use changes nothing)
+	hunter.RaptorStrike.CD.Timer = cd
 }

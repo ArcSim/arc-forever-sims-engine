@@ -32,64 +32,12 @@ func applyDebuffEffects(target *Unit, targetIdx int, debuffs *proto.Debuffs, rai
 		}
 	}
 
-	if debuffs.ImprovedShadowBolt && targetIdx == 0 {
-		ExternalIsbCaster(debuffs, target)
-	}
-
-	if debuffs.ShadowWeaving {
-		aura := ShadowWeavingAura(target, 5)
-		SchedulePeriodicDebuffApplication(aura, PeriodicActionOptions{
-			Period:          time.Millisecond * 1500,
-			NumTicks:        5,
-			TickImmediately: true,
-			Priority:        ActionPriorityDOT, // High prio
-			OnAction: func(sim *Simulation) {
-				aura.Activate(sim)
-				if aura.IsActive() {
-					aura.AddStack(sim)
-				}
-			},
-		}, raid)
-	}
+	// Forever: Improved Shadow Bolt, Shadow Weaving, Improved Scorch, Winter's Chill and Stormstrike only raise damage
+	// taken from the player who applied them ("from the caster" in the client data), so another player's copy does
+	// nothing for the simmed player. A class that has the talent applies its own from its own spells.
 
 	if debuffs.CurseOfElements {
 		MakePermanent(CurseOfElementsAura(target))
-	}
-
-	if debuffs.ImprovedScorch && targetIdx == 0 {
-		aura := ImprovedScorchAura(target)
-		SchedulePeriodicDebuffApplication(aura, PeriodicActionOptions{
-			Period:          time.Millisecond * 1500,
-			NumTicks:        5,
-			TickImmediately: true,
-			Priority:        ActionPriorityDOT, // High prio
-			OnAction: func(sim *Simulation) {
-				aura.Activate(sim)
-				if aura.IsActive() {
-					aura.AddStack(sim)
-				}
-			},
-		}, raid)
-	}
-
-	if debuffs.WintersChill && targetIdx == 0 {
-		aura := WintersChillAura(target)
-		SchedulePeriodicDebuffApplication(aura, PeriodicActionOptions{
-			Period:          time.Millisecond * 1500,
-			NumTicks:        5,
-			TickImmediately: true,
-			Priority:        ActionPriorityDOT, // High prio
-			OnAction: func(sim *Simulation) {
-				aura.Activate(sim)
-				if aura.IsActive() {
-					aura.AddStack(sim)
-				}
-			},
-		}, raid)
-	}
-
-	if debuffs.Stormstrike && targetIdx == 0 {
-		ExternalStormstrikeCaster(debuffs, target)
 	}
 
 	if debuffs.GiftOfArthas {
@@ -159,8 +107,8 @@ func applyDebuffEffects(target *Unit, targetIdx int, debuffs *proto.Debuffs, rai
 
 	// Atk spd reduction
 	if debuffs.ThunderClap != proto.TristateEffect_TristateEffectMissing {
-		// +5% from Warrior's Conqueror's Battlegear 5pc
-		MakePermanent(ThunderClapAura(target, 8205, GetTristateValueInt32(debuffs.ThunderClap, 10, 15)))
+		// Forever: -20% attack speed; Improved Thunder Clap only lowers its rage cost
+		MakePermanent(ThunderClapAura(target, 8205, 20))
 	}
 	if debuffs.Thunderfury {
 		MakePermanent(ThunderfuryASAura(target))
@@ -459,7 +407,7 @@ func JudgementOfLightAura(target *Unit) *Aura {
 
 func JudgementOfTheCrusaderAura(caster *Unit, target *Unit, mult float64, extraBonus float64) *Aura {
 	var spellId int32 = 20303
-	var bonus float64 = 140
+	var bonus float64 = 161
 
 	bonus *= mult
 	bonus += extraBonus
@@ -696,9 +644,9 @@ func SunderArmorAura(target *Unit) *Aura {
 
 func ExposeArmorAura(target *Unit, improvedEA int32) *Aura {
 	spellID := int32(11198)
-	arpen := 1700.0
-
-	arpen *= []float64{1, 1.25, 1.5}[improvedEA]
+	// Forever: 450 per combo point; Improved Expose Armor only refunds energy and combo points
+	arpen := 2250.0
+	_ = improvedEA
 
 	aura := target.GetOrRegisterAura(Aura{
 		Label:    "ExposeArmor",
@@ -728,12 +676,21 @@ func CurseOfRecklessnessAura(target *Unit) *Aura {
 		ActionID: ActionID{SpellID: 11717},
 		Duration: time.Minute * 2,
 		OnGain: func(aura *Aura, sim *Simulation) {
-			aura.Unit.AddStatDynamic(sim, stats.Armor, -arpen)
 			aura.Unit.AddStatDynamic(sim, stats.AttackPower, ap)
 		},
 		OnExpire: func(aura *Aura, sim *Simulation) {
-			aura.Unit.AddStatDynamic(sim, stats.Armor, arpen)
 			aura.Unit.AddStatDynamic(sim, stats.AttackPower, -ap)
+		},
+	})
+
+	// Forever: the armor part does not stack with Faerie Fire or Dust Cloud (tested in game: one -505 debuff)
+	aura.NewExclusiveEffect(minorArmorReductionEffectCategory, true, ExclusiveEffect{
+		Priority: arpen,
+		OnGain: func(ee *ExclusiveEffect, sim *Simulation) {
+			ee.Aura.Unit.AddStatDynamic(sim, stats.Armor, -arpen)
+		},
+		OnExpire: func(ee *ExclusiveEffect, sim *Simulation) {
+			ee.Aura.Unit.AddStatDynamic(sim, stats.Armor, arpen)
 		},
 	})
 	return aura
@@ -772,7 +729,7 @@ func faerieFireAuraInternal(target *Unit, label string, spellID int32) *Aura {
 }
 
 func CurseOfWeaknessAura(target *Unit, points int32) *Aura {
-	modDmgReduction := -31.0
+	modDmgReduction := -37.0
 
 	modDmgReduction *= []float64{1, 1.06, 1.13, 1.20}[points]
 	modDmgReduction = math.Floor(modDmgReduction)
@@ -794,6 +751,7 @@ func CurseOfWeaknessAura(target *Unit, points int32) *Aura {
 const HuntersMarkAuraTag = "HuntersMark"
 
 func HuntersMarkAura(target *Unit) *Aura {
+	// Forever has no Improved Hunter's Mark talent, so an "Improved" setting is the plain Mark
 	bonus := 110.0
 
 	aura := target.GetOrRegisterAura(Aura{
@@ -851,7 +809,8 @@ func ExposeWeaknessAura(target *Unit) *Aura {
 }
 
 func DemoralizingRoarAura(target *Unit, points int32) *Aura {
-	baseAPReduction := 138.0
+	// rank 5 at level 60 (193 + 1.4 per level above 52)
+	baseAPReduction := 204.0
 
 	aura := target.GetOrRegisterAura(Aura{
 		Label:    "DemoralizingRoar-" + strconv.Itoa(int(points)),
@@ -865,7 +824,9 @@ func DemoralizingRoarAura(target *Unit, points int32) *Aura {
 const DemoralizingShoutRanks = 5
 
 var DemoralizingShoutSpellId = [DemoralizingShoutRanks + 1]int32{0, 1160, 6190, 11554, 11555, 11556}
-var DemoralizingShoutBaseAP = [DemoralizingShoutRanks + 1]float64{0, 45, 56, 76, 111, 146}
+
+// rank 5 at level 60: 196 + 1.4 per level above 54
+var DemoralizingShoutBaseAP = [DemoralizingShoutRanks + 1]float64{0, 45, 56, 76, 111, 204}
 var DemoralizingShoutLevel = [DemoralizingShoutRanks + 1]int{0, 14, 24, 34, 44, 54}
 
 func DemoralizingShoutAura(target *Unit, boomingVoicePts int32, impDemoShoutPts int32) *Aura {

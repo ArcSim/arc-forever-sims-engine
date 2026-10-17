@@ -87,6 +87,10 @@ func (db *WowDatabase) MergeItem(src *proto.UIItem) {
 			dst.Stats = src.Stats
 			src.Stats = nil
 		}
+		if src.WeaponSkills != nil {
+			dst.WeaponSkills = src.WeaponSkills
+			src.WeaponSkills = nil
+		}
 		// Fields don't get overwritten if the new value is a default value and the original value wasn't
 		if src.FactionRestriction == proto.UIItem_FACTION_RESTRICTION_UNSPECIFIED {
 			dst.FactionRestriction = src.FactionRestriction
@@ -94,6 +98,15 @@ func (db *WowDatabase) MergeItem(src *proto.UIItem) {
 		googleProto.Merge(dst, src)
 	} else {
 		db.Items[src.Id] = src
+	}
+}
+
+// MergeExistingItems merges only into items already in the database, so data feeds never add bare items.
+func (db *WowDatabase) MergeExistingItems(arr []*proto.UIItem) {
+	for _, item := range arr {
+		if _, ok := db.Items[item.Id]; ok {
+			db.MergeItem(item)
+		}
 	}
 }
 
@@ -166,6 +179,8 @@ func (db *WowDatabase) AddItemIcon(id int32, tooltips map[int32]WowheadItemRespo
 			Name: tooltip.GetName(),
 			Icon: tooltip.GetIcon(),
 		}
+	} else if icon, ok := ForeverItemIcons[id]; ok {
+		db.ItemIcons[id] = &proto.IconData{Id: id, Name: icon.Name, Icon: icon.Icon}
 	} else if id != 0 {
 		panic(fmt.Sprintf("No item tooltip with id %d", id))
 	}
@@ -184,6 +199,8 @@ func (db *WowDatabase) AddSpellIcon(id int32, tooltips map[int32]WowheadItemResp
 			Rank:    int32(tooltip.GetSpellRank()),
 			HasBuff: tooltip.HasBuff(),
 		}
+	} else if icon, ok := ForeverSpellIcons[id]; ok {
+		db.SpellIcons[id] = &proto.IconData{Id: id, Name: icon.Name, Icon: icon.Icon}
 	} else if id != 0 {
 		println(fmt.Sprintf("No spell tooltip with id %d", id))
 	}

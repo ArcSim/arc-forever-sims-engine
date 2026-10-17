@@ -22,6 +22,10 @@ message APLRotation {
 
 	repeated APLPrepullAction prepull_actions = 1;
 	repeated APLListItem priority_list = 2;
+
+	// No longer read: the engine now always looks at the rotation again right after each Auto Shot. Kept so rotations
+	// saved with it still load.
+	bool recheck_after_auto_shot = 5;
 }
 
 message SimpleRotation {
@@ -33,12 +37,35 @@ message APLPrepullAction {
     APLAction action = 1;
     APLValue do_at_value = 4; // When to perform this prepull action. Should be a negative value.
     bool hide = 3;            // Causes this item to be ignored.
+    APLSimpleView simple = 5; // How the line reads in the simple view.
 }
 
 message APLListItem {
     bool hide = 1;        // Causes this item to be ignored.
     string notes = 2;     // Comments for the reader.
     APLAction action = 3; // The action to be performed.
+    APLSimpleView simple = 4; // How the line reads in the simple view.
+}
+
+// A line in plain words, written by the rotation's author. The text takes **bold** and {name} for a box or a value.
+message APLSimpleView {
+    bool shown = 1;  // The line shows its simple view instead of the normal editor.
+    string text = 2;
+    string title = 3; // Shown before the row of boxes.
+    repeated APLSimpleBox boxes = 4;
+    repeated APLSimpleValue values = 5;
+}
+
+message APLSimpleBox {
+    string label = 1;
+    repeated string numbers = 2; // Paths of the Const values in the line that this box changes.
+    string unit = 3;
+}
+
+// A number worked out for the text from boxes, other values and the gear (main hand swing, ...).
+message APLSimpleValue {
+    string name = 1;
+    string expr = 2;
 }
 
 // NextIndex: 24
@@ -103,6 +130,7 @@ message APLValue {
         APLValueIsExecutePhase is_execute_phase = 41;
         APLValueNumberTargets number_targets = 28;
         APLValueDistanceToTarget distance_to_target = 78;
+        APLValueWalkTime walk_time = 79;
 
         // Resource values
         APLValueCurrentHealth current_health = 26;
@@ -365,6 +393,10 @@ message APLValueRemainingTime {}
 message APLValueRemainingTimePercent {}
 message APLValueNumberTargets {}
 message APLValueDistanceToTarget {}
+// How long walking from where the unit stands to the given distance (yards) takes at its current run speed.
+message APLValueWalkTime {
+    APLValue to_distance = 1;
+}
 message APLValueIsExecutePhase {
     enum ExecutePhaseThreshold {
         Unknown = 0;

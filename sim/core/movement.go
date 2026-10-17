@@ -3,6 +3,8 @@ package core
 import (
 	"container/heap"
 	"math"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/wowsims/classic/sim/core/proto"
@@ -64,7 +66,7 @@ func (move *MovementHandler) removeMoveSpeedModifier(moveHeap *MoveHeap, actionI
 }
 
 func (move *MovementHandler) updateMoveSpeed() {
-	move.MoveSpeed = move.baseSpeed * move.getActveModifier(move.moveSpeedBonuses) * (1 - move.getActveModifier(move.moveSpeedPenalties))
+	move.MoveSpeed = move.baseSpeed * move.stackingBonus * move.getActveModifier(move.moveSpeedBonuses) * (1 - move.getActveModifier(move.moveSpeedPenalties))
 }
 
 func (move *MovementHandler) getActveModifier(moveHeap *MoveHeap) float64 {
@@ -74,8 +76,17 @@ func (move *MovementHandler) getActveModifier(moveHeap *MoveHeap) float64 {
 type MovementHandler struct {
 	Moving    bool
 	MoveSpeed float64
+	// a move decided but not started yet (reaction delay experiment)
+	PendingMove bool
+	// the move began inside melee range, so the melee attack never turned off
+	startedInMelee bool
+	// a walk into melee turns the melee attack on as it starts, and the off hand's wait is set then
+	moveStartedAt time.Duration
+	offHandWait   time.Duration
 
-	baseSpeed          float64
+	baseSpeed float64
+	// speed bonuses that stack with the rest instead of competing for the highest
+	stackingBonus      float64
 	moveAura           *Aura
 	moveSpell          *Spell
 	moveSpeedBonuses   *MoveHeap
@@ -94,7 +105,8 @@ func (unit *Unit) initMovement() {
 				Modifier: 0,
 			},
 		},
-		baseSpeed: 7.0,
+		baseSpeed:     TernaryFloat64(unit.BaseRunSpeed > 0, unit.BaseRunSpeed, 7.0),
+		stackingBonus: 1,
 	}
 	unit.MovementHandler.updateMoveSpeed()
 
@@ -110,13 +122,26 @@ func (unit *Unit) initMovement() {
 			}
 			unit.AutoAttacks.CancelAutoSwing(sim)
 			unit.MovementHandler.Moving = true
+			unit.MovementHandler.startedInMelee = unit.DistanceFromTarget <= MaxMeleeAttackDistance
+			unit.MovementHandler.moveStartedAt = sim.CurrentTime
+			unit.MovementHandler.offHandWait = unit.AutoAttacks.OffHandWait()
 		},
 		OnExpire: func(aura *Aura, sim *Simulation) {
 			unit.MovementHandler.Moving = false
+			startedMidWalk := unit.AutoAttacks.MeleeStartedMidMove()
 			unit.AutoAttacks.EnableAutoSwing(sim)
 
-			// Simulate the delay from starting attack
-			unit.AutoAttacks.DelayMeleeBy(sim, time.Millisecond*50)
+			// a walk that reached 5 yd already started swinging (its attack delay and off-hand wait are set)
+			if !startedMidWalk {
+				// Simulate the delay from starting attack
+				unit.AutoAttacks.DelayMeleeBy(sim, time.Millisecond*50)
+				// a walk in from outside melee range turned the melee attack on when it started
+				if !unit.MovementHandler.startedInMelee && unit.DistanceFromTarget <= MaxMeleeAttackDistance {
+					unit.AutoAttacks.OffHandWaitsForAttackStart(sim, unit.MovementHandler.moveStartedAt, unit.MovementHandler.offHandWait)
+				}
+			}
+			// Forever: Auto Shot needs 0.5 s of standing still before it fires
+			unit.AutoAttacks.DelayRangedUntil(sim, sim.CurrentTime+AutoShotStandStill)
 		},
 	})
 
@@ -131,11 +156,62 @@ func (unit *Unit) initMovement() {
 	})
 }
 
+// MultiplyStackingMoveSpeed scales the run speed on top of the strongest regular speed bonus.
+func (unit *Unit) MultiplyStackingMoveSpeed(mult float64) {
+	unit.MovementHandler.stackingBonus *= mult
+	unit.MovementHandler.updateMoveSpeed()
+}
+
+// AutoShotStandStill: AB_NO_STAND_STILL=1 turns it off for comparisons.
+var AutoShotStandStill = func() time.Duration {
+	if os.Getenv("AB_NO_STAND_STILL") != "" {
+		return 0
+	}
+	return time.Millisecond * 500
+}()
+
 func (unit *Unit) IsMoving() bool {
 	return unit.MovementHandler.Moving
 }
 
+// Footwork experiment (local knob, off by default): AB_MOVE_OUT_SPEED sets the speed in yd/s for
+// moves away from the target (4.5 = backpedal).
+func envFloat(name string) float64 {
+	v, err := strconv.ParseFloat(os.Getenv(name), 64)
+	if err != nil {
+		return 0
+	}
+	return v
+}
+
 func (unit *Unit) MoveTo(moveRange float64, sim *Simulation) {
+	if moveRange == unit.DistanceFromTarget {
+		return
+	}
+	// the unit's MoveDelay passes between the decision to move and the first step
+	if unit.MoveDelay > 0 && sim.CurrentTime >= 0 && !unit.MovementHandler.PendingMove {
+		unit.MovementHandler.PendingMove = true
+		// log-only markers so the timeline can draw the wait in front of the move (no cast, no effects)
+		waitID := ActionID{OtherID: proto.OtherAction_OtherActionMove, Tag: 1}
+		if sim.Log != nil {
+			unit.Log(sim, "Casting %s (Cost = 0.000, Cast Time = %s, Effective Time = 0s)", waitID, unit.MoveDelay)
+		}
+		StartDelayedAction(sim, DelayedActionOptions{
+			DoAt: sim.CurrentTime + unit.MoveDelay,
+			OnAction: func(sim *Simulation) {
+				if sim.Log != nil {
+					unit.Log(sim, "Completed cast %s", waitID)
+				}
+				unit.MovementHandler.PendingMove = false
+				unit.moveToNow(moveRange, sim)
+			},
+		})
+		return
+	}
+	unit.moveToNow(moveRange, sim)
+}
+
+func (unit *Unit) moveToNow(moveRange float64, sim *Simulation) {
 	if moveRange == unit.DistanceFromTarget {
 		return
 	}
@@ -144,10 +220,19 @@ func (unit *Unit) MoveTo(moveRange float64, sim *Simulation) {
 	moveTicks := math.Abs(moveDistance)
 	moveInterval := moveDistance / float64(moveTicks)
 
+	speed := unit.MovementHandler.MoveSpeed
+	if out := envFloat("AB_MOVE_OUT_SPEED"); out > 0 && moveDistance > 0 {
+		speed = out * unit.MovementHandler.MoveSpeed / unit.MovementHandler.baseSpeed
+	}
+
+	// a walk into melee turns the melee attack on now: the timeline draws the off hand's wait from here
+	if sim.Log != nil && unit.DistanceFromTarget > MaxMeleeAttackDistance && moveRange <= MaxMeleeAttackDistance {
+		unit.AutoAttacks.logOffHandWait(sim)
+	}
 	unit.MovementHandler.moveSpell.Cast(sim, unit.CurrentTarget)
 
 	sim.AddPendingAction(NewPeriodicAction(sim, PeriodicActionOptions{
-		Period:          time.Millisecond * time.Duration(1000/(unit.MovementHandler.MoveSpeed)),
+		Period:          time.Millisecond * time.Duration(1000/speed),
 		NumTicks:        int(moveTicks),
 		TickImmediately: false,
 
@@ -158,6 +243,10 @@ func (unit *Unit) MoveTo(moveRange float64, sim *Simulation) {
 
 			if !wasInMelee && unit.DistanceFromTarget <= 5 {
 				unit.AutoAttacks.ForceMeleeSwing(sim)
+				// swinging starts here, mid-walk, if the walk goes on into melee
+				if unit.DistanceFromTarget != moveRange {
+					unit.AutoAttacks.StartMeleeMidMove(sim, unit.MovementHandler.moveStartedAt, unit.MovementHandler.offHandWait)
+				}
 			}
 
 			if unit.DistanceFromTarget == moveRange {

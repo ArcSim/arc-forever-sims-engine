@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/wowsims/classic/sim/core/proto"
@@ -28,6 +29,9 @@ type APLRotation struct {
 
 	// Used to avoid recursive APL loops.
 	inLoop bool
+
+	// The last free GCD note logged (logs only).
+	lastFreeGcdNote string
 
 	// Validation warnings that occur during proto parsing.
 	// We return these back to the user for display in the UI.
@@ -209,8 +213,41 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 	}
 
 	gcdReady := apl.unit.GCD.IsReady(sim)
+	if sim.Log != nil {
+		apl.logFreeGcd(sim, gcdReady)
+	}
 	if gcdReady {
 		apl.unit.WaitUntil(sim, sim.CurrentTime+time.Millisecond*50)
+	}
+}
+
+// For the timeline's free GCD stretches: which of the rotation's own GCD spells could have been pressed while the GCD
+// sat unused (in range, off cooldown, affordable), logged when that list changes.
+func (apl *APLRotation) logFreeGcd(sim *Simulation, gcdReady bool) {
+	if !gcdReady || sim.CurrentTime < 0 {
+		apl.lastFreeGcdNote = ""
+		return
+	}
+	var ids []string
+	seen := map[*Spell]bool{}
+	for _, action := range apl.priorityList {
+		for _, spell := range action.GetAllSpells() {
+			if seen[spell] || spell.DefaultCast.GCD == 0 || spell.Flags.Matches(SpellFlagPassiveSpell) {
+				continue
+			}
+			seen[spell] = true
+			if spell.CanCast(sim, apl.unit.CurrentTarget) {
+				ids = append(ids, spell.ActionID.String())
+			}
+		}
+	}
+	note := "GCD free, nothing to press"
+	if len(ids) > 0 {
+		note = "GCD free, could press: " + strings.Join(ids, ", ")
+	}
+	if note != apl.lastFreeGcdNote {
+		apl.lastFreeGcdNote = note
+		apl.unit.Log(sim, "%s", note)
 	}
 }
 

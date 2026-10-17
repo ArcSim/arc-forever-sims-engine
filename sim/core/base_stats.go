@@ -79,6 +79,21 @@ var RaceOffsets = map[proto.Race]stats.Stats{
 		stats.Spirit:    1,
 		stats.Stamina:   1,
 	},
+	// Confirmed on a level-1 Skyborne hunter (19/24/20/21/21 vs Human 20/23/21/20/21).
+	proto.Race_RaceSkyborneAlliance: {
+		stats.Agility:   1,
+		stats.Strength:  -1,
+		stats.Intellect: 1,
+		stats.Spirit:    0,
+		stats.Stamina:   -1,
+	},
+	proto.Race_RaceSkyborneHorde: {
+		stats.Agility:   1,
+		stats.Strength:  -1,
+		stats.Intellect: 1,
+		stats.Spirit:    0,
+		stats.Stamina:   -1,
+	},
 }
 
 var ClassBaseCrit = map[proto.Class]stats.Stats{

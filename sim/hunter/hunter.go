@@ -1,6 +1,10 @@
 package hunter
 
 import (
+	"os"
+	"strconv"
+	"time"
+
 	"github.com/wowsims/classic/sim/common/guardians"
 	"github.com/wowsims/classic/sim/core"
 	"github.com/wowsims/classic/sim/core/proto"
@@ -39,7 +43,6 @@ const (
 	SpellCode_HunterPetClaw
 	SpellCode_HunterPetBite
 	SpellCode_HunterPetLightningBreath
-	SpellCode_HunterPetScreech
 	SpellCode_HunterPetScorpidPoison
 )
 
@@ -110,8 +113,11 @@ type Hunter struct {
 	DefensiveState      *core.Aura
 	RapidFireAura       *core.Aura
 	BestialWrathPetAura *core.Aura
+	IntimidationPetAura *core.Aura
 	QuickShotsAura      *core.Aura
 	rapidRecupAura      *core.Aura
+	rapidRecupRegen     *core.CastingRegenSource
+	resourcefulRegen    *core.CastingRegenSource
 	ExposePreyAura      *core.Aura
 	talentsApplied      bool
 }
@@ -131,8 +137,14 @@ func (hunter *Hunter) AddPartyBuffs(_ *proto.PartyBuffs) {
 }
 
 func (hunter *Hunter) Initialize() {
+	// Local experiment hook: AB_HASTE_PCT=1 adds +1% melee and ranged attack speed (e.g. a racial).
+	if v, err := strconv.ParseFloat(os.Getenv("AB_HASTE_PCT"), 64); err == nil && v != 0 {
+		hunter.PseudoStats.MeleeSpeedMultiplier *= 1 + v/100
+		hunter.PseudoStats.RangedSpeedMultiplier *= 1 + v/100
+	}
 	hunter.registerAspectOfTheHawkSpell()
 	hunter.registerAspectOfTheBeastSpell()
+	hunter.registerAspectOfTheCheetahSpell()
 
 	hunter.OnSpellRegistered(func(spell *core.Spell) {
 		if spell.Flags.Matches(SpellFlagShot) {
@@ -190,23 +202,43 @@ func NewHunter(character *core.Character, options *proto.Player) *Hunter {
 	core.FillTalentsProto(hunter.Talents.ProtoReflect(), options.TalentsString, TalentTreeSizes)
 	hunter.EnableManaBar()
 	hunter.PseudoStats.CanParry = true
+	hunter.MoveDelay = time.Duration(hunter.Options.MoveDelayMs) * time.Millisecond
+	hunter.BaseRunSpeed = hunter.Options.RunSpeed
+	hunter.SkyborneConvergence = hunter.Options.SkyborneConvergence
 
 	rangedWeapon := hunter.WeaponFromRanged()
 
 	if hunter.HasRangedWeapon() {
 		switch hunter.Options.Ammo {
-		case proto.Hunter_Options_Doomshot:
-			hunter.AmmoDPS = 17.5
+		case proto.Hunter_Options_RazorArrow:
+			hunter.AmmoDPS = 7.5
+		case proto.Hunter_Options_SolidShot:
+			hunter.AmmoDPS = 7.5
+		case proto.Hunter_Options_JaggedArrow:
+			hunter.AmmoDPS = 13
+		case proto.Hunter_Options_AccurateSlugs:
+			hunter.AmmoDPS = 13
+		case proto.Hunter_Options_MithrilGyroShot:
+			hunter.AmmoDPS = 15
+		case proto.Hunter_Options_IceThreadedArrow:
+			hunter.AmmoDPS = 16.5
 		case proto.Hunter_Options_IceThreadedBullet:
+			hunter.AmmoDPS = 16.5
+		case proto.Hunter_Options_ThoriumHeadedArrow:
 			hunter.AmmoDPS = 17.5
 		case proto.Hunter_Options_ThoriumShells:
+			hunter.AmmoDPS = 17.5
+		case proto.Hunter_Options_RockshardPellets:
 			hunter.AmmoDPS = 18
-		case proto.Hunter_Options_MiniatureCannonBalls:
+		case proto.Hunter_Options_Doomshot:
 			hunter.AmmoDPS = 20
+		case proto.Hunter_Options_MiniatureCannonBalls:
+			hunter.AmmoDPS = 20.5
+		// Forever Engineering ammo
 		case proto.Hunter_Options_SwiftfeatherArrow:
-			hunter.AmmoDPS = 24.5
+			hunter.AmmoDPS = 24.62
 		case proto.Hunter_Options_SwiftstrikeShot:
-			hunter.AmmoDPS = 24.5
+			hunter.AmmoDPS = 24.62
 		}
 		hunter.AmmoDamageBonus = hunter.AmmoDPS * rangedWeapon.SwingSpeed
 		hunter.NormalizedAmmoDamageBonus = hunter.AmmoDPS * 2.8
@@ -230,19 +262,44 @@ func NewHunter(character *core.Character, options *proto.Player) *Hunter {
 		}
 	}
 
+	// Local experiment knob: AB_OH_SPEED=<s> gives the off-hand that speed at the same damage per second.
+	offHand := hunter.WeaponFromOffHand()
+	if v, err := strconv.ParseFloat(os.Getenv("AB_OH_SPEED"), 64); err == nil && v > 0 && offHand.SwingSpeed > 0 {
+		k := v / offHand.SwingSpeed
+		offHand.BaseDamageMin *= k
+		offHand.BaseDamageMax *= k
+		offHand.SwingSpeed = v
+	}
+
+	// AB_MH_SPEED=<s>: same for the main hand (specials keep their normalization rules).
+	mainHand := hunter.WeaponFromMainHand()
+	if v, err := strconv.ParseFloat(os.Getenv("AB_MH_SPEED"), 64); err == nil && v > 0 && mainHand.SwingSpeed > 0 {
+		k := v / mainHand.SwingSpeed
+		mainHand.BaseDamageMin *= k
+		mainHand.BaseDamageMax *= k
+		mainHand.SwingSpeed = v
+	}
+
 	hunter.EnableAutoAttacks(hunter, core.AutoAttackOptions{
-		MainHand:        hunter.WeaponFromMainHand(),
-		OffHand:         hunter.WeaponFromOffHand(),
+		MainHand:        mainHand,
+		OffHand:         offHand,
 		Ranged:          rangedWeapon,
 		ReplaceMHSwing:  hunter.TryRaptorStrike,
 		AutoSwingRanged: true,
 		AutoSwingMelee:  true,
 	})
 
+	if hunter.Options.AutoShotSpamBug {
+		hunter.AutoAttacks.RangedCycleCut = AutoShotSpamCut
+	}
 	hunter.AutoAttacks.RangedConfig().Flags |= core.SpellFlagCastTimeNoGCD
 	hunter.AutoAttacks.RangedConfig().Flags |= core.SpellFlagMeleeMetrics
+	// Mortal Shots does not touch Auto Shot in game (tested); the client data mask says it would.
+	hunter.AutoAttacks.RangedConfig().CritDamageBonus = 0
 	hunter.AutoAttacks.RangedConfig().BonusCoefficient = 1
 	hunter.AutoAttacks.RangedConfig().ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		// the Auto Shot takes you out of melee mode too
+		hunter.unqueueRaptorStrike(sim)
 		baseDamage := hunter.RangedWeaponDamage(sim, spell.RangedAttackPower(target, false)) +
 			hunter.AmmoDamageBonus
 		result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeRangedHitAndCrit)
@@ -302,6 +359,10 @@ func (hunter *Hunter) applyMeleeResetsRangedAuto() {
 		},
 	})
 }
+
+// AutoShotSpamCut: spamming Auto Shot in game gave 2.07 s between shots at best on a 2.52 s cycle (median 2.16, the
+// rest is press timing); fast spam lands near the best. A melee restart is not shortened: no log shows it.
+const AutoShotSpamCut = 450 * time.Millisecond
 
 type HunterAgent interface {
 	GetHunter() *Hunter

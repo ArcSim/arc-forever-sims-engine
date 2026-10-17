@@ -62,6 +62,11 @@ func (fb *focusBar) AddFocusRegenMultiplier (multiplier float64) {
 	fb.focusRegenMultiplier += multiplier
 }
 
+// MultiplyFocusRegen scales the whole regen rate, base multiplier included.
+func (fb *focusBar) MultiplyFocusRegen(multiplier float64) {
+	fb.focusRegenMultiplier *= multiplier
+}
+
 func (fb *focusBar) AddFocus(sim *Simulation, amount float64, metrics *ResourceMetrics) {
 	if amount < 0 {
 		panic("Trying to add negative focus!")

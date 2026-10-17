@@ -210,6 +210,24 @@ var ExtraItemIcons = []int32{
 	2458, // Minor Fortitude
 	3825, // Fortitude
 
+	// Forever foods, elixirs and potions
+	250069, // Flank au Poivre
+	250068, // Savory Turtle Stew
+	274971, // Briny Seafood Stew
+	250328, // Elixir of Cunning
+	250350, // Elixir of Ferocity
+	250351, // Elixir of the Grizzly
+	250943, // Major Frenzy Potion
+	274273, // Flask of Natural Accuracy
+	274274, // Flask of Natural Aggression
+	274275, // Flask of Natural Precision
+	274276, // Flask of Natural Swiftness
+	260817, // EZ-Thro Dark Bomb
+	260816, // EZ-Thro Thorium Grenade
+	260814, // SAF-T Clever Dynamite
+	284868, // Holy Hand Grenade of Alterac
+	16005,  // Dark Iron Bomb
+
 	// Strength
 	12451,
 	9206,

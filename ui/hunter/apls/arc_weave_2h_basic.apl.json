@@ -1,0 +1,561 @@
+{
+  "type": "TypeAPL",
+  "prepullActions": [
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 1299447
+          }
+        }
+      },
+      "doAtValue": {
+        "const": {
+          "val": "-10s"
+        }
+      },
+      "simple": {
+        "text": "**Aspect of the Beast** 10 s before the pull."
+      }
+    },
+    {
+      "action": {
+        "move": {
+          "rangeFromTarget": {
+            "const": {
+              "val": "9"
+            }
+          }
+        }
+      },
+      "doAtValue": {
+        "const": {
+          "val": "-5s"
+        }
+      },
+      "simple": {
+        "text": "**Move to 9 yd** 5 s before the pull."
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 20904
+          }
+        }
+      },
+      "doAtValue": {
+        "const": {
+          "val": "-2s"
+        }
+      },
+      "simple": {
+        "text": "**Aimed Shot** 2 s before the pull, from 9 yd."
+      }
+    }
+  ],
+  "priorityList": [
+    {
+      "action": {
+        "condition": {
+          "cmp": {
+            "op": "OpGt",
+            "lhs": {
+              "math": {
+                "op": "OpSub",
+                "lhs": {
+                  "maxMana": {}
+                },
+                "rhs": {
+                  "currentMana": {}
+                }
+              }
+            },
+            "rhs": {
+              "const": {
+                "val": "1350"
+              }
+            }
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "itemId": 12662
+          }
+        }
+      },
+      "simple": {
+        "text": "**Demonic Rune** when {Missing mana} or more mana is missing.",
+        "boxes": [
+          {
+            "label": "Missing mana",
+            "numbers": [
+              "condition/cmp/rhs"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "itemId": 13965
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "cmp": {
+            "op": "OpGt",
+            "lhs": {
+              "math": {
+                "op": "OpSub",
+                "lhs": {
+                  "maxMana": {}
+                },
+                "rhs": {
+                  "currentMana": {}
+                }
+              }
+            },
+            "rhs": {
+              "const": {
+                "val": "1800"
+              }
+            }
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "itemId": 13444
+          }
+        }
+      },
+      "simple": {
+        "text": "**Major Mana Potion** when {Missing mana} or more mana is missing.",
+        "boxes": [
+          {
+            "label": "Missing mana",
+            "numbers": [
+              "condition/cmp/rhs"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 3045
+          }
+        },
+        "condition": {
+          "or": {
+            "vals": [
+              {
+                "cmp": {
+                  "op": "OpGe",
+                  "lhs": {
+                    "currentTime": {}
+                  },
+                  "rhs": {
+                    "const": {
+                      "val": "5s"
+                    }
+                  }
+                }
+              },
+              {
+                "and": {
+                  "vals": [
+                    {
+                      "not": {
+                        "val": {
+                          "spellIsKnown": {
+                            "spellId": {
+                              "spellId": 1293241
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "not": {
+                        "val": {
+                          "spellIsKnown": {
+                            "spellId": {
+                              "spellId": 19574
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      "simple": {
+        "text": "**Rapid Fire** at the pull, or from 5 s into the fight with Summon Hawk or Bestial Wrath."
+      }
+    },
+    {
+      "action": {
+        "autocastOtherCooldowns": {}
+      },
+      "simple": {
+        "text": "**Any other cooldown** when ready (Bestial Wrath, Intimidation, trinkets)."
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 20572
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 20554
+          }
+        }
+      },
+      "simple": {
+        "text": "**Berserking**"
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 1259799
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "itemId": 250943
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "and": {
+            "vals": [
+              {
+                "cmp": {
+                  "op": "OpLe",
+                  "lhs": {
+                    "dotRemainingTime": {
+                      "spellId": {
+                        "spellId": 25295,
+                        "rank": 9
+                      }
+                    }
+                  },
+                  "rhs": {
+                    "const": {
+                      "val": "0.5"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 25295,
+            "rank": 9
+          }
+        }
+      },
+      "simple": {
+        "text": "**Serpent Sting** when it has {Refresh at} s or less left.",
+        "boxes": [
+          {
+            "label": "Refresh at",
+            "numbers": [
+              "condition/and/vals/0/cmp/rhs"
+            ],
+            "unit": "s"
+          }
+        ]
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 1293241
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 14287,
+            "rank": 8
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 2643,
+            "rank": 1
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 14266,
+            "tag": 1,
+            "rank": 8
+          }
+        }
+      },
+      "simple": {
+        "text": "**Queue Raptor Strike** after your last shot before you step in: any shot, your Auto Shot too, cancels it.",
+        "shown": true
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "cmp": {
+            "op": "OpGe",
+            "lhs": {
+              "autoTimeToNext": {
+                "autoType": "Ranged"
+              }
+            },
+            "rhs": {
+              "math": {
+                "op": "OpMul",
+                "lhs": {
+                  "autoSwingTime": {
+                    "autoType": "Ranged"
+                  }
+                },
+                "rhs": {
+                  "const": {
+                    "val": "0.5"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "move": {
+          "rangeFromTarget": {
+            "const": {
+              "val": "2"
+            }
+          }
+        }
+      },
+      "simple": {
+        "text": "**Move in** to {Melee spot} yd while your Auto Shot timer is less than half done.",
+        "shown": true,
+        "boxes": [
+          {
+            "label": "Melee spot",
+            "numbers": [
+              "move/rangeFromTarget"
+            ],
+            "unit": "yd"
+          }
+        ]
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 14271,
+            "rank": 4
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 1317257
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "cmp": {
+            "op": "OpLe",
+            "lhs": {
+              "distanceToTarget": {}
+            },
+            "rhs": {
+              "const": {
+                "val": "5"
+              }
+            }
+          }
+        },
+        "strictSequence": {
+          "actions": [
+            {
+              "castSpell": {
+                "spellId": {
+                  "spellId": 14305
+                }
+              }
+            }
+          ]
+        }
+      },
+      "simple": {
+        "text": "**Immolation Trap** in melee once it's ready.",
+        "shown": true
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "and": {
+            "vals": [
+              {
+                "cmp": {
+                  "op": "OpLe",
+                  "lhs": {
+                    "distanceToTarget": {}
+                  },
+                  "rhs": {
+                    "const": {
+                      "val": "5"
+                    }
+                  }
+                }
+              },
+              {
+                "not": {
+                  "val": {
+                    "cmp": {
+                      "op": "OpLe",
+                      "lhs": {
+                        "autoTimeToNext": {
+                          "autoType": "MainHand"
+                        }
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "0s"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 14268,
+            "rank": 3
+          }
+        }
+      },
+      "simple": {
+        "text": "**Wing Clip** as you move out.",
+        "shown": true
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "and": {
+            "vals": [
+              {
+                "cmp": {
+                  "op": "OpLe",
+                  "lhs": {
+                    "distanceToTarget": {}
+                  },
+                  "rhs": {
+                    "const": {
+                      "val": "5"
+                    }
+                  }
+                }
+              },
+              {
+                "not": {
+                  "val": {
+                    "cmp": {
+                      "op": "OpLe",
+                      "lhs": {
+                        "autoTimeToNext": {
+                          "autoType": "MainHand"
+                        }
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "0s"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "move": {
+          "rangeFromTarget": {
+            "const": {
+              "val": "9"
+            }
+          }
+        }
+      },
+      "simple": {
+        "text": "**Move out** to {Ranged spot} yd once your swing lands.",
+        "shown": true,
+        "boxes": [
+          {
+            "label": "Ranged spot",
+            "numbers": [
+              "move/rangeFromTarget"
+            ],
+            "unit": "yd"
+          }
+        ]
+      }
+    }
+  ]
+}

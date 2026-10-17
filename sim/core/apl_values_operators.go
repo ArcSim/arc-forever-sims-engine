@@ -439,6 +439,14 @@ func (value *APLValueMath) GetDuration(sim *Simulation) time.Duration {
 	case proto.APLValueMath_OpSub:
 		return value.lhs.GetDuration(sim) - value.rhs.GetDuration(sim)
 	case proto.APLValueMath_OpMul:
+		// A time times a plain number scales the time; converting the number to a Duration first
+		// would truncate fractions like 0.4 to zero.
+		if isNumberType(value.rhs.Type()) && value.lhs.Type() == proto.APLValueType_ValueTypeDuration {
+			return time.Duration(float64(value.lhs.GetDuration(sim)) * numberValue(value.rhs, sim))
+		}
+		if isNumberType(value.lhs.Type()) && value.rhs.Type() == proto.APLValueType_ValueTypeDuration {
+			return time.Duration(float64(value.rhs.GetDuration(sim)) * numberValue(value.lhs, sim))
+		}
 		left := value.lhs.GetDuration(sim)
 		right := value.rhs.GetDuration(sim)
 
@@ -457,15 +465,23 @@ func (value *APLValueMath) GetDuration(sim *Simulation) time.Duration {
 		}
 		return left * right
 	case proto.APLValueMath_OpDiv:
-		divider := value.rhs.GetDuration(sim)
-		if value.rhs.Type() == proto.APLValueType_ValueTypeFloat {
-			divider = time.Duration(value.rhs.GetFloat(sim))
-		} else if value.rhs.Type() == proto.APLValueType_ValueTypeInt {
-			divider = time.Duration(value.rhs.GetInt(sim))
+		if isNumberType(value.rhs.Type()) {
+			return time.Duration(float64(value.lhs.GetDuration(sim)) / numberValue(value.rhs, sim))
 		}
-		return value.lhs.GetDuration(sim) / divider
+		return value.lhs.GetDuration(sim) / value.rhs.GetDuration(sim)
 	}
 	return 0
+}
+
+func isNumberType(t proto.APLValueType) bool {
+	return t == proto.APLValueType_ValueTypeFloat || t == proto.APLValueType_ValueTypeInt
+}
+
+func numberValue(v APLValue, sim *Simulation) float64 {
+	if v.Type() == proto.APLValueType_ValueTypeInt {
+		return float64(v.GetInt(sim))
+	}
+	return v.GetFloat(sim)
 }
 func (value *APLValueMath) String() string {
 	return fmt.Sprintf("Math(%s %s %s)", value.lhs, value.op, value.rhs)

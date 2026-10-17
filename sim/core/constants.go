@@ -1,6 +1,8 @@
 package core
 
 import (
+	"os"
+	"strconv"
 	"time"
 )
 
@@ -14,7 +16,14 @@ const DefaultAttackPowerPerDPS = 14.0
 const ArmorPenPerPercentArmor = 13.99
 
 const MaxMeleeAttackDistance = 5
-const MinRangedAttackDistance = 8
+// Ranged minimum 8 yd: Forever client data ("Hunter Range" 8-35 for Auto Shot and every shot). Knob AB_MIN_RANGED for experiments.
+var MinRangedAttackDistance = 8.0
+
+func init() {
+	if v, err := strconv.ParseFloat(os.Getenv("AB_MIN_RANGED"), 64); err == nil && v > 0 {
+		MinRangedAttackDistance = v
+	}
+}
 
 const MissDodgeParryBlockCritChancePerDefense = 0.04
 

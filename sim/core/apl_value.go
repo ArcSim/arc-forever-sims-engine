@@ -95,6 +95,8 @@ func (rot *APLRotation) newAPLValue(config *proto.APLValue) APLValue {
 		return rot.newValueNumberTargets(config.GetNumberTargets())
 	case *proto.APLValue_DistanceToTarget:
 		return rot.newValueDistanceToTarget(config.GetDistanceToTarget())
+	case *proto.APLValue_WalkTime:
+		return rot.newValueWalkTime(config.GetWalkTime())
 
 	// Resources
 	case *proto.APLValue_CurrentHealth:

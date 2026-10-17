@@ -207,14 +207,47 @@ func (rsrc *raidSimResultCombiner) addActionMetrics(unit *proto.UnitMetrics, add
 	}
 }
 
-func (rsrc *raidSimResultCombiner) combineAuraMetrics(base *proto.AuraMetrics, add *proto.AuraMetrics, weight float64, isLast bool) {
-	base.UptimeSecondsAvg += add.UptimeSecondsAvg * weight
-	base.ProcsAvg += add.ProcsAvg * weight
+func (rsrc *raidSimResultCombiner) addAuraMetrics(unit *proto.UnitMetrics, add *proto.UnitMetrics, weight float64, isLast bool) {
+	seen := make(map[string]bool, len(add.Auras))
+	for _, addAura := range add.Auras {
+		key := addAura.Id.String()
+		seen[key] = true
+		var am *proto.AuraMetrics
+		for _, baseAura := range unit.Auras {
+			if baseAura.Id.String() == key {
+				am = baseAura
+				break
+			}
+		}
+		if am == nil {
+			am = &proto.AuraMetrics{Id: addAura.Id, AggregatorData: &proto.AggregatorData{}}
+			// the workers merged before this one never had it: zero uptime over their iterations
+			if unit.Dps != nil && unit.Dps.AggregatorData != nil && add.Dps != nil && add.Dps.AggregatorData != nil {
+				am.AggregatorData.N = unit.Dps.AggregatorData.N - add.Dps.AggregatorData.N
+			}
+			unit.Auras = append(unit.Auras, am)
+		}
+		am.UptimeSecondsAvg += addAura.UptimeSecondsAvg * weight
+		am.ProcsAvg += addAura.ProcsAvg * weight
+		am.AggregatorData.N += addAura.AggregatorData.N
+		am.AggregatorData.SumSq += addAura.AggregatorData.SumSq
+	}
 
-	base.AggregatorData.N += add.AggregatorData.N
-	base.AggregatorData.SumSq += add.AggregatorData.SumSq
+	// auras this worker never had: zero uptime over its iterations
+	if add.Dps != nil && add.Dps.AggregatorData != nil {
+		for _, baseAura := range unit.Auras {
+			if !seen[baseAura.Id.String()] {
+				baseAura.AggregatorData.N += add.Dps.AggregatorData.N
+			}
+		}
+	}
+
 	if isLast {
-		base.UptimeSecondsStdev = math.Sqrt(base.AggregatorData.SumSq/float64(base.AggregatorData.N) - base.UptimeSecondsAvg*base.UptimeSecondsAvg)
+		for _, am := range unit.Auras {
+			if am.AggregatorData.N > 0 {
+				am.UptimeSecondsStdev = math.Sqrt(max(0, am.AggregatorData.SumSq/float64(am.AggregatorData.N)-am.UptimeSecondsAvg*am.UptimeSecondsAvg))
+			}
+		}
 	}
 }
 
@@ -261,9 +294,8 @@ func (rsrc *raidSimResultCombiner) combineUnitMetrics(base *proto.UnitMetrics, a
 		rsrc.addActionMetrics(base, addAction)
 	}
 
-	for i, addAura := range add.Auras {
-		rsrc.combineAuraMetrics(base.Auras[i], addAura, weight, isLast)
-	}
+	// matched by id, not position: a worker can register an aura mid-fight (first proc) that another never did
+	rsrc.addAuraMetrics(base, add, weight, isLast)
 
 	for _, addResource := range add.Resources {
 		rsrc.addResourceMetrics(base, addResource)

@@ -235,7 +235,15 @@ enum ExcludedZones {
 	ZoneUnknown = 0;
 }
 
-// Next tag: 23
+// Which items and enchants the gear lists show by what WoW Forever did to them.
+enum ForeverFilter {
+	ForeverFilterAll = 0;
+	ForeverFilterNew = 1;
+	ForeverFilterChanged = 2;
+	ForeverFilterNewOrChanged = 3;
+}
+
+// Next tag: 25
 message DatabaseFilters {
 	repeated ArmorType armor_types = 1;
 	repeated WeaponType weapon_types = 2;
@@ -255,6 +263,9 @@ message DatabaseFilters {
 
 	bool one_handed_weapons = 6;
 	bool two_handed_weapons = 7;
+	// Old saves only: read as ForeverFilterChanged when forever_filter is unset.
+	bool forever_changed_only = 23;
+	ForeverFilter forever_filter = 24;
 
 	// Item IDs for favorited items.
 	repeated int32 favorite_items = 11;

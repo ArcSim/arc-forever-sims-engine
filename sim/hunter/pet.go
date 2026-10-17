@@ -2,6 +2,8 @@ package hunter
 
 import (
 	"fmt"
+	"os"
+	"slices"
 	"time"
 
 	"github.com/wowsims/classic/sim/core"
@@ -16,11 +18,19 @@ type HunterPet struct {
 
 	hunterOwner *Hunter
 
-	specialAbility *core.Spell
-	focusDump      *core.Spell
+	// the family's abilities the player left on, highest priority first
+	abilities []*petAbility
 
-	uptimePercent    float64
-	hasOwnerCooldown bool
+	uptimePercent float64
+}
+
+// A pet ability in the rotation. Abilities with a cooldown save focus for themselves when they come up;
+// fillers are only used with focus to spare.
+type petAbility struct {
+	spell  *core.Spell
+	filler bool
+	// extra condition, e.g. a debuff that is still running
+	wanted func(sim *core.Simulation) bool
 }
 
 func (hunter *Hunter) NewHunterPet() *HunterPet {
@@ -41,6 +51,8 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 	baseMaxDamage := 0.0
 	attackSpeed := 2.0
 
+	// every Forever pet starts at 2.0; the speed a pet shows when tamed already includes its
+	// Faster Attack (1.7 = I ... 1.0 = VII) or Slower Attack (2.4, 2.5) passive
 	switch hunter.Options.PetAttackSpeed {
 	case proto.Hunter_Options_One:
 		attackSpeed = 1.0
@@ -81,22 +93,30 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 		Pet:         core.NewPet(petConfig.Name, &hunter.Character, hunterPetBaseStats, hunter.makeStatInheritance(), true, false),
 		config:      petConfig,
 		hunterOwner: hunter,
-
-		hasOwnerCooldown: petConfig.SpecialAbility == FuriousHowl,
 	}
 
 	hp.Pet.MobType = petConfig.MobType
 
+	// AB_PET_BUG=1 (harness only) makes every pet hit as hard as a 2.0-speed pet, so fast pets deal 2.0/speed times their
+	// proper DPS: the Forever beta bug, which the game does not have, kept for comparisons.
+	apPerDPS := core.DefaultAttackPowerPerDPS
+	if os.Getenv("AB_PET_BUG") != "" {
+		baseMinDamage = 18.17 * 2.0
+		baseMaxDamage = 27.66 * 2.0
+		apPerDPS = core.DefaultAttackPowerPerDPS * attackSpeed / 2.0
+	}
+
 	hp.EnableAutoAttacks(hp, core.AutoAttackOptions{
 		MainHand: core.Weapon{
-			BaseDamageMin: baseMinDamage,
-			BaseDamageMax: baseMaxDamage,
-			SwingSpeed:    attackSpeed,
+			BaseDamageMin:     baseMinDamage,
+			BaseDamageMax:     baseMaxDamage,
+			SwingSpeed:        attackSpeed,
+			AttackPowerPerDPS: apPerDPS,
 		},
 		AutoSwingMelee: true,
 	})
 
-	// Happiness
+	// Happiness: always happy (+25% damage)
 	hp.PseudoStats.DamageDealtMultiplier *= 1.25
 
 	// Family scalars
@@ -122,10 +142,22 @@ func (hp *HunterPet) GetPet() *core.Pet {
 }
 
 func (hp *HunterPet) Initialize() {
-	hp.specialAbility = hp.NewPetAbility(hp.config.SpecialAbility, true)
-	hp.focusDump = hp.NewPetAbility(hp.config.FocusDump, false)
+	// pets take the higher of the hunter's melee and ranged sheet crit; only the main-hand stone sets them apart.
+	// Added once here: the inheritance above also runs on every change of the hunter's stats.
+	hp.AddStat(stats.MeleeCrit, max(hp.hunterOwner.MainHandCritBonus, 0))
 
-	hp.EnableFocusBar(1, func(sim *core.Simulation) {
+	disabled := hp.hunterOwner.Options.PetDisabledAbilities
+	for _, ability := range hp.config.Abilities {
+		if slices.Contains(disabled, ability.option()) {
+			continue
+		}
+		if pa := hp.newPetAbility(ability); pa != nil {
+			hp.abilities = append(hp.abilities, pa)
+		}
+	}
+
+	// Forever pets regenerate focus twice as fast (logs: about 10 focus per second spent on Claw)
+	hp.EnableFocusBar(2, func(sim *core.Simulation) {
 		if hp.GCD.IsReady(sim) {
 			hp.OnGCDReady(sim)
 		}
@@ -143,9 +175,8 @@ func (hp *HunterPet) ExecuteCustomRotation(sim *core.Simulation) {
 		return
 	}
 
-	if hp.hasOwnerCooldown && hp.CurrentFocus() < 50 {
-		// When a major ability (Furious Howl or Savage Rend) is ready, pool enough
-		// energy to use on-demand.
+	// no abilities left on: the pet only auto attacks
+	if len(hp.abilities) == 0 {
 		return
 	}
 
@@ -162,31 +193,20 @@ func (hp *HunterPet) ExecuteCustomRotation(sim *core.Simulation) {
 		return true
 	}
 
-	if hp.focusDump == nil {
-		if !tryCast(hp.specialAbility) && hp.GCD.IsReady(sim) {
-			hp.WaitUntil(sim, sim.CurrentTime+time.Millisecond*500)
+	for _, pa := range hp.abilities {
+		if !pa.spell.IsReady(sim) || (pa.wanted != nil && !pa.wanted(sim)) {
+			continue
 		}
-		return
+		if tryCast(pa.spell) {
+			return
+		}
+		if !pa.filler {
+			// a cooldown ability is up: save focus for it
+			break
+		}
 	}
-	if hp.specialAbility == nil {
-		if !tryCast(hp.focusDump) && hp.GCD.IsReady(sim) {
-			hp.WaitUntil(sim, sim.CurrentTime+time.Millisecond*500)
-		}
-		return
-	}
-
-	if hp.config.CustomRotation != nil {
-		hp.config.CustomRotation(sim, hp, tryCast)
-	} else {
-		if hp.specialAbility.IsReady(sim) {
-			if !tryCast(hp.specialAbility) && hp.GCD.IsReady(sim) {
-				hp.WaitUntil(sim, sim.CurrentTime+time.Millisecond*500)
-			}
-		} else if hp.focusDump.IsReady(sim) {
-			if !tryCast(hp.focusDump) && hp.GCD.IsReady(sim) {
-				hp.WaitUntil(sim, sim.CurrentTime+time.Millisecond*500)
-			}
-		}
+	if hp.GCD.IsReady(sim) {
+		hp.WaitUntil(sim, sim.CurrentTime+time.Millisecond*500)
 	}
 }
 
@@ -200,6 +220,7 @@ func (hunter *Hunter) makeStatInheritance() core.PetStatInheritance {
 		return stats.Stats{
 			stats.AttackPower: ap * 0.10,
 			stats.MeleeCrit:   ownerStats[stats.MeleeCrit],
+			stats.Expertise:   ownerStats[stats.Expertise],
 			stats.SpellCrit:   ownerStats[stats.SpellCrit],
 			stats.MeleeHit:    ownerStats[stats.MeleeHit],
 			stats.SpellHit:    ownerStats[stats.MeleeHit],
@@ -211,237 +232,42 @@ type PetConfig struct {
 	Name    string
 	MobType proto.MobType
 
-	SpecialAbility PetAbilityType
-	FocusDump      PetAbilityType
+	// the family's damage abilities (Forever), highest priority first
+	Abilities []PetAbilityType
 
 	Health float64
 	Armor  float64
 	Damage float64
-
-	CustomRotation func(*core.Simulation, *HunterPet, func(*core.Spell) bool)
 }
 
-// Abilities reference: https://wotlk.wowhead.com/hunter-pets
-// https://wotlk.wowhead.com/guides/hunter-dps-best-pets-taming-loyalty-burning-crusade-classic
+// Families and their abilities per WoW Forever (wow-petopia.com/forever, checked against client data).
+// Health / armor / damage are the family scalars; Core Hound and Fox list damage 1.00 and nothing else yet.
 var PetConfigs = map[proto.Hunter_Options_PetType]PetConfig{
-	proto.Hunter_Options_Cat: {
-		Name:    "Cat",
-		MobType: proto.MobType_MobTypeBeast,
+	proto.Hunter_Options_Bat:         {Name: "Bat", Abilities: []PetAbilityType{SonicBlast, Bite}, Health: 1.00, Armor: 1.00, Damage: 1.07},
+	proto.Hunter_Options_Bear:        {Name: "Bear", Abilities: []PetAbilityType{Bite, Claw, Swipe}, Health: 1.08, Armor: 1.05, Damage: 0.91},
+	proto.Hunter_Options_BirdOfPrey:  {Name: "Bird of Prey", Abilities: []PetAbilityType{Mine, Claw}, Health: 1.00, Armor: 1.00, Damage: 1.07},
+	proto.Hunter_Options_Owl:         {Name: "Owl", Abilities: []PetAbilityType{Mine, Claw}, Health: 1.00, Armor: 1.00, Damage: 1.07},
+	proto.Hunter_Options_Boar:        {Name: "Boar", Abilities: []PetAbilityType{Charge, Bite}, Health: 1.04, Armor: 1.09, Damage: 0.90},
+	proto.Hunter_Options_CarrionBird: {Name: "Carrion Bird", Abilities: []PetAbilityType{Bite, Claw, DemoralizingScreech}, Health: 1.00, Armor: 1.05, Damage: 1.00},
+	proto.Hunter_Options_Cat:         {Name: "Cat", Abilities: []PetAbilityType{Bite, Claw}, Health: 0.98, Armor: 1.00, Damage: 1.10},
+	proto.Hunter_Options_CoreHound:   {Name: "Core Hound", Abilities: []PetAbilityType{LavaBreath, Bite}, Health: 1.00, Armor: 1.00, Damage: 1.00},
+	proto.Hunter_Options_Crab:        {Name: "Crab", Abilities: []PetAbilityType{Pinch, Claw}, Health: 0.96, Armor: 1.13, Damage: 0.95},
+	proto.Hunter_Options_Crocolisk:   {Name: "Crocolisk", Abilities: []PetAbilityType{Bite, Dismember}, Health: 0.95, Armor: 1.10, Damage: 1.00},
+	proto.Hunter_Options_Fox:         {Name: "Fox", Abilities: []PetAbilityType{Bite, TrickstersDance}, Health: 1.00, Armor: 1.00, Damage: 1.00},
+	proto.Hunter_Options_Gorilla:     {Name: "Gorilla", Abilities: []PetAbilityType{Thunderstomp, Bite}, Health: 1.04, Armor: 1.00, Damage: 1.02},
+	proto.Hunter_Options_Hyena:       {Name: "Hyena", Abilities: []PetAbilityType{TendonRip, Bite}, Health: 1.00, Armor: 1.05, Damage: 1.00},
+	proto.Hunter_Options_Raptor:      {Name: "Raptor", Abilities: []PetAbilityType{SavageRend, Bite, Claw}, Health: 0.95, Armor: 1.03, Damage: 1.10},
+	proto.Hunter_Options_Scorpid:     {Name: "Scorpid", Abilities: []PetAbilityType{ScorpidPoison, Claw}, Health: 1.00, Armor: 1.10, Damage: 0.94},
+	proto.Hunter_Options_Spider:      {Name: "Spider", Abilities: []PetAbilityType{Web, Bite}, Health: 1.00, Armor: 1.00, Damage: 1.07},
+	proto.Hunter_Options_Tallstrider: {Name: "Tallstrider", Abilities: []PetAbilityType{DustCloud, Bite}, Health: 1.05, Armor: 1.00, Damage: 1.00},
+	proto.Hunter_Options_Turtle:      {Name: "Turtle", Abilities: []PetAbilityType{Bite}, Health: 1.00, Armor: 1.13, Damage: 0.90},
+	proto.Hunter_Options_WindSerpent: {Name: "Wind Serpent", Abilities: []PetAbilityType{Bite, LightningBreath}, Health: 1.00, Armor: 1.00, Damage: 1.07},
+	proto.Hunter_Options_Wolf:        {Name: "Wolf", Abilities: []PetAbilityType{FuriousHowl, Bite}, Health: 1.00, Armor: 1.05, Damage: 1.00},
+}
 
-		SpecialAbility: Bite,
-		FocusDump:      Claw,
-
-		Health: 0.98,
-		Armor:  1.00,
-		Damage: 1.10,
-
-		CustomRotation: func(sim *core.Simulation, hp *HunterPet, tryCast func(*core.Spell) bool) {
-			if hp.specialAbility.CD.IsReady(sim) && hp.CurrentFocusPerSecond() > hp.focusDump.Cost.BaseCost/1.6 {
-				if !tryCast(hp.specialAbility) && hp.GCD.IsReady(sim) {
-					hp.WaitUntil(sim, sim.CurrentTime+time.Millisecond*500)
-				}
-			} else {
-				if !tryCast(hp.focusDump) && hp.GCD.IsReady(sim) {
-					hp.WaitUntil(sim, sim.CurrentTime+time.Millisecond*500)
-				}
-			}
-		},
-	},
-	proto.Hunter_Options_WindSerpent: {
-		Name:    "Wind Serpent",
-		MobType: proto.MobType_MobTypeBeast,
-
-		SpecialAbility: Bite,
-		FocusDump:      LightningBreath,
-
-		Health: 1.00,
-		Armor:  1.00,
-		Damage: 1.07,
-	},
-	proto.Hunter_Options_Bat: {
-		Name:    "Bat",
-		MobType: proto.MobType_MobTypeBeast,
-
-		SpecialAbility: Bite,
-		FocusDump:      Screech,
-
-		Health: 1.00,
-		Armor:  1.00,
-		Damage: 1.07,
-
-		CustomRotation: func(sim *core.Simulation, hp *HunterPet, tryCast func(*core.Spell) bool) {
-			if hp.specialAbility.CD.IsReady(sim) {
-				if !tryCast(hp.specialAbility) && hp.GCD.IsReady(sim) {
-					hp.WaitUntil(sim, sim.CurrentTime+time.Millisecond*500)
-				}
-			} else {
-				if !tryCast(hp.focusDump) && hp.GCD.IsReady(sim) {
-					hp.WaitUntil(sim, sim.CurrentTime+time.Millisecond*500)
-				}
-			}
-		},
-	},
-	proto.Hunter_Options_Bear: {
-		Name:    "Bear",
-		MobType: proto.MobType_MobTypeBeast,
-
-		SpecialAbility: Bite,
-		FocusDump:      Claw,
-
-		Health: 1.08,
-		Armor:  1.05,
-		Damage: 0.91,
-	},
-	proto.Hunter_Options_Boar: {
-		Name:    "Boar",
-		MobType: proto.MobType_MobTypeBeast,
-
-		//SpecialAbility: Gore,
-		FocusDump: Bite,
-
-		Health: 1.04,
-		Armor:  1.09,
-		Damage: 0.90,
-	},
-	proto.Hunter_Options_CarrionBird: {
-		Name:    "Carrion Bird",
-		MobType: proto.MobType_MobTypeBeast,
-
-		SpecialAbility: Bite, // Screech
-		FocusDump:      Claw,
-
-		Health: 1.00,
-		Armor:  1.05,
-		Damage: 1.00,
-	},
-	proto.Hunter_Options_Owl: {
-		Name:    "Owl",
-		MobType: proto.MobType_MobTypeBeast,
-
-		//SpecialAbility: Screech,
-		FocusDump: Claw,
-
-		Health: 1.00,
-		Armor:  1.00,
-		Damage: 1.07,
-	},
-	proto.Hunter_Options_Crab: {
-		Name:    "Crab",
-		MobType: proto.MobType_MobTypeBeast,
-
-		FocusDump: Claw,
-
-		Health: 0.96,
-		Armor:  1.13,
-		Damage: 0.95,
-	},
-	proto.Hunter_Options_Crocolisk: {
-		Name:    "Crocolisk",
-		MobType: proto.MobType_MobTypeBeast,
-
-		FocusDump: Bite,
-
-		Health: 0.95,
-		Armor:  1.10,
-		Damage: 1.00,
-	},
-	proto.Hunter_Options_Gorilla: {
-		Name:    "Gorilla",
-		MobType: proto.MobType_MobTypeBeast,
-
-		// SpecialAbility: Thunderstomp,
-		FocusDump: Bite,
-
-		Health: 1.04,
-		Armor:  1.00,
-		Damage: 1.02,
-	},
-	proto.Hunter_Options_Hyena: {
-		Name:    "Hyena",
-		MobType: proto.MobType_MobTypeBeast,
-
-		FocusDump: Bite,
-
-		Health: 1.00,
-		Armor:  1.05,
-		Damage: 1.00,
-	},
-	proto.Hunter_Options_Raptor: {
-		Name:    "Raptor",
-		MobType: proto.MobType_MobTypeBeast,
-
-		SpecialAbility: Bite,
-		FocusDump:      Claw,
-
-		Health: 0.95,
-		Armor:  1.03,
-		Damage: 1.10,
-	},
-	proto.Hunter_Options_Scorpid: {
-		Name:    "Scorpid",
-		MobType: proto.MobType_MobTypeBeast,
-
-		SpecialAbility: ScorpidPoison,
-		FocusDump:      Claw,
-
-		Health: 1.00,
-		Armor:  1.10,
-		Damage: 0.94,
-
-		CustomRotation: func(sim *core.Simulation, hp *HunterPet, tryCast func(*core.Spell) bool) {
-			target := hp.CurrentTarget
-
-			if (hp.specialAbility.Dot(target).GetStacks() < hp.specialAbility.Dot(target).MaxStacks || hp.specialAbility.Dot(target).RemainingDuration(sim) < time.Second*3) && hp.CurrentFocus() < 90 {
-				if !tryCast(hp.specialAbility) && hp.GCD.IsReady(sim) {
-					hp.WaitUntil(sim, sim.CurrentTime+time.Millisecond*500)
-				}
-			} else {
-				if !tryCast(hp.focusDump) && hp.GCD.IsReady(sim) {
-					hp.WaitUntil(sim, sim.CurrentTime+time.Millisecond*500)
-				}
-			}
-		},
-	},
-	proto.Hunter_Options_Spider: {
-		Name:    "Spider",
-		MobType: proto.MobType_MobTypeBeast,
-
-		FocusDump: Bite,
-
-		Health: 1.00,
-		Armor:  1.00,
-		Damage: 1.07,
-	},
-	proto.Hunter_Options_Tallstrider: {
-		Name:    "Tallstrider",
-		MobType: proto.MobType_MobTypeBeast,
-
-		FocusDump: Bite,
-
-		Health: 1.05,
-		Armor:  1.00,
-		Damage: 1.00,
-	},
-	proto.Hunter_Options_Turtle: {
-		Name:    "Turtle",
-		MobType: proto.MobType_MobTypeBeast,
-
-		// SpecialAbility: ShellShield,
-		FocusDump: Bite,
-
-		Health: 1.00,
-		Armor:  1.13,
-		Damage: 0.90,
-	},
-	proto.Hunter_Options_Wolf: {
-		Name:    "Wolf",
-		MobType: proto.MobType_MobTypeBeast,
-
-		// SpecialAbility: FuriousHowl,
-		FocusDump: Bite,
-
-		Health: 1.00,
-		Armor:  1.05,
-		Damage: 1.00,
-	},
+func init() {
+	for family, config := range PetConfigs {
+		config.MobType = proto.MobType_MobTypeBeast
+		PetConfigs[family] = config
+	}
 }

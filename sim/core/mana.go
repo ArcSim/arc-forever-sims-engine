@@ -27,6 +27,9 @@ type manaBar struct {
 
 	ReplenishmentAura *Aura
 
+	// regen-while-casting buffs with their own row in the mana results
+	castingRegenSources []*CastingRegenSource
+
 	// For keeping track of OOM status.
 	waitingForMana          float64
 	waitingForManaStartTime time.Duration
@@ -164,7 +167,8 @@ func (unit *Unit) ManaRegenPerSecondWhileCasting() float64 {
 	if unit.PseudoStats.SpiritRegenRateCasting != 0 || unit.PseudoStats.ForceFullSpiritRegen {
 		spiritRegenRate = spiritRegen * unit.PseudoStats.SpiritRegenMultiplier
 		if !unit.PseudoStats.ForceFullSpiritRegen {
-			spiritRegenRate *= unit.PseudoStats.SpiritRegenRateCasting
+			// sources stack, but casting never regenerates more than not casting
+			spiritRegenRate *= min(unit.PseudoStats.SpiritRegenRateCasting, 1)
 		}
 	}
 	regenRate += spiritRegenRate
@@ -188,7 +192,42 @@ func (unit *Unit) ManaRegenPerSecondWhileNotCasting() float64 {
 
 func (unit *Unit) UpdateManaRegenRates() {
 	unit.manaTickWhileCasting = unit.ManaRegenPerSecondWhileCasting() * 2
+	unit.manaTickMP5 = unit.MP5ManaRegenPerSecond() * 2
 	unit.manaTickWhileNotCasting = unit.ManaRegenPerSecondWhileNotCasting() * 2
+}
+
+// CastingRegenSource is a buff that lets part of the spirit regen continue while casting. It refreshes the cached mana
+// ticks when it goes up or down (a bare SpiritRegenRateCasting change is only seen at the next stat change) and its
+// share of each casting tick shows as its own mana row.
+type CastingRegenSource struct {
+	unit    *Unit
+	rate    float64
+	Metrics *ResourceMetrics
+	active  bool
+}
+
+func (unit *Unit) NewCastingRegenSource(actionID ActionID, rate float64) *CastingRegenSource {
+	src := &CastingRegenSource{unit: unit, rate: rate, Metrics: unit.NewManaMetrics(actionID)}
+	unit.castingRegenSources = append(unit.castingRegenSources, src)
+	return src
+}
+
+func (src *CastingRegenSource) Activate() {
+	if src.active {
+		return
+	}
+	src.active = true
+	src.unit.PseudoStats.SpiritRegenRateCasting += src.rate
+	src.unit.UpdateManaRegenRates()
+}
+
+func (src *CastingRegenSource) Deactivate() {
+	if !src.active {
+		return
+	}
+	src.active = false
+	src.unit.PseudoStats.SpiritRegenRateCasting -= src.rate
+	src.unit.UpdateManaRegenRates()
 }
 
 func (unit *Unit) GetManaNotCastingMetrics() *ResourceMetrics {
@@ -198,7 +237,18 @@ func (unit *Unit) GetManaNotCastingMetrics() *ResourceMetrics {
 // Applies 1 'tick' of mana regen, which worth 2s of regeneration based on mp5/int/spirit/etc.
 func (unit *Unit) ManaTick(sim *Simulation) {
 	if sim.CurrentTime < unit.PseudoStats.FiveSecondRuleRefreshTime {
-		regen := unit.manaTickWhileCasting
+		regen := max(0, unit.manaTickWhileCasting)
+		// each buff with its own row takes its share of the spirit part, by how much of the spirit regen it lets through
+		if total := unit.PseudoStats.SpiritRegenRateCasting; total > 0 && !unit.PseudoStats.ForceFullSpiritRegen {
+			spirit := regen - max(0, unit.manaTickMP5)
+			for _, src := range unit.castingRegenSources {
+				if src.active && spirit > 0 {
+					share := spirit * src.rate / total
+					unit.AddMana(sim, share, src.Metrics)
+					regen -= share
+				}
+			}
+		}
 		unit.AddMana(sim, max(0, regen), unit.manaCastingMetrics)
 	} else {
 		regen := unit.manaTickWhileNotCasting
