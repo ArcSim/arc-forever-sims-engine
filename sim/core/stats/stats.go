@@ -546,6 +546,10 @@ type PseudoStats struct {
 	DodgeReduction      float64 // Used by Warrior talent 'Weapon Mastery' and SWP boss auras.
 
 	ThreatMultiplier float64 // Modulates the threat generated. Affected by things like salv.
+	// ClassFlatThreatMultiplier scales the flat threat bonus of the unit's class abilities (spells with a
+	// ClassSpellMask), before ThreatMultiplier. 1 by default; MythicSim patch 151 holds a Warrior's at 0
+	// outside Defensive Stance when warrior.FlatThreatOnlyInDefensiveStance is on.
+	ClassFlatThreatMultiplier float64
 
 	DamageDealtMultiplier          float64            // All damage
 	SchoolDamageDealtMultiplier    [SchoolLen]float64 // For specific spell schools (arcane, fire, shadow, etc).
@@ -635,7 +639,8 @@ func NewPseudoStats() PseudoStats {
 		AttackSpeedMultiplier: 1,
 		SpiritRegenMultiplier: 1,
 
-		ThreatMultiplier: 1,
+		ThreatMultiplier:          1,
+		ClassFlatThreatMultiplier: 1,
 
 		DamageDealtMultiplier:          1,
 		SchoolDamageDealtMultiplier:    NewSchoolFloatArray(),
