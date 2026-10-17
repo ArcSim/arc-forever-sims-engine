@@ -4020,3 +4020,87 @@ Marksmanship suites lay no traps and do not move. The MythicSim release doc has 
 Downstream: the Rust engine needs the trap shares before its next repin.
 
 Drop it when upstream scales the traps with attack power.
+
+## 153. `mage: Frost Blast is castable`
+
+Frost Blast (1326053, 1326054, 1326055) is new in client 70425: a trained Frost spell (SkillLineAbility
+59660 to 59662 on the Frost skill line, every mage), not a talent. The spell store and `spellData.FrostBlast`
+carried it, but nothing registered it, so rotations could not cast it (Targetdummy, MythicSim Discord, #mage,
+17 October 2026). The rows: 1.5 sec cast, 1.5 sec GCD, 90 mana at rank 3 (level 48), 77 Frost damage
+(+0.6 a level, 10.5% variance) with a 0.271 spell power coefficient, a 40% slow for 9 sec, 28 yd/s missile.
+
+- **Registration.** Every rank, as Frostbolt's are (`sim/mage/frost_blast.go`), binary like Frostbolt (it
+  carries a slow), class mask `MageSpellFrostBlast`.
+- **Modifiers.** The client gives Frost Blast Frostbolt's exact class mask (0x40180020, chill bit 0x100000
+  included), so whatever names Frostbolt by mask names Frost Blast: Improved Frostbolt's cast time (11070,
+  mask 0x20; 1.0 sec at 5/5, the GCD stays 1.5), Arctic Reach's range (16757, 0xa0), Eureka!'s cost and
+  damage (1259817), Presence of Mind (cast-time spells). Ice Shards, Piercing Ice, Frost Channeling,
+  Elemental Precision, Arcane Power, Arcane Instability and Winter's Chill already apply by school or to all
+  spells. Its slow is a chill: Frost Blast rolls Fingers of Frost at launch, as Frostbolt does
+  (`MageSpellChill`), and it is in `MageSpellFrost` and `MageSpellsAllDamaging` (it spends a Fingers of
+  Frost charge like any damaging spell).
+- **Not given:** Missile Barrage's proc. 400588 is a script with no class mask, and its tooltip names
+  Arcane Blast, Arcane Wrath, Fireball, Frostbolt and Frostfire Bolt only.
+- Switch `FrostBlastCastable` (default true); false leaves it unregistered.
+
+Tests: `TestFrostBlastIsCastable` (three ranks, rank 3's cast, cost, coefficient, school and masks, and
+Improved Frostbolt taking the same time off it as off Frostbolt), `TestFrostBlastSwitch`,
+`TestFrostBlastRollsFingersOfFrost` (15% at Fingers of Frost 2/2), all in `sim/mage/frost_blast_test.go`.
+No golden moves: no engine APL casts it, and registering a spell draws no random number. Measured (native
+`wowsimcli` with `with_db`, MythicSim's production default path, 10,000 iterations, board seed and length):
+every mage and warlock reference reproduces its 2fe7678a0 number exactly (Arcane 812.65, Fire 796.51,
+Frost 668.02, Frostfire 742.95).
+
+What it is worth on the Frost reference (3,000 iterations, four cells): as the filler -50% (334 against
+667), as the filler while Fingers of Frost is down -29%, and at the end of a fight when a Frostbolt can no
+longer land +0.1%, which a Fire Blast and Ice Lance tail beats (+0.7%, MythicSim's preset, no Frost Blast).
+MythicSim's presets do not cast it.
+
+Downstream: the Rust engine needs Frost Blast before its next repin. MythicSim's spellbook
+(`build-forever-spellbook.mjs`) lists it as castable once regenerated at a pin that carries this patch.
+
+Drop it when upstream registers Frost Blast.
+
+## 155. `warlock: Incinerate's Immolate bonus is on the whole hit`
+
+Incinerate (412758, 1293812, 1293813) "deals $s1 Fire damage to your target and an additional $m2% damage if
+the target is afflicted by Immolate". Upstream multiplies the base roll by 1.25 before spell power is added
+(`sim/warlock/incinerate.go`), so the bonus reached about a quarter of a level 60 hit. Asked by Ambiwar
+(MythicSim bugs forum, 15 October 2026) and ShirodawaDaisuke and ProvenTea (#warlock), with Shadow Bolt
+Destruction builds beating the Incinerate ones.
+
+The client rows decide it. On every rank effect 0 is SCHOOL_DAMAGE (217 at rank 3, coefficient 0.714) and
+effect 1 is SPELL_EFFECT_DUMMY (3) with base points 25. No second damage effect or flat base points carry
+the bonus, as TBC's Incinerate (32231) did with its extra SCHOOL_DAMAGE, and no aura (an
+A_MOD_DAMAGE_PERCENT_TAKEN on the target or a SPELLMOD on the caster) carries it either: a percentage on a
+dummy effect is the server script's, applied to the damage the spell computed, as TrinityCore's Cataclysm
+Incinerate script adds its Immolate bonus to the hit damage. So the 25% now multiplies the whole hit,
+spell power included, after the crit and resist roll. Switch `IncinerateImmolateBonusOnWholeHit` (default
+true); false keeps upstream's base-only bonus.
+
+Tests: `TestIncinerateImmolateBonusOnWholeHit` (`sim/warlock/incinerate_test.go`): at 1000 spell power the
+mean hit on a burning target is 1.25 times the plain one (1279.8 against 1023.8); with the switch off the
+bonus is a quarter of the base hit (59.7 against 238.4 x 0.25). No golden moves (no warlock suite takes
+Incinerate). Measured (production default path, `warlock/dps/destruction_fire`, 10,000 iterations, board
+seed and length): the Destruction reference with Incinerate talented (`254-0050203001-1550305103100041`)
+616.89 to 656.29 (+6.4%; +6.4% to +6.5% in all four cells at 3,000); the Shadow Bolt reference 703.83 is
+unchanged, so Shadow Bolt still leads by 7.2%.
+
+Downstream: the Rust engine needs it before its next repin. Drop it when upstream applies the bonus to the
+whole hit, or a combat log shows the base-only reading.
+
+### Not patched: Revelation (154 reserved) and Elune's Light (156 reserved)
+
+- **Revelation** (enchant 8217, 1248805). Client 70425: the equip aura 1248806 is an A_PROC_TRIGGER_SPELL
+  on non-periodic spell hits (ProcFlags 0x14000) with no trigger spell, no PPM row and ProcChance 100; the
+  buffs are 1248808 (mage) and 1323377 to 1323419 (the other classes): one charge, 15 sec, +100% crit
+  chance (A_ADD_FLAT_MODIFIER SPELLMOD_CRITICAL_CHANCE) on the class mask. The tooltip: "a chance to
+  trigger Revelation when a non-periodic spell fails to critically strike ... Revelation's chance to
+  trigger is diminished as your critical strike chance increases". The buff is clear; the trigger chance
+  is the server script's and no row or tooltip states it, so the engine still registers nothing
+  (`enchants_auto_gen.go`, "states no rate"). A combat log at a known crit chance (Revelation gains per
+  non-crit non-periodic hit) would give the rate.
+- **Elune's Light** (1259799) is right in the engine: +10% crit with all spells and attacks (A_MOD_CRIT_PCT,
+  290) for 15 sec, 3 min, as `racials.go` has it. The Shadow race board showed no change because
+  MythicSim's Shadow preset never cast it (it read Shadow Weaving, a target debuff, on the priest); the fix
+  is in MythicSim's rotation adjustments.
