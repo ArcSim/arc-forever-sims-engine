@@ -4071,8 +4071,8 @@ Destruction builds beating the Incinerate ones.
 
 The client rows decide it. On every rank effect 0 is SCHOOL_DAMAGE (217 at rank 3, coefficient 0.714) and
 effect 1 is SPELL_EFFECT_DUMMY (3) with base points 25. No second damage effect or flat base points carry
-the bonus, as TBC's Incinerate (32231) did with its extra SCHOOL_DAMAGE, and no aura (an
-A_MOD_DAMAGE_PERCENT_TAKEN on the target or a SPELLMOD on the caster) carries it either: a percentage on a
+the bonus, and no aura (an A_MOD_DAMAGE_PERCENT_TAKEN on the target or a SPELLMOD on the caster)
+carries it either: a percentage on a
 dummy effect is the server script's, applied to the damage the spell computed, as TrinityCore's Cataclysm
 Incinerate script adds its Immolate bonus to the hit damage. So the 25% now multiplies the whole hit,
 spell power included, after the crit and resist roll. Switch `IncinerateImmolateBonusOnWholeHit` (default
