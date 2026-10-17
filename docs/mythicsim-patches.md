@@ -3987,3 +3987,36 @@ which the sample does not show; resistance debuffs below 0 are not counted (abov
 Downstream: the Rust engine needs Spell Vulnerability before its next repin.
 
 Drop it when upstream lets Spell Piercing take a target below 0 resistance.
+
+## 147. `hunter: traps take 13% of the higher of ranged and melee attack power`
+
+Immolation Trap and Explosive Trap dealt only their client damage: the rows carry no attack power or spell
+power share (Immolation Trap's SpellEffect 691047, and the Explosive Trap effects), and the 11 October answer
+on the MythicSim Discord (D2) said so. Hmm then measured them in game on client 70425 (MythicSim Discord,
+October 2026): "Scaling for traps are tested at 13% highest of RAP/MAP, 0sp", applied "to All of immo trap &
+to the initial explosion for explosive trap - not explosive ground that stays behind". The server adds it;
+the client rows still show none.
+
+- **Immolation Trap.** 13% of max(ranged, melee attack power) over the whole burn, 2.6% a tick on its 5 ticks
+  3 sec apart (`trapAttackPowerShare / numberOfTicks`). Which attack power is the higher is picked at the
+  snapshot; the ticks then read that one as it stands, like Serpent Sting's share
+  (`Dot.SnapshotAttackPowerShare`).
+- **Explosive Trap.** The explosion on each target is the client roll (208-265 at rank 3) plus 13% of
+  max(ranged, melee attack power), before the AoE cap (`explosiveTrapHitDamage`). The burning ground
+  (A_PERIODIC_DAMAGE on the persistent area aura) is unchanged.
+- No spell power share on either (no `BonusCoefficient`), as measured.
+
+Reading: "13% to all of Immolation Trap" is read as 13% of attack power across the burn, the way
+attack power shares on dots split over their ticks (Wrath's Immolation Trap was 10% of ranged attack power
+over the dot). If it is 13% on every tick instead, Immolation Trap's share is five times this.
+
+Files: `sim/hunter/traps.go`. Tests: `TestImmolationTrapAttackPowerShare` (1000 more ranged attack power adds
+26 a tick, 3000 more melee attack power is taken over ranged once it is the higher) and
+`TestExplosiveTrapAttackPowerShare` (same seed, 1000 more attack power adds 130 to the explosion and nothing
+to the burning ground tick) in `sim/hunter/trap_attack_power_test.go`, both new. Goldens: Survival
+Average-Default 364.92 to 369.12 (+1.15%), Survival Melee 409.50 to 419.26 (+2.38%); Beast Mastery and
+Marksmanship suites lay no traps and do not move. The MythicSim release doc has the reference baselines.
+
+Downstream: the Rust engine needs the trap shares before its next repin.
+
+Drop it when upstream scales the traps with attack power.
