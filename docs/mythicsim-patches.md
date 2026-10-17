@@ -4020,3 +4020,73 @@ Marksmanship suites lay no traps and do not move. The MythicSim release doc has 
 Downstream: the Rust engine needs the trap shares before its next repin.
 
 Drop it when upstream scales the traps with attack power.
+
+## 148. `paladin: Seal of Righteousness at the rows' base points, two switches for the readings still open`
+
+Ashreon's bugs forum post of 17 October 2026 ("Oh the prot paladin nerfs keeps giving", with her #paladin
+messages of 06:47 and 07:03 and #general of 08:08) gives new bases on client 70425: Holy Strike 40-53 (was
+94-121), Seal of Righteousness 21-71 / 162-178 (was 24-83 / 187-203) and Consecration 33% for the first
+4 targets (as relayed to MythicSim). The rows' base points, per-level gains and variances are the same in
+the imports at `ff318c8763` (#758), `b7ba468553` (70374) and `5af130344` (70425) (`spell_store_inputs.json`;
+only coefficients and the seal's tooltip changed), so nothing moved in the data; what her numbers are has
+to be read off the rows.
+
+| Her number | Rows (rank 8) | Engine on `12ffe586e` (level 60) | Reading |
+| --- | --- | --- | --- |
+| Seal 21-71 | `$20286s3/87` to `$20286s3/25`, s3 = 1786 at spell level 58, +47 a level | 1880: 21.6 to 75.2 | 1786/87 = 20.5, 1786/25 = 71.4: the base points |
+| Judgement 162-178 | 170 +/- 4.7% (Variance 0.0941), +4.1 a level | 178: 169.6 to 186.4 | 170 x (1 -/+ 0.047) = 162.0 to 178.0 exactly: the base points |
+| Holy Strike 40-53 | 50% of (weapon + 93 +/- 12.5%), spell level 60 | 50% of (weapon + 81.4 to 104.6) | half the row's flat amount, 40.7 to 52.3: what the engine deals |
+| Consecration first 4 | `$1280349m2*8` on the first `$s3` (4) enemies, the only part with the 0.042 | bonus and share on the first 4 of `ActiveTargetUnits` | already so |
+
+Her "was" numbers fit the per-level gain run to the ranks' MaxLevel (64): s3 2068 gives 23.8 to 82.7 (24-83),
+and 194.6 gives 185 to 204 on the judgement (she writes 187-203). The engine read level 60, between the two.
+
+- **Seal of Righteousness at the spell's level** (on). The judgement's damage and the seal's per-hit value
+  per hundred weapon speed are read at the rank's spell level, without the rows' per-level gain: rank 8's
+  judgement is 162 to 178 (was 170 to 186), its seal hit 17.86 x speed x 0.85 or 1.2 (was 18.80). Every rank
+  takes the same rule. `SealOfRighteousnessBasesAtSpellLevel` (default true), `sim/paladin/seal_of_righteousness.go`.
+- **Seal of Righteousness per-hit share from the tooltip** (off). Client 70425's tooltip gives the seal's hit
+  a spell power share by hand, `$<1h>` = 0.0765 and `$<2h>` = 0.12 (SpellDescriptionVariables 1023, new in
+  70425); the proc rows (25713 and down) carry none, the engine keeps the judgement dummy's 0.20 (0.185 at
+  rank 3, x1.2 on a two-hander). Blizzard's 16 October note "Fixed an issue causing Seal of Righteousness to
+  gain almost twice as much benefit from Spell Damage than intended" points the same way (0.24 to 0.12 on a
+  two-hander is 2x), and Ashreon's 16 October 0.07 (patch 143's open item, no weapon speed) is near the
+  one-hander's 0.0765. No log with a known weapon speed and spell power settles it, so it is off:
+  `SealOfRighteousnessPerHitTooltipCoefficient` (default false).
+- **Holy Strike's other reading** (off). If her 40-53 is the flat amount the client adds before taking 50%
+  of the sum (as 94-121 would be a tooltip's `$s1`), the hit's Holy part is half of it, 20 to 26.5, and "~50%
+  lower in game" holds. Every rank's flat amount is halved. `HolyStrikeFlatBeforeWeaponPercentIs40To53`
+  (default false), `sim/paladin/holy_strike.go`. The default reading takes her 40-53 as the hit's Holy part,
+  which the engine already deals.
+- **Consecration.** No change: the engine gives the bonus tick (27 at rank 5) and the 0.042 share to the first
+  4 targets and the base tick (12) to the rest. `TestConsecrationBonusOnFirstFourTargets` pins it.
+
+Tests (`sim/paladin/retribution/client_70425_sor_test.go`, new): `TestSealOfRighteousnessBasesAtSpellLevel`
+(Mass of McGowan, 2.8 speed: the seal hit loses (1880 - 1786)/100 x 2.8 x 0.85 = 2.24 and the judgement 8,
+each times the multiplier a 1000 spell power run measures), `TestSealOfRighteousnessPerHitTooltipCoefficient`
+(1000 spell power adds 0.0765/0.20 as much a hit with a one-hander, 0.12/0.24 with Arcanite Reaper),
+`TestHolyStrikeFlatBeforeWeaponPercentIs40To53` (a hit loses 93/4 x its multiplier) and
+`TestConsecrationBonusOnFirstFourTargets` (five targets: the first four take the same, the fifth 0.2 of it).
+Goldens: `TestProtection` Average-Default 300.13 to 297.66 (-0.82%), `TestRetribution` 382.97 to 380.64
+(-0.61%), `TestHolyPaladin` does not move; with `SealOfRighteousnessBasesAtSpellLevel` false every golden
+reproduces, so the switch explains the whole move.
+
+Measured (native `wowsimcli` with `with_db`, MythicSim production default path at main `eea0689611`: the board's
+request, board seed, board length, 10,000 iterations, empty trinket slots; the harness reproduces main's
+`expected_baseline_dps` to the fourth decimal on `2fe7678a0`):
+
+| Reference | `2fe7678a0` | Patch 148 | Change | + tooltip share | + Holy Strike halved |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Retribution (two-hander) | 871.53 | 867.90 | -0.42% | 808.01 (-6.90%) | 864.29 (-0.42%) |
+| Protection | 681.70 | 678.01 | -0.54% | 618.66 (-8.75%) | 675.42 (-0.38%) |
+| Ret-prot hybrid | 636.73 | 633.37 | -0.53% | 581.33 (-8.22%) | 629.97 (-0.54%) |
+| Holy-prot hybrid | 652.54 | 649.40 | -0.48% | 573.12 (-10.73%) | 638.94 (-0.48%) |
+| Shockadin hybrid | 987.36 | 982.78 | -0.46% | 878.23 (-10.64%) | 978.72 (-0.41%) |
+
+The last two columns turn each switch on over patches 148 and 149 together, against that build's numbers
+(the first three columns' patch 148 except Holy-prot, 641.99 with patch 149). No other class reads these
+spells.
+
+Downstream: the Rust engine needs the base points rule before its next repin (and either switch if it comes on).
+
+Drop the base points rule when upstream reads Seal of Righteousness at its spell level or the rows change.

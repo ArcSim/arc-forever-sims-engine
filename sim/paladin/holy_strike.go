@@ -22,9 +22,19 @@ var HolyStrikeRankMap = spellData.HolyStrike
 // flat Holy amount, already matched.
 const HolyStrikeSpellPowerCoefficient = 0.286
 
+// HolyStrikeFlatBeforeWeaponPercentIs40To53 reads Ashreon's "Holy Strike 40-53 (was 94-121)" (bugs
+// forum, 17 October 2026) as the flat amount the client adds before taking 50% of the sum, so the
+// hit's Holy part is half of that, 20 to 26.5 (MythicSim patch 148). Every rank's flat amount is
+// halved, as rank 8's 40-53 is half of its row's 81-105. Off by default: the engine's Holy part is
+// already 50% of 81-105, 40.7 to 52.3, which is the 40-53 her post gives, so the other reading
+// (her number is the hit's Holy part) needs no change. Her "~50% lower in game" fits this switch;
+// which reading is right needs a hit with a known weapon and spell power.
+var HolyStrikeFlatBeforeWeaponPercentIs40To53 = false
+
 func (paladin *Paladin) registerHolyStrike(_ int32, rank *spelldata.Spell) {
 	flat := rank.DamageEffect()
 	weaponPercent := rank.EffectN(2).Percent()
+	flatMultiplier := core.TernaryFloat64(HolyStrikeFlatBeforeWeaponPercentIs40To53, 0.5, 1)
 
 	paladin.RegisterSpell(core.SpellConfig{
 		ActionID:       core.ActionID{SpellID: rank.ID},
@@ -53,7 +63,7 @@ func (paladin *Paladin) registerHolyStrike(_ int32, rank *spelldata.Spell) {
 		BonusCoefficient: HolyStrikeSpellPowerCoefficient,
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			baseDamage := weaponPercent * (spell.Unit.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target)) + flat.Roll(sim, core.CharacterLevel))
+			baseDamage := weaponPercent * (spell.Unit.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target)) + flatMultiplier*flat.Roll(sim, core.CharacterLevel))
 			spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
 		},
 	})

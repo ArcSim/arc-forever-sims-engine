@@ -40,14 +40,45 @@ var SealOfRighteousnessFollowsSwappedWeapon = true
 // under the debuff, so a one-hander keeps the bare 0.185 (Ms's 1.7 one-hander fits it).
 
 // JudgementOfRighteousnessSpellPowerCoefficient is the judgement's spell power share as measured in
-// game on client 70425 (MythicSim patch 143); the rows carry 0.429. The base already matched. The
-// seal's per-hit share is left on the dummy's number until a log with a known weapon speed settles it.
+// game on client 70425 (MythicSim patch 143); the rows carry 0.429. The seal's per-hit share is left
+// on the dummy's number until a log with a known weapon speed settles it.
 const JudgementOfRighteousnessSpellPowerCoefficient = 0.70
+
+// SealOfRighteousnessBasesAtSpellLevel reads the judgement's damage and the seal's per-hit value at
+// the rank's own spell level, without the rows' per-level gain (MythicSim patch 148). Ashreon's bugs
+// forum post ("Oh the prot paladin nerfs keeps giving", 17 October 2026) gives rank 8 as "21-71 /
+// 162-178": the seal's tooltip range ($20286s3/87 to $20286s3/25) and the judgement's. Both are the
+// rows' base points exactly, 1786/87 = 20.5 and 1786/25 = 71.4, and 170 +/- 4.7% = 162.0 to 178.0;
+// the engine read them at level 60, two levels past rank 8's spell level 58: 1880 a hundred speed
+// (21.6 to 75.2) and 178 (170 to 186). False keeps the per-level gain.
+var SealOfRighteousnessBasesAtSpellLevel = true
+
+// SealOfRighteousnessPerHitTooltipCoefficient gives each seal hit the spell power share client
+// 70425's tooltip prints, $<1h> = 0.0765 with a one-hander and $<2h> = 0.12 with a two-hander
+// (SpellDescriptionVariables 1023), in place of the judgement dummy's 0.20 (x1.2 on a two-hander).
+// Blizzard's 16 October note: "Fixed an issue causing Seal of Righteousness to gain almost twice as
+// much benefit from Spell Damage than intended". Ashreon measured 0.07 a hit without a weapon speed
+// (16 October). Off by default (MythicSim patch 148) until a log with a known weapon speed settles it.
+var SealOfRighteousnessPerHitTooltipCoefficient = false
+
+const (
+	sealOfRighteousnessTooltipOneHandCoefficient = 0.0765
+	sealOfRighteousnessTooltipTwoHandCoefficient = 0.12
+)
+
+// The level a Seal of Righteousness row is read at.
+func sealOfRighteousnessLevel(e *spelldata.Effect) int32 {
+	if SealOfRighteousnessBasesAtSpellLevel {
+		return int32(e.SpellLevel)
+	}
+	return core.CharacterLevel
+}
 
 func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spell) {
 	judgeRank := spellData.JudgementOfRighteousness.ByID(int32(rank.EffectN(2).BaseValue()))
 	judgeDamage := judgeRank.DamageEffect()
 	perHit := judgeRank.EffectN(2)
+	judgeLevel := sealOfRighteousnessLevel(judgeDamage)
 
 	// The judgement is Melee in SpellCategories and carries No Active Defense: it rolls hit and
 	// crit on the melee table and cannot be dodged, parried or blocked.
@@ -64,14 +95,19 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 		BonusCoefficient: JudgementOfRighteousnessSpellPowerCoefficient,
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			spell.CalcAndDealDamage(sim, target, judgeDamage.Roll(sim, core.CharacterLevel), spell.OutcomeMeleeSpecialNoBlockDodgeParry)
+			spell.CalcAndDealDamage(sim, target, judgeDamage.Roll(sim, judgeLevel), spell.OutcomeMeleeSpecialNoBlockDodgeParry)
 		},
 	})
 
-	value := perHit.Average(core.CharacterLevel)
+	value := perHit.Average(sealOfRighteousnessLevel(perHit))
 	coefficient := perHit.Coeff()
+	tooltipCoefficient := SealOfRighteousnessPerHitTooltipCoefficient
 	twoHandCoefficient := func() float64 {
-		if paladin.GetMainHandType() == proto.HandType_HandTypeTwoHand {
+		twoHand := paladin.GetMainHandType() == proto.HandType_HandTypeTwoHand
+		if tooltipCoefficient {
+			return core.TernaryFloat64(twoHand, sealOfRighteousnessTooltipTwoHandCoefficient, sealOfRighteousnessTooltipOneHandCoefficient)
+		}
+		if twoHand {
 			return coefficient * 1.2
 		}
 		return coefficient
