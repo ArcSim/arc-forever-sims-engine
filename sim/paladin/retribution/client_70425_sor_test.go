@@ -113,7 +113,7 @@ func TestSealOfRighteousnessBasesAtSpellLevel(t *testing.T) {
 	})
 	on := patch148Run(t, massOfMcGowan, 0, 1, sealJudgeStrike)
 	power := patch148Run(t, massOfMcGowan, 1000, 1, sealJudgeStrike)
-	sealMultiplier := (power.seal - on.seal) / (1000 * 0.20)
+	sealMultiplier := (power.seal - on.seal) / (1000 * paladin.SealOfRighteousnessHitCoefficient(0.20, false))
 	judgementMultiplier := (power.judgement - on.judgement) / (1000 * paladin.JudgementOfRighteousnessSpellPowerCoefficient)
 	t.Logf("seal hit %.2f -> %.2f (multiplier %.3f), judgement %.2f -> %.2f (multiplier %.3f)",
 		off.seal, on.seal, sealMultiplier, off.judgement, on.judgement, judgementMultiplier)
@@ -127,14 +127,40 @@ func TestSealOfRighteousnessBasesAtSpellLevel(t *testing.T) {
 	}
 }
 
+// sealShare is what 1000 spell power adds to a seal hit with the weapon, under the switches as set.
+func sealShare(t *testing.T, weapon int32) float64 {
+	return patch148Run(t, weapon, 1000, 1, sealJudgeStrike).seal - patch148Run(t, weapon, 0, 1, sealJudgeStrike).seal
+}
+
+// MythicSim patch 158: the seal hit takes half the judgement dummy's share, 0.10 with a one-hander and
+// 0.12 with a two-hander, against the pre-fix 0.20 and 0.24.
+func TestSealOfRighteousnessSpellPowerFixed(t *testing.T) {
+	if !paladin.SealOfRighteousnessSpellPowerFixed {
+		t.Fatal("SealOfRighteousnessSpellPowerFixed is off by default; patch 158 turns it on")
+	}
+	for _, c := range []struct {
+		name   string
+		weapon int32
+	}{
+		{"one-hander", massOfMcGowan},
+		{"two-hander", arcaniteReaper},
+	} {
+		fixed := sealShare(t, c.weapon)
+		var bugged float64
+		withSwitch(&paladin.SealOfRighteousnessSpellPowerFixed, false, func() { bugged = sealShare(t, c.weapon) })
+		t.Logf("%s: 1000 spell power adds %.2f a hit, %.2f before the fix", c.name, fixed, bugged)
+		if got := fixed / bugged; math.Abs(got-0.5) > 1e-6 {
+			t.Errorf("%s: the fixed share over the pre-fix one is %.5f, want 0.5", c.name, got)
+		}
+	}
+}
+
 // The per-hit spell power share from client 70425's tooltip, 0.0765 with a one-hander and 0.12
-// with a two-hander, against the judgement dummy's 0.20 and 0.24. Off by default.
+// with a two-hander, against the judgement dummy's 0.20 and 0.24. Off by default; when on it
+// replaces patch 158's half of the dummy as well.
 func TestSealOfRighteousnessPerHitTooltipCoefficient(t *testing.T) {
 	if paladin.SealOfRighteousnessPerHitTooltipCoefficient {
 		t.Fatal("SealOfRighteousnessPerHitTooltipCoefficient is on by default; patch 148 leaves it off")
-	}
-	share := func(weapon int32) float64 {
-		return patch148Run(t, weapon, 1000, 1, sealJudgeStrike).seal - patch148Run(t, weapon, 0, 1, sealJudgeStrike).seal
 	}
 	for _, c := range []struct {
 		name   string
@@ -144,12 +170,18 @@ func TestSealOfRighteousnessPerHitTooltipCoefficient(t *testing.T) {
 		{"one-hander", massOfMcGowan, 0.0765 / 0.20},
 		{"two-hander", arcaniteReaper, 0.12 / 0.24},
 	} {
-		dummy := share(c.weapon)
-		var tooltip float64
-		withSwitch(&paladin.SealOfRighteousnessPerHitTooltipCoefficient, true, func() { tooltip = share(c.weapon) })
-		t.Logf("%s: 1000 spell power adds %.2f a hit, %.2f with the tooltip's share", c.name, dummy, tooltip)
+		var dummy, tooltip, tooltipUnfixed float64
+		withSwitch(&paladin.SealOfRighteousnessSpellPowerFixed, false, func() {
+			dummy = sealShare(t, c.weapon)
+			withSwitch(&paladin.SealOfRighteousnessPerHitTooltipCoefficient, true, func() { tooltipUnfixed = sealShare(t, c.weapon) })
+		})
+		withSwitch(&paladin.SealOfRighteousnessPerHitTooltipCoefficient, true, func() { tooltip = sealShare(t, c.weapon) })
+		t.Logf("%s: 1000 spell power adds %.2f a hit with the dummy's share, %.2f with the tooltip's", c.name, dummy, tooltip)
 		if got := tooltip / dummy; math.Abs(got-c.want) > 1e-6 {
 			t.Errorf("%s: tooltip share over the dummy's %.5f, want %.5f", c.name, got, c.want)
+		}
+		if tooltip != tooltipUnfixed {
+			t.Errorf("%s: with the tooltip switch on, patch 158's switch moved the share from %.4f to %.4f", c.name, tooltipUnfixed, tooltip)
 		}
 	}
 }

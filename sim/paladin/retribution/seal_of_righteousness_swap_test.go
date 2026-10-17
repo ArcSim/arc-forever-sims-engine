@@ -94,8 +94,9 @@ func TestSealOfRighteousnessFollowsASwappedWeapon(t *testing.T) {
 	defer func() { paladin.SealOfRighteousnessFollowsSwappedWeapon = true }()
 	stale := sealOfRighteousnessHit(t, arcaniteReaper, massOfMcGowan)
 	t.Logf("switched off: %.1f", stale)
-	// 1000 spell power at 0.185 x 1.2 against 0.185 is about 37 more a hit.
-	if stale-oneHand < 25 {
+	// 1000 spell power at 0.12 (rank 8's 0.20 x 1.2, halved by patch 158) against 0.10 is 20 more a
+	// hit before multipliers.
+	if stale-oneHand < 15 {
 		t.Errorf("switched off, the swapped one-hander should keep the two-hander's coefficient: %.1f against %.1f", stale, oneHand)
 	}
 }
