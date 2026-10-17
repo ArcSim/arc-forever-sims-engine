@@ -58,8 +58,13 @@ func (mage *Mage) registerImprovedFrostbolt() {
 		return
 	}
 
+	// 11070's mask (0x20) is Frostbolt's bit, which Frost Blast's class mask carries too (patch 153).
+	mask := MageSpellFrostbolt
+	if FrostBlastCastable {
+		mask |= MageSpellFrostBlast
+	}
 	mage.AddStaticMod(core.SpellModConfig{
-		ClassMask: MageSpellFrostbolt,
+		ClassMask: mask,
 		TimeValue: time.Millisecond * time.Duration(spellData.ImprovedFrostbolt.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_CASTING_TIME)).ValueAt(mage.Talents.ImprovedFrostbolt)),
 		Kind:      core.SpellMod_CastTime_Flat,
 	})
@@ -181,6 +186,8 @@ func (mage *Mage) registerArcticReach() {
 		MageSpellFrostbolt:                       rangeShare * float64(spellData.Frostbolt.Highest().MaxRange),
 		MageSpellBlizzard:                        rangeShare * float64(spellData.Blizzard.Highest().MaxRange),
 		MageSpellFrostNova | MageSpellConeOfCold: radiusShare * pointBlankRadius,
+		// The range mask (0xa0) holds Frostbolt's bit, which Frost Blast carries (patch 153).
+		MageSpellFrostBlast: rangeShare * float64(spellData.FrostBlast.Highest().MaxRange),
 	} {
 		mage.AddStaticMod(core.SpellModConfig{ClassMask: mask, FloatValue: yards, Kind: core.SpellMod_Range_Flat})
 	}
