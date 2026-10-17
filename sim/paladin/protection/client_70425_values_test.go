@@ -114,3 +114,49 @@ func TestOneHandedWeaponSpecializationCoversEverySchoolButConsecrationAndRetribu
 		}
 	}
 }
+
+// The Holy-prot reference's talents: Holy Shock with One-Handed Weapon Specialization 3/3.
+const holyProtTalents = "5500300300312125-05302133013-"
+
+func newHolyProtPaladinWith(t *testing.T, equipment *proto.EquipmentSpec) *paladin.Paladin {
+	t.Helper()
+	sim := core.NewSim(&proto.RaidSimRequest{
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+		Raid: core.SinglePlayerRaidProto(&proto.Player{
+			Name: "holy-prot", Class: proto.Class_ClassPaladin, Race: proto.Race_RaceHuman, TalentsString: holyProtTalents,
+			Equipment: equipment,
+			Spec:      DefaultOptions,
+			Rotation:  &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
+		}, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter: core.MakeSingleTargetEncounter(0),
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	return sim.Raid.Parties[0].Players[0].(paladin.PaladinAgent).GetPaladin()
+}
+
+// MythicSim patch 149: Holy Shock, damage and heal, takes no One-Handed Weapon Specialization until it
+// is tested (Ashreon, 17 October 2026); Holy Strike beside it still does.
+func TestOneHandedWeaponSpecializationSkipsHolyShock(t *testing.T) {
+	ratios := func() (shock, heal, strike float64) {
+		oneHand := newHolyProtPaladinWith(t, WeaponAndShield)
+		twoHand := newHolyProtPaladinWith(t, twoHanderOnly)
+		if oneHand.Talents.OneHandedWeaponSpecialization != 3 || !oneHand.Talents.HolyShock {
+			t.Fatalf("test build has One-Handed Weapon Specialization %d, Holy Shock %v", oneHand.Talents.OneHandedWeaponSpecialization, oneHand.Talents.HolyShock)
+		}
+		ratio := func(mask int64) float64 {
+			return spellByMask(t, oneHand, mask, 0).DamageMultiplier / spellByMask(t, twoHand, mask, 0).DamageMultiplier
+		}
+		return ratio(paladin.SpellMaskHolyShock), ratio(paladin.SpellMaskHolyShockHeal), ratio(paladin.SpellMaskHolyStrike)
+	}
+	shock, heal, strike := ratios()
+	if shock != 1 || heal != 1 || math.Abs(strike-1.1) > 1e-9 {
+		t.Errorf("one-hander over two-hander: Holy Shock %v, its heal %v, Holy Strike %v; want 1, 1, 1.1", shock, heal, strike)
+	}
+
+	paladin.OneHandedWeaponSpecializationSkipsHolyShock = false
+	defer func() { paladin.OneHandedWeaponSpecializationSkipsHolyShock = true }()
+	shock, heal, _ = ratios()
+	if math.Abs(shock-1.1) > 1e-9 || heal != 1 {
+		t.Errorf("switched off: Holy Shock %v, its heal %v; want 1.1 (patch 143) and 1", shock, heal)
+	}
+}

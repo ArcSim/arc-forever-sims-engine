@@ -4090,3 +4090,32 @@ spells.
 Downstream: the Rust engine needs the base points rule before its next repin (and either switch if it comes on).
 
 Drop the base points rule when upstream reads Seal of Righteousness at its spell level or the rows change.
+
+## 149. `paladin: Holy Shock takes no One-Handed Weapon Specialization`
+
+Patch 143 put One-Handed Weapon Specialization on every school of the paladin's damage but Consecration and
+Retribution Aura, from Ashreon's measurements on client 70425. Holy Shock was not among the spells she
+measured, and she recommends leaving it out until it is tested (MythicSim Discord, 17 October 2026).
+`applyOneHandedWeaponSpecialization` (`sim/paladin/talents_protection.go`) now skips `SpellMaskHolyShock` and
+`SpellMaskHolyShockHeal` (the heal never took it, as heals take none; it is named so that holds).
+`OneHandedWeaponSpecializationSkipsHolyShock` (default true); false gives Holy Shock's damage the bonus, as
+patch 143 did.
+
+Test (`sim/paladin/protection/client_70425_values_test.go`): `TestOneHandedWeaponSpecializationSkipsHolyShock`
+(the Holy-prot reference's talents, `5500300300312125-05302133013-`, Grand Marshal's Longsword against
+Arcanite Reaper: Holy Shock and its heal x1, Holy Strike x1.1; switched off, Holy Shock x1.1). No golden moves:
+`TestHolyPaladin` takes no One-Handed Weapon Specialization and the Protection and Retribution suites cast no
+Holy Shock.
+
+Measured as patch 148 (10,000 iterations, board seed and length). Only Holy-prot casts Holy Shock with
+One-Handed Weapon Specialization (Shockadin has none, the others no Holy Shock):
+
+| Reference | `2fe7678a0` | Patch 149 alone | Patches 148 and 149 | Change |
+| --- | ---: | ---: | ---: | ---: |
+| Holy-prot hybrid | 652.54 | 645.13 (-1.14%) | 641.99 | -1.62% |
+
+Retribution, Protection, Ret-prot and Shockadin give patch 148's numbers to the last digit.
+
+Downstream: the Rust engine needs the exclusion with patch 143's specialization before its next repin.
+
+Drop it when Holy Shock is measured with One-Handed Weapon Specialization (keep it out, or switch it off).

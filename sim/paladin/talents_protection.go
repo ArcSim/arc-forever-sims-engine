@@ -227,9 +227,13 @@ func (paladin *Paladin) applyOneHandedWeaponSpecialization() {
 	RetributionAuraRankMap.Each(func(_ int32, rank *spelldata.Spell) {
 		retributionAura[rank.ID] = true
 	})
+	excluded := SpellMaskConsecration | SpellMaskRetributionAura
+	if OneHandedWeaponSpecializationSkipsHolyShock {
+		excluded |= SpellMaskHolyShock | SpellMaskHolyShockHeal
+	}
 	takesIt := func(spell *core.Spell) bool {
 		return !spell.Flags.Matches(core.SpellFlagHelpful) &&
-			!spell.Matches(SpellMaskConsecration|SpellMaskRetributionAura) &&
+			!spell.Matches(excluded) &&
 			!retributionAura[spell.ActionID.SpellID]
 	}
 	paladin.followMainHand(paladin.AddDynamicMod(core.SpellModConfig{
@@ -252,6 +256,13 @@ func (paladin *Paladin) applyOneHandedWeaponSpecialization() {
 // Consecration and Retribution Aura, as measured in game on client 70425. False keeps the client row's
 // Physical school alone (MythicSim patch 143).
 var OneHandedWeaponSpecializationAllSchools = true
+
+// OneHandedWeaponSpecializationSkipsHolyShock leaves Holy Shock, its damage and its heal, out of the
+// all-schools One-Handed Weapon Specialization (MythicSim patch 149). Ashreon's patch 143 measurements
+// did not cover it and she recommends leaving it out until it is tested (MythicSim Discord, 17
+// October 2026). The heal never took it (heals read none of it); the switch names it so that stays
+// true if heals ever do. False gives Holy Shock's damage the bonus, as patch 143 did.
+var OneHandedWeaponSpecializationSkipsHolyShock = true
 
 // The one- and two-handed specializations: a physical damage bonus that follows the weapon in the
 // main hand, item swaps included.
