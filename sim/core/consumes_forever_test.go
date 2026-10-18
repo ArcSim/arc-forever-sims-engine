@@ -197,3 +197,42 @@ func TestVenomousBloodPotionDoesNothingWithoutBleeds(t *testing.T) {
 		t.Fatal("drinking it should start the potion cooldown")
 	}
 }
+
+// mythicsim patch 171: the elixirs' identical +2% crit rider applies once; each elixir's own stat
+// still applies, and the Grilled Squid's well fed crit adds beside it.
+func TestConsumableCritRiderAppliesOnce(t *testing.T) {
+	deltas := func(set func(*proto.ConsumesSpec)) (physical, spell, strength, agility, spirit float64) {
+		_, without := setupConsumesSim(nil)
+		_, with := setupConsumesSim(func(request *proto.RaidSimRequest) { set(consumesOf(request)) })
+		d := func(s stats.Stat) float64 { return with.GetStat(s) - without.GetStat(s) }
+		return d(stats.PhysicalCritPercent), d(stats.SpellCritPercent), d(stats.Strength), d(stats.Agility), d(stats.Spirit)
+	}
+	all := func(c *proto.ConsumesSpec) {
+		c.BattleElixirId = 13452    // Mongoose
+		c.GuardianElixirId = 250338 // Sages
+		c.StrengthBuffId = 250351   // Grizzly
+	}
+	physical, spell, strength, agility, spirit := deltas(all)
+	if !WithinToleranceFloat64(2, physical, 0.001) || !WithinToleranceFloat64(2, spell, 0.001) {
+		t.Fatalf("three rider elixirs: physical %+.3f%%, spell %+.3f%%, want +2%% each", physical, spell)
+	}
+	if strength <= 0 || agility <= 0 || spirit <= 0 {
+		t.Fatalf("every elixir's own stat should apply: strength %+.1f, agility %+.1f, spirit %+.1f", strength, agility, spirit)
+	}
+	_, _, aloneStr, _, _ := deltas(func(c *proto.ConsumesSpec) { c.StrengthBuffId = 250351 })
+	if !WithinToleranceFloat64(aloneStr, strength, 0.001) {
+		t.Fatalf("the Grizzly's Strength with the others %+.2f, alone %+.2f", strength, aloneStr)
+	}
+
+	physical, spell, _, _, _ = deltas(func(c *proto.ConsumesSpec) { all(c); c.FoodId = 13928 })
+	if !WithinToleranceFloat64(3, physical, 0.001) || !WithinToleranceFloat64(3, spell, 0.001) {
+		t.Fatalf("riders and Grilled Squid: physical %+.3f%%, spell %+.3f%%, want +3%% each", physical, spell)
+	}
+
+	ConsumableCritRiderStacks = true
+	defer func() { ConsumableCritRiderStacks = false }()
+	physical, spell, _, _, _ = deltas(all)
+	if !WithinToleranceFloat64(6, physical, 0.001) || !WithinToleranceFloat64(6, spell, 0.001) {
+		t.Fatalf("with the switch on: physical %+.3f%%, spell %+.3f%%, want +6%% each", physical, spell)
+	}
+}

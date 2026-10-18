@@ -30,9 +30,22 @@ func applyConsumeEffects(agent Agent, _ *proto.PartyBuffs) {
 		return
 	}
 
+	// The "+2% chance to critically hit" rider shared by the Elixirs of the Mongoose, Owl, Sages,
+	// Whale and Grizzly applies once (mythicsim patch 171, ConsumableCritRiderStacks).
+	riders := 0
+	addConsumable := func(id int32, s stats.Stats) {
+		if _, rider := consumableCritRiderItems[id]; rider && !ConsumableCritRiderStacks {
+			if riders > 0 {
+				s[stats.MeleeCritRating] = 0
+			}
+			riders++
+		}
+		character.AddStats(consumableStats(s))
+	}
+
 	if consumables.FlaskId != 0 {
 		flask := GetConsumableByID(consumables.FlaskId)
-		character.AddStats(consumableStats(flask.Stats))
+		addConsumable(flask.Id, flask.Stats)
 	}
 
 	if consumables.BattleElixirId != 0 {
@@ -48,7 +61,7 @@ func applyConsumeEffects(agent Agent, _ *proto.PartyBuffs) {
 			})
 		} else {
 			elixir := GetConsumableByID(consumables.BattleElixirId)
-			character.AddStats(consumableStats(elixir.Stats))
+			addConsumable(elixir.Id, elixir.Stats)
 		}
 	}
 
@@ -84,12 +97,12 @@ func applyConsumeEffects(agent Agent, _ *proto.PartyBuffs) {
 			})
 		} else {
 			elixir := GetConsumableByID(consumables.GuardianElixirId)
-			character.AddStats(consumableStats(elixir.Stats))
+			addConsumable(elixir.Id, elixir.Stats)
 		}
 	}
 	if consumables.FoodId != 0 {
 		food := GetConsumableByID(consumables.FoodId)
-		character.AddStats(consumableStats(food.Stats))
+		addConsumable(food.Id, food.Stats)
 	}
 
 	// Classic buffs that stack beside the elixirs: jujus, Blasted Lands/Zanza, alcohol, the
@@ -97,7 +110,7 @@ func applyConsumeEffects(agent Agent, _ *proto.PartyBuffs) {
 	for _, id := range []int32{consumables.StrengthBuffId, consumables.AttackPowerBuffId, consumables.ZanzaId,
 		consumables.AlcoholId, consumables.SpellPowerElixirId, consumables.SchoolElixirId, consumables.DefenseElixirId} {
 		if id != 0 {
-			character.AddStats(consumableStats(GetConsumableByID(id).Stats))
+			addConsumable(id, GetConsumableByID(id).Stats)
 		}
 	}
 	if consumables.DragonbreathChili {
@@ -158,6 +171,24 @@ func applyConsumeEffects(agent Agent, _ *proto.PartyBuffs) {
 // elsewhere (Elune's Light, racials.go), while the database reads it as weapon crit only, so the
 // spell half is added here. False keeps weapon crit only.
 var ConsumableCritIsAllCrit = true
+
+// ConsumableCritRiderStacks (mythicsim patch 171, default false): whether the identical "+2% chance
+// to critically hit" rider of the Elixirs of the Mongoose, Owl, Sages, Whale and Grizzly adds once
+// per elixir. Bae (MythicSim Discord, #tier-list-feedback, 18 October 2026): "A 1:1 same text
+// consumable has never stacked" - each elixir's own stat applies, but one 2% crit in all. False
+// pays the rider once, however many of them are drunk; true adds each, as before. The Grilled
+// Squid's well fed crit (1249523, 1%, a food buff with its own text) is not the rider and adds
+// beside it.
+var ConsumableCritRiderStacks = false
+
+// The elixirs whose crit is the shared rider: each states A_MOD_CRIT_PCT for 2 beside its stat.
+var consumableCritRiderItems = map[int32]struct{}{
+	13452:  {}, // Elixir of the Mongoose (17538)
+	250337: {}, // Elixir of the Owl (1250940)
+	250338: {}, // Elixir of Sages (1250941)
+	250348: {}, // Elixir of the Whale (1250981)
+	250351: {}, // Elixir of the Grizzly (1250986)
+}
 
 // consumableStats returns a stat consumable's stats as they apply: its crit, which the database
 // holds as weapon crit, also counts as spell crit (ConsumableCritIsAllCrit).
