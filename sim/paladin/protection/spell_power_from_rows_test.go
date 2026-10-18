@@ -7,11 +7,12 @@ import (
 	"github.com/wowsims/forever/sim/paladin"
 )
 
-// MythicSim patch 161: with JudgementOfRighteousnessSpellPowerFromRow on, every rank of the judgement
-// takes its client row's share (0.429 on every rank in client 70425); off, patch 143's measured 0.70.
+// MythicSim patches 161 and 162: with JudgementOfRighteousnessSpellPowerFromRow and
+// HolyStrikeSpellPowerFromRow on, every rank of the judgement and of Holy Strike takes its client row's
+// share (0.429 on every rank in client 70425); off, patch 143's measured 0.70 and 0.286.
 func TestPaladinSpellPowerFromRows(t *testing.T) {
-	if paladin.JudgementOfRighteousnessSpellPowerFromRow {
-		t.Fatal("the row switch is on by default; patch 161 leaves it off")
+	if paladin.JudgementOfRighteousnessSpellPowerFromRow || paladin.HolyStrikeSpellPowerFromRow {
+		t.Fatal("a row switch is on by default; patches 161 and 162 leave both off")
 	}
 	cases := []struct {
 		name     string
@@ -20,6 +21,7 @@ func TestPaladinSpellPowerFromRows(t *testing.T) {
 		measured float64
 	}{
 		{"Judgement of Righteousness", paladin.SpellMaskJudgementOfRighteousness, &paladin.JudgementOfRighteousnessSpellPowerFromRow, 0.70},
+		{"Holy Strike", paladin.SpellMaskHolyStrike, &paladin.HolyStrikeSpellPowerFromRow, 0.286},
 	}
 	for _, c := range cases {
 		for _, on := range []bool{false, true} {

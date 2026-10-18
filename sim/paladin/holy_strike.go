@@ -22,6 +22,16 @@ var HolyStrikeRankMap = spellData.HolyStrike
 // flat Holy amount, already matched.
 const HolyStrikeSpellPowerCoefficient = 0.286
 
+// HolyStrikeSpellPowerFromRow gives Holy Strike the share its client rows carry, 0.429 on every rank in
+// client 70425 and every client before it, instead of patch 143's measured 0.286 (MythicSim patch 162).
+// The pre-16 October logs show the server dealing the row's share: Judgement of the Crusader steps of 0.37
+// to 0.45 a point (mean 0.41) for five paladins with no Holy Strike talent (reports 2744, 2693, 32, 2755,
+// 2782: 0/0/5, 0/0/10, 0/0/11, 0/0/13 and 0/24/0), where 0.286 would need a 1.43 multiplier none of them
+// can have. No log from after 16 October exists, and Ashreon measured the hit
+// on 70425 after Blizzard changed it ("~50% lower in game"), so the switch stays off until a post-16
+// October log or a live test separates 0.429 from 0.286.
+var HolyStrikeSpellPowerFromRow = false
+
 // HolyStrikeFlatBeforeWeaponPercentIs40To53 reads Ashreon's "Holy Strike 40-53 (was 94-121)" (bugs
 // forum, 17 October 2026) as the flat amount the client adds before taking 50% of the sum, so the
 // hit's Holy part is half of that, 20 to 26.5 (MythicSim patch 148). Every rank's flat amount is
@@ -60,7 +70,7 @@ func (paladin *Paladin) registerHolyStrike(_ int32, rank *spelldata.Spell) {
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
-		BonusCoefficient: HolyStrikeSpellPowerCoefficient,
+		BonusCoefficient: core.TernaryFloat64(HolyStrikeSpellPowerFromRow, flat.Coeff(), HolyStrikeSpellPowerCoefficient),
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			baseDamage := weaponPercent * (spell.Unit.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target)) + flatMultiplier*flat.Roll(sim, core.CharacterLevel))

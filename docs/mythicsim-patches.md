@@ -4582,3 +4582,46 @@ default: Retribution 840.18 to 817.62 (-2.7%), Protection 629.95 to 593.50 (-5.8
 572.85 (-6.6%), Holy-prot 586.22 to 553.21 (-5.6%), Shockadin 919.43 to 861.90 (-6.3%).
 
 Downstream: the Rust engine needs the switch only if it is turned on.
+
+## 162. `paladin: Holy Strike row share behind a switch (off)`
+
+Raised by Dyst's coefficient audit (client 0.429 against the engine's 0.286) and the 18 October log review
+(Nely's Holy Strike jumps 25.1 under Judgement of the Crusader, 0.43 a point). The engine's 0.286 is
+Ashreon's in-game measurement on client 70425 (patch 143). The rows give Holy Strike 0.429 on every rank in
+client 70425 and in every client before it.
+
+Logs (all from before 16 October), the same probe as patch 161:
+
+| Report, paladin (character), talents | Holy Strike rank | Hits without / with | Step a point |
+| --- | --- | ---: | ---: |
+| 2744 Paulah (118819), 0/0/5 | 2 (678) | 108 / 10 | 0.368 +/- 0.011 |
+| 2693 Exordium (70871), 0/0/10 | 2 (678) | 47 / 26 | 0.402 +/- 0.017 |
+| 32 Quinvy (28503), 0/0/11 | 3 (1866) | 47 / 63 | 0.454 +/- 0.030 |
+| 2755 Magnus (134843), 0/0/13 | 2 (678) | 52 / 2 | 0.426 +/- 0.014 |
+| 2782 Light (129994), 0/24/0 | 4 (680) | 114 / 11 | 0.392 +/- 0.021 |
+| 2748 Nely (128054), 0/0/19 | 4 (680) | 78 / 17 | 0.452 +/- 0.039 |
+| 2756 George (135397), 0/0/20 | 3 (1866) | 43 / 4 | 0.500 +/- 0.039 |
+| 2755 개불 (135059), 0/0/18 | 3 (1866) | 50 / 7 | 0.527 +/- 0.037 |
+| 2699 Vitochie (77141), 0/0/19 | 3 (1866) | 62 / 23 | 0.403 +/- 0.019 |
+
+The first five can take no talent that raises Holy Strike's damage (Sacred Arbiter, +20%, is Retribution
+tier 4, 15 points); they average 0.41, the row's 0.429 within 5%. For 0.286 they would need a 1.43
+multiplier. Paladins with 15 or more Retribution points read 0.35 to 0.53 (also Camthas 155348 0.355,
+Cheonma 33568 0.351, Inco 70355 0.441): the row, with or without Sacred Arbiter's 1.2. So the pre-16
+October server dealt the row. Ashreon measured
+0.286 on 70425, after Blizzard changed Holy Strike ("~50% lower in game"), so the logs cannot overrule her.
+
+- **Holy Strike from the row** (off). `HolyStrikeSpellPowerFromRow` (default false,
+  `sim/paladin/holy_strike.go`). On, every rank takes its flat effect's coefficient (0.429); off, 0.286.
+- **The flat reading stays open.** `HolyStrikeFlatBeforeWeaponPercentIs40To53` stays off. At the logs' ranks
+  (3 and 4, levels 20 to 35) the two readings differ by 3 to 5 a hit, under the spread the weapon roll,
+  armor and buffs put on any absolute fit (the 18 October review); the probe reads the spell power share
+  only. A level 60 rank 8 hit (about 23 a hit apart) settles it.
+
+Tests: `TestPaladinSpellPowerFromRows` adds Holy Strike (every rank 0.286 off, 0.429 on). Goldens: none move.
+
+Measured with the switch on, against the default: Retribution 840.18 to 856.89 (+2.0%), Protection 629.95 to
+638.57 (+1.4%), Ret-prot 613.61 to 626.59 (+2.1%), Holy-prot 586.22 to 596.28 (+1.7%), Shockadin 919.43 to
+940.45 (+2.3%).
+
+Downstream: the Rust engine needs the switch only if it is turned on.
