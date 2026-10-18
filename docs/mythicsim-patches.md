@@ -4695,6 +4695,7 @@ rank 1 is 54, rank 8 untouched). Goldens: the `AllItems-Hurricane-2824` entry le
 `TestArms`, `TestFury` and `TestProtectionWarrior` (as upstream's goldens); no other golden moves. No
 reference wears Hurricane or casts Holy Fire rank 1, so no reference moves. Downstream: the Rust engine needs
 the same two edits before its next repin.
+
 ## 165. `consumables: the Merchant's Favor alchemy recipes' potions and elixirs are in the database`
 
 Bae on the MythicSim Discord (#tier-list-feedback, 18 October 2026) sent the in-game list of Nina Surefire
