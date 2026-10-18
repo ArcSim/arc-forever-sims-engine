@@ -4484,6 +4484,11 @@ final Intellect). Goldens: `TestRetribution` Average-Default 370.77 to 381.16 (+
 `TestHolyPaladin` do not move. With `ChampionOfTheLightReverted` false `TestRetribution` reproduces the old
 goldens.
 
+Measured (native `wowsimcli` with `with_db`, requests from MythicSim main `47c97a19` through the worker's
+`BuildRequest`: board seed, board length, 10,000 iterations, empty trinket slots; the base reproduces
+`expected_baseline_dps` on `0d176681b`): Retribution 808.01 to 840.18 (+3.98%), Ret-prot 591.23 to 613.61
+(+3.79%), Shockadin 878.23 to 919.43 (+4.69%); Protection (629.95) and Holy-prot (586.22) do not move.
+
 Downstream: the Rust engine needs the 20% share before its next repin. Drop the switch when the client
 tables carry 20/40/60 again (the ladder can then be read).
 
@@ -4599,12 +4604,13 @@ Logs (all from before 16 October), the same probe as patch 161:
 | 32 Quinvy (28503), 0/0/11 | 3 (1866) | 47 / 63 | 0.454 +/- 0.030 |
 | 2755 Magnus (134843), 0/0/13 | 2 (678) | 52 / 2 | 0.426 +/- 0.014 |
 | 2782 Light (129994), 0/24/0 | 4 (680) | 114 / 11 | 0.392 +/- 0.021 |
+| 2785 Light (129994), 0/24/0 | 4 (680) | 161 / 34 | 0.410 +/- 0.014 |
 | 2748 Nely (128054), 0/0/19 | 4 (680) | 78 / 17 | 0.452 +/- 0.039 |
 | 2756 George (135397), 0/0/20 | 3 (1866) | 43 / 4 | 0.500 +/- 0.039 |
 | 2755 개불 (135059), 0/0/18 | 3 (1866) | 50 / 7 | 0.527 +/- 0.037 |
 | 2699 Vitochie (77141), 0/0/19 | 3 (1866) | 62 / 23 | 0.403 +/- 0.019 |
 
-The first five can take no talent that raises Holy Strike's damage (Sacred Arbiter, +20%, is Retribution
+The first five paladins can take no talent that raises Holy Strike's damage (Sacred Arbiter, +20%, is Retribution
 tier 4, 15 points); they average 0.41, the row's 0.429 within 5%. For 0.286 they would need a 1.43
 multiplier. Paladins with 15 or more Retribution points read 0.35 to 0.53 (also Camthas 155348 0.355,
 Cheonma 33568 0.351, Inco 70355 0.441): the row, with or without Sacred Arbiter's 1.2. So the pre-16
@@ -4625,3 +4631,38 @@ Measured with the switch on, against the default: Retribution 840.18 to 856.89 (
 940.45 (+2.3%).
 
 Downstream: the Rust engine needs the switch only if it is turned on.
+
+## 163. `paladin: Dyst's coefficient audit, two stale comments`
+
+Dyst's audit (Go pin 2fe7678a0 against client 70425 = 70450 and the 17 October hotfixes) lists every
+coefficient where the engine and the client rows part. Patches 161 and 162 take Judgement of Righteousness
+and Holy Strike. The rest stay as they are; this patch only corrects two comments.
+
+- **Consecration** (`sim/paladin/consecration.go`): the comments said the rows still carry 0.095. Client
+  70425's bonus tick carries 0.042, the 16 October notes' number, so the constant only pins it. The
+  pre-16 October logs read the old 0.095 (Judgement of the Crusader steps of 0.089 to 0.108 a tick on
+  George 135397, Nely 128054, Vitochie 77141 and Inco 70355).
+- **Retribution Aura** (`sim/core/buffs/paladin.go`): the comment is right that the damage shield has no
+  coefficient (effect 0, A_DAMAGE_SHIELD, 0). The 1.0 the audit saw is on effect 1, an A_MOD_HEALING_PCT
+  with 0 base points: the client's default on an effect that deals nothing. The comment now says so; 0.06
+  stays (8 October notes).
+
+What stays, and why:
+
+| Spell | Client row | Engine | Why it stays |
+| --- | --- | --- | --- |
+| Holy Shield, per block | SP 0.08 | 0.07 | Ashreon, in game on 70425 (patch 143). No public log has a Holy Shield hit (all levels 35 and under). |
+| Seal of Fury, per hit | SP 0.10 (70338 and 70425) | 0.15 | Ashreon (patch 143). The pre-16 October logs read the row: Light 129994 (0/24/0) 0.093 +/- 0.003 (2782) and 0.103 +/- 0.002 (2785, 134 hits), Cheonma 33568 (0/0/22) 0.095, Inco 70355 (0/0/21) 0.090; Holy builds 0.12 to 0.14 with Improved Seals and Consecrated Ground (up to x1.27). Open, as patch 161. |
+| Judgement of Fury | SP 0.45 (70338), 0.429 (70425) | 0.67 | Ashreon (patch 143). Pre-16 October: Light 0.456 +/- 0.023 (2782, 13 hits) and 0.489 +/- 0.020 (2785, 35 hits), Cheonma 0.454, Inco 0.485; Hesh 127899 (23/0/3) 0.71 +/- 0.11 and Holbry 153100 0.67 +/- 0.04, 0.53 to 0.56 once x1.27 is taken out. Open, as patch 161. Ashreon's 0.67 and 0.15 are both 1.5 times the pre-16 rows, which a test should keep in mind. |
+| Retribution Aura | 0 on the damage effect | 0.06 | 8 October notes. Its hits do not move under Judgement of the Crusader in the logs (damage shields do not take it), so the logs say nothing of its share. |
+| Volley tick | 0 (tick), 0.03 (channel dummy) | 0.056 | The 0.03 is the placeholder Blizzard and Rain of Fire carry; Classic's 0.056. Volley is learned at 40, past every log. |
+| Swipe (bear) | SP 1.0, AP 0 | AP 0.05 | Upstream #787, fitted to beta logs (Thebig, report 2756). |
+| Revenge | SP 1.0, AP 0 | AP 0.25 | Fitted to four level 20 warriors in beta logs (0.23 to 0.27). |
+| Thorns | 0 | SP 0.06 | 24 September and 8 October notes. |
+| Ice Lance | 0 | SP 0.1 | Fitted to beta logs (Mana, report 2727; Toma, 2687). |
+| Arcane Shot, Serpent Sting | 0 | log fits | The 18 October hunter review: no log separates the readings. |
+| Immolation and Explosive Trap | 0 | AP 0.13 | Patch 147. |
+| Rake, Garrote, Thunder Clap, Summon Hawk, poisons | 0 | AP shares | Upstream fits and Go literals; no row to read. |
+| Imp Firebolt rank 1 | 0.164 | 0.571 | Only a low-rank imp; no reference casts it. |
+
+Tests: none (comments only). Goldens: none move.

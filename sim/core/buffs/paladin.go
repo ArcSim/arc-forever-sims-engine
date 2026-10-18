@@ -57,8 +57,10 @@ func ShadowResistanceAura(char *core.Character, isPlayer bool, rank PaladinAuraR
 	return newBuff(&char.Unit, paladinAuraMeta(shadowResistanceAuraMeta, rank), isPlayer, 0)
 }
 
-// Retribution Aura scales with the paladin's Holy spell power at 6%, though its client row carries
-// no coefficient (EffectBonusCoefficient 0 on every rank). Blizzard's beta notes of 8 Oct 2026 set
+// Retribution Aura scales with the paladin's Holy spell power at 6%. The client gives the damage shield
+// no coefficient: its damage effect (A_DAMAGE_SHIELD, effect 0) carries EffectBonusCoefficient 0 on every
+// rank; the 1.0 the rows show is on effect 1, an A_MOD_HEALING_PCT with 0 base points, the client's default
+// on an effect that deals nothing, not a damage share. Blizzard's beta notes of 8 Oct 2026 set
 // it: "the spell power ratio has been reduced to 6% (was 13.3%)", the base back to Vanilla's (client
 // 70291 has rank 5 at 20), and a fix so it reads "the casting Paladin's spell power" instead of the
 // struck member's. That retires the level-20 reading of 0.1357 and the holder split in beta logs
