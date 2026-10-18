@@ -568,13 +568,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestCombat-AllItems-Hurricane-2824"
- value: {
-  dps: 306.53701
-  tps: 152.3489
- }
-}
-dps_results: {
  key: "TestCombat-AllItems-InfernalLasso-219345"
  value: {
   dps: 309.54837

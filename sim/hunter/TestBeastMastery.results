@@ -735,13 +735,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestBeastMastery-AllItems-Hurricane-2824"
- value: {
-  dps: 417.32253
-  tps: 226.80337
- }
-}
-dps_results: {
  key: "TestBeastMastery-AllItems-IcebladeHacker-13952"
  value: {
   dps: 421.25059

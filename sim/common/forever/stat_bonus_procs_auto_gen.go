@@ -9125,13 +9125,8 @@ func RegisterAllProcs() {
 			{ItemID: 1979, ItemName: "Wall of the Dead"},
 		})
 
-	// All ranged auto-attacks conjure an icy bolt to blast your current target, inflicting 8 Frost damage.
-	// https://www.wowhead.com/forever/spell=29502
-	// trigger 1316319 (every time, core.CallbackOnSpellHitDealt, core.ProcMaskRangedAuto) -> buff 29502
-	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1316319, BuffSpellID: 29502},
-		[]shared.ItemVariant{
-			{ItemID: 2824, ItemName: "Hurricane"},
-		})
+	// Hurricane (2824) left the client in the 17 October 2026 hotfix cache (upstream #817), so its Frost
+	// Arrow proc (trigger 1316319 -> 29502) is no longer registered. MythicSim patch 165.
 
 	// 5% chance of dealing 40 Fire damage on a successful melee attack.
 	// https://www.wowhead.com/forever/spell=9057

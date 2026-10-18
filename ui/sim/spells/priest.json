@@ -115,7 +115,7 @@
 		"file": "sim/priest/holy_fire.go",
 		"note": "Beta client 1.60.1.70009: about half Classic's damage (rank 8 355-449 -> 184-232, dot 145 -> 75). Coefficients .75 and .05 a tick, cast and costs unchanged; every rank is registered. The client's rank 5 dot (65) is larger than rank 6's (50).",
 		"source": "forever",
-		"tooltip": "85 Mana\n3.5 sec cast\nConsumes the enemy in Holy flames that cause 56 to 70 Holy damage and an additional 20 Holy damage over 10 sec."
+		"tooltip": "85 Mana\n3.5 sec cast\nConsumes the enemy in Holy flames that cause 52 to 66 Holy damage and an additional 20 Holy damage over 10 sec."
 	},
 	"15237": {
 		"ability": "Holy Nova",

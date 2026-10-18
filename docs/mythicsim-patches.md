@@ -4463,3 +4463,32 @@ Downstream: the Rust engine needs the halved share and rank 1's 25741 before its
 
 Drop the halving when upstream fixes the seal's share or the proc rows carry a coefficient; switch to the
 tooltip's one-hander if a post-fix log gives about 0.077 rather than 0.10.
+
+## 165. `data: upstream's 17 October hotfix cache, Hurricane gone and Holy Fire rank 1 at 54`
+
+Source: upstream ElliotWood/Forever #816 and #817 ("[DB] Update to 1.60.1.70450 with hotfixes as of
+2026-10-17"), raised as item 22 of the 18 October list. The 17 October hotfix cache (not the 70450 CDN tables,
+which still carry both rows) deletes the bow Hurricane (item 2824, already absent from 70450's ItemSparse) and
+cuts Holy Fire rank 1 (14914, effect 687113) from 58 to 54 base, 52-66 at its level-24 cap.
+
+What the engine now carries, as upstream does:
+
+- Holy Fire rank 1's base points 54 in `sim/core/spelldata/spells_auto_gen.go`, and the tooltip in
+  `ui/sim/spells/priest.json` (52 to 66).
+- Hurricane's Frost Arrow proc (trigger 1316319 -> 29502) no longer registers
+  (`sim/common/forever/stat_bonus_procs_auto_gen.go`, `registered_effects.txt`).
+- #816 as is: `registerSpellDataRowProc` skips a generated item proc whose trigger or buff the store no longer
+  has, so the next regeneration against a hotfix that deletes a row does not panic.
+
+Left for the next engine sync: the rest of #817's regenerated rows (Elemental Mastery's attributes, the
+Argent Dawn and Lion Horn rows, Silenced - Kick, Dark Inspiration, the Faster Attack spells) and the binary
+`spell_store_inputs.json`. None is read by a sim path these items touch, and this branch cannot regenerate
+(no `tools/database/wowsims.db`), so the two values are edited by hand exactly as #817's "DB fallout" commit
+did; the sync's regenerated files supersede them.
+
+Switch: none (client data). Tests: `TestHolyFireRank1Hotfix20261017` (`sim/priest/holy_fire_hotfix_test.go`:
+rank 1 is 54, rank 8 untouched). Goldens: the `AllItems-Hurricane-2824` entry leaves `TestBeastMastery`,
+`TestMarksmanship`, `TestSurvival`, `TestSurvivalMelee`, `TestAssassination`, `TestCombat`, `TestSubtlety`,
+`TestArms`, `TestFury` and `TestProtectionWarrior` (as upstream's goldens); no other golden moves. No
+reference wears Hurricane or casts Holy Fire rank 1, so no reference moves. Downstream: the Rust engine needs
+the same two edits before its next repin.
