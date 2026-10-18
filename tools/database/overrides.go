@@ -165,6 +165,12 @@ var ClassicConsumableTypes = map[int32]proto.ConsumableType{
 	13460: proto.ConsumableType_ConsumableTypePotion, 13458: proto.ConsumableType_ConsumableTypePotion,
 	13459: proto.ConsumableType_ConsumableTypePotion, 13455: proto.ConsumableType_ConsumableTypePotion,
 	4623: proto.ConsumableType_ConsumableTypePotion,
+	// Forever's Merchant's Favor potions below the loader's level-50 floor (Nina Surefire, the
+	// alchemy vendor; client 1.60.1.70450): Potion of Venomous Blood (level 30), Dragonfire Potion
+	// (35), Potion of Elemental Purging (40) and Caustic Smog Potion (45). The level 55 Major
+	// Spellblasting, Frenzy and Mender's Potions load on their own (mythicsim patch 165).
+	250950: proto.ConsumableType_ConsumableTypePotion, 250953: proto.ConsumableType_ConsumableTypePotion,
+	250954: proto.ConsumableType_ConsumableTypePotion, 250951: proto.ConsumableType_ConsumableTypePotion,
 	// Flasks
 	13510: proto.ConsumableType_ConsumableTypeFlask, 13511: proto.ConsumableType_ConsumableTypeFlask,
 	13512: proto.ConsumableType_ConsumableTypeFlask, 13513: proto.ConsumableType_ConsumableTypeFlask,
@@ -178,21 +184,34 @@ var ClassicConsumableTypes = map[int32]proto.ConsumableType{
 	// Battle elixir slot: agility elixirs
 	13452: proto.ConsumableType_ConsumableTypeBattleElixir, 9187: proto.ConsumableType_ConsumableTypeBattleElixir,
 	8949: proto.ConsumableType_ConsumableTypeBattleElixir, 3390: proto.ConsumableType_ConsumableTypeBattleElixir,
+	// Forever's Elixir of Ferocity (18 Strength and Agility) and Elixir of Cunning (25 Agility and
+	// Intellect). Forever's level 55 elixirs carry no Battle or Guardian Elixir text, so each goes
+	// in the slot of the Classic elixir whose stat it shares (mythicsim patch 165).
+	250350: proto.ConsumableType_ConsumableTypeBattleElixir, 250328: proto.ConsumableType_ConsumableTypeBattleElixir,
 	// Spell power elixirs
 	13454: proto.ConsumableType_ConsumableTypeSpellPowerElixir, 9155: proto.ConsumableType_ConsumableTypeSpellPowerElixir,
+	250333: proto.ConsumableType_ConsumableTypeSpellPowerElixir, // Forever's Greater Cleric's Elixir (+40 healing)
 	// Guardian elixir slot: health and mana regen (Forever adds the Greater Mageblood Elixir)
 	3825: proto.ConsumableType_ConsumableTypeGuardianElixir, 2458: proto.ConsumableType_ConsumableTypeGuardianElixir,
 	20007: proto.ConsumableType_ConsumableTypeGuardianElixir, 250341: proto.ConsumableType_ConsumableTypeGuardianElixir,
+	// Forever's Elixir of Greater Fortitude (400 health), Elixir of Wicked Regeneration (9 health
+	// and 10 mana every 5 sec), Elixir of the Owl (25 Intellect, 2% crit), Elixir of Sages and
+	// Elixir of the Whale (25 Spirit, 2% crit each), and the Elixir of Greater Spirit (18 Spirit).
+	250335: proto.ConsumableType_ConsumableTypeGuardianElixir, 250336: proto.ConsumableType_ConsumableTypeGuardianElixir,
+	250337: proto.ConsumableType_ConsumableTypeGuardianElixir, 250338: proto.ConsumableType_ConsumableTypeGuardianElixir,
+	250348: proto.ConsumableType_ConsumableTypeGuardianElixir, 250347: proto.ConsumableType_ConsumableTypeGuardianElixir,
 	// Armor elixirs
 	13445: proto.ConsumableType_ConsumableTypeDefenseElixir, 8951: proto.ConsumableType_ConsumableTypeDefenseElixir,
 	3389: proto.ConsumableType_ConsumableTypeDefenseElixir, 5997: proto.ConsumableType_ConsumableTypeDefenseElixir,
+	250329: proto.ConsumableType_ConsumableTypeDefenseElixir, // Forever's Elixir of the Phalanx (400 health, 500 armor)
 	// School power elixirs
 	21546: proto.ConsumableType_ConsumableTypeSchoolElixir, 6373: proto.ConsumableType_ConsumableTypeSchoolElixir,
 	17708: proto.ConsumableType_ConsumableTypeSchoolElixir, 9264: proto.ConsumableType_ConsumableTypeSchoolElixir,
 	250343: proto.ConsumableType_ConsumableTypeSchoolElixir, // Forever's Elixir of Nature Power
 	// Strength: Juju Power, Elixir of Giants, Elixir of Ogre's Strength
 	12451: proto.ConsumableType_ConsumableTypeStrengthBuff, 9206: proto.ConsumableType_ConsumableTypeStrengthBuff,
-	3391: proto.ConsumableType_ConsumableTypeStrengthBuff,
+	3391:   proto.ConsumableType_ConsumableTypeStrengthBuff,
+	250351: proto.ConsumableType_ConsumableTypeStrengthBuff, // Forever's Elixir of the Grizzly (25 Strength, 2% crit)
 	// Attack power: Juju Might, Winterfall Firewater
 	12460: proto.ConsumableType_ConsumableTypeAttackPowerBuff, 12820: proto.ConsumableType_ConsumableTypeAttackPowerBuff,
 	// Blasted Lands and Zanza buffs
