@@ -69,8 +69,10 @@ const JudgementOfRighteousnessSpellPowerCoefficient = 0.70
 // 15%. The pre-16 October logs show the server dealing the row's share of the day: Judgement of the
 // Crusader steps of 0.51 to 0.53 a point on rank 2 and 3 judgements of Retribution paladins with no damage
 // talent for them (reports 2693, 2744, 2756), against that client's 0.50. No log from after 16 October
-// exists, so the switch stays off until one, or a test on the live server, separates 0.429 from 0.70.
-var JudgementOfRighteousnessSpellPowerFromRow = false
+// exists. Lightclub's 16 October test on the live server gives 0.429 (49.3% with Improved Seals, whose
+// damage mod scales the whole hit, spell power included), so the switch is on (MythicSim patch 168).
+// False gives patch 143's 0.70.
+var JudgementOfRighteousnessSpellPowerFromRow = true
 
 // The judgement's spell power share under the switch, from its damage effect.
 func judgementOfRighteousnessCoefficient(damage *spelldata.Effect) float64 {

@@ -49,8 +49,15 @@ func spellByMask(t *testing.T, pal *paladin.Paladin, mask int64, tag int32) *cor
 	return found
 }
 
-// Spell power shares measured in game on client 70425 (Ashreon, MythicSim Discord, 16 October 2026).
+// Spell power shares measured in game on client 70425 (Ashreon, MythicSim Discord, 16 October 2026),
+// with the row switches off (patch 168 turns the Judgement of Righteousness and Seal of Fury ones on;
+// TestPaladinSpellPowerFromRows covers both settings).
 func TestPaladinSpellPowerCoefficientsFromClient70425(t *testing.T) {
+	oldJudgement, oldFury := paladin.JudgementOfRighteousnessSpellPowerFromRow, paladin.SealOfFurySpellPowerFromRows
+	paladin.JudgementOfRighteousnessSpellPowerFromRow, paladin.SealOfFurySpellPowerFromRows = false, false
+	defer func() {
+		paladin.JudgementOfRighteousnessSpellPowerFromRow, paladin.SealOfFurySpellPowerFromRows = oldJudgement, oldFury
+	}()
 	pal := newProtPaladinWith(t, WeaponAndShield)
 	for _, c := range []struct {
 		name string
