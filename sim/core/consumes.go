@@ -32,7 +32,7 @@ func applyConsumeEffects(agent Agent, _ *proto.PartyBuffs) {
 
 	if consumables.FlaskId != 0 {
 		flask := GetConsumableByID(consumables.FlaskId)
-		character.AddStats(flask.Stats)
+		character.AddStats(consumableStats(flask.Stats))
 	}
 
 	if consumables.BattleElixirId != 0 {
@@ -48,7 +48,7 @@ func applyConsumeEffects(agent Agent, _ *proto.PartyBuffs) {
 			})
 		} else {
 			elixir := GetConsumableByID(consumables.BattleElixirId)
-			character.AddStats(elixir.Stats)
+			character.AddStats(consumableStats(elixir.Stats))
 		}
 	}
 
@@ -84,12 +84,12 @@ func applyConsumeEffects(agent Agent, _ *proto.PartyBuffs) {
 			})
 		} else {
 			elixir := GetConsumableByID(consumables.GuardianElixirId)
-			character.AddStats(elixir.Stats)
+			character.AddStats(consumableStats(elixir.Stats))
 		}
 	}
 	if consumables.FoodId != 0 {
 		food := GetConsumableByID(consumables.FoodId)
-		character.AddStats(food.Stats)
+		character.AddStats(consumableStats(food.Stats))
 	}
 
 	// Classic buffs that stack beside the elixirs: jujus, Blasted Lands/Zanza, alcohol, the
@@ -97,7 +97,7 @@ func applyConsumeEffects(agent Agent, _ *proto.PartyBuffs) {
 	for _, id := range []int32{consumables.StrengthBuffId, consumables.AttackPowerBuffId, consumables.ZanzaId,
 		consumables.AlcoholId, consumables.SpellPowerElixirId, consumables.SchoolElixirId, consumables.DefenseElixirId} {
 		if id != 0 {
-			character.AddStats(GetConsumableByID(id).Stats)
+			character.AddStats(consumableStats(GetConsumableByID(id).Stats))
 		}
 	}
 	if consumables.DragonbreathChili {
@@ -148,6 +148,24 @@ func applyConsumeEffects(agent Agent, _ *proto.PartyBuffs) {
 	registerPotionCD(agent, consumables)
 	registerConjuredCD(agent, consumables)
 	registerExplosivesCD(agent, consumables, explosivesSharedTimer)
+}
+
+// ConsumableCritIsAllCrit (mythicsim patch 172, default true): a consumable's "chance to critically
+// hit" counts for spells as well as attacks. Forever's client moved the Elixir of the Mongoose from
+// Era's A_MOD_CRIT_PERCENT (52, weapon crit; client 1.15.9) to A_MOD_CRIT_PCT (290), and every
+// Forever crit consumable states 290: the Elixirs of the Owl, Sages, Whale and Grizzly and the
+// Grilled Squid's well fed buff. The engine reads 290 as crit with all spells and attacks
+// elsewhere (Elune's Light, racials.go), while the database reads it as weapon crit only, so the
+// spell half is added here. False keeps weapon crit only.
+var ConsumableCritIsAllCrit = true
+
+// consumableStats returns a stat consumable's stats as they apply: its crit, which the database
+// holds as weapon crit, also counts as spell crit (ConsumableCritIsAllCrit).
+func consumableStats(s stats.Stats) stats.Stats {
+	if ConsumableCritIsAllCrit && s[stats.MeleeCritRating] != 0 && s[stats.SpellCritRating] == 0 {
+		s[stats.SpellCritRating] = s[stats.MeleeCritRating] / PhysicalCritRatingPerCritPercent * SpellCritRatingPerCritPercent
+	}
+	return s
 }
 
 // Dragonbreath Chili (12217): its aura (15852) has a 5% chance, 10 s cooldown, on landed melee
@@ -267,6 +285,17 @@ func makePotionActivationSpellInternal(potion Consumable, character *Character) 
 			Flags:    SpellFlagNoOnCastComplete,
 			Cast:     potionCast,
 		}),
+	}
+	if effect, relatedAura := character.foreverPotionEffect(potion.Id); effect != nil {
+		mcd.Type = CooldownTypeDPS
+		mcd.Spell.RelatedSelfBuff = relatedAura
+		mcd.Spell.ApplyEffects = func(sim *Simulation, target *Unit, _ *Spell) {
+			if target == nil || target == &character.Unit {
+				target = character.CurrentTarget
+			}
+			effect(sim, target)
+		}
+		return mcd
 	}
 	if potion.BuffDuration > 0 {
 		// Add stat buff aura if applicable

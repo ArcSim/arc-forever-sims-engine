@@ -4463,3 +4463,134 @@ Downstream: the Rust engine needs the halved share and rank 1's 25741 before its
 
 Drop the halving when upstream fixes the seal's share or the proc rows carry a coefficient; switch to the
 tooltip's one-hander if a post-fix log gives about 0.077 rather than 0.10.
+
+## 171. `consumables: the Merchant's Favor alchemy recipes' potions and elixirs are in the database`
+
+Bae on the MythicSim Discord (#tier-list-feedback, 18 October 2026) sent the in-game list of Nina Surefire
+<Alchemist>, the vendor who sells alchemy recipes for Merchant's Favor (currency 3402), and asked for all of
+them in the sim: "impactful bis elixirs and on use like ap pot instead of mana pot". The vendor list is
+server-side; the recipes, the spells they teach and the crafted items are all in client 1.60.1.70450
+(Recipe item → `ItemEffect` learn spell → `SpellEffect` CREATE_ITEM → crafted item → its use spell). Pages 2
+and 3 of Bae's screenshots:
+
+| Recipe | Crafted item | Use spell | Client effect (70450) | Kind |
+| --- | --- | --- | --- | --- |
+| 250981 | 250937 Major Spellblasting Potion | 1251932 | +47 spell damage for 30 sec | potion |
+| 250987 | 250943 Major Frenzy Potion | 1251940 | +80 attack power and ranged attack power for 30 sec | potion |
+| 250993 | 250949 Major Mender's Potion | 1251948 | +88 healing for 30 sec | potion |
+| 250997 | 250953 Dragonfire Potion | 1252554 | 280 Fire at once and 35 Fire every 2 sec for 8 sec, cone | potion (patch 173) |
+| 250995 | 250951 Caustic Smog Potion | 1252525 | 12 sec cloud, 33 Nature (+-10%) a sec (1252543) | potion (patch 173) |
+| 250998 | 250954 Potion of Elemental Purging | 1252558 | +105 spell damage against Elementals for 5 min | potion (patch 173) |
+| 250994 | 250950 Potion of Venomous Blood | 1251986 | doses splash on enemies when the drinker takes Bleed damage | potion (no effect in a sim) |
+| 250386 | 250350 Elixir of Ferocity | 1250985 | +18 Strength and Agility, 30 min | battle elixir slot |
+| 250364 | 250328 Elixir of Cunning | 1250918 | +25 Agility and Intellect | battle elixir slot |
+| 250387 | 250351 Elixir of the Grizzly | 1250986 | +25 Strength, +2% crit (A_MOD_CRIT_PCT) | strength slot |
+| 250373 | 250337 Elixir of the Owl | 1250940 | +25 Intellect, +2% crit | guardian elixir slot |
+| 250374 | 250338 Elixir of Sages | 1250941 | +25 Spirit, +2% crit | guardian elixir slot |
+| 250384 | 250348 Elixir of the Whale | 1250981 | +25 Spirit, +2% crit (the same rows as Sages) | guardian elixir slot |
+| 250372 | 250336 Elixir of Wicked Regeneration | 1250932 | 9 health and 10 mana every 5 sec | guardian elixir slot |
+| 250371 | 250335 Elixir of Greater Fortitude | 1250931 | +400 health | guardian elixir slot |
+| 250365 | 250329 Elixir of the Phalanx | 1250920 | +400 health, +500 armor | armor elixir slot |
+| 250369 | 250333 Greater Cleric's Elixir | 1250926 | +40 healing | spell power elixir slot |
+| 250379 | 250343 Elixir of Nature Power | 1250972 | +40 Nature spell damage | school elixir slot (already in) |
+
+The three level 55 Major potions already loaded (potions subclass, level 55). Nothing else did: the elixirs
+are the elixir subclass with no "Battle Elixir"/"Guardian Elixir" text, so the loader typed them Unknown and
+the global filter dropped them, and the four other potions sit under the loader's level-50 floor. All of them
+now have a picker in `ClassicConsumableTypes` (`tools/database/overrides.go`), as Greater Mageblood and
+Nature Power already did, with the Elixir of Greater Spirit (250347, +18 Spirit, level 55) beside them. Page 1
+of the vendor was not in the screenshots; by the recipes' prices (BuyPrice 25 x skill) it holds the lower
+ranks (Lesser Cleric's, Lesser and Greater Mageblood, Lesser Arcane, Lesser and Greater Spirit, Lesser
+Intellect, Spellblasting, Frenzy and Mender's Potion), which below level 55 do not matter to a level 60 sim
+(Greater Mageblood and Greater Spirit are in).
+
+**Slots.** The client says nothing about stacking: Forever's elixirs share SpellCategory 2593 ("Item - Elixir /
+Flask", a 3 sec shared cooldown) and no battle/guardian split. The engine has one slot per kind, the Classic
+stacking groups, so each new elixir goes in the slot of the Classic elixir whose stat it shares: the agility
+elixirs with the Mongoose, the Grizzly with the strength buffs (Juju Power, Elixir of Giants), the regen,
+health and Intellect/Spirit elixirs with the Mageblood, the Phalanx with the armor elixirs. Two elixirs in
+one slot never stack in the sim; whether two in different slots stack in game is not confirmed.
+
+The database change is the 15 consumables, their four new item icons and nothing else: `db.json` was
+regenerated (`gen_db` against the client 70425 tables, whose rows for these items are 70450's) and only its
+`consumables`, `itemIcons` and `spellEffects` sections taken, because a full regeneration of the pin also
+rewrites 57 items (an explicit 0 bonus armor) and 7 spell icons that have nothing to do with this; `db.bin`
+is the same JSON encoded.
+
+Tests: `TestMerchantsFavorConsumablesLoad` (`sim/core/consumes_forever_test.go`: each item's name, picker and
+stats). No golden moves (no golden suite takes them). Downstream: MythicSim's pickers and defaults
+(`docs/forever-oct19-consumables.md` in MythicSim). The Rust engine needs the database rows before its next
+repin.
+
+## 172. `consumables: a consumable's crit counts for spells too (A_MOD_CRIT_PCT)`
+
+Forever's client moved the Elixir of the Mongoose's crit from Era's A_MOD_CRIT_PERCENT (52, weapon crit only;
+client 1.15.9 effect 696138) to A_MOD_CRIT_PCT (290), and every Forever crit consumable states 290: the
+Elixirs of the Owl, Sages, Whale and Grizzly (patch 171) and the Grilled Squid's well fed buff (1249523).
+The engine already reads 290 as crit with all spells and attacks (Elune's Light, `racials.go`) and Forever
+pays gear crit to both pools (`forever_rules.go`), but the database turned a consumable's 290 into weapon crit
+only, so the Elixir of the Owl, an Intellect elixir, gave a caster nothing but Intellect. `consumableStats`
+(`sim/core/consumes.go`) now adds the same crit as spell crit for a flask, elixir, food or buff that carries
+it. Switch `ConsumableCritIsAllCrit` (default true); false gives weapon crit only, as before.
+
+Tests: `TestConsumableCritIsAllCrit` (Mongoose, Owl, Sages, Grizzly: +2% physical and +2% spell crit; Grilled
+Squid +1% each; with the switch off the spell half is 0). No golden moves (no golden suite takes a crit
+consumable), so the switch off reproduces every golden.
+
+Measured (native `wowsimcli` with `with_db`, MythicSim main `47c97a19` requests through the worker's
+`BuildRequest`, board seed, board length, 10,000 iterations; the pin `0d176681b` reproduces every
+`expected_baseline_dps` to 0.005): the references that drink the Mongoose or eat the Squid and cast spells or
+apply poisons move, nothing else does.
+
+| Reference | `0d176681b` | Patch 172 | Change |
+| --- | ---: | ---: | ---: |
+| Elehance | 663.23 | 671.49 | +1.25% |
+| Enhancement | 732.63 | 736.90 | +0.58% |
+| Assassination | 604.47 | 606.01 | +0.25% |
+| Holy-prot hybrid | 586.22 | 587.70 | +0.25% |
+| Shockadin hybrid | 878.23 | 880.22 | +0.23% |
+| Ret-prot hybrid | 591.23 | 592.06 | +0.14% |
+| Protection Paladin | 629.95 | 630.77 | +0.13% |
+| Retribution | 808.01 | 809.08 | +0.13% |
+| Combat / Subtlety | 693.47 / 673.64 | 694.27 / 674.42 | +0.12% |
+| Hunters (BM / MM / SV) | 859.98 / 955.27 / 1107.46 | 860.29 / 955.78 / 1108.14 | +0.04% to +0.06% |
+| Warriors, Feral, Bear | | | +0.01% or less |
+| Every pure caster | | | 0 |
+
+Downstream: the Rust engine needs it before its next repin. Drop it if a log shows the Mongoose, Owl or
+Grizzly leaving spell crit alone.
+
+## 173. `consumables: Dragonfire, Caustic Smog and Elemental Purging potions do what the client says`
+
+Three of patch 171's potions are not stat buffs, so the generic potion path (a stat aura) did nothing with
+them. `foreverPotionEffect` (`sim/core/consumes_forever_potions.go`) gives each its client effect, on the
+potion's own 2 min potion cooldown:
+
+- **Dragonfire Potion** (250953, 1252554): 280 Fire at once (SCHOOL_DAMAGE, no variance, no spell power
+  coefficient), then 35 Fire every 2 sec for 8 sec (A_PERIODIC_DAMAGE, 4 ticks), Magic defense: a spell hit
+  and crit roll for the hit, ticks that cannot crit. The client's target is a narrow cone in front of the
+  drinker (TARGET_UNIT_CONE_CASTER_TO_DEST_ENEMY, radius index 541); every target of the encounter stands
+  in it, as with Dragonbreath Chili.
+- **Caustic Smog Potion** (250951, 1252525 → area trigger 1252526, 12 sec → 1252543): 33 Nature (+-10%,
+  `Variance` 0.1) every sec, Magic defense, no coefficient, on every target in the cloud: one hit roll on
+  entering, twelve ticks.
+- **Potion of Elemental Purging** (250954, 1252558): +105 spell damage against Elementals for 5 min
+  (A_MOD_FLAT_SPELL_DAMAGE_VERSUS, creature mask 8), paid through the attack tables' mob-type bonus as the
+  Elixir of Demonslaying pays its attack power against Demons; nothing against any other target.
+- **Potion of Venomous Blood** (250950) stays the generic potion: its doses splash only when the drinker
+  takes Bleed damage, which no encounter deals, so drinking it takes the potion cooldown and does nothing.
+
+No switch: these are new items that no request names unless a person or a default chooses them. Tests:
+`TestDragonfirePotion` (280 at once, 4 ticks for 140 against a level 60 target), `TestCausticSmogPotion` (12
+ticks inside 12 x 29.7 to 36.3), `TestElementalPurgingPotion` (105 against an Elemental, 0 against Undead and
+no general spell damage, a 5 min buff that takes it back), `TestVenomousBloodPotionDoesNothingWithoutBleeds`
+(no stat, the potion cooldown runs). No golden moves.
+
+What they are worth (3,000 iterations, all four cells, against each reference's potion with patch 171's
+elixirs; MythicSim's `docs/forever-oct19-consumables.md` has every number): Dragonfire ties the Major Frenzy
+Potion for the Feral Cat (+0.42% against +0.40%), trails it by 0.04 to 0.4 points for the Rogues, and loses
+to the spec's potion everywhere else; Caustic Smog
+leads the Ret-prot hybrid's board length cells (+1.08% on the board seed) but drops to +0.43% at 120 s, below
+the Major Spellblasting Potion's steady +0.75% to +0.84%. Neither is a default.
+
+Downstream: the Rust engine needs the three effects before its next repin.
