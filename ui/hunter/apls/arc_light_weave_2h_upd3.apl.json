@@ -457,7 +457,7 @@
                         },
                         "rhs": {
                           "const": {
-                            "val": "0.5s"
+                            "val": "1s"
                           }
                         }
                       }
@@ -477,7 +477,7 @@
         }
       },
       "simple": {
-        "text": "**Move in** to {Melee spot} yd right after your Auto Shot when Strider Kick, Mongoose Bite or Immolation Trap is ready, or after your second Auto Shot since your last MH swing.",
+        "text": "**Move in** to {Melee spot} yd right after your Auto Shot when Strider Kick, Mongoose Bite or Immolation Trap is ready, or when your MH swing is ready within a second.",
         "shown": true,
         "boxes": [
           {
@@ -824,7 +824,7 @@
                             },
                             "rhs": {
                               "const": {
-                                "val": "1s"
+                                "val": "0.5s"
                               }
                             }
                           }
@@ -1145,7 +1145,7 @@
                             },
                             "rhs": {
                               "const": {
-                                "val": "1s"
+                                "val": "0.5s"
                               }
                             }
                           }
@@ -1167,7 +1167,7 @@
         }
       },
       "simple": {
-        "text": "**Move out** to {Ranged spot} yd after your MH swing lands and you have used one strike, or straight away if none is ready when your global cooldown comes back, unless an OH swing lands within a second.",
+        "text": "**Move out** to {Ranged spot} yd after your MH swing lands and you have used one strike, or straight away if none is ready when your global cooldown comes back, unless an OH swing lands within half a second.",
         "shown": true,
         "boxes": [
           {
