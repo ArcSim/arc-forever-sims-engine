@@ -4463,3 +4463,26 @@ Downstream: the Rust engine needs the halved share and rank 1's 25741 before its
 
 Drop the halving when upstream fixes the seal's share or the proc rows carry a coefficient; switch to the
 tooltip's one-hander if a post-fix log gives about 0.077 rather than 0.10.
+
+## 159. `paladin: Champion of the Light back to 20/40/60% of Intellect (the 17 October hotfix)`
+
+Raised by Evorash, Swiftheart and Bae (#paladin, 18 October 2026). The 16 October beta notes halved Champion
+of the Light to 10/20/30% of Intellect, and patch 138 took that. Blizzard's hotfix of 17 October reverted
+it: a player respecced and confirmed in game that the talent gives 20/40/60% again, not just a tooltip
+change. Client 1.60.1.70170 to 70374 carried 20/40/60 on the trait ladder of 1311084; client 70425's CDN
+tables carry the notes' 10/20/30 (the hotfix is server side and does not reach the CDN tables), so the
+engine keeps its own share rather than reading the ladder.
+
+- **Champion of the Light reverted** (on). The talent adds 20% of Intellect a rank to spell damage (60% at
+  rank 3). `ChampionOfTheLightReverted` (default true), `sim/paladin/talents_retribution.go`; false gives
+  the 16 October notes' 10% a rank. `ChampionOfTheLightIntellectShare()` gives the share a rank.
+
+Tests: `TestChampionOfTheLightShare` (`sim/paladin/retribution/champion_of_the_light_test.go`, replaces the
+patch 138 test in `oct16_notes_test.go`): with the switch on and off, the share a rank (0.20 / 0.10) and the
+spell damage a Retribution paladin with 1000 bonus Intellect gains over an untalented one (rank x share of
+final Intellect). Goldens: `TestRetribution` Average-Default 370.77 to 381.16 (+2.8%); `TestProtection` and
+`TestHolyPaladin` do not move. With `ChampionOfTheLightReverted` false `TestRetribution` reproduces the old
+goldens.
+
+Downstream: the Rust engine needs the 20% share before its next repin. Drop the switch when the client
+tables carry 20/40/60 again (the ladder can then be read).

@@ -325,18 +325,27 @@ func (paladin *Paladin) applyVengeance() {
 	})
 }
 
-// Champion of the Light - Increases your spell damage by up to 10/20/30% of your Intellect. Client
+// Champion of the Light - Increases your spell damage by up to 20/40/60% of your Intellect. Client
 // 70170 cut it from 100% and dropped the healing effect, as the WoW: Forever Podcast (episode 2)
 // announced: "60% instead of 100, and it doesn't increase healing power anymore". The 16 October 2026
-// beta notes halve it again to 10/20/30%; the client row still says 20/40/60, so the share is set here.
-const championOfTheLightIntellectShare = 0.10
+// beta notes halved it to 10/20/30% (client 70425's trait ladder carries 10/20/30); Blizzard's 17 October
+// hotfix reverted that, and players respecced and confirmed 20/40/60% in game (#paladin, 18 October).
+
+// ChampionOfTheLightReverted gives the 17 October hotfix's 20% of Intellect a rank. False gives the
+// 16 October notes' 10% a rank (patch 138).
+var ChampionOfTheLightReverted = true
+
+// ChampionOfTheLightIntellectShare is the share of Intellect added to spell damage per talent rank.
+func ChampionOfTheLightIntellectShare() float64 {
+	return core.TernaryFloat64(ChampionOfTheLightReverted, 0.20, 0.10)
+}
 
 func (paladin *Paladin) applyChampionOfTheLight() {
 	if paladin.Talents.ChampionOfTheLight == 0 {
 		return
 	}
 
-	share := championOfTheLightIntellectShare * float64(paladin.Talents.ChampionOfTheLight)
+	share := ChampionOfTheLightIntellectShare() * float64(paladin.Talents.ChampionOfTheLight)
 	paladin.AddStatDependency(stats.Intellect, stats.SpellDamage, share)
 }
 
