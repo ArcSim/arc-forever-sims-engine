@@ -4666,3 +4666,41 @@ What stays, and why:
 | Imp Firebolt rank 1 | 0.164 | 0.571 | Only a low-rank imp; no reference casts it. |
 
 Tests: none (comments only). Goldens: none move.
+
+## 168. `paladin: Judgement of Righteousness, Seal of Fury and Judgement of Fury take their rows (Lightclub)`
+
+Sage, 18 October 2026, relaying Lightclub's live-server test sheet ("UPDATED: 16-10-2026", via Bae in
+#mythic): Judgement of Righteousness, Judgement of Fury and Judgement of Command "scale 42.9% of spellpower
+(49.3% improved)"; Seal of Fury "scales 10% spellpower, regardless of speed (11.5% improved)"; Seal of
+Righteousness 10% with a one-hander and 12% with a two-hander (patch 158 already). Sage: "70% for Judgement
+of Righteousness seems awfully high with the rest of Light club's testing."
+
+These are the client 70425 rows, and the rows times Improved Seals (x1.15). Ashreon's patch 143 numbers
+(0.70, 0.67, 0.15) are what they replace; 0.67 and 0.15 are exactly 1.5 times the pre-16 October rows, and
+the pre-16 October logs read the rows of their day (patches 161 and 163).
+
+- **Judgement of Righteousness** (on). `JudgementOfRighteousnessSpellPowerFromRow` (patch 161) now defaults
+  to true: 0.429 every rank. False gives 0.70.
+- **Seal of Fury and Judgement of Fury** (on). New `SealOfFurySpellPowerFromRows` (default true,
+  `sim/paladin/seal_of_fury.go`): the hit takes its damage effect's 0.10 and the judgement 0.429. False gives
+  0.15 and 0.67.
+- **Judgement of Command** already reads its row (0.429). Unchanged.
+- **Improved Seals** is a `SpellMod_DamageDone_Flat` (an additive damage multiplier), so it scales the whole
+  hit, base and spell power together, as Lightclub's "improved" numbers want. Seal of Command keeps the talent
+  on its weapon percent (unchanged). Unchanged.
+- **Holy Strike and the seals:** Seal of Righteousness and Seal of Fury trigger on white hits only
+  (`ProcMaskMeleeWhiteHit`), so Holy Strike never fires either, as Lightclub has it. Unchanged.
+- **Champion of the Light** stays at patch 159's 20/40/60% (the 17 October hotfix revert). Unchanged.
+- Holy Strike's share stays at 0.286 (patch 162's switch off): Lightclub's sheet does not list it.
+
+Tests: `TestPaladinSpellPowerFromRows` (defaults now Judgement of Righteousness and Seal of Fury on, Holy
+Strike off; Judgement of Fury and the Seal of Fury hit added), `TestPaladinSpellPowerCoefficientsFromClient70425`
+(runs with the row switches off), `TestSealOfRighteousnessBasesAtSpellLevel` (divides by the share in force).
+Goldens: `TestRetribution` (Average-Default 381.16 to 373.24) and `TestProtection` move.
+
+Expected moves, from patch 161's measurement of the Judgement of Righteousness switch alone (native
+`wowsimcli`, board seed and length, 10,000 iterations, on patch 159): Retribution -2.7%, Protection -5.8%,
+Ret-prot -6.6%, Holy-prot -5.6%, Shockadin -6.3%. Seal of Fury users (tank builds) lose more. References'
+`expected_baseline_dps` and boards need re-measuring.
+
+Downstream: the Rust engine needs the Judgement of Righteousness and Seal of Fury row shares.

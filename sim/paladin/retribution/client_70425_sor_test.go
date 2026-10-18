@@ -114,7 +114,7 @@ func TestSealOfRighteousnessBasesAtSpellLevel(t *testing.T) {
 	on := patch148Run(t, massOfMcGowan, 0, 1, sealJudgeStrike)
 	power := patch148Run(t, massOfMcGowan, 1000, 1, sealJudgeStrike)
 	sealMultiplier := (power.seal - on.seal) / (1000 * paladin.SealOfRighteousnessHitCoefficient(0.20, false))
-	judgementMultiplier := (power.judgement - on.judgement) / (1000 * paladin.JudgementOfRighteousnessSpellPowerCoefficient)
+	judgementMultiplier := (power.judgement - on.judgement) / (1000 * core.TernaryFloat64(paladin.JudgementOfRighteousnessSpellPowerFromRow, 0.429, paladin.JudgementOfRighteousnessSpellPowerCoefficient))
 	t.Logf("seal hit %.2f -> %.2f (multiplier %.3f), judgement %.2f -> %.2f (multiplier %.3f)",
 		off.seal, on.seal, sealMultiplier, off.judgement, on.judgement, judgementMultiplier)
 	// Mass of McGowan, 2.8 speed one-hander: (1880 - 1786) / 100 x 2.8 x 0.85 = 2.24 a hit.

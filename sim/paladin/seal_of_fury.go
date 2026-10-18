@@ -17,8 +17,8 @@ import (
 // Unleashing this Seal's energy causes Holy damage to an enemy and taunts the target to attack
 // you for 4 sec.
 //
-// The per-hit damage is the spell the tooltip names first, a flat number (its row's 10% coefficient
-// is replaced by the measured 15%); the seal's third effect names its judgement. The seal also carries a
+// The per-hit damage is the spell the tooltip names first, a flat number with its row's 10% coefficient
+// (SealOfFurySpellPowerFromRows); the seal's third effect names its judgement. The seal also carries a
 // weapon-speed dummy in Seal of Righteousness's shape that the tooltip never references, and it
 // is left alone. The taunt has no place in the sim.
 // Seal of Fury's spell power shares as measured in game on client 70425 (MythicSim patch 143): 15% on
@@ -28,11 +28,27 @@ const (
 	JudgementOfFurySpellPowerCoefficient = 0.67
 )
 
+// SealOfFurySpellPowerFromRows gives the seal's hit and its judgement the shares their client rows
+// carry, 0.10 and 0.429 in client 70425, instead of patch 143's 0.15 and 0.67 (MythicSim patch 168).
+// Lightclub's 16 October test on the live server prints "10% spellpower (11.5% improved)" for the seal
+// and "42.9% of spellpower (49.3% improved)" for the judgement: the rows, and the rows times Improved
+// Seals. Patch 143's numbers are both exactly 1.5 times the pre-16 October rows (0.10, 0.45), and the
+// pre-16 October logs read the rows (patch 163). False keeps 0.15 and 0.67.
+var SealOfFurySpellPowerFromRows = true
+
+func sealOfFuryCoefficients(proc, judgement *spelldata.Effect) (float64, float64) {
+	if SealOfFurySpellPowerFromRows {
+		return proc.Coeff(), judgement.Coeff()
+	}
+	return SealOfFurySpellPowerCoefficient, JudgementOfFurySpellPowerCoefficient
+}
+
 func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 	judgementRank := spellData.SealOfFuryTriggered.ByID(int32(rank.EffectN(3).BaseValue()))
 	judgementDamage := judgementRank.DamageEffect()
 	procRank := rank.Refs()[0]
 	procDamage := procRank.DamageEffect()
+	procCoefficient, judgementCoefficient := sealOfFuryCoefficients(procDamage, judgementDamage)
 
 	// Melee in SpellCategories with No Active Defense: hit and crit on the melee table, never
 	// dodged, parried or blocked.
@@ -46,7 +62,7 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
-		BonusCoefficient: JudgementOfFurySpellPowerCoefficient,
+		BonusCoefficient: judgementCoefficient,
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealDamage(sim, target, judgementDamage.Roll(sim, core.CharacterLevel), spell.OutcomeMeleeSpecialNoBlockDodgeParry)
@@ -80,7 +96,7 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
-		BonusCoefficient: SealOfFurySpellPowerCoefficient,
+		BonusCoefficient: procCoefficient,
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			result := spell.CalcDamage(sim, target, damage, spell.OutcomeMeleeSpecialCritOnly)

@@ -7,27 +7,32 @@ import (
 	"github.com/wowsims/forever/sim/paladin"
 )
 
-// MythicSim patches 161 and 162: with JudgementOfRighteousnessSpellPowerFromRow and
-// HolyStrikeSpellPowerFromRow on, every rank of the judgement and of Holy Strike takes its client row's
-// share (0.429 on every rank in client 70425); off, patch 143's measured 0.70 and 0.286.
+// MythicSim patches 161, 162 and 168: with JudgementOfRighteousnessSpellPowerFromRow,
+// HolyStrikeSpellPowerFromRow and SealOfFurySpellPowerFromRows on, every rank of those spells takes its
+// client row's share (0.429 for the judgements and Holy Strike, 0.10 for the Seal of Fury hit in client
+// 70425); off, patch 143's measured 0.70, 0.286, 0.67 and 0.15. Patch 168 turns the Judgement of
+// Righteousness and Seal of Fury switches on (Lightclub's 16 October test); Holy Strike's stays off.
 func TestPaladinSpellPowerFromRows(t *testing.T) {
-	if paladin.JudgementOfRighteousnessSpellPowerFromRow || paladin.HolyStrikeSpellPowerFromRow {
-		t.Fatal("a row switch is on by default; patches 161 and 162 leave both off")
+	if !paladin.JudgementOfRighteousnessSpellPowerFromRow || !paladin.SealOfFurySpellPowerFromRows || paladin.HolyStrikeSpellPowerFromRow {
+		t.Fatal("row switch defaults moved; patch 168 has Judgement of Righteousness and Seal of Fury on, Holy Strike off")
 	}
 	cases := []struct {
 		name     string
 		mask     int64
 		sw       *bool
 		measured float64
+		row      float64
 	}{
-		{"Judgement of Righteousness", paladin.SpellMaskJudgementOfRighteousness, &paladin.JudgementOfRighteousnessSpellPowerFromRow, 0.70},
-		{"Holy Strike", paladin.SpellMaskHolyStrike, &paladin.HolyStrikeSpellPowerFromRow, 0.286},
+		{"Judgement of Righteousness", paladin.SpellMaskJudgementOfRighteousness, &paladin.JudgementOfRighteousnessSpellPowerFromRow, 0.70, 0.429},
+		{"Holy Strike", paladin.SpellMaskHolyStrike, &paladin.HolyStrikeSpellPowerFromRow, 0.286, 0.429},
+		{"Judgement of Fury", paladin.SpellMaskJudgementOfFury, &paladin.SealOfFurySpellPowerFromRows, 0.67, 0.429},
+		{"Seal of Fury hit", paladin.SpellMaskSealOfFuryProc, &paladin.SealOfFurySpellPowerFromRows, 0.15, 0.10},
 	}
 	for _, c := range cases {
 		for _, on := range []bool{false, true} {
 			want := c.measured
 			if on {
-				want = 0.429
+				want = c.row
 			}
 			func() {
 				old := *c.sw
