@@ -8,7 +8,8 @@ It is a fork of Sanctum's Forever version of the wowsims classic engine (MIT, se
   the assumptions behind it
 - `sim/`: the sim itself, every class (the hunter is the one tuned for Forever so far)
 - `ui/*/apls` and `ui/*/gear_sets`: the rotations and gear sets
-- `builds/`: the settings behind every reference number on the site
+- `builds/`: the settings behind every reference number on the site (2H Weave here uses ignite-style Lacerating
+  Strikes, as the MythicSim tier list engine does; the site uses a plain refresh)
 - `assets/database`: the item database, built by `tools/database`
 - `proto/`: the settings and results formats
 
@@ -20,6 +21,17 @@ AB_SETTINGS=../../builds/ship_dw_weave.json AB_ITERS=50000 go test --tags=with_d
 
 prints the DPS for that build (the path is relative to `sim/hunter`). A setup exported from the site (Export, JSON)
 runs the same way.
+
+## Compare with the MythicSim tier list
+
+`builds/compare/` has the tier list's Survival reference (its gear, talents, rotation, buffs and consumables, plus the
+sapper and food other specs get there) and the 2H Weave build on that same setup, both with ignite-style Lacerating
+Strikes:
+
+```
+AB_SETTINGS=../../builds/compare/tierlist_survival.json AB_ITERS=50000 go test --tags=with_db ./sim/hunter/ -run TestForeverSettings -v
+AB_SETTINGS=../../builds/compare/arc_2h_weave.json AB_ITERS=50000 go test --tags=with_db ./sim/hunter/ -run TestForeverSettings -v
+```
 
 ## Build and test
 
