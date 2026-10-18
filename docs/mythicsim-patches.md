@@ -5049,8 +5049,10 @@ no log can).
   69893 mask.
 - Test: `TestMortalShotsIncludesSniperShot` (Sniper Shot takes Aimed Shot's Mortal Shots bonus with the
   switch on, none with it off).
-- Goldens: none move (no golden rotation casts Sniper Shot). No reference casts Sniper Shot, so no
-  reference moves.
+- Goldens: `TestMarksmanship` moves (the engine's own Marksmanship rotation casts Sniper Shot; e.g.
+  Orc LongSingleTarget 342.49 to 342.82); the other Hunter suites do not. With the switch off the old
+  golden reproduces byte for byte. MythicSim's Marksmanship reference preset does not cast Sniper Shot,
+  so the board baseline should not move (checked at integration).
 - Not changed (from the same audit, open until a live test): Immolation Trap's 13% of attack power over
   the burn or per tick, Arcane Shot and Serpent Sting spell power (rows carry 0), the pet's attack power
   from the Hunter, the Arcane Shot / Serpent Sting RAP shares. Downstream: the Rust engine needs the mask.
