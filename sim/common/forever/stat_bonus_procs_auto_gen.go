@@ -9126,7 +9126,7 @@ func RegisterAllProcs() {
 		})
 
 	// Hurricane (2824) left the client in the 17 October 2026 hotfix cache (upstream #817), so its Frost
-	// Arrow proc (trigger 1316319 -> 29502) is no longer registered. MythicSim patch 165.
+	// Arrow proc (trigger 1316319 -> 29502) is no longer registered. MythicSim patch 164.
 
 	// 5% chance of dealing 40 Fire damage on a successful melee attack.
 	// https://www.wowhead.com/forever/spell=9057
