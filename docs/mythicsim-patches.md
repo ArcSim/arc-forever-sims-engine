@@ -5035,3 +5035,49 @@ Only Protection casts Holy Shield. No reference wears Revelation: Arcane Mage 86
 
 Downstream: the Rust engine needs all four defaults (Holy Strike's and Holy Shield's row shares, the Seal of
 Righteousness per-level gain, Revelation's crit-scaled chance).
+
+## 171. `consumables: the elixirs' identical +2% crit rider applies once`
+
+Bae on the MythicSim Discord (#tier-list-feedback, 18 October 2026, relayed by Sage): "A 1:1 same text
+consumable has never stacked." The Elixirs of the Mongoose (17538), Owl (1250940), Sages (1250941), Whale
+(1250981) and Grizzly (1250986) each carry their own stat (25 Agility, Intellect, Spirit, Spirit, Strength)
+and the same second effect, A_MOD_CRIT_PCT for 2, "chance to critically hit by 2%". In game every elixir's
+own stat applies but the crit applies once: "if a elixir of mongoose was already on the hunter he'd use juju
+power (30 strength) over elixir of grizzly (25str+2%crit) as the crit wouldn't be added anyways." Patch 166
+added each rider in full, so production's defaults (Mongoose, Grizzly and Owl together) counted 6%.
+
+`applyConsumeEffects` (`sim/core/consumes.go`) now pays the rider for the first of those five elixirs it
+adds (`consumableCritRiderItems`) and drops the crit from the others; their other stats still apply. The
+Grilled Squid's well fed crit is not the rider: it is a separate food buff (1249523, "Your Critical Strike
+chance is increased by 1%", 1%, its own text), so it adds beside it. Switch `ConsumableCritRiderStacks`
+(**default false**); true adds every rider, as before.
+
+Tests: `TestConsumableCritRiderAppliesOnce` (`sim/core/consumes_forever_test.go`: Mongoose, Sages and
+Grizzly together give +2% physical and spell crit and all three stats, the Grizzly's Strength as much as
+alone; with the Grilled Squid +3%; with the switch on +6%). `TestConsumableCritIsAllCrit` still passes
+(each alone). No golden moves (no golden suite drinks two of them), so the switch on reproduces every golden.
+
+Measured on production's defaults (MythicSim main `17bca332`, native `wowsimcli` with `with_db` on
+`mythicsim/oct19-170` plus this patch, board seed, board length, 10,000 iterations; the switch on reproduces
+`mythicsim/oct19-170` to the last digit): every spec that drank two or three rider elixirs drops, casters
+(the Owl alone) do not move.
+
+| Reference | Riders | `oct19-170` | Patch 171 | Change |
+| --- | --- | ---: | ---: | ---: |
+| DPS Warrior | Mongoose, Grizzly, Owl | 965.33 | 918.00 | -4.90% |
+| Bear | Mongoose, Grizzly, Owl | 548.08 | 526.12 | -4.01% |
+| Arms | Mongoose, Grizzly, Owl | 853.05 | 820.60 | -3.80% |
+| Survival / Marksmanship / Beast Mastery | Mongoose, Grizzly, Owl | 1161.68 / 999.77 / 898.24 | 1118.72 / 963.39 / 866.21 | -3.70% / -3.64% / -3.57% |
+| Fury-prot / Protection Warrior | Mongoose, Grizzly, Owl | 644.49 / 598.86 | 622.10 / 578.00 | -3.47% / -3.48% |
+| Ret-prot / Elehance / Enhancement | Mongoose, Grizzly, Owl | 619.80 / 707.92 / 777.32 | 599.01 / 684.68 / 751.96 | -3.35% / -3.28% / -3.26% |
+| Protection / Holy-prot Paladin | Mongoose, Grizzly, Owl | 629.12 / 590.40 | 609.28 / 572.49 | -3.15% / -3.03% |
+| Subtlety / Assassination / Combat | Mongoose, Grizzly | 691.16 / 619.53 / 710.42 | 678.81 / 609.03 / 698.89 | -1.79% / -1.69% / -1.62% |
+| Retribution / Feral / Shockadin | Mongoose, Grizzly | 851.58 / 807.46 / 908.74 | 838.38 / 795.03 / 895.48 | -1.55% / -1.54% / -1.46% |
+| Every caster | Owl | | | 0 |
+
+MythicSim re-picks its defaults for one rider (`docs/forever-oct19-consumables.md`, "One crit rider"): the
+Owl or Grizzly carries the crit and the other slots take Ferocity, Cunning and Juju Power, which wins back
+0.2% to 1.5%.
+
+Downstream: the Rust engine needs it before its next repin. Drop the switch if a log shows two of these
+elixirs' crit adding.
