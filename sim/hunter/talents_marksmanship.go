@@ -82,22 +82,32 @@ func (hunter *Hunter) registerImprovedStings() {
 	})
 }
 
+// MortalShotsIncludesSniperShot gives Sniper Shot Mortal Shots' crit damage (mythicsim patch 172):
+// client 70450 adds Sniper Shot's bit (mask word 3) to Mortal Shots' class mask, after the 16
+// October beta notes' "Sniper Shot was not benefitting from a few Marksmanship talents". False
+// leaves it out, as client 69893's mask did.
+var MortalShotsIncludesSniperShot = true
+
 func (hunter *Hunter) registerMortalShots() {
 	if hunter.Talents.MortalShots == 0 {
 		return
 	}
 
-	// Client 19485's class mask: Auto Shot, Aimed, Arcane and Multi-Shot, Serpent Sting and Volley.
-	// Not Sniper Shot (its bit sits in mask word 3, which the mod leaves empty).
+	// Client 19485's class mask: Auto Shot, Aimed, Arcane and Multi-Shot, Serpent Sting and Volley,
+	// and since 70450 Sniper Shot.
 	bonus := spellData.MortalShots.FractionAt(hunter.Talents.MortalShots)
 	hunter.AddStaticMod(core.SpellModConfig{
 		Kind:       core.SpellMod_CritMultiplier_Flat,
 		ProcMask:   core.ProcMaskRangedAuto,
 		FloatValue: bonus,
 	})
+	mask := HunterSpellAimedShot | HunterSpellArcaneShot | HunterSpellMultiShot | HunterSpellSerpentSting | HunterSpellVolley
+	if MortalShotsIncludesSniperShot {
+		mask |= HunterSpellSniperShot
+	}
 	hunter.AddStaticMod(core.SpellModConfig{
 		Kind:       core.SpellMod_CritMultiplier_Flat,
-		ClassMask:  HunterSpellAimedShot | HunterSpellArcaneShot | HunterSpellMultiShot | HunterSpellSerpentSting | HunterSpellVolley,
+		ClassMask:  mask,
 		FloatValue: bonus,
 	})
 }

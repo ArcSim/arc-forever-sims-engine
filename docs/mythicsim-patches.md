@@ -5035,3 +5035,22 @@ Only Protection casts Holy Shield. No reference wears Revelation: Arcane Mage 86
 
 Downstream: the Rust engine needs all four defaults (Holy Strike's and Holy Shield's row shares, the Seal of
 Righteousness per-level gain, Revelation's crit-scaled chance).
+
+## 172. `hunter: Mortal Shots raises Sniper Shot's crit damage (client 70450, the 16 October notes)`
+
+Source: the Hunter coefficient audit of 18 October 2026 (requested by Bae, #mythic), against Blizzard's 16
+October beta notes ("Sniper Shot was not benefitting from a few Marksmanship talents") and client 70450,
+whose Mortal Shots (19485) class mask gains Sniper Shot's bit in mask word 3; client 69893's left that word
+empty, which is what the engine's comment described. Official data settles it (the beta caps at level 30, so
+no log can).
+
+- `MortalShotsIncludesSniperShot` (sim/hunter/talents_marksmanship.go), default true: Sniper Shot joins
+  Aimed, Arcane and Multi-Shot, Serpent Sting and Volley in Mortal Shots' crit damage mod. False gives the
+  69893 mask.
+- Test: `TestMortalShotsIncludesSniperShot` (Sniper Shot takes Aimed Shot's Mortal Shots bonus with the
+  switch on, none with it off).
+- Goldens: none move (no golden rotation casts Sniper Shot). No reference casts Sniper Shot, so no
+  reference moves.
+- Not changed (from the same audit, open until a live test): Immolation Trap's 13% of attack power over
+  the burn or per tick, Arcane Shot and Serpent Sting spell power (rows carry 0), the pet's attack power
+  from the Hunter, the Arcane Shot / Serpent Sting RAP shares. Downstream: the Rust engine needs the mask.
