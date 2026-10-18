@@ -80,6 +80,8 @@ type MovementHandler struct {
 	PendingMove bool
 	// the move began inside melee range, so the melee attack never turned off
 	startedInMelee bool
+	// a melee swing landed during this walk
+	swungWhileMoving bool
 	// a walk into melee turns the melee attack on as it starts, and the off hand's wait is set then
 	moveStartedAt time.Duration
 	offHandWait   time.Duration
@@ -122,6 +124,7 @@ func (unit *Unit) initMovement() {
 			}
 			unit.AutoAttacks.CancelAutoSwing(sim)
 			unit.MovementHandler.Moving = true
+			unit.MovementHandler.swungWhileMoving = false
 			unit.MovementHandler.startedInMelee = unit.DistanceFromTarget <= MaxMeleeAttackDistance
 			unit.MovementHandler.moveStartedAt = sim.CurrentTime
 			unit.MovementHandler.offHandWait = unit.AutoAttacks.OffHandWait()
@@ -250,7 +253,14 @@ func (unit *Unit) moveToNow(moveRange float64, sim *Simulation) {
 			}
 
 			if unit.DistanceFromTarget == moveRange {
+				swung := unit.MovementHandler.swungWhileMoving
 				unit.MovementHandler.moveAura.Deactivate(sim)
+				// a swing that landed mid-walk (melee starts at 5 yd) could not start the walk back then: its decision runs
+				// on arrival instead of waiting out a busy GCD. Only then: a walk that ends before its swing keeps waiting
+				// for the swing as before. Here and not in the aura's expiry, which also runs when a fight ends mid-walk.
+				if swung && !sim.Options.Interactive && unit.Rotation != nil {
+					unit.Rotation.DoNextAction(sim)
+				}
 			}
 		},
 	}))

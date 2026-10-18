@@ -23,7 +23,7 @@
         "move": {
           "rangeFromTarget": {
             "const": {
-              "val": "8"
+              "val": "11"
             }
           }
         }
@@ -34,7 +34,7 @@
         }
       },
       "simple": {
-        "text": "**Move to 8 yd** 5 s before the pull."
+        "text": "**Move to 11 yd** 5 s before the pull."
       }
     },
     {
@@ -51,7 +51,7 @@
         }
       },
       "simple": {
-        "text": "**Aimed Shot** 2 s before the pull, from 8 yd."
+        "text": "**Aimed Shot** 2 s before the pull, from 11 yd."
       }
     }
   ],
@@ -559,32 +559,43 @@
                         }
                       },
                       "rhs": {
-                        "math": {
-                          "op": "OpSub",
-                          "lhs": {
-                            "math": {
-                              "op": "OpSub",
-                              "lhs": {
-                                "autoTimeToNext": {
-                                  "autoType": "Ranged"
-                                }
-                              },
-                              "rhs": {
-                                "walkTime": {
-                                  "toDistance": {
-                                    "const": {
-                                      "val": "8"
+                        "max": {
+                          "vals": [
+                            {
+                              "math": {
+                                "op": "OpSub",
+                                "lhs": {
+                                  "math": {
+                                    "op": "OpSub",
+                                    "lhs": {
+                                      "autoTimeToNext": {
+                                        "autoType": "Ranged"
+                                      }
+                                    },
+                                    "rhs": {
+                                      "walkTime": {
+                                        "toDistance": {
+                                          "const": {
+                                            "val": "11"
+                                          }
+                                        }
+                                      }
                                     }
+                                  }
+                                },
+                                "rhs": {
+                                  "const": {
+                                    "val": "0.25s"
                                   }
                                 }
                               }
+                            },
+                            {
+                              "const": {
+                                "val": "0.1s"
+                              }
                             }
-                          },
-                          "rhs": {
-                            "const": {
-                              "val": "0.25s"
-                            }
-                          }
+                          ]
                         }
                       }
                     }
@@ -634,7 +645,7 @@
                                       "walkTime": {
                                         "toDistance": {
                                           "const": {
-                                            "val": "8"
+                                            "val": "11"
                                           }
                                         }
                                       }
@@ -775,7 +786,7 @@
                                       "walkTime": {
                                         "toDistance": {
                                           "const": {
-                                            "val": "8"
+                                            "val": "11"
                                           }
                                         }
                                       }
@@ -840,32 +851,43 @@
                         }
                       },
                       "rhs": {
-                        "math": {
-                          "op": "OpSub",
-                          "lhs": {
-                            "math": {
-                              "op": "OpSub",
-                              "lhs": {
-                                "autoTimeToNext": {
-                                  "autoType": "Ranged"
-                                }
-                              },
-                              "rhs": {
-                                "walkTime": {
-                                  "toDistance": {
-                                    "const": {
-                                      "val": "8"
+                        "max": {
+                          "vals": [
+                            {
+                              "math": {
+                                "op": "OpSub",
+                                "lhs": {
+                                  "math": {
+                                    "op": "OpSub",
+                                    "lhs": {
+                                      "autoTimeToNext": {
+                                        "autoType": "Ranged"
+                                      }
+                                    },
+                                    "rhs": {
+                                      "walkTime": {
+                                        "toDistance": {
+                                          "const": {
+                                            "val": "11"
+                                          }
+                                        }
+                                      }
                                     }
+                                  }
+                                },
+                                "rhs": {
+                                  "const": {
+                                    "val": "0.25s"
                                   }
                                 }
                               }
+                            },
+                            {
+                              "const": {
+                                "val": "0.1s"
+                              }
                             }
-                          },
-                          "rhs": {
-                            "const": {
-                              "val": "0.25s"
-                            }
-                          }
+                          ]
                         }
                       }
                     }
@@ -915,7 +937,7 @@
                                       "walkTime": {
                                         "toDistance": {
                                           "const": {
-                                            "val": "8"
+                                            "val": "11"
                                           }
                                         }
                                       }
@@ -1056,7 +1078,7 @@
                                       "walkTime": {
                                         "toDistance": {
                                           "const": {
-                                            "val": "8"
+                                            "val": "11"
                                           }
                                         }
                                       }
@@ -1083,7 +1105,7 @@
         "move": {
           "rangeFromTarget": {
             "const": {
-              "val": "8"
+              "val": "11"
             }
           }
         }

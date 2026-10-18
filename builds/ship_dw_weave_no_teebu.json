@@ -177,7 +177,7 @@
             "move": {
               "rangeFromTarget": {
                 "const": {
-                  "val": "8"
+                  "val": "11"
                 }
               }
             }
@@ -188,7 +188,7 @@
             }
           },
           "simple": {
-            "text": "**Move to 8 yd** 5 s before the pull."
+            "text": "**Move to 11 yd** 5 s before the pull."
           }
         },
         {
@@ -205,7 +205,7 @@
             }
           },
           "simple": {
-            "text": "**Aimed Shot** 2 s before the pull, from 8 yd."
+            "text": "**Aimed Shot** 2 s before the pull, from 11 yd."
           }
         }
       ],
@@ -522,7 +522,7 @@
                       },
                       "rhs": {
                         "const": {
-                          "val": "1s"
+                          "val": "0.75s"
                         }
                       }
                     }
@@ -631,7 +631,7 @@
             }
           },
           "simple": {
-            "text": "**Move in** to {Melee spot} yd right after your Auto Shot when Strider Kick, Mongoose Bite or Immolation Trap is ready, or when your MH swing is ready within a second.",
+            "text": "**Move in** to {Melee spot} yd right after your Auto Shot when Strider Kick, Mongoose Bite or Immolation Trap is ready, or when your MH swing timer is in its last second.",
             "shown": true,
             "boxes": [
               {
@@ -1315,7 +1315,7 @@
             "move": {
               "rangeFromTarget": {
                 "const": {
-                  "val": "8"
+                  "val": "11"
                 }
               }
             }

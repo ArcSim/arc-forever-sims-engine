@@ -23,7 +23,7 @@
         "move": {
           "rangeFromTarget": {
             "const": {
-              "val": "8"
+              "val": "11"
             }
           }
         }
@@ -34,7 +34,7 @@
         }
       },
       "simple": {
-        "text": "**Move to 8 yd** 5 s before the pull."
+        "text": "**Move to 11 yd** 5 s before the pull."
       }
     },
     {
@@ -51,7 +51,7 @@
         }
       },
       "simple": {
-        "text": "**Aimed Shot** 2 s before the pull, from 8 yd."
+        "text": "**Aimed Shot** 2 s before the pull, from 11 yd."
       }
     }
   ],
@@ -1060,7 +1060,7 @@
         "move": {
           "rangeFromTarget": {
             "const": {
-              "val": "8"
+              "val": "11"
             }
           }
         }

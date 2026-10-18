@@ -389,6 +389,10 @@ func (wa *WeaponAttack) swing(sim *Simulation) time.Duration {
 		wa.lastSwingAt = sim.CurrentTime
 		wa.startTimer(sim, wa.swingAt)
 		wa.unit.AutoAttacks.shotSinceMelee = false
+		// a swing landing mid-walk (melee starts at 5 yd) cannot start a move now; the walk's end replays the decision
+		if wa.unit.MovementHandler != nil && wa.unit.MovementHandler.Moving {
+			wa.unit.MovementHandler.swungWhileMoving = true
+		}
 
 		var originalCastTime time.Duration
 		if isExtraAttack {

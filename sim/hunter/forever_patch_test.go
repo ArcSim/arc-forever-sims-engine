@@ -254,7 +254,7 @@ func TestQuicknessStacksWithStriderKick(t *testing.T) {
 
 // Auto Shot needs 0.5 s of standing still: after a move back to range it cannot fire sooner.
 func TestAutoShotStandStill(t *testing.T) {
-	sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, distance: 9})
+	sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, distance: 12})
 	sim.PrePull()
 	for guard := 0; sim.CurrentTime < time.Second*3 && guard < 100000; guard++ {
 		sim.Step()
@@ -267,7 +267,7 @@ func TestAutoShotStandStill(t *testing.T) {
 		return sim.CurrentTime
 	}
 	step(3)
-	stoppedAt := step(9)
+	stoppedAt := step(12)
 	if next := hunter.AutoAttacks.NextRangedAttackAt(); next < stoppedAt+time.Millisecond*500 {
 		t.Errorf("Auto Shot due %.3fs after stopping at range, want at least 0.5 s", (next - stoppedAt).Seconds())
 	}
@@ -784,9 +784,9 @@ func TestRaptorStrikeCooldownReadable(t *testing.T) {
 
 // Raptor Strike queues from range in Forever and stays queued until the next melee swing, which it replaces.
 func TestRaptorStrikeQueuesFromRange(t *testing.T) {
-	sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, distance: 9})
+	sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, distance: 12})
 	if !hunter.RaptorStrike.CanCast(sim, hunter.CurrentTarget) {
-		t.Fatal("Raptor Strike cannot be queued at 9 yd")
+		t.Fatal("Raptor Strike cannot be queued at 12 yd")
 	}
 	hunter.RaptorStrike.Cast(sim, hunter.CurrentTarget)
 	if hunter.curQueueAura == nil || !hunter.curQueueAura.IsActive() {
@@ -1176,13 +1176,20 @@ func TestSwingTimerLogs(t *testing.T) {
 		Rotation:           core.GetAplRotation("../../ui/hunter/apls", "arc_weave_2h").Rotation,
 		DistanceFromTarget: 3,
 	}, abOptions)
-	res := core.RunRaidSim(&proto.RaidSimRequest{
-		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, abRaidBuffs, abDebuffs),
-		Encounter:  abEncounter(),
-		SimOptions: &proto.SimOptions{Iterations: 1, RandomSeed: 6, DebugFirstIteration: true},
-	})
-	if res.Error != nil {
-		t.Fatalf("sim error: %s", res.Error.Message)
+	// the first fight with a Hand of Justice proc, so a rotation change does not leave the check without one
+	var res *proto.RaidSimResult
+	for seed := int64(1); seed <= 40; seed++ {
+		res = core.RunRaidSim(&proto.RaidSimRequest{
+			Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, abRaidBuffs, abDebuffs),
+			Encounter:  abEncounter(),
+			SimOptions: &proto.SimOptions{Iterations: 1, RandomSeed: seed, DebugFirstIteration: true},
+		})
+		if res.Error != nil {
+			t.Fatalf("sim error: %s", res.Error.Message)
+		}
+		if strings.Contains(res.Logs, "extra main-hand attack") {
+			break
+		}
 	}
 	mh := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: 1}.String()
 	shot := core.ActionID{OtherID: proto.OtherAction_OtherActionShoot}.String()
@@ -1243,10 +1250,10 @@ func TestSwingTimerLogs(t *testing.T) {
 	}
 }
 
-// The Walk Time rotation value reads the real run speed: from 9 yd, walking to 5 yd takes 4 / 7 = 0.571 s at normal
+// The Walk Time rotation value reads the real run speed: from 12 yd, walking to 8 yd takes 4 / 7 = 0.571 s at normal
 // speed and 4 / 7.14 = 0.560 s with Night Elf's 2%, so a cast gated on "under 0.565 s" goes out for a Night Elf only.
 func TestWalkTimeValue(t *testing.T) {
-	const aplJSON = `{"type":"TypeAPL","recheckAfterAutoShot":true,"priorityList":[{"action":{"condition":{"cmp":{"op":"OpLt","lhs":{"walkTime":{"toDistance":{"const":{"val":"5"}}}},"rhs":{"const":{"val":"0.565s"}}}},"castSpell":{"spellId":{"spellId":14287,"rank":8}}}}]}`
+	const aplJSON = `{"type":"TypeAPL","recheckAfterAutoShot":true,"priorityList":[{"action":{"condition":{"cmp":{"op":"OpLt","lhs":{"walkTime":{"toDistance":{"const":{"val":"8"}}}},"rhs":{"const":{"val":"0.565s"}}}},"castSpell":{"spellId":{"spellId":14287,"rank":8}}}}]}`
 	arcaneShots := func(race proto.Race) int32 {
 		rot := &proto.APLRotation{}
 		if err := protojson.Unmarshal([]byte(aplJSON), rot); err != nil {
@@ -1260,7 +1267,7 @@ func TestWalkTimeValue(t *testing.T) {
 			Consumes:           abConsumes,
 			Buffs:              abIndividualBuffs,
 			Rotation:           rot,
-			DistanceFromTarget: 9,
+			DistanceFromTarget: 12,
 		}, abOptions)
 		res := core.RunRaidSim(&proto.RaidSimRequest{
 			Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, abRaidBuffs, abDebuffs),
@@ -1288,6 +1295,170 @@ func TestWalkTimeValue(t *testing.T) {
 	}
 }
 
+// The ranged minimum is 11 yd from the target's center (the client's 8 yd is hitbox to hitbox; in game shots stop inside
+// about 10.5-11 yd of a mob's center): standing at 10 yd a hunter fires no Auto Shot and no Arcane Shot, at 11 yd both.
+func TestRangedMinimumElevenYards(t *testing.T) {
+	const aplJSON = `{"type":"TypeAPL","priorityList":[{"action":{"castSpell":{"spellId":{"spellId":14287,"rank":8}}}}]}`
+	shots := func(distance float64) (autos, arcanes int32) {
+		rot := &proto.APLRotation{}
+		if err := protojson.Unmarshal([]byte(aplJSON), rot); err != nil {
+			t.Fatalf("rotation: %v", err)
+		}
+		player := core.WithSpec(&proto.Player{
+			Race:               proto.Race_RaceHuman,
+			Class:              proto.Class_ClassHunter,
+			Equipment:          core.GetGearSet("../../ui/hunter/gear_sets", "2h_weave").GearSet,
+			TalentsString:      patchTestTalents,
+			Consumes:           abConsumes,
+			Buffs:              abIndividualBuffs,
+			Rotation:           rot,
+			DistanceFromTarget: distance,
+		}, abOptions)
+		res := core.RunRaidSim(&proto.RaidSimRequest{
+			Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, abRaidBuffs, abDebuffs),
+			Encounter:  abEncounter(),
+			SimOptions: &proto.SimOptions{Iterations: 1, RandomSeed: 20261018},
+		})
+		if res.Error != nil {
+			t.Fatalf("sim error: %s", res.Error.Message)
+		}
+		for _, a := range res.RaidMetrics.Parties[0].Players[0].Actions {
+			for _, tm := range a.Targets {
+				switch {
+				case a.Id.GetOtherId() == proto.OtherAction_OtherActionShoot:
+					autos += tm.Casts
+				case a.Id.GetSpellId() == 14287:
+					arcanes += tm.Casts
+				}
+			}
+		}
+		return
+	}
+	if autos, arcanes := shots(10); autos != 0 || arcanes != 0 {
+		t.Errorf("from 10 yd: %d Auto Shots, %d Arcane Shots; want none (inside the 11 yd minimum)", autos, arcanes)
+	}
+	if autos, arcanes := shots(11); autos == 0 || arcanes == 0 {
+		t.Errorf("from 11 yd: %d Auto Shots, %d Arcane Shots; want both firing", autos, arcanes)
+	}
+}
+
+// The end of a walk is a decision point: walking in to 3 yd during a busy GCD, the swing lands at 5 yd while the walk
+// goes on (no new move then), so the walk back has to start on arrival. Without the recheck it waited for the GCD.
+func TestMoveAfterArrivalDuringGcd(t *testing.T) {
+	const aplJSON = `{"type":"TypeAPL","priorityList":[` +
+		`{"action":{"condition":{"cmp":{"op":"OpGe","lhs":{"distanceToTarget":{}},"rhs":{"const":{"val":"11"}}}},"castSpell":{"spellId":{"spellId":14287,"rank":8}}}},` +
+		`{"action":{"condition":{"and":{"vals":[{"cmp":{"op":"OpGe","lhs":{"distanceToTarget":{}},"rhs":{"const":{"val":"11"}}}},{"not":{"val":{"gcdIsReady":{}}}}]}},"move":{"rangeFromTarget":{"const":{"val":"3"}}}}},` +
+		`{"action":{"condition":{"cmp":{"op":"OpLe","lhs":{"distanceToTarget":{}},"rhs":{"const":{"val":"3"}}}},"move":{"rangeFromTarget":{"const":{"val":"12"}}}}}]}`
+	rot := &proto.APLRotation{}
+	if err := protojson.Unmarshal([]byte(aplJSON), rot); err != nil {
+		t.Fatalf("rotation: %v", err)
+	}
+	player := core.WithSpec(&proto.Player{
+		Race:               proto.Race_RaceHuman,
+		Class:              proto.Class_ClassHunter,
+		Equipment:          core.GetGearSet("../../ui/hunter/gear_sets", "2h_weave").GearSet,
+		TalentsString:      patchTestTalents,
+		Consumes:           abConsumes,
+		Buffs:              abIndividualBuffs,
+		Rotation:           rot,
+		DistanceFromTarget: 12,
+	}, abOptions)
+	res := core.RunRaidSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, abRaidBuffs, abDebuffs),
+		Encounter:  abEncounter(),
+		SimOptions: &proto.SimOptions{Iterations: 1, RandomSeed: 20261018, DebugFirstIteration: true},
+	})
+	if res.Error != nil {
+		t.Fatalf("sim error: %s", res.Error.Message)
+	}
+	at := func(line string) float64 {
+		v, _ := strconv.ParseFloat(strings.TrimPrefix(strings.SplitN(line, "]", 2)[0], "["), 64)
+		return v
+	}
+	shot, arrived, out := -1.0, -1.0, -1.0
+	for _, line := range strings.Split(res.Logs, "\n") {
+		switch {
+		case shot < 0 && at(line) >= 0 && strings.Contains(line, "Completed cast {SpellID: 14287"):
+			shot = at(line)
+		case shot >= 0 && arrived < 0 && strings.Contains(line, "Aura faded: {OtherID: 14}"):
+			arrived = at(line)
+		case arrived >= 0 && strings.Contains(line, "Moving to %!s(float64=12)"):
+			out = at(line)
+		}
+		if out >= 0 {
+			break
+		}
+	}
+	if shot < 0 || arrived < 0 || out < 0 {
+		t.Fatalf("no Arcane Shot, walk in and walk back in the log (shot %.2f, arrived %.2f, out %.2f)", shot, arrived, out)
+	}
+	if arrived >= shot+1.45 {
+		t.Fatalf("arrived %.2f s after the shot, not inside its GCD; the walk is too long for this check", arrived-shot)
+	}
+	if out > arrived+0.01 {
+		t.Errorf("walked back at %.2f s, %.2f s after arriving at %.2f s; want it on arrival (the GCD ends at %.2f s)", out, out-arrived, arrived, shot+1.5)
+	}
+}
+
+// Only a swing that landed during the walk makes the arrival a decision point: a walk to 6 yd (no swing) during a busy
+// GCD waits for the GCD before walking back, as rotations written for the old decision points expect (one that steps
+// out when the next swing is more than half a second away would otherwise leave on arrival, before its swing).
+func TestNoArrivalRecheckWithoutSwing(t *testing.T) {
+	const aplJSON = `{"type":"TypeAPL","priorityList":[` +
+		`{"action":{"condition":{"cmp":{"op":"OpGe","lhs":{"distanceToTarget":{}},"rhs":{"const":{"val":"11"}}}},"castSpell":{"spellId":{"spellId":14287,"rank":8}}}},` +
+		`{"action":{"condition":{"and":{"vals":[{"cmp":{"op":"OpGe","lhs":{"distanceToTarget":{}},"rhs":{"const":{"val":"11"}}}},{"not":{"val":{"gcdIsReady":{}}}}]}},"move":{"rangeFromTarget":{"const":{"val":"6"}}}}},` +
+		`{"action":{"condition":{"cmp":{"op":"OpLe","lhs":{"distanceToTarget":{}},"rhs":{"const":{"val":"6"}}}},"move":{"rangeFromTarget":{"const":{"val":"12"}}}}}]}`
+	rot := &proto.APLRotation{}
+	if err := protojson.Unmarshal([]byte(aplJSON), rot); err != nil {
+		t.Fatalf("rotation: %v", err)
+	}
+	player := core.WithSpec(&proto.Player{
+		Race:               proto.Race_RaceHuman,
+		Class:              proto.Class_ClassHunter,
+		Equipment:          core.GetGearSet("../../ui/hunter/gear_sets", "2h_weave").GearSet,
+		TalentsString:      patchTestTalents,
+		Consumes:           abConsumes,
+		Buffs:              abIndividualBuffs,
+		Rotation:           rot,
+		DistanceFromTarget: 12,
+	}, abOptions)
+	res := core.RunRaidSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, abRaidBuffs, abDebuffs),
+		Encounter:  abEncounter(),
+		SimOptions: &proto.SimOptions{Iterations: 1, RandomSeed: 20261018, DebugFirstIteration: true},
+	})
+	if res.Error != nil {
+		t.Fatalf("sim error: %s", res.Error.Message)
+	}
+	at := func(line string) float64 {
+		v, _ := strconv.ParseFloat(strings.TrimPrefix(strings.SplitN(line, "]", 2)[0], "["), 64)
+		return v
+	}
+	shot, arrived, out := -1.0, -1.0, -1.0
+	for _, line := range strings.Split(res.Logs, "\n") {
+		switch {
+		case shot < 0 && at(line) >= 0 && strings.Contains(line, "Completed cast {SpellID: 14287"):
+			shot = at(line)
+		case shot >= 0 && arrived < 0 && strings.Contains(line, "Aura faded: {OtherID: 14}"):
+			arrived = at(line)
+		case arrived >= 0 && strings.Contains(line, "Moving to %!s(float64=12)"):
+			out = at(line)
+		}
+		if out >= 0 {
+			break
+		}
+	}
+	if shot < 0 || arrived < 0 || out < 0 {
+		t.Fatalf("no Arcane Shot, walk in and walk back in the log (shot %.2f, arrived %.2f, out %.2f)", shot, arrived, out)
+	}
+	if arrived >= shot+1.4 {
+		t.Fatalf("arrived %.2f s after the shot, not inside its GCD; the walk is too long for this check", arrived-shot)
+	}
+	if out < shot+1.45 {
+		t.Errorf("walked back at %.2f s, before the GCD ended at %.2f s (arrived %.2f s, no swing on the way)", out, shot+1.5, arrived)
+	}
+}
+
 // An Auto Shot is a decision point like a melee swing: a move into melee that only goes while the GCD is busy starts in
 // the instant after a shot, on a GCD already running (not one just started in the same pass, and past the pull). Without
 // the recheck the rotation is not looked at then, so the hunter never walks in. A rotation saved with the old
@@ -1308,7 +1479,7 @@ func TestMoveAfterShotDuringGcd(t *testing.T) {
 			Consumes:           abConsumes,
 			Buffs:              abIndividualBuffs,
 			Rotation:           rot,
-			DistanceFromTarget: 9,
+			DistanceFromTarget: 12,
 		}, abOptions)
 		res := core.RunRaidSim(&proto.RaidSimRequest{
 			Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, abRaidBuffs, abDebuffs),
@@ -1384,11 +1555,11 @@ func TestTrapReach(t *testing.T) {
 	}
 }
 
-// A walk in that starts at the pull, from inside the first Auto Shot (after the pre-pull walk out to 8 yd and Aimed Shot),
+// A walk in that starts at the pull, from inside the first Auto Shot (after the pre-pull walk out to 11 yd and Aimed Shot),
 // is under way when the pull turns the attacks on: they wait for the walk to end. Turned on mid-walk, Auto Shot was put
-// back from 8 yd and kept firing from inside melee range, and the melee swings never started.
+// back from 11 yd and kept firing from inside melee range, and the melee swings never started.
 func TestMoveAtPull(t *testing.T) {
-	const aplJSON = `{"type":"TypeAPL","prepullActions":[{"action":{"move":{"rangeFromTarget":{"const":{"val":"8"}}}},"doAtValue":{"const":{"val":"-5s"}}},{"action":{"castSpell":{"spellId":{"spellId":20904}}},"doAtValue":{"const":{"val":"-2s"}}}],"priorityList":[{"action":{"move":{"rangeFromTarget":{"const":{"val":"3"}}}}}]}`
+	const aplJSON = `{"type":"TypeAPL","prepullActions":[{"action":{"move":{"rangeFromTarget":{"const":{"val":"11"}}}},"doAtValue":{"const":{"val":"-5s"}}},{"action":{"castSpell":{"spellId":{"spellId":20904}}},"doAtValue":{"const":{"val":"-2s"}}}],"priorityList":[{"action":{"move":{"rangeFromTarget":{"const":{"val":"3"}}}}}]}`
 	rot := &proto.APLRotation{}
 	if err := protojson.Unmarshal([]byte(aplJSON), rot); err != nil {
 		t.Fatalf("rotation: %v", err)
@@ -1435,10 +1606,10 @@ func TestMoveAtPull(t *testing.T) {
 func TestRangedAttackUnqueuesRaptorStrike(t *testing.T) {
 	queued := func(hunter *Hunter) bool { return hunter.curQueueAura != nil && hunter.curQueueAura.IsActive() }
 
-	sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, distance: 9})
+	sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, distance: 12})
 	hunter.RaptorStrike.Cast(sim, hunter.CurrentTarget)
 	if !queued(hunter) {
-		t.Fatal("Raptor Strike did not queue at 9 yd")
+		t.Fatal("Raptor Strike did not queue at 12 yd")
 	}
 	arcane := hunter.GetSpell(core.ActionID{SpellID: 14287})
 	if arcane == nil {
@@ -1449,7 +1620,7 @@ func TestRangedAttackUnqueuesRaptorStrike(t *testing.T) {
 		t.Error("Raptor Strike is still queued after Arcane Shot")
 	}
 
-	sim, hunter = newPatchTestHunter(t, patchTestSetup{gear: true, distance: 9})
+	sim, hunter = newPatchTestHunter(t, patchTestSetup{gear: true, distance: 12})
 	hunter.RaptorStrike.Cast(sim, hunter.CurrentTarget)
 	hunter.AutoAttacks.RangedAuto().Cast(sim, hunter.CurrentTarget)
 	if queued(hunter) {

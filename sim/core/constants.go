@@ -16,8 +16,9 @@ const DefaultAttackPowerPerDPS = 14.0
 const ArmorPenPerPercentArmor = 13.99
 
 const MaxMeleeAttackDistance = 5
-// Ranged minimum 8 yd: Forever client data ("Hunter Range" 8-35 for Auto Shot and every shot). Knob AB_MIN_RANGED for experiments.
-var MinRangedAttackDistance = 8.0
+// Ranged minimum 11 yd, center to center like every distance here: the client's 8 yd ("Hunter Range" 8-35) is hitbox to
+// hitbox, and in game shots stop inside about 10.5-11 yd of a mob's center. Knob AB_MIN_RANGED for experiments.
+var MinRangedAttackDistance = 11.0
 
 func init() {
 	if v, err := strconv.ParseFloat(os.Getenv("AB_MIN_RANGED"), 64); err == nil && v > 0 {
