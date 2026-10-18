@@ -98,8 +98,8 @@ func (paladin *Paladin) applySpiritualFocus() {
 // not in it.
 //
 // The Seal of Command proc takes the talent through its weapon percent instead, see
-// registerSealOfCommand: the target's extra Holy damage taken sits outside the percent and the
-// talent must not reach it.
+// registerSealOfCommand, and on the target's extra Holy damage taken, which sits outside the percent,
+// by hand (SealOfCommandBonusTakesImprovedSeals).
 func (paladin *Paladin) applyImprovedSeals() {
 	if paladin.Talents.ImprovedSeals == 0 {
 		return

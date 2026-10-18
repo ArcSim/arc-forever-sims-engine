@@ -41,6 +41,27 @@ type sealEcho struct {
 	seal *sealConfig
 }
 
+// DebuffJudgementsTriggerWeaponProcs lets the four judgements that deal no damage (Light, Wisdom,
+// Justice and the Crusader) roll "Chance on hit" weapon effects and combat enchants (Crusader, Fiery
+// Weapon, chance-on-hit weapons) on the target they judge, and keeps Equip effects, talents and racials
+// off them (MythicSim patch 169). Lightclub's live-server sheet (16 October 2026): "All judgements can
+// proc weapon chance on hit effects. 'Equip' effects only for those that count as melee attacks." The
+// damaging judgements (Righteousness, Command, Fury) are melee attacks and already reach both. The four
+// become main-hand specials marked as procs: a weapon proc skips only Suppress Weapon Procs, an aura
+// proc skips procs, so only the weapon procs hear them. Their outcome is unchanged (Always Hit, no
+// damage); a landed hit with no damage rolls a weapon proc in this engine, as Sunder Armor does. False
+// gives them no proc mask, so nothing hears them, as before.
+var DebuffJudgementsTriggerWeaponProcs = true
+
+// The proc mask and flags of a judgement that only puts up its debuff.
+func debuffJudgementProcMask() core.ProcMask {
+	return core.Ternary(DebuffJudgementsTriggerWeaponProcs, core.ProcMaskMeleeMHSpecial, core.ProcMaskEmpty)
+}
+
+func debuffJudgementFlags() core.SpellFlag {
+	return core.SpellFlagMeleeMetrics | core.Ternary(DebuffJudgementsTriggerWeaponProcs, core.SpellFlagProc, core.SpellFlagNone)
+}
+
 // The seals' rows as the client states them. Seal of Command is a talent and registers from
 // registerTalentSpells.
 var (

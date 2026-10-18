@@ -36,8 +36,8 @@ func (paladin *Paladin) registerSealOfJustice() {
 		ActionID:       core.ActionID{SpellID: judgementRank.ID},
 		SpellSchool:    judgementRank.SpellSchool(),
 		DefenseType:    judgementRank.DefenseTypeCore(),
-		ProcMask:       core.ProcMaskEmpty,
-		Flags:          core.SpellFlagMeleeMetrics,
+		ProcMask:       debuffJudgementProcMask(),
+		Flags:          debuffJudgementFlags(),
 		ClassSpellMask: SpellMaskJudgementOfJustice,
 
 		DamageMultiplier: 1,

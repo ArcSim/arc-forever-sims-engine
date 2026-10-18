@@ -37,8 +37,8 @@ func (paladin *Paladin) registerSealOfTheCrusader(_ int32, rank *spelldata.Spell
 		ActionID:       core.ActionID{SpellID: judgementRank.ID},
 		SpellSchool:    judgementRank.SpellSchool(),
 		DefenseType:    judgementRank.DefenseTypeCore(),
-		ProcMask:       core.ProcMaskEmpty,
-		Flags:          core.SpellFlagMeleeMetrics,
+		ProcMask:       debuffJudgementProcMask(),
+		Flags:          debuffJudgementFlags(),
 		ClassSpellMask: SpellMaskJudgementOfTheCrusader,
 
 		DamageMultiplier: 1,

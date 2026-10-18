@@ -10,6 +10,15 @@ import (
 // by hand; the heal the seal itself fires is the first spell its tooltip names.
 var judgementOfLightHealIDs = map[int32]int32{1: 20267, 2: 20341, 3: 20342, 4: 20343}
 
+// SealOfLightFifteenPPM gives the seal's heal a 15 procs a minute chance on each landed melee attack,
+// Holy Strike included (MythicSim patch 169). Lightclub's live-server sheet (16 October 2026): Seal of
+// Light "15 PPM", and it procs from Holy Strike. The client states the chance without a number. False
+// heals on every landed melee attack, as before. Seal of Wisdom keeps every hit: the sheet gives it no
+// rate. The threat either seal or Judgement of Light causes is not modelled (open).
+var SealOfLightFifteenPPM = true
+
+const sealOfLightPPM = 15
+
 // Seal of Light
 // https://www.wowhead.com/forever/spell=20349
 //
@@ -37,8 +46,8 @@ func (paladin *Paladin) registerSealOfLight(_ int32, rank *spelldata.Spell) {
 		ActionID:       core.ActionID{SpellID: judgementID},
 		SpellSchool:    core.SpellSchoolHoly,
 		DefenseType:    core.DefenseTypeMelee,
-		ProcMask:       core.ProcMaskEmpty,
-		Flags:          core.SpellFlagMeleeMetrics,
+		ProcMask:       debuffJudgementProcMask(),
+		Flags:          debuffJudgementFlags(),
 		ClassSpellMask: SpellMaskJudgementOfLight,
 
 		DamageMultiplier: 1,
@@ -69,8 +78,14 @@ func (paladin *Paladin) registerSealOfLight(_ int32, rank *spelldata.Spell) {
 		},
 	})
 
+	var dpm *core.DynamicProcManager
+	if SealOfLightFifteenPPM {
+		dpm = paladin.NewLegacyPPMManager(sealOfLightPPM, core.ProcMaskMelee)
+	}
+
 	aura := paladin.makeSealExclusive(paladin.MakeProcTriggerAura(core.ProcTrigger{
 		Name:            sealLabel("Seal of Light", paladin, rank),
+		DPM:             dpm,
 		ActionID:        core.ActionID{SpellID: rank.ID},
 		MetricsActionID: core.ActionID{SpellID: rank.ID},
 		Duration:        sealDuration,

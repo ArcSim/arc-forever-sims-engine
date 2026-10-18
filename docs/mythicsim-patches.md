@@ -4864,3 +4864,86 @@ Ret-prot -6.6%, Holy-prot -5.6%, Shockadin -6.3%. Seal of Fury users (tank build
 `expected_baseline_dps` and boards need re-measuring.
 
 Downstream: the Rust engine needs the Judgement of Righteousness and Seal of Fury row shares.
+
+## 169. `paladin: debuff judgements roll weapon procs, Improved Seals on Seal of Command's JotC part, Seal of Light 15 PPM (Lightclub)`
+
+Sage, 18 October 2026, relaying Lightclub's live-server Paladin test sheet ("UPDATED: 16-10-2026", via Bae
+in #mythic), asking for it to be implemented in full. An audit of the sheet against the engine found three
+gaps. Each has a switch, on by default.
+
+- **Every judgement rolls weapon procs** (`DebuffJudgementsTriggerWeaponProcs`, `sim/paladin/seals.go`).
+  The sheet: "All judgements can proc weapon chance on hit effects. 'Equip' effects only for those that count
+  as melee attacks." Judgement of Righteousness, Command and Fury are melee attacks (`ProcMaskMeleeMHSpecial`,
+  no proc flag) and already reached both kinds. Judgement of Light, Wisdom, Justice and the Crusader had
+  `ProcMaskEmpty`, so nothing heard them. Now they are `ProcMaskMeleeMHSpecial` plus `SpellFlagProc`. A weapon
+  proc (`IsWeaponProc`: chance-on-hit items, combat enchants such as Crusader and Fiery Weapon) skips only
+  Suppress Weapon Procs, so it rolls. An aura proc (Equip effects, talents, racials, the seals' own triggers,
+  Judgement Refresh, the target's Judgement of Light and Wisdom) skips procs unless it carries Can Proc From
+  Procs, so it does not. Their outcome is unchanged: Always Hit, no damage, no hit table. A landed hit with no
+  damage rolls a weapon proc in this engine (`spelldata.WeaponProc`, as for Sunder Armor), and these
+  judgements land every time. False gives them `ProcMaskEmpty` again.
+  - Listener audit (`sim/paladin`, `sim/core`, `sim/common`). Hearing them, as intended: every
+    `IsWeaponProc` trigger. That includes Windfury and Flametongue Totem where their rows decode as weapon
+    procs, which already hear Judgement of Righteousness the same way. Not hearing them:
+    - The `ProcMaskMelee` aura triggers: Judgement Refresh, Seal of Light, Seal of Wisdom, Vindication,
+      Redoubt, Dragonbreath Chili, Touch of the Grave, the Judgement of Light heal and the Judgement of
+      Wisdom mana.
+    - The white-hit-only seals (Righteousness, Command, Fury) and Twist of Light.
+    - Reckoning, which checks auto attacks by hand.
+    - The Holy Strike-only effects (Sacred Arbiter, Iron Creed), which match by class mask.
+    - Vengeance, which takes crits only (the judgements never crit).
+    - Revelation, which takes spell damage only and needs damage.
+    - The only `CanProcFromProcs` aura triggers in these packages (Vengeance, Divine Favor, Revelation)
+      don't match these spells anyway.
+    - Nothing needed an explicit exclusion.
+- **Improved Seals on Seal of Command's Judgement of the Crusader part** (`SealOfCommandBonusTakesImprovedSeals`,
+  `sim/paladin/seal_of_command.go`). The sheet: Seal of Command gets "full coeff from JotC", and Improved Seals
+  "increases all damage caused (by Seal and Judgements)". The proc already added the target's extra Holy
+  damage taken (Judgement of the Crusader, damage against the creature type) at the full 0.29, outside the
+  70% weapon percent. Now that part takes the Improved Seals multiplier too (0.29 x 1.15 at 3/3). False
+  gives the bare 0.29.
+- **Seal of Light at 15 PPM** (`SealOfLightFifteenPPM`, `sim/paladin/seal_of_light.go`). The sheet: "15 PPM",
+  and it procs from Holy Strike. The heal fired on every landed melee attack. Now it has a legacy PPM manager
+  at 15 on `ProcMaskMelee`, so Holy Strike still triggers it. False heals on every landed melee attack.
+
+Not changed. Seal of Wisdom's rate: the sheet gives it no number. Seal of Command's 1 second internal
+cooldown: the sheet is silent, so it is still unconfirmed.
+
+Open:
+- The threat of Seal of Light, Judgement of Light and Seal of Wisdom (the sheet's numbers are TPS only;
+  not modelled).
+- Seal of Command's 1 second internal cooldown.
+
+Tests:
+- `TestDebuffJudgementsTriggerWeaponProcs` (`sim/paladin/retribution`): for each of the four seals, with
+  Fiery Weapon on Arcanite Reaper, a judgement rolls as many extra procs as a landed swing does (0.31 to 0.32
+  each, the boss resisting some). With the switch off, none.
+- `TestDebuffJudgementsReachNoAuraProcs`: with no weapon proc worn and Seal of Light's rate off, the switch
+  changes nothing: same DPS, HPS and every action's counts for each of the four seals. Removing
+  `SpellFlagProc` fails it: Seal of Light heals off the judgement, and so does Judgement of Wisdom's mana.
+- `TestSealOfCommandTargetBonusCoefficient` (`sim/paladin`): 0.29 x 1.00/1.05/1.10/1.15 on, 0.29 off.
+- `TestSealOfCommandBonusTakesImprovedSeals`: with the paladin's own Judgement of the Crusader up, the
+  same procs land with the switch on and off. With 3/3 Improved Seals the procs average 333.1 on and 326.0
+  off. With no Improved Seals they're the same both ways.
+- `TestSealOfLightFifteenPPM`: with a 2.0 speed weapon, 0.50 heals per landed swing against 0.99 off.
+
+Goldens: `TestRetribution` moves (Average-Default 373.24 to 374.00, the Seal of Command twist build).
+Protection and Holy don't move. With all three switches off, `TestRetribution`, `TestProtection` and
+`TestHolyPaladin` reproduce the old goldens byte for byte. With only `SealOfCommandBonusTakesImprovedSeals`
+off, they do too. The other two don't touch any golden rotation.
+
+Measured: native `wowsimcli` (`with_db`), the patch 159-163 report's requests (built by MythicSim main
+`47c97a19`'s `BuildRequest`, before the consumables work), board seed and length, 10,000 iterations,
+`GOMAXPROCS=4`, one sim at a time. Before is this branch's base, `35f641c43` (patch 168 merged).
+
+| Reference | Before | After |
+| --- | ---: | ---: |
+| Retribution | 818.78 | 819.91 (+0.14%) |
+| Protection | 594.31 | 594.31 |
+| Ret-prot | 573.72 | 573.72 |
+| Holy-prot | 554.69 | 554.69 |
+| Shockadin | 864.01 | 864.01 |
+
+No reference casts Seal of Light, Wisdom, Justice or the Crusader. Only Retribution runs Seal of Command
+with 3/3 Improved Seals under the raid's Judgement of the Crusader. Downstream: the Rust engine needs all
+three.

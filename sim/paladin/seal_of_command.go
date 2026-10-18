@@ -8,6 +8,22 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
+// SealOfCommandBonusTakesImprovedSeals lets Improved Seals raise the part of a Seal of Command proc
+// that the target's extra Holy damage taken adds (Judgement of the Crusader, damage against the
+// target's creature type), as it raises the rest of the proc (MythicSim patch 169). Lightclub's
+// live-server sheet (16 October 2026): Seal of Command takes the "full coeff from JotC", and Improved
+// Seals "increases all damage caused (by Seal and Judgements)". False adds that part at the bare 0.29,
+// outside the talent, as before.
+var SealOfCommandBonusTakesImprovedSeals = true
+
+// The share of the target's extra Holy damage taken a Seal of Command proc adds.
+func sealOfCommandTargetBonusCoefficient(coefficient, improvedSeals float64) float64 {
+	if SealOfCommandBonusTakesImprovedSeals {
+		return coefficient * improvedSeals
+	}
+	return coefficient
+}
+
 // Seal of Command (talent)
 // https://www.wowhead.com/forever/spell=20920
 //
@@ -29,7 +45,10 @@ import (
 // coming from spell power, 20.4%, against the 29% the coefficient states. Improved Seals raises the
 // percent itself (the tooltip reads 80% with the talent, 70 * 1.15). The Holy damage the target
 // takes extra, Judgement of the Crusader and the damage-against-mob-type gear, is added after the
-// percent at the full coefficient, so it scales at 29% whatever the talent.
+// percent at the full coefficient. Improved Seals multiplies that part as well
+// (SealOfCommandBonusTakesImprovedSeals).
+//
+// The 1 second internal cooldown is the engine's own; no live test has confirmed it.
 func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	judgeRank := spellData.JudgementOfCommand.Rank(rank.RankNumber())
 	judgeDamage := spellData.SealOfCommandTriggered.ByID(int32(judgeRank.EffectN(1).BaseValue())).DamageEffect()
@@ -59,8 +78,10 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 
 	procRank := spellData.SealOfCommandTriggered.Rank(1)
 	procEffect := procRank.EffectN(1)
-	weaponPercent := procEffect.Percent() * spellData.ImprovedSeals.MultiplierAt(paladin.Talents.ImprovedSeals)
+	improvedSeals := spellData.ImprovedSeals.MultiplierAt(paladin.Talents.ImprovedSeals)
+	weaponPercent := procEffect.Percent() * improvedSeals
 	coefficient := procEffect.Coeff()
+	bonusCoefficient := sealOfCommandTargetBonusCoefficient(coefficient, improvedSeals)
 	procSpell := paladin.RegisterSpell(core.SpellConfig{
 		ActionID:    core.ActionID{SpellID: procRank.ID},
 		SpellSchool: core.SpellSchoolHoly,
@@ -81,7 +102,7 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 
 			targetBonus := target.PseudoStats.SchoolBonusSpellDamage[stats.SchoolIndexHoly] +
 				spell.Unit.AttackTables[target.UnitIndex].MobTypeBonusStats[target.MobType][stats.SpellDamage]
-			baseDamage += coefficient * targetBonus
+			baseDamage += bonusCoefficient * targetBonus
 
 			result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
 			dealAfterBatch(sim, spell, result)

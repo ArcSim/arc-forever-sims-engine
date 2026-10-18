@@ -37,8 +37,8 @@ func (paladin *Paladin) registerSealOfWisdom(_ int32, rank *spelldata.Spell) {
 		ActionID:       core.ActionID{SpellID: judgementID},
 		SpellSchool:    core.SpellSchoolHoly,
 		DefenseType:    core.DefenseTypeMelee,
-		ProcMask:       core.ProcMaskEmpty,
-		Flags:          core.SpellFlagMeleeMetrics,
+		ProcMask:       debuffJudgementProcMask(),
+		Flags:          debuffJudgementFlags(),
 		ClassSpellMask: SpellMaskJudgementOfWisdom,
 
 		DamageMultiplier: 1,
