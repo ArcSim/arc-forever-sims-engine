@@ -11129,7 +11129,7 @@ var generatedSpells = []Spell{
 		}},
 	{ID: 14914, Name: "Holy Fire", Rank: "Rank 1", School: 2, Attr: [17]uint32{0: 0x10000, 8: 0x200, 13: 0x80, 15: 0x2000}, SpellLevel: 20, BaseLevel: 20, MaxLevel: 24, CastTimeMs: 3500, DurationMs: 10000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 1048576}}, InterruptFlags: 15, Labels: []int16{18}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
-			{ID: 687113, SpellID: 14914, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 58, PPL: 1.2999999523162842, Variance: 0.22727273404598236, SpellLevel: 20, MaxLevel: 24, SPCoef: 0.75, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+			{ID: 687113, SpellID: 14914, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 54, PPL: 1.2999999523162842, Variance: 0.22727273404598236, SpellLevel: 20, MaxLevel: 24, SPCoef: 0.75, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 687114, SpellID: 14914, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 4, SpellLevel: 20, MaxLevel: 24, SPCoef: 0.05000000074505806, PvpMult: 1, PeriodMs: 2000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
 		Powers: []Power{{Cost: 85}}},

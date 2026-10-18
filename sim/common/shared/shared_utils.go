@@ -922,10 +922,16 @@ func registerSpellDataRowProc(cfg SpellDataProc, refuses func(row *spelldata.Spe
 		return
 	}
 
-	trigger := spelldata.MustFind(cfg.TriggerSpellID)
+	// A hotfix that deletes an item drops its spells from the store, while the generated file that
+	// registers its proc is only rewritten by gen_db, which loads this package first. Skip the stale
+	// entry rather than panic there; TestRegisteredEffects still names any item that stops registering.
+	trigger := spelldata.Find(cfg.TriggerSpellID)
 	row := trigger
 	if cfg.BuffSpellID != 0 {
-		row = spelldata.MustFind(cfg.BuffSpellID)
+		row = spelldata.Find(cfg.BuffSpellID)
+	}
+	if trigger == spelldata.Nil || row == spelldata.Nil {
+		return
 	}
 
 	if refuses != nil && refuses(row) {

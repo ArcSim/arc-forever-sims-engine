@@ -13,7 +13,6 @@
 1979 Wall of the Dead
 2801 Blade of Hanna
 2802 Blazing Emblem
-2824 Hurricane
 4262 Gem-studded Leather Belt
 4264 Barbaric Belt
 4696 Lapidis Tankard of Tidesippe

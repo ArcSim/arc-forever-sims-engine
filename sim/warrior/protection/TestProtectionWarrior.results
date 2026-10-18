@@ -889,14 +889,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestProtectionWarrior-AllItems-Hurricane-2824"
- value: {
-  dps: 239.31615
-  tps: 518.2544
-  dtps: 1129.28016
- }
-}
-dps_results: {
  key: "TestProtectionWarrior-AllItems-IcebladeHacker-13952"
  value: {
   dps: 267.07641
