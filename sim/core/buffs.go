@@ -289,7 +289,8 @@ func applyBuffEffects(agent Agent, playerFaction proto.Faction, raidBuffs *proto
 		})
 	}
 
-	if raidBuffs.TrueshotAura {
+	// a hunter with the talent already has it (its own cast)
+	if raidBuffs.TrueshotAura && character.GetAura("Trueshot Aura") == nil {
 		TrueshotAura(&character.Unit)
 	}
 

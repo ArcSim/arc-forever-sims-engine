@@ -126,6 +126,15 @@ func (hunter *Hunter) ApplyTalents() {
 	hunter.applySurvivalistDiscipline()
 	hunter.applyRapidRecuperation()
 	hunter.applyLaceratingStrikes()
+	hunter.applyTrueshotAura()
+}
+
+// The talent teaches Trueshot Aura, cast before the pull (it lasts 30 minutes), so the hunter has it even when the raid
+// buffs leave it out.
+func (hunter *Hunter) applyTrueshotAura() {
+	if hunter.Talents.TrueshotAura {
+		core.TrueshotAura(&hunter.Unit)
+	}
 }
 
 func (hunter *Hunter) applyExposePrey() {

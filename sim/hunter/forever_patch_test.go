@@ -419,6 +419,25 @@ func TestSerpentStingScaling(t *testing.T) {
 	}
 }
 
+// A hunter with the Trueshot Aura talent has the aura (+100 ranged attack power) without the raid buff, and the raid buff
+// on top does not add a second one.
+func TestTrueshotAuraFromTalent(t *testing.T) {
+	rap := func(talents string, raid bool) float64 {
+		_, hunter := newPatchTestHunter(t, patchTestSetup{talents: talents, gear: true, buffs: &proto.RaidBuffs{TrueshotAura: raid}})
+		return hunter.GetStat(stats.RangedAttackPower)
+	}
+	with, without := "-0053150011-500230230250222151", "-0053150010-500230230250222151"
+	if d := rap(with, false) - rap(without, false); math.Abs(d-100) > 1e-6 {
+		t.Errorf("talented Trueshot Aura without the raid buff adds %.1f ranged attack power, want 100", d)
+	}
+	if d := rap(with, true) - rap(without, false); math.Abs(d-100) > 1e-6 {
+		t.Errorf("talented Trueshot Aura with the raid buff adds %.1f ranged attack power, want 100 (one aura)", d)
+	}
+	if d := rap(without, true) - rap(without, false); math.Abs(d-100) > 1e-6 {
+		t.Errorf("the raid buff alone adds %.1f ranged attack power, want 100", d)
+	}
+}
+
 // Immolation Trap is a real cast (placed on a GCD), so the results count its casts and cast time; without them the
 // table cannot show its damage per cast or per execute time.
 func TestImmolationTrapCastMetrics(t *testing.T) {
