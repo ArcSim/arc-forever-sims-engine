@@ -266,10 +266,11 @@ func (rot *APLRotation) newActionMove(config *proto.APLActionMove) APLActionImpl
 }
 func (action *APLActionMove) IsReady(sim *Simulation) bool {
 	isPrepull := sim.CurrentTime < 0
-	return !action.unit.IsMoving() && !action.unit.MovementHandler.PendingMove && (action.moveRange.GetFloat(sim) != action.unit.DistanceFromTarget || isPrepull) && !action.unit.IsCasting(sim)
+	// rounded here too, or a 4.6 yd spot standing at 5 would look ready forever and never move
+	return !action.unit.IsMoving() && !action.unit.MovementHandler.PendingMove && (WholeYards(action.moveRange.GetFloat(sim)) != action.unit.DistanceFromTarget || isPrepull) && !action.unit.IsCasting(sim)
 }
 func (action *APLActionMove) Execute(sim *Simulation) {
-	moveRange := action.moveRange.GetFloat(sim)
+	moveRange := WholeYards(action.moveRange.GetFloat(sim))
 	if sim.Log != nil {
 		action.unit.Log(sim, "Moving to %s", moveRange)
 	}

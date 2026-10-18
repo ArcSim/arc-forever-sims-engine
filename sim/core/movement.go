@@ -187,7 +187,14 @@ func envFloat(name string) float64 {
 	return v
 }
 
+// WholeYards: distances are whole yards (a walk steps a yard at a time, so a 4.5 yd spot was never reached and froze the
+// rotation for the rest of the fight)
+func WholeYards(distance float64) float64 {
+	return math.Round(distance)
+}
+
 func (unit *Unit) MoveTo(moveRange float64, sim *Simulation) {
+	moveRange = WholeYards(moveRange)
 	if moveRange == unit.DistanceFromTarget {
 		return
 	}

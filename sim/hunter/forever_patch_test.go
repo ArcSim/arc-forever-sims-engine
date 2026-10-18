@@ -1400,6 +1400,50 @@ func TestMoveAfterArrivalDuringGcd(t *testing.T) {
 	}
 }
 
+// Distances are whole yards: move spots of 4.6 and 11.4 yd and a start at 11.5 yd round to 5, 11 and 12, so a weave on
+// them keeps shooting and swinging all fight. Unrounded, the first walk never reached 4.6 and froze the rotation.
+func TestWholeYardMoveSpots(t *testing.T) {
+	const aplJSON = `{"type":"TypeAPL","priorityList":[` +
+		`{"action":{"condition":{"and":{"vals":[{"cmp":{"op":"OpGe","lhs":{"distanceToTarget":{}},"rhs":{"const":{"val":"11"}}}},{"cmp":{"op":"OpGt","lhs":{"autoTimeToNext":{"autoType":"Ranged"}},"rhs":{"const":{"val":"1.5s"}}}}]}},"move":{"rangeFromTarget":{"const":{"val":"4.6"}}}}},` +
+		`{"action":{"condition":{"and":{"vals":[{"cmp":{"op":"OpLe","lhs":{"distanceToTarget":{}},"rhs":{"const":{"val":"5"}}}},{"cmp":{"op":"OpGt","lhs":{"autoTimeToNext":{"autoType":"MainHand"}},"rhs":{"const":{"val":"0.5s"}}}}]}},"move":{"rangeFromTarget":{"const":{"val":"11.4"}}}}}]}`
+	rot := &proto.APLRotation{}
+	if err := protojson.Unmarshal([]byte(aplJSON), rot); err != nil {
+		t.Fatalf("rotation: %v", err)
+	}
+	player := core.WithSpec(&proto.Player{
+		Race:               proto.Race_RaceHuman,
+		Class:              proto.Class_ClassHunter,
+		Equipment:          core.GetGearSet("../../ui/hunter/gear_sets", "2h_weave").GearSet,
+		TalentsString:      patchTestTalents,
+		Consumes:           abConsumes,
+		Buffs:              abIndividualBuffs,
+		Rotation:           rot,
+		DistanceFromTarget: 11.5,
+	}, abOptions)
+	res := core.RunRaidSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, abRaidBuffs, abDebuffs),
+		Encounter:  abEncounter(),
+		SimOptions: &proto.SimOptions{Iterations: 1, RandomSeed: 20261018},
+	})
+	if res.Error != nil {
+		t.Fatalf("sim error: %s", res.Error.Message)
+	}
+	var swings, shots int32
+	for _, a := range res.RaidMetrics.Parties[0].Players[0].Actions {
+		for _, tm := range a.Targets {
+			switch a.Id.GetOtherId() {
+			case proto.OtherAction_OtherActionAttack:
+				swings += tm.Casts
+			case proto.OtherAction_OtherActionShoot:
+				shots += tm.Casts
+			}
+		}
+	}
+	if swings < 10 || shots < 10 {
+		t.Errorf("%d melee swings and %d Auto Shots weaving between 4.6 and 11.4 yd; want a full fight of both (10+ each)", swings, shots)
+	}
+}
+
 // Only a swing that landed during the walk makes the arrival a decision point: a walk to 6 yd (no swing) during a busy
 // GCD waits for the GCD before walking back, as rotations written for the old decision points expect (one that steps
 // out when the next swing is more than half a second away would otherwise leave on arrival, before its swing).
