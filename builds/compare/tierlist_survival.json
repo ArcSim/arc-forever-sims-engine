@@ -149,6 +149,22 @@
       "prepullActions": [
         {
           "action": {
+            "move": {
+              "rangeFromTarget": {
+                "const": {
+                  "val": "12"
+                }
+              }
+            }
+          },
+          "doAtValue": {
+            "const": {
+              "val": "-5s"
+            }
+          }
+        },
+        {
+          "action": {
             "castSpell": {
               "spellId": {
                 "spellId": 25296

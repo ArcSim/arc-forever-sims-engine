@@ -25,8 +25,8 @@ runs the same way.
 ## Compare with the MythicSim tier list
 
 `builds/compare/` has the tier list's Survival reference (its gear, talents, rotation, buffs and consumables, plus the
-sapper and food other specs get there) and the 2H Weave build on that same setup, both with ignite-style Lacerating
-Strikes:
+sapper and food other specs get there) and our builds on that same setup (2H Weave on the harder and the light weave,
+DW Pure Melee), all with ignite-style Lacerating Strikes:
 
 ```
 AB_SETTINGS=../../builds/compare/tierlist_survival.json AB_ITERS=50000 go test --tags=with_db ./sim/hunter/ -run TestForeverSettings -v
