@@ -12,9 +12,20 @@ func (hunter *Hunter) improvedStingsMultiplier() float64 {
 	return []float64{0, 0.06, 0.13, 0.20}[hunter.Talents.ImprovedStings]
 }
 
+// The client data gives Serpent Sting no attack power or spell power share, but the ticks grow with ranged attack
+// power: tested in game (rank 4, no Improved Stings), 27 at 174 and 33 at 361, so 0.032 a tick; 20 spell power
+// left them unchanged.
+const serpentStingAPPerTick = 0.032
+
+// tick damage per rank from the Forever client data
+var serpentStingBaseTick = [10]float64{0, 2, 6, 12, 22, 34, 48, 64, 83, 111}
+
+func serpentStingTick(rank int, rangedAttackPower float64) float64 {
+	return serpentStingBaseTick[rank] + rangedAttackPower*serpentStingAPPerTick
+}
+
 func (hunter *Hunter) getSerpentStingConfig(rank int) core.SpellConfig {
 	spellId := [10]int32{0, 1978, 13549, 13550, 13551, 13552, 13553, 13554, 13555, 25295}[rank]
-	baseDamage := [10]float64{0, 20, 40, 80, 140, 210, 290, 385, 490, 555}[rank] / 5
 	manaCost := [10]float64{0, 15, 30, 50, 80, 115, 150, 190, 230, 250}[rank]
 	level := [10]int{0, 4, 10, 18, 26, 34, 42, 50, 58, 60}[rank]
 
@@ -56,9 +67,7 @@ func (hunter *Hunter) getSerpentStingConfig(rank int) core.SpellConfig {
 			BonusCoefficient: 0,
 
 			OnSnapshot: func(sim *core.Simulation, target *core.Unit, dot *core.Dot, isRollover bool) {
-				ap := dot.Spell.RangedAttackPower(target, false)
-				damage := baseDamage + ap*0.10/float64(dot.NumberOfTicks)
-				dot.Snapshot(target, damage, isRollover)
+				dot.Snapshot(target, serpentStingTick(rank, dot.Spell.RangedAttackPower(target, false)), isRollover)
 			},
 			OnTick: func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 				dot.CalcAndDealPeriodicSnapshotDamage(sim, target, dot.OutcomeTickPhysicalCrit)

@@ -392,6 +392,33 @@ func TestImmolationTrapAttackPower(t *testing.T) {
 	}
 }
 
+// Serpent Sting ticks grow by 0.032 per point of ranged attack power and not with spell power (in game: rank 4 ticked
+// 27 at 174 ranged attack power, 33 at 361, unchanged with 20 spell power); the rank 4 base tick is the client's 22.
+func TestSerpentStingScaling(t *testing.T) {
+	sim, hunter := newPatchTestHunter(t, patchTestSetup{talents: patchTestTalents, gear: true})
+	target := hunter.CurrentTarget
+	sting := hunter.SerpentSting
+	tick := func() float64 {
+		dot := sting.Dot(target)
+		dot.Apply(sim)
+		return dot.SnapshotBaseDamage
+	}
+	rap := sting.RangedAttackPower(target, false)
+	if got, want := tick(), 111+0.032*rap; math.Abs(got-want) > 1e-6 {
+		t.Errorf("rank 9 tick %.3f at %.0f ranged attack power, want %.3f (111 + 0.032 x RAP)", got, rap, want)
+	}
+	hunter.AddStatsDynamic(sim, stats.Stats{stats.SpellPower: 200, stats.SpellDamage: 200, stats.NaturePower: 200})
+	if got, want := tick(), 111+0.032*rap; math.Abs(got-want) > 1e-6 {
+		t.Errorf("rank 9 tick %.3f with 200 spell power, want %.3f (no spell power share)", got, want)
+	}
+	if c := sting.Dot(target).BonusCoefficient; c != 0 {
+		t.Errorf("Serpent Sting spell power share %.3f, want 0", c)
+	}
+	if low, high := serpentStingTick(4, 174), serpentStingTick(4, 361); math.Floor(low) != 27 || math.Floor(high) != 33 {
+		t.Errorf("rank 4 ticks %.2f at 174 and %.2f at 361 ranged attack power, the game showed 27 and 33", low, high)
+	}
+}
+
 // Immolation Trap is a real cast (placed on a GCD), so the results count its casts and cast time; without them the
 // table cannot show its damage per cast or per execute time.
 func TestImmolationTrapCastMetrics(t *testing.T) {

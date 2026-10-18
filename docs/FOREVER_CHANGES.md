@@ -87,6 +87,7 @@ this repository. Treat them as data; edit by hand only with care.
 | --- | --- |
 | `hunter.go` | Wires the new options (move delay, run speed, Skyborne convergence, Auto Shot spam cut). Swiftfeather Arrow and Swiftstrike Shot ammo. Mortal Shots no longer applies to Auto Shot. |
 | `aimed_shot.go`, `arcane_shot.go`, `sniper_shot.go`, `multi_shot.go`, `volley.go` | Aimed Shot 2.0 s cast, rank damage tables, Sniper Shot rank 2, Barrage bonus (3/7/10% on Multi-Shot, Aimed Shot, Volley). |
+| `serpent_sting.go` | Forever tick damage per rank from the client data (rank 9: 111). The client gives no attack power or spell power share, but in game each tick adds 0.032 of ranged attack power (rank 4: 27 at 174, 33 at 361) and spell power changes nothing (TestSerpentStingScaling). |
 | `rapid_fire.go` | Also +40% melee attack speed. Rapid Killing takes time off the cooldown per rank. |
 | `raptor_strike.go` | Forever rank damage. Queues at any range and waits for the next melee swing. Its cooldown is readable by rotations. No Mortal Shots crit bonus. |
 | `strider_kick.go` | Also +30% run speed for 3 s. Yellow-only proc mask. |
