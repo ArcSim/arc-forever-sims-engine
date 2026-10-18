@@ -4907,12 +4907,15 @@ gaps. Each has a switch, on by default.
   at 15 on `ProcMaskMelee`, so Holy Strike still triggers it. False heals on every landed melee attack.
 
 Not changed. Seal of Wisdom's rate: the sheet gives it no number. Seal of Command's 1 second internal
-cooldown: the sheet is silent, so it is still unconfirmed.
+cooldown: the sheet is silent; it is the client's own (below).
 
 Open:
 - The threat of Seal of Light, Judgement of Light and Seal of Wisdom (the sheet's numbers are TPS only;
   not modelled).
-- Seal of Command's 1 second internal cooldown.
+- ~~Seal of Command's 1 second internal cooldown.~~ Settled (patch 170): it is the client's SpellAuraOptions
+  ProcCategoryRecovery 1000 on all five ranks (20375, 20915, 20918, 20919, 20920) at 70450, the same row as
+  Classic Era 1.15.9, where the cooldown is live; not the engine's own. The 7 PPM stays Classic's value plus
+  the logs (no client PPM row).
 
 Tests:
 - `TestDebuffJudgementsTriggerWeaponProcs` (`sim/paladin/retribution`): for each of the four seals, with
@@ -4947,3 +4950,88 @@ Measured: native `wowsimcli` (`with_db`), the patch 159-163 report's requests (b
 No reference casts Seal of Light, Wisdom, Justice or the Crusader. Only Retribution runs Seal of Command
 with 3/3 Improved Seals under the raid's Judgement of the Crusader. Downstream: the Rust engine needs all
 three.
+
+## 170. `paladin, enchants: Holy Strike and Holy Shield take their rows, Seal of Righteousness keeps the per-level gain, Revelation falls with crit (official data)`
+
+Sage, 18 October 2026: the Forever beta stops at level 30, so no level 60 log will ever exist; where
+Blizzard's own data settles a mechanic (patch notes, client rows and tooltips at 1.60.1.70450), follow it.
+The evidence is the official-sources review of the open items (`forever-open-items-official-2026-10-18.md`,
+items 1, 2a, 4 and 9, and its note on Holy Shield). Four switches, each a default change; One-Handed Weapon
+Specialization stays as it is (Sage keeps Ashreon's all-schools reading).
+
+- **Holy Strike from the row** (on). `HolyStrikeSpellPowerFromRow` (patch 162, `sim/paladin/holy_strike.go`)
+  now defaults to true: 0.429 on every rank. SpellEffect at 70450 gives every rank (679, 678, 1866, 680,
+  2495, 5569, 10332, 10333) `EffectBonusCoefficient 0.429` on the flat effect, the same as 69893. The 16
+  October coefficient fixes did reach the rows (Judgement of Righteousness 0.5 to 0.429, Consecration's bonus
+  0.042) and left Holy Strike alone; no note changes it. The pre-16 October logs dealt the row (patch 162).
+  Ashreon's 0.286 is exactly 2/3 of the row, the ratio of her Judgement of Righteousness, Judgement of Fury
+  and Seal of Fury numbers that Lightclub's live sheet put back on the rows (patch 168). False gives 0.286.
+  `HolyStrikeFlatBeforeWeaponPercentIs40To53` stays off: the row's base is 93, and no row or note carries the
+  halved reading.
+- **Holy Shield per block from the row** (on). New `HolyShieldSpellPowerFromRow` (default true,
+  `sim/paladin/holy_shield.go`): the per-block damage takes its proc-trigger-damage effect's coefficient,
+  0.08 in the 70450 rows, instead of Ashreon's 0.07 (patch 143, `HolyShieldSpellPowerCoefficient`). Same
+  standing as Holy Strike: her set is the only source against the row. False gives 0.07.
+- **Seal of Righteousness keeps the rows' per-level gain** (off). `SealOfRighteousnessBasesAtSpellLevel`
+  (patch 148, `sim/paladin/seal_of_righteousness.go`) now defaults to false. RealPointsPerLevel is a row
+  value, applied from the spell level to the character level and capped at MaxLevel, as the client, the
+  pre-fix server (the 18 October review: Camthas 18.8, George 22.4) and the engine before patch 148 do.
+  Rank 8 (seal 20293, SpellLevel 58, MaxLevel 64; judgement 20286) at level 60: the judgement 170 + 2 x 4.1 =
+  178.2, which the engine floors to 178 as the client resolves it, +/- 4.7% (Variance 0.0941) = 169.6 to
+  186.4, the report's 170 to 186; the per-hit dummy 1786 + 2 x 47 = 1880 a hundred weapon speed. Ashreon's
+  21-71 and 162-178 are the bare base points (a tooltip render of a rank above the reader's level). True gives
+  patch 148's 170 and 1786.
+- **Revelation's chance falls with crit** (on). New `RevelationChanceFallsWithCrit` (default true,
+  `sim/common/forever/revelation.go`): each eligible non-crit hit triggers at
+  `RevelationChanceAtNoCrit` x (1 - spell crit), k = 0.098, the patch 157 log fit. The 70450 tooltip (1248805)
+  says it apart from "fails to critically strike": "Revelation's chance to trigger is diminished as your
+  critical strike chance increases". The crit is the character sheet's spell crit at the hit, clamped to
+  0..1. At the logs' 7.5% to 13% crit it gives 9.07% to 8.53%, inside their 95% interval (7.3% to 10.6%); at
+  25% it gives 7.35%. No official source states k. The roll moved from the trigger's ProcChance into its
+  ExtraCondition, after the eligibility check, so it can read the crit; with the switch off it rolls the
+  same random number at the same point as before (`TestRevelationTriggerRate`'s constant run reproduces patch
+  157's 2653 gains in 30181 hits exactly). False gives `RevelationTriggerChance` (0.0885) at every crit.
+- **Seal of Command's 1 second cooldown** is the client's SpellAuraOptions ProcCategoryRecovery 1000 on all
+  five ranks (20375, 20915, 20918, 20919, 20920) at 70450, the same row as Classic Era 1.15.9, where it is
+  live. Comments only (`seal_of_command.go`, and patch 169's Open list); nothing moves. The 7 PPM is still
+  Classic's value plus the logs (no client PPM row).
+
+Tests:
+- `TestPaladinSpellPowerFromRows` (`sim/paladin/protection`): defaults are every row switch on; Holy Shield's
+  per-block spell added (0.07 off, 0.08 on, every rank), alongside Holy Strike (0.286 off, 0.429 on).
+- `TestPaladinSpellPowerCoefficientsFromClient70425`: runs with the Holy Strike and Holy Shield row switches
+  off too.
+- `TestSealOfRighteousnessBasesAtSpellLevel` (`sim/paladin/retribution`): runs both values. With the gain the
+  seal hit is 0.94 x 2.8 x 0.85 = 2.24 higher before multipliers, the judgement 8.
+- `TestSealOfRighteousnessRank8RowArithmetic`: judgement 20286 at 60 averages 178 (169.6 to 186.4), the
+  per-hit 1880; at 58 they are 170 and 1786; the per-hit stops at MaxLevel 64 (2068 at 70).
+- `TestHolyStrikeFlatBeforeWeaponPercentIs40To53`: divides by the Holy Strike share in force.
+- `TestRevelationChanceFallsWithCrit` (`sim/revelation_enchant_test.go`): on, 0.098 x (1 - crit), clamped;
+  off, 0.0885. `TestRevelationTriggerRate` runs both values (chance 0.0885 and 0.09107 at the test mage's
+  crit). The fixed-chance tests turn the switch off.
+
+Goldens: `TestRetribution` (Average-Default 374.00 to 381.06) and `TestProtection` (279.27 to 284.36) move.
+Alone: Holy Strike moves both (378.72, 281.73), Seal of Righteousness both (376.33, 281.74), Holy Shield
+Protection only (279.43). `TestHolyPaladin` and every other suite don't move; the AllItems Revelation entries
+don't move either way. With all four switches off, `TestRetribution`, `TestProtection`, `TestHolyPaladin`,
+`TestArcane`, `TestFire`, `TestFrost`, `TestDestruction`, `TestAffliction` and `TestSurvival` reproduce the
+old goldens byte for byte.
+
+Measured: native `wowsimcli` (`with_db`), requests built by MythicSim main `af70640c`'s `BuildRequest`
+(reference export, empty trinket slots, board seed, the reference's default length), 10,000 iterations,
+`GOMAXPROCS=4`, one sim at a time. Before is `08a6678d8` and reproduces `expected_baseline_dps` exactly.
+
+| Reference | Before | Holy Strike | Holy Shield | Seal of Righteousness | All four |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Retribution | 830.90 | 847.89 (+2.04%) | 830.90 | 834.59 (+0.44%) | 851.58 (+2.49%) |
+| Protection | 615.19 | 624.08 (+1.45%) | 616.42 (+0.20%) | 619.01 (+0.62%) | 629.12 (+2.26%) |
+| Ret-prot | 602.27 | 616.32 (+2.33%) | 602.27 | 605.74 (+0.58%) | 619.80 (+2.91%) |
+| Holy-prot | 576.79 | 587.16 (+1.80%) | 576.79 | 580.04 (+0.56%) | 590.40 (+2.36%) |
+| Shockadin | 882.40 | 904.08 (+2.46%) | 882.40 | 887.05 (+0.53%) | 908.74 (+2.99%) |
+
+Only Protection casts Holy Shield. No reference wears Revelation: Arcane Mage 860.90 and Elemental Shaman
+521.69 don't move. Arcane Mage with Revelation swapped in for Spellblasting (same request): 860.33 to 856.14
+(-0.49%). References' `expected_baseline_dps` and the Paladin boards need re-measuring.
+
+Downstream: the Rust engine needs all four defaults (Holy Strike's and Holy Shield's row shares, the Seal of
+Righteousness per-level gain, Revelation's crit-scaled chance).

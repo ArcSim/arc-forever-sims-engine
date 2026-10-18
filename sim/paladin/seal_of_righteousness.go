@@ -89,7 +89,14 @@ func judgementOfRighteousnessCoefficient(damage *spelldata.Effect) float64 {
 // rows' base points exactly, 1786/87 = 20.5 and 1786/25 = 71.4, and 170 +/- 4.7% = 162.0 to 178.0;
 // the engine read them at level 60, two levels past rank 8's spell level 58: 1880 a hundred speed
 // (21.6 to 75.2) and 178 (170 to 186). False keeps the per-level gain.
-var SealOfRighteousnessBasesAtSpellLevel = true
+//
+// Off by default since MythicSim patch 170 (Sage, 18 October 2026: official data settles it). The
+// per-level gain is a row value (RealPointsPerLevel 4.1 on the judgement, 47 on the per-hit dummy),
+// applied from the spell level to the character level, capped at the rank's MaxLevel (64), as the
+// client, the pre-fix server (the 18 October log review) and the engine before patch 148 do. Ashreon's
+// figures are the bare base points: a tooltip render of a rank above the reader's level (nobody on the
+// beta can be level 58).
+var SealOfRighteousnessBasesAtSpellLevel = false
 
 // SealOfRighteousnessSpellPowerFixed halves the seal hit's spell power share, Blizzard's 16 October
 // fix: "Fixed an issue causing Seal of Righteousness to gain almost twice as much benefit from Spell

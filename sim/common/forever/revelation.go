@@ -7,6 +7,7 @@ import (
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 // RevelationEnchantModelled (mythicsim patch 157): Enchant Weapon - Revelation (enchant 8217) triggers
@@ -18,8 +19,29 @@ var RevelationEnchantModelled = true
 // crit): 111 triggers in 1443 non-crit hits, 95% CI 0.073 to 0.106. The chance per hit is the same for
 // Frostbolt, Searing Pain and Hellfire ticks, so it is not a PPM, and it does not fall across that crit
 // range. "Diminished as your critical strike chance increases" is already the crit itself: a crit never
-// triggers, so the chance per spell hit is this times (1 - crit). A variable so tests can set it.
+// triggers, so the chance per spell hit is this times (1 - crit). A variable so tests can set it. Used
+// only with RevelationChanceFallsWithCrit off.
 var RevelationTriggerChance = 0.0885
+
+// RevelationChanceFallsWithCrit makes the chance per eligible non-crit hit fall with the caster's spell
+// crit, RevelationChanceAtNoCrit x (1 - spell crit chance) (MythicSim patch 170). The client 70450 tooltip
+// (1248805) states it separately from "fails to critically strike": "Revelation's chance to trigger is
+// diminished as your critical strike chance increases." The logs (patch 157) fit k x (1 - crit) with
+// k = 9.8% as well as the constant: 8.7% to 9.25% at their 7.5% to 13% crit, inside the 95% interval
+// (7.3% to 10.6%); at 25% crit it gives 7.35%. The crit is the character sheet's spell crit at the hit,
+// clamped to 0..1. False uses RevelationTriggerChance (0.0885) at every crit.
+var RevelationChanceFallsWithCrit = true
+
+// RevelationChanceAtNoCrit is k in k x (1 - crit), the patch 157 log fit. A variable so tests can set it.
+var RevelationChanceAtNoCrit = 0.098
+
+// The chance one eligible non-crit hit triggers Revelation, at the given spell crit chance (0..1).
+func RevelationChance(spellCrit float64) float64 {
+	if !RevelationChanceFallsWithCrit {
+		return RevelationTriggerChance
+	}
+	return RevelationChanceAtNoCrit * (1 - min(max(spellCrit, 0), 1))
+}
 
 // The equip aura the enchant applies (1248806, A_PROC_TRIGGER_SPELL, ProcFlags 0x14000, ProcChance 100,
 // no PPM row and no trigger spell: the server's script picks the buff and the chance).
@@ -173,8 +195,10 @@ func applyRevelation(agent core.Agent) {
 			ProcMask:         core.ProcMaskSpellDamage | core.ProcMaskSpellDamageProc | core.ProcMaskSpellHealing,
 			Outcome:          core.OutcomeLanded,
 			CanProcFromProcs: true,
-			ProcChance:       RevelationTriggerChance,
-			ExtraCondition: func(_ *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
+			// The chance is rolled in ExtraCondition, after the eligibility check, so it can read the
+			// crit at the hit; ProcChance 1 skips the trigger's own roll.
+			ProcChance: 1,
+			ExtraCondition: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
 				if result.DidCrit() || result.Damage <= 0 {
 					return false
 				}
@@ -183,7 +207,11 @@ func applyRevelation(agent core.Agent) {
 					ok = revelationCanTriggerFrom(spell, periodic)
 					eligible[spell] = ok
 				}
-				return ok
+				if !ok {
+					return false
+				}
+				chance := RevelationChance(character.GetStat(stats.SpellCritPercent) / 100)
+				return chance >= 1 || sim.RandomFloat(name) <= chance
 			},
 			Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 				buffAura.Activate(sim)

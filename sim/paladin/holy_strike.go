@@ -23,14 +23,17 @@ var HolyStrikeRankMap = spellData.HolyStrike
 const HolyStrikeSpellPowerCoefficient = 0.286
 
 // HolyStrikeSpellPowerFromRow gives Holy Strike the share its client rows carry, 0.429 on every rank in
-// client 70425 and every client before it, instead of patch 143's measured 0.286 (MythicSim patch 162).
+// client 70450 and every client before it, instead of patch 143's measured 0.286 (MythicSim patch 162).
 // The pre-16 October logs show the server dealing the row's share: Judgement of the Crusader steps of 0.37
 // to 0.45 a point (mean 0.41) for five paladins with no Holy Strike talent (reports 2744, 2693, 32, 2755,
 // 2782: 0/0/5, 0/0/10, 0/0/11, 0/0/13 and 0/24/0), where 0.286 would need a 1.43 multiplier none of them
-// can have. No log from after 16 October exists, and Ashreon measured the hit
-// on 70425 after Blizzard changed it ("~50% lower in game"), so the switch stays off until a post-16
-// October log or a live test separates 0.429 from 0.286.
-var HolyStrikeSpellPowerFromRow = false
+// can have. On by default since MythicSim patch 170 (Sage, 18 October 2026: the beta stops at level 30,
+// so official data settles it). The 16 October coefficient changes reached the rows (Judgement of
+// Righteousness 0.5 to 0.429, Consecration 0.042) and left Holy Strike at 0.429; no note changes it.
+// Ashreon's 0.286 is exactly 2/3 of the row, the same ratio as her Judgement of Righteousness, Judgement
+// of Fury and Seal of Fury numbers that Lightclub's live sheet put back on the rows (patch 168).
+// False gives 0.286.
+var HolyStrikeSpellPowerFromRow = true
 
 // HolyStrikeFlatBeforeWeaponPercentIs40To53 reads Ashreon's "Holy Strike 40-53 (was 94-121)" (bugs
 // forum, 17 October 2026) as the flat amount the client adds before taking 50% of the sum, so the

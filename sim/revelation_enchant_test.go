@@ -96,6 +96,38 @@ func revelationBuff(character *core.Character) *core.Aura {
 	return character.GetAura("Revelation")
 }
 
+// Sets a fixed chance per eligible non-crit hit (the crit-scaled chance off) for one test.
+func revelationFixedChance(t *testing.T, chance float64) {
+	t.Helper()
+	savedChance, savedSwitch := forever.RevelationTriggerChance, forever.RevelationChanceFallsWithCrit
+	forever.RevelationTriggerChance, forever.RevelationChanceFallsWithCrit = chance, false
+	t.Cleanup(func() {
+		forever.RevelationTriggerChance, forever.RevelationChanceFallsWithCrit = savedChance, savedSwitch
+	})
+}
+
+// MythicSim patch 170: the chance per eligible non-crit hit is 0.098 x (1 - spell crit) with
+// RevelationChanceFallsWithCrit on (the default), the constant 0.0885 off.
+func TestRevelationChanceFallsWithCrit(t *testing.T) {
+	if !forever.RevelationChanceFallsWithCrit {
+		t.Fatal("RevelationChanceFallsWithCrit is off by default; patch 170 turns it on")
+	}
+	saved := forever.RevelationChanceFallsWithCrit
+	defer func() { forever.RevelationChanceFallsWithCrit = saved }()
+	for _, c := range []struct{ crit, on float64 }{
+		{-0.1, 0.098}, {0, 0.098}, {0.075, 0.09065}, {0.13, 0.08526}, {0.25, 0.0735}, {1.2, 0},
+	} {
+		forever.RevelationChanceFallsWithCrit = true
+		if got := forever.RevelationChance(c.crit); math.Abs(got-c.on) > 1e-9 {
+			t.Errorf("on, crit %.3f: chance %.5f, want %.5f", c.crit, got, c.on)
+		}
+		forever.RevelationChanceFallsWithCrit = false
+		if got := forever.RevelationChance(c.crit); got != 0.0885 {
+			t.Errorf("off, crit %.3f: chance %.5f, want 0.0885", c.crit, got)
+		}
+	}
+}
+
 // Each class takes its own buff from the client: 1248808 for the mage, 1323377 to 1323419 for the
 // rest; a warrior has none. Switched off, nothing registers.
 func TestRevelationRegistersTheClassBuff(t *testing.T) {
@@ -189,9 +221,7 @@ func TestRevelationCritFollowsTheClassMask(t *testing.T) {
 
 // Which hits trigger it, with the chance set to 1 and crits suppressed so every hit is a non-crit.
 func TestRevelationTriggersOnNonPeriodicSpellHits(t *testing.T) {
-	saved := forever.RevelationTriggerChance
-	forever.RevelationTriggerChance = 1
-	defer func() { forever.RevelationTriggerChance = saved }()
+	revelationFixedChance(t, 1)
 
 	for _, c := range []struct {
 		json  string
@@ -231,9 +261,7 @@ func TestRevelationTriggersOnNonPeriodicSpellHits(t *testing.T) {
 // An instant spell's own non-crit hit does not spend the charge it just gained (the buff comes a batch
 // window after the hit, after the cast completes); the next spell the mask names takes it.
 func TestRevelationIsSpentByTheNextCast(t *testing.T) {
-	saved := forever.RevelationTriggerChance
-	forever.RevelationTriggerChance = 1
-	defer func() { forever.RevelationTriggerChance = saved }()
+	revelationFixedChance(t, 1)
 
 	sim, character := revelationSim(t, revelationPlayer(t, revelationMageJSON, revelationEnchant), 1)
 	buff := revelationBuff(character)
@@ -278,9 +306,7 @@ func TestRevelationIsSpentByTheNextCast(t *testing.T) {
 
 // A channel cast with Revelation up crits on every tick and the buff falls when the channel ends.
 func TestRevelationHoldsThroughAChannel(t *testing.T) {
-	saved := forever.RevelationTriggerChance
-	forever.RevelationTriggerChance = 1e-12 // a zero chance reads as always
-	defer func() { forever.RevelationTriggerChance = saved }()
+	revelationFixedChance(t, 0)
 
 	for _, c := range []struct {
 		json, channel, tick string
@@ -344,9 +370,27 @@ func TestRevelationHoldsThroughAChannel(t *testing.T) {
 	}
 }
 
-// The measured rate, end to end: Frostbolt only, gains per non-crit Frostbolt hit near 0.0885, and
-// every gain makes the next Frostbolt crit.
+// The rate, end to end: Frostbolt only, gains per non-crit Frostbolt hit near the chance in force
+// (0.098 x (1 - the mage's spell crit) with RevelationChanceFallsWithCrit on, 0.0885 off), and every
+// gain makes the next Frostbolt crit.
 func TestRevelationTriggerRate(t *testing.T) {
+	saved := forever.RevelationChanceFallsWithCrit
+	defer func() { forever.RevelationChanceFallsWithCrit = saved }()
+	_, mage := revelationSim(t, revelationPlayer(t, revelationMageJSON, revelationEnchant), 1)
+	crit := mage.GetStat(stats.SpellCritPercent) / 100
+	for _, on := range []bool{false, true} {
+		forever.RevelationChanceFallsWithCrit = on
+		p := forever.RevelationChance(crit)
+		if on && math.Abs(p-0.098*(1-crit)) > 1e-12 || !on && p != 0.0885 {
+			t.Fatalf("switch %v: chance %v at %.4f crit", on, p, crit)
+		}
+		t.Run(map[bool]string{false: "constant", true: "falls-with-crit"}[on], func(t *testing.T) {
+			revelationTriggerRate(t, p)
+		})
+	}
+}
+
+func revelationTriggerRate(t *testing.T, p float64) {
 	const iterations = 1000
 	run := func(enchant int32) (casts, hits, crits, procs float64) {
 		p := revelationPlayer(t, revelationMageJSON, enchant)
@@ -387,8 +431,7 @@ func TestRevelationTriggerRate(t *testing.T) {
 	if casts == 0 {
 		t.Fatal("Frostbolt rank 1 was never cast")
 	}
-	p := forever.RevelationTriggerChance
-	t.Logf("%.0f casts, %.0f non-crit hits, %.0f crits, %.0f gains", casts, hits, crits, procs)
+	t.Logf("chance %.5f: %.0f casts, %.0f non-crit hits, %.0f crits, %.0f gains", p, casts, hits, crits, procs)
 	if sd := math.Sqrt(hits * p * (1 - p)); math.Abs(procs-hits*p) > 4*sd {
 		t.Errorf("%.0f Revelation gains in %.0f non-crit Frostbolt hits, want about %.0f", procs, hits, hits*p)
 	}

@@ -24,6 +24,13 @@ var HolyShieldRankMap = spellData.HolyShield
 // client 70425 (MythicSim patch 143); the rows carry 0.08.
 const HolyShieldSpellPowerCoefficient = 0.07
 
+// HolyShieldSpellPowerFromRow gives the per-block damage its client row's share, 0.08 on the
+// proc-trigger-damage effect of every rank in client 70450, instead of patch 143's measured 0.07
+// (MythicSim patch 170). Same standing as Holy Strike's: Ashreon's patch 143 set is the only source
+// against the row, and Lightclub's live sheet put three of its five numbers back on the rows (patch 168);
+// no note changes Holy Shield's share. False gives 0.07.
+var HolyShieldSpellPowerFromRow = true
+
 func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 	actionID := core.ActionID{SpellID: rank.ID}
 	damageEffect := rank.Effect(dbcenums.A_PROC_TRIGGER_DAMAGE, 0)
@@ -41,7 +48,7 @@ func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1.2,
-		BonusCoefficient: HolyShieldSpellPowerCoefficient,
+		BonusCoefficient: core.TernaryFloat64(HolyShieldSpellPowerFromRow, damageEffect.Coeff(), HolyShieldSpellPowerCoefficient),
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealDamage(sim, target, damage, spell.OutcomeMagicHit)

@@ -7,26 +7,29 @@ import (
 	"github.com/wowsims/forever/sim/paladin"
 )
 
-// MythicSim patches 161, 162 and 168: with JudgementOfRighteousnessSpellPowerFromRow,
-// HolyStrikeSpellPowerFromRow and SealOfFurySpellPowerFromRows on, every rank of those spells takes its
-// client row's share (0.429 for the judgements and Holy Strike, 0.10 for the Seal of Fury hit in client
-// 70425); off, patch 143's measured 0.70, 0.286, 0.67 and 0.15. Patch 168 turns the Judgement of
-// Righteousness and Seal of Fury switches on (Lightclub's 16 October test); Holy Strike's stays off.
+// MythicSim patches 161, 162, 168 and 170: with JudgementOfRighteousnessSpellPowerFromRow,
+// HolyStrikeSpellPowerFromRow, SealOfFurySpellPowerFromRows and HolyShieldSpellPowerFromRow on, every rank
+// of those spells takes its client row's share (0.429 for the judgements and Holy Strike, 0.10 for the
+// Seal of Fury hit, 0.08 for Holy Shield's per-block damage in client 70450); off, patch 143's measured
+// 0.70, 0.286, 0.67, 0.15 and 0.07. Patch 168 turns the Judgement of Righteousness and Seal of Fury
+// switches on (Lightclub's 16 October test), patch 170 Holy Strike's and Holy Shield's (official rows).
 func TestPaladinSpellPowerFromRows(t *testing.T) {
-	if !paladin.JudgementOfRighteousnessSpellPowerFromRow || !paladin.SealOfFurySpellPowerFromRows || paladin.HolyStrikeSpellPowerFromRow {
-		t.Fatal("row switch defaults moved; patch 168 has Judgement of Righteousness and Seal of Fury on, Holy Strike off")
+	if !paladin.JudgementOfRighteousnessSpellPowerFromRow || !paladin.SealOfFurySpellPowerFromRows || !paladin.HolyStrikeSpellPowerFromRow || !paladin.HolyShieldSpellPowerFromRow {
+		t.Fatal("row switch defaults moved; patch 170 has every row switch on")
 	}
 	cases := []struct {
 		name     string
 		mask     int64
+		tag      int32
 		sw       *bool
 		measured float64
 		row      float64
 	}{
-		{"Judgement of Righteousness", paladin.SpellMaskJudgementOfRighteousness, &paladin.JudgementOfRighteousnessSpellPowerFromRow, 0.70, 0.429},
-		{"Holy Strike", paladin.SpellMaskHolyStrike, &paladin.HolyStrikeSpellPowerFromRow, 0.286, 0.429},
-		{"Judgement of Fury", paladin.SpellMaskJudgementOfFury, &paladin.SealOfFurySpellPowerFromRows, 0.67, 0.429},
-		{"Seal of Fury hit", paladin.SpellMaskSealOfFuryProc, &paladin.SealOfFurySpellPowerFromRows, 0.15, 0.10},
+		{"Judgement of Righteousness", paladin.SpellMaskJudgementOfRighteousness, 0, &paladin.JudgementOfRighteousnessSpellPowerFromRow, 0.70, 0.429},
+		{"Holy Strike", paladin.SpellMaskHolyStrike, 0, &paladin.HolyStrikeSpellPowerFromRow, 0.286, 0.429},
+		{"Judgement of Fury", paladin.SpellMaskJudgementOfFury, 0, &paladin.SealOfFurySpellPowerFromRows, 0.67, 0.429},
+		{"Seal of Fury hit", paladin.SpellMaskSealOfFuryProc, 0, &paladin.SealOfFurySpellPowerFromRows, 0.15, 0.10},
+		{"Holy Shield per block", paladin.SpellMaskHolyShieldProc, 2, &paladin.HolyShieldSpellPowerFromRow, 0.07, 0.08},
 	}
 	for _, c := range cases {
 		for _, on := range []bool{false, true} {
@@ -41,7 +44,7 @@ func TestPaladinSpellPowerFromRows(t *testing.T) {
 				pal := newProtPaladinWith(t, WeaponAndShield)
 				ranks := 0
 				for _, spell := range pal.Spellbook {
-					if !spell.Matches(c.mask) || spell.ActionID.Tag != 0 {
+					if !spell.Matches(c.mask) || spell.ActionID.Tag != c.tag {
 						continue
 					}
 					ranks++

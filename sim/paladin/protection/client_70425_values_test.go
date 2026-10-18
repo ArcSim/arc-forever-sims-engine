@@ -54,9 +54,12 @@ func spellByMask(t *testing.T, pal *paladin.Paladin, mask int64, tag int32) *cor
 // TestPaladinSpellPowerFromRows covers both settings).
 func TestPaladinSpellPowerCoefficientsFromClient70425(t *testing.T) {
 	oldJudgement, oldFury := paladin.JudgementOfRighteousnessSpellPowerFromRow, paladin.SealOfFurySpellPowerFromRows
+	oldStrike, oldShield := paladin.HolyStrikeSpellPowerFromRow, paladin.HolyShieldSpellPowerFromRow
 	paladin.JudgementOfRighteousnessSpellPowerFromRow, paladin.SealOfFurySpellPowerFromRows = false, false
+	paladin.HolyStrikeSpellPowerFromRow, paladin.HolyShieldSpellPowerFromRow = false, false
 	defer func() {
 		paladin.JudgementOfRighteousnessSpellPowerFromRow, paladin.SealOfFurySpellPowerFromRows = oldJudgement, oldFury
+		paladin.HolyStrikeSpellPowerFromRow, paladin.HolyShieldSpellPowerFromRow = oldStrike, oldShield
 	}()
 	pal := newProtPaladinWith(t, WeaponAndShield)
 	for _, c := range []struct {

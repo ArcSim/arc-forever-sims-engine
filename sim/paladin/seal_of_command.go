@@ -48,7 +48,9 @@ func sealOfCommandTargetBonusCoefficient(coefficient, improvedSeals float64) flo
 // percent at the full coefficient. Improved Seals multiplies that part as well
 // (SealOfCommandBonusTakesImprovedSeals).
 //
-// The 1 second internal cooldown is the engine's own; no live test has confirmed it.
+// The 1 second internal cooldown is the client's: SpellAuraOptions ProcCategoryRecovery 1000 on all
+// five ranks (20375, 20915, 20918, 20919, 20920) at client 70450, the same row as Classic Era 1.15.9,
+// where the cooldown is live. The 7 PPM is a separate matter: no client PPM row exists.
 func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	judgeRank := spellData.JudgementOfCommand.Rank(rank.RankNumber())
 	judgeDamage := spellData.SealOfCommandTriggered.ByID(int32(judgeRank.EffectN(1).BaseValue())).DamageEffect()
@@ -112,6 +114,7 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	// The seal and its Echo roll the same chance: an Echo of Command "empowers your next melee
 	// attack with a chance to activate Seal of Command".
 	dpm := paladin.NewLegacyPPMManager(7, core.ProcMaskMeleeWhiteHit)
+	// SpellAuraOptions ProcCategoryRecovery 1000 (every rank, client 70450 and Classic Era).
 	icd := core.Cooldown{Timer: paladin.NewTimer(), Duration: time.Second}
 	tryProc := func(sim *core.Simulation, target *core.Unit) {
 		if icd.IsReady(sim) && dpm.Proc(sim, core.ProcMaskMeleeMHAuto, "Seal of Command") {

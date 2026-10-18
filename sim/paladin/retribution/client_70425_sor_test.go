@@ -6,6 +6,7 @@ import (
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/sim/paladin"
 )
@@ -102,28 +103,61 @@ func withSwitch(sw *bool, value bool, run func()) {
 	run()
 }
 
-// Rank 8's judgement and seal hit come from the rows' base points, not the level 60 gain: 170
-// against 178 on the judgement (162 to 178, as Ashreon's post gives), 1786 against 1880 a hundred
-// weapon speed on the seal's hit (its tooltip's 21 to 71). A run with 1000 more spell power gives
-// the multiplier each hit carries (the paladin also has a little spell power of its own).
+// Rank 8's judgement and seal hit at level 60 under SealOfRighteousnessBasesAtSpellLevel. Off (the
+// default since patch 170) they take the rows' per-level gain up to the rank's MaxLevel: the judgement
+// 170 + 2 x 4.1 = 178 floored (170 to 186), the seal's hit 1786 + 2 x 47 = 1880 a hundred weapon speed. On
+// (patch 148) they read the bare base points: 170 (162 to 178) and 1786 (the tooltip's 21 to 71). A run
+// with 1000 more spell power gives the multiplier each hit carries (the paladin also has a little spell
+// power of its own).
 func TestSealOfRighteousnessBasesAtSpellLevel(t *testing.T) {
-	var off patch148Hits
-	withSwitch(&paladin.SealOfRighteousnessBasesAtSpellLevel, false, func() {
-		off = patch148Run(t, massOfMcGowan, 0, 1, sealJudgeStrike)
+	if paladin.SealOfRighteousnessBasesAtSpellLevel {
+		t.Fatal("SealOfRighteousnessBasesAtSpellLevel is on by default; patch 170 turns it off")
+	}
+	var bases patch148Hits
+	withSwitch(&paladin.SealOfRighteousnessBasesAtSpellLevel, true, func() {
+		bases = patch148Run(t, massOfMcGowan, 0, 1, sealJudgeStrike)
 	})
-	on := patch148Run(t, massOfMcGowan, 0, 1, sealJudgeStrike)
-	power := patch148Run(t, massOfMcGowan, 1000, 1, sealJudgeStrike)
-	sealMultiplier := (power.seal - on.seal) / (1000 * paladin.SealOfRighteousnessHitCoefficient(0.20, false))
-	judgementMultiplier := (power.judgement - on.judgement) / (1000 * core.TernaryFloat64(paladin.JudgementOfRighteousnessSpellPowerFromRow, 0.429, paladin.JudgementOfRighteousnessSpellPowerCoefficient))
-	t.Logf("seal hit %.2f -> %.2f (multiplier %.3f), judgement %.2f -> %.2f (multiplier %.3f)",
-		off.seal, on.seal, sealMultiplier, off.judgement, on.judgement, judgementMultiplier)
+	var gain, power patch148Hits
+	withSwitch(&paladin.SealOfRighteousnessBasesAtSpellLevel, false, func() {
+		gain = patch148Run(t, massOfMcGowan, 0, 1, sealJudgeStrike)
+		power = patch148Run(t, massOfMcGowan, 1000, 1, sealJudgeStrike)
+	})
+	sealMultiplier := (power.seal - gain.seal) / (1000 * paladin.SealOfRighteousnessHitCoefficient(0.20, false))
+	judgementMultiplier := (power.judgement - gain.judgement) / (1000 * core.TernaryFloat64(paladin.JudgementOfRighteousnessSpellPowerFromRow, 0.429, paladin.JudgementOfRighteousnessSpellPowerCoefficient))
+	t.Logf("seal hit %.2f (gain) / %.2f (bases) (multiplier %.3f), judgement %.2f / %.2f (multiplier %.3f)",
+		gain.seal, bases.seal, sealMultiplier, gain.judgement, bases.judgement, judgementMultiplier)
 	// Mass of McGowan, 2.8 speed one-hander: (1880 - 1786) / 100 x 2.8 x 0.85 = 2.24 a hit.
-	if got, want := off.seal-on.seal, 0.94*2.8*0.85*sealMultiplier; math.Abs(got-want) > 0.01 {
-		t.Errorf("the seal's hit lost %.3f, want %.3f", got, want)
+	if got, want := gain.seal-bases.seal, 0.94*2.8*0.85*sealMultiplier; math.Abs(got-want) > 0.01 {
+		t.Errorf("the seal's hit gained %.3f with the per-level gain, want %.3f", got, want)
 	}
 	// The judgement rolls, so its averages carry noise: 178 - 170 = 8 before multipliers.
-	if got, want := off.judgement-on.judgement, 8*judgementMultiplier; math.Abs(got-want) > 1.5 {
-		t.Errorf("the judgement lost %.2f, want about %.2f", got, want)
+	if got, want := gain.judgement-bases.judgement, 8*judgementMultiplier; math.Abs(got-want) > 1.5 {
+		t.Errorf("the judgement gained %.2f with the per-level gain, want about %.2f", got, want)
+	}
+}
+
+// The rows' arithmetic for rank 8 (judgement 20286) at level 60, patch 170: the judgement 170 + 2 x 4.1
+// = 178.2, floored to 178 as the client resolves it, +/- 4.7% (Variance 0.0941) = 169.6 to 186.4, the
+// 170 to 186 the official-sources report gives; the per-hit dummy 1786 + 2 x 47 = 1880 a hundred weapon
+// speed. At the spell level (58) they are the base points, 170 and 1786.
+func TestSealOfRighteousnessRank8RowArithmetic(t *testing.T) {
+	judge := spelldata.Find(20286)
+	damage, perHit := judge.DamageEffect(), judge.EffectN(2)
+	for _, c := range []struct {
+		name      string
+		got, want float64
+	}{
+		{"judgement average at 60", damage.Average(60), 178},
+		{"judgement minimum at 60", damage.Min(60), 169.62},
+		{"judgement maximum at 60", damage.Max(60), 186.38},
+		{"per-hit at 60", perHit.Average(60), 1880},
+		{"judgement at 58", damage.Average(58), 170},
+		{"per-hit at 58", perHit.Average(58), 1786},
+		{"per-hit capped at MaxLevel 64", perHit.Average(70), 1786 + 6*47},
+	} {
+		if math.Abs(c.got-c.want) > 0.1 {
+			t.Errorf("%s: %.2f, want %.2f", c.name, c.got, c.want)
+		}
 	}
 }
 
@@ -198,8 +232,9 @@ func TestHolyStrikeFlatBeforeWeaponPercentIs40To53(t *testing.T) {
 	withSwitch(&paladin.HolyStrikeFlatBeforeWeaponPercentIs40To53, true, func() {
 		halved = patch148Run(t, massOfMcGowan, 0, 1, sealJudgeStrike).holyStrike
 	})
-	// 1000 spell power at Holy Strike's 0.286 gives the multiplier the hit carries.
-	multiplier := (withPower - base) / (1000 * paladin.HolyStrikeSpellPowerCoefficient)
+	// 1000 spell power at Holy Strike's share in force (0.429 from the row, patch 170; 0.286 off) gives
+	// the multiplier the hit carries.
+	multiplier := (withPower - base) / (1000 * core.TernaryFloat64(paladin.HolyStrikeSpellPowerFromRow, 0.429, paladin.HolyStrikeSpellPowerCoefficient))
 	t.Logf("Holy Strike %.2f a hit, %.2f with the flat halved (multiplier %.3f)", base, halved, multiplier)
 	if got, want := base-halved, 0.25*93*multiplier; math.Abs(got-want) > 1.5 {
 		t.Errorf("halving the flat amount takes %.2f a hit, want about %.2f", got, want)
