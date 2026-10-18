@@ -4486,3 +4486,56 @@ goldens.
 
 Downstream: the Rust engine needs the 20% share before its next repin. Drop the switch when the client
 tables carry 20/40/60 again (the ladder can then be read).
+
+## 160. `paladin: Seal of Righteousness weapon procs behind a switch (on)`
+
+Raised by Bae (#mythic, 18 October 2026), from Lightclub's tests of 16 October: Seal of Righteousness "does
+not proc from Holy Strike" and "does not proc equip effects". The first is how the engine has it (the seal
+fires on white hits only). The second asks whether the seal's hit should roll on-hit effects, which the
+engine lets it do for "Chance on hit" weapon effects and combat enchants (`IsWeaponProc`) and never for
+equip effects, talents or racials (aura procs, which skip a proc spell without Can Proc From Procs).
+
+Evidence:
+
+- **Client data.** The proc rows (25713, 25735 to 25742) are the same in client 70425 as before:
+  Attributes0 0x240000, Attributes3 0x40000 (always hits), Attributes4 0. No Suppress Weapon Procs
+  (Attributes4 0x800000, which their TBC rows carry), no Suppress Caster or Target Procs (Attributes3
+  0x10000 / 0x80000). Nothing in the client stops a weapon proc.
+- **Logs (all from before 16 October).** foreverlogs.gg damage timelines, every proc matched to the event at
+  the same millisecond (a proc lands on its trigger's millisecond: Blazewind Blast lands 0-1 ms after the
+  swing, Holy Strike or judgement that fired it). Wolfsbane's Blazewind Blast (1282503):
+
+  | Report, paladin (character) | Swings | Procs on a swing | Seal hits | Procs on a seal hit | Seal hit after its swing |
+  | --- | ---: | ---: | ---: | ---: | --- |
+  | 2756 George (135397) | 154 | 11 | 105 | 8 | 21-41 ms |
+  | 2670 Jack (33834) | 238 | 4 (+6 at a shared ms) | 112 | 11 | 0-220 ms, four at 199-220 ms |
+  | 2755 Conde (74665) | 34 | 1 (+3 shared) | 18 | 2 | 1 ms |
+
+  A Blazewind Blast on a seal hit 20 to 220 ms after the swing, with no swing at that millisecond, is the
+  seal's own roll; it lands at about the rate swings give. Touch of the Grave (1260198, the Undead racial,
+  an aura proc that lands 20-45 ms after its trigger) in five reports (2756, 2670, 2744 Paulah 118819, 2751
+  Masta 130719, 2693 Exordium 70871; 963 seal hits): of 98 drains, 89 land 15-50 ms after a swing, Holy
+  Strike or judgement, 9 after nothing the timeline shows, and none 15-50 ms after a seal hit alone. The
+  pre-16 October server therefore let the seal roll weapon procs and kept it away from aura procs, as the
+  engine does.
+
+- **Seal of Righteousness triggers weapon procs** (on). `SealOfRighteousnessTriggersWeaponProcs` (default true,
+  `sim/paladin/seal_of_righteousness.go`). False gives the hit Suppress Weapon Procs, so Crusader, Fiery
+  Weapon, Windfury Totem and every "Chance on hit" weapon ignore it: the reading of Lightclub's test if its
+  "equip effects" included chance on hit effects. Equip effects stay deaf to the seal either way.
+
+Lightclub's test is from 16 October, after the client update, and the client rows did not change, so the
+logs and the rows agree on the default. A test on the live server settles it: a Crusader or a chance on hit
+weapon with Seal of Righteousness, against the same with no seal, counting procs per swing (about twice as
+many with the seal if it rolls).
+
+Tests: `TestSealOfRighteousnessTriggersWeaponProcs` (`sim/paladin/retribution/seal_weapon_procs_test.go`, new:
+Arcanite Reaper with Fiery Weapon, Seal of Righteousness only; the switch on gives 2.01 times the procs a
+landed swing that it gives off). Goldens: none move (the default is the engine's behaviour before).
+
+Measured (native `wowsimcli`, board seed and length, 10,000 iterations, empty trinket slots) with the switch
+off, against patch 160's default (which is patch 159's numbers): Retribution 840.18 to 831.96 (-0.98%),
+Protection 629.95 to 624.07 (-0.93%), Ret-prot 613.61 to 609.35 (-0.69%), Holy-prot 586.22 to 583.02
+(-0.55%), Shockadin 919.43 to 906.20 (-1.44%).
+
+Downstream: the Rust engine needs the switch only if it is turned off.

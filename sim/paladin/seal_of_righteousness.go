@@ -20,6 +20,18 @@ var sealOfRighteousnessProcIDs = map[int32]int32{1: 25741, 2: 25740, 3: 25739, 4
 // weapon worn at the pull for the whole fight, as it was registered before (MythicSim patch 129).
 var SealOfRighteousnessFollowsSwappedWeapon = true
 
+// SealOfRighteousnessTriggersWeaponProcs lets the seal's hit roll "Chance on hit" weapon effects and
+// combat enchants (Crusader, Wolfsbane, Windfury Totem) as a swing does (MythicSim patch 160). The proc
+// rows (25713 and down, unchanged in client 70425) carry no Suppress Weapon Procs and no Suppress
+// Caster Procs, unlike their TBC rows, and the pre-16 October logs show it: Wolfsbane's Blazewind Blast
+// lands on the seal hit's millisecond, 20 to 220 ms after the swing that fired the seal, 21 times in
+// three reports (2756 George, 2670 Jack, 2755 Conde), at about the rate it lands on swings. Equip
+// effects, talents and racials are aura procs and never hear the seal (it is a proc without Not a
+// Proc): Touch of the Grave, a 20 to 45 ms aura proc, followed swings, Holy Strikes and judgements 89
+// times in five reports (963 seal hits) and a seal hit alone never. False adds Suppress Weapon Procs to the hit, the reading of
+// Lightclub's 16 October test ("does not proc equip effects") if it covered chance on hit effects.
+var SealOfRighteousnessTriggersWeaponProcs = true
+
 // Seal of Righteousness
 // https://www.wowhead.com/forever/spell=20293
 //
@@ -153,8 +165,10 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 		ProcMask:    core.ProcMaskMeleeMHSpecial,
 		// The damage spells are procs, so auras without Can Proc From Procs never hear them. They
 		// carry no Suppress Weapon Procs, unlike their TBC rows: a "Chance on hit" weapon effect
-		// rolls on the seal's hit as well as on the swing, and the game shows both procs landing.
-		Flags:          core.SpellFlagMeleeMetrics | core.SpellFlagPassiveSpell | core.SpellFlagProc,
+		// rolls on the seal's hit as well as on the swing, and the logs show both procs landing
+		// (SealOfRighteousnessTriggersWeaponProcs).
+		Flags: core.SpellFlagMeleeMetrics | core.SpellFlagPassiveSpell | core.SpellFlagProc |
+			core.Ternary(SealOfRighteousnessTriggersWeaponProcs, core.SpellFlagNone, core.SpellFlagSuppressWeaponProcs),
 		ClassSpellMask: SpellMaskSealOfRighteousnessProc,
 
 		DamageMultiplier: 1,
