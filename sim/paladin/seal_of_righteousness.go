@@ -63,6 +63,23 @@ var SealOfRighteousnessTriggersWeaponProcs = true
 // dummy's, halved (SealOfRighteousnessSpellPowerFixed, MythicSim patch 158).
 const JudgementOfRighteousnessSpellPowerCoefficient = 0.70
 
+// JudgementOfRighteousnessSpellPowerFromRow gives the judgement the share its client row carries, 0.429 on
+// every rank in client 70425 (0.50 before it), instead of patch 143's measured 0.70 (MythicSim patch 161).
+// Lightclub prints "42.9% of spellpower (49.3% improved)", the row's 0.429 and that times Improved Seals'
+// 15%. The pre-16 October logs show the server dealing the row's share of the day: Judgement of the
+// Crusader steps of 0.51 to 0.53 a point on rank 2 and 3 judgements of Retribution paladins with no damage
+// talent for them (reports 2693, 2744, 2756), against that client's 0.50. No log from after 16 October
+// exists, so the switch stays off until one, or a test on the live server, separates 0.429 from 0.70.
+var JudgementOfRighteousnessSpellPowerFromRow = false
+
+// The judgement's spell power share under the switch, from its damage effect.
+func judgementOfRighteousnessCoefficient(damage *spelldata.Effect) float64 {
+	if JudgementOfRighteousnessSpellPowerFromRow {
+		return damage.Coeff()
+	}
+	return JudgementOfRighteousnessSpellPowerCoefficient
+}
+
 // SealOfRighteousnessBasesAtSpellLevel reads the judgement's damage and the seal's per-hit value at
 // the rank's own spell level, without the rows' per-level gain (MythicSim patch 148). Ashreon's bugs
 // forum post ("Oh the prot paladin nerfs keeps giving", 17 October 2026) gives rank 8 as "21-71 /
@@ -143,7 +160,7 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
-		BonusCoefficient: JudgementOfRighteousnessSpellPowerCoefficient,
+		BonusCoefficient: judgementOfRighteousnessCoefficient(judgeDamage),
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealDamage(sim, target, judgeDamage.Roll(sim, judgeLevel), spell.OutcomeMeleeSpecialNoBlockDodgeParry)

@@ -4539,3 +4539,46 @@ Protection 629.95 to 624.07 (-0.93%), Ret-prot 613.61 to 609.35 (-0.69%), Holy-p
 (-0.55%), Shockadin 919.43 to 906.20 (-1.44%).
 
 Downstream: the Rust engine needs the switch only if it is turned off.
+
+## 161. `paladin: Judgement of Righteousness row share behind a switch (off)`
+
+Raised by Bae (#mythic, 18 October 2026: Lightclub has "42.9% of spellpower (49.3% improved)"), Redfall
+(#paladin: the coefficients "seem a little high") and Dyst's coefficient audit (client 0.429 against the
+engine's 0.70). The engine's 0.70 is Ashreon's in-game measurement on client 70425 (patch 143). Lightclub's
+numbers are the client row and the row times Improved Seals (Holy, 5/10/15% on seals and judgements):
+0.429 x 1.15 = 0.493.
+
+The rows: client 70338 (before 16 October) gave every Judgement of Righteousness rank 0.50; client 70425
+gives 0.429. The 16 October notes named the Judgement coefficients among the changes without numbers.
+
+Logs: every public foreverlogs.gg report is from before 16 October. Judgement of the Crusader as a probe
+(the step in a non-crit hit when the target carries it is multiplier x share x the debuff's Holy bonus,
+rank 2 +35, rank 3 +58; read with `aura_timeline` per encounter, hits within 60 ms of a change left out):
+
+| Report, paladin (character), talents | Judgement rank | Hits without / with | Step a point |
+| --- | --- | ---: | ---: |
+| 2693 Exordium (70871), 0/0/10 | 3 (20281) | 64 / 15 | 0.515 +/- 0.010 |
+| 2744 Paulah (118819), 0/0/5 | 2 (20280) | 114 / 2 | 0.528 +/- 0.015 |
+| 2756 George (135397), 0/0/20 | 3 (20281) | 53 / 3 | 0.506 +/- 0.024 |
+
+None of the three can have a talent that raises the judgement (Improved Seals is Holy; the Retribution
+tree has none), so the pre-16 October server dealt the row of its day, 0.50, within 3%. The same probe
+gives the row on every other spell it reaches (patch 162's Holy Strike, Judgement of Fury 0.45 to 0.46,
+Seal of Fury 0.09 to 0.10, Consecration 0.089 to 0.108 a tick against 0.095; see MythicSim's 19 October
+paladin report). It cannot read the server after 16 October, where Ashreon measured 0.70 and the client
+says 0.429.
+
+- **Judgement of Righteousness from the row** (off). `JudgementOfRighteousnessSpellPowerFromRow` (default
+  false, `sim/paladin/seal_of_righteousness.go`). On, every rank takes its damage effect's coefficient
+  (0.429 in client 70425); off, patch 143's 0.70. Off until a log from after 16 October or a live test (one
+  judgement on a dummy with and without a known spell power item, or one Judgement of the Crusader) tells
+  0.429 from 0.70.
+
+Tests: `TestPaladinSpellPowerFromRows` (`sim/paladin/protection/spell_power_from_rows_test.go`, new: every
+judgement rank 0.70 with the switch off, 0.429 on). Goldens: none move (default off).
+
+Measured with the switch on (native `wowsimcli`, board seed and length, 10,000 iterations), against the
+default: Retribution 840.18 to 817.62 (-2.7%), Protection 629.95 to 593.50 (-5.8%), Ret-prot 613.61 to
+572.85 (-6.6%), Holy-prot 586.22 to 553.21 (-5.6%), Shockadin 919.43 to 861.90 (-6.3%).
+
+Downstream: the Rust engine needs the switch only if it is turned on.
