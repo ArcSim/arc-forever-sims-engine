@@ -5134,3 +5134,24 @@ which with Atiesh or a spell power consumable made those shots scale.
 
 MythicSim's Hunter defaults carried spell power consumables only because of these coefficients and are
 re-picked on this engine. Downstream: the Rust engine needs the three coefficients at 0.
+
+## 174. `hunter: Arcane Shot takes 0.10 of ranged attack power (the Hunter Discord's tests, via Bae)`
+
+Sources: three players in the Hunter Discord ran dedicated Arcane Shot tests and landed at 0.10, 0.10
+and 0.11 of ranged attack power (relayed by Bae, 19 October 2026). The engine's 0.11 was fitted from four
+beta logs at levels 20-30 (foreverlogs.gg, 26 September and 6 October 2026: 0.10-0.12 a point, Miss's
+combatant info at 0.112 absolute). Taken together the seven measurements fit 0.10 better than 0.11.
+
+- `ArcaneShotRAPFromHunterTests` (sim/hunter/arcane_shot.go), **default true**: Arcane Shot adds 0.10 of
+  ranged attack power to its base damage. False restores the logs-only fit, 0.11. The comment above
+  `arcaneShotRAPCoefficient` records both fits.
+- Unchanged: Arcane Shot's base damage and its spell power coefficient of 0 (patch 173), Serpent Sting's
+  0.035 a tick.
+- Test: `TestArcaneShotRAPFromHunterTests` (sim/hunter/arcane_shot_rap_test.go): attack power changes no
+  roll, so with the same seed the Arcane Shot damage +1000 ranged attack power adds with the switch on is
+  exactly 10/11 of what it adds with the switch off.
+- Goldens: `TestMarksmanship` moves (its rotation casts Arcane Shot; Average-Default 338.28 to 337.61).
+  `TestBeastMastery`, `TestSurvival` and `TestSurvivalMelee` do not (their rotations cast no Arcane Shot
+  in the suite's fights). With the switch off every golden reproduces byte for byte.
+
+Downstream: the Rust engine needs Arcane Shot at 0.10 of ranged attack power.

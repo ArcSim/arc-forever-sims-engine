@@ -15,13 +15,33 @@ var arcaneShotCoefficients = [9]float64{0, .204, .3, .429, .429, .429, .429, .42
 // ranged attack power Aspect of the Hawk rank 2 gives while Cheetah was up instead.
 // Rechecked at levels 24-30 (2026-10-06): Hunter's Mark rank 2 (+59) moves Miss (report 2712,
 // 413 hits) 0.107 a point, Lokronn (2695) and Consumer (2717) 0.12, and Miss's own combatant info
-// (214 ranged attack power by our formula, +35 Hawk) puts her at 0.112 absolute.
+// (214 ranged attack power by our formula, +35 Hawk) puts her at 0.112 absolute. That fit gave 0.11.
+// Three players in the Hunter Discord then ran dedicated tests (relayed by Bae, 19 October 2026) and
+// landed at 0.10, 0.10 and 0.11; with the logs' 0.10-0.12, 0.10 fits all seven best, so the shot
+// takes 0.10 (ArcaneShotRAPFromHunterTests, patch 174).
 // ponytail: fitted at levels 20-30; refit when a level 60 log shows otherwise.
-const arcaneShotRAPCoefficient = 0.11
+const (
+	arcaneShotRAPCoefficient        = 0.10
+	arcaneShotRAPCoefficientLogsFit = 0.11
+)
+
+// ArcaneShotRAPFromHunterTests gives Arcane Shot 0.10 of ranged attack power (mythicsim patch 174),
+// the Hunter Discord's three dedicated tests (0.10, 0.10, 0.11; via Bae, 19 October 2026) taken with
+// the earlier fit from four beta logs (0.10-0.12). False restores the logs-only fit, 0.11.
+var ArcaneShotRAPFromHunterTests = true
+
+// arcaneShotRAPShare is the share of ranged attack power Arcane Shot adds to its base damage.
+func arcaneShotRAPShare() float64 {
+	if ArcaneShotRAPFromHunterTests {
+		return arcaneShotRAPCoefficient
+	}
+	return arcaneShotRAPCoefficientLogsFit
+}
 
 func (hunter *Hunter) registerArcaneShotSpell(timer *core.Timer) {
 	rank := spellData.ArcaneShot.Highest()
 	baseDamage := rank.DamageEffect().Average(core.CharacterLevel)
+	rapShare := arcaneShotRAPShare()
 
 	hunter.ArcaneShot = hunter.RegisterRangedSpell(core.SpellConfig{
 		ActionID:       core.ActionID{SpellID: rank.ID},
@@ -45,7 +65,7 @@ func (hunter *Hunter) registerArcaneShotSpell(timer *core.Timer) {
 		BonusCoefficient: hunterSpellPowerCoefficient(arcaneShotCoefficients[rank.RankNumber()]),
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			result := spell.CalcDamage(sim, target, baseDamage+arcaneShotRAPCoefficient*spell.RangedAttackPower(target), spell.OutcomeRangedHitAndCrit)
+			result := spell.CalcDamage(sim, target, baseDamage+rapShare*spell.RangedAttackPower(target), spell.OutcomeRangedHitAndCrit)
 
 			spell.WaitTravelTime(sim, func(sim *core.Simulation) {
 				spell.DealDamage(sim, result)
