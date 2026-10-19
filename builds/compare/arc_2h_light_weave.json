@@ -141,7 +141,7 @@
         "petWindfuryTotem": false,
         "petFlametongueTotem": false,
         "petDisabledAbilities": [],
-        "moveDelayMs": 0,
+        "moveDelayMs": 200,
         "laceratingMode": "LaceratingRolling"
       }
     },

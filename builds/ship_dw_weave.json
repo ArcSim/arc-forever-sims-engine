@@ -37,7 +37,7 @@
   "partyBuffs": {},
   "player": {
     "name": "Player",
-    "race": "RaceHuman",
+    "race": "RaceSkyborneAlliance",
     "class": "ClassHunter",
     "equipment": {
       "items": [
@@ -149,7 +149,7 @@
         "petWindfuryTotem": false,
         "petFlametongueTotem": false,
         "petDisabledAbilities": [],
-        "moveDelayMs": 0
+        "moveDelayMs": 200
       }
     },
     "rotation": {
