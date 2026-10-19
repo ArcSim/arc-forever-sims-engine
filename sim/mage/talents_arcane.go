@@ -216,15 +216,22 @@ func (mage *Mage) registerArcaneMeditation() {
 	mage.PseudoStats.SpiritRegenRateCasting += spellData.ArcaneMeditation.FractionAt(mage.Talents.ArcaneMeditation)
 }
 
-// Arcane Blast landing (20/40% at 1/2 points), an Arcane Missiles missile hitting (a quarter of it), or
-// Arcane Wrath, Fireball, Frostbolt or Frostfire Bolt (half of it) can make the next Arcane Missiles
-// free and fire its missiles every 0.5 sec instead of every second: the same count in half the channel.
-// Client 70425 (16 October 2026 beta) gave the talent a second rank and added the missile and Arcane
-// Wrath procs. 400588 procs on a landed harmful spell (ProcFlags 0x10000), so a miss can't, and a bolt
-// procs when it arrives. Its trigger effect holds Arcane Blast's chance; the tooltip's quarter and half
-// are fractions of it the row doesn't state. A missile of the channel that spends the buff can proc it
-// again for the next one. The buff (400589) holds the duration, cost and tick changes. 44404 stays the
-// aura id because saved rotations key on it.
+// MissileBarrageHotfixedProcs follows the in-game tooltip of 19 October 2026 (mythicsim patch 175):
+// Arcane Blast keeps its chance, Frost Blast joins Arcane Wrath, Fireball, Frostbolt and Frostfire Bolt
+// at half of it, and Arcane Missiles' own missiles no longer proc it. That tooltip is a server hotfix:
+// client 70450's 400588 row and Wowhead's Forever tooltip still carry the 70425 list. False restores
+// the 70425 list (missiles at a quarter, no Frost Blast).
+var MissileBarrageHotfixedProcs = true
+
+// Arcane Blast landing (20/40% at 1/2 points), or Arcane Wrath, Fireball, Frostbolt, Frost Blast or
+// Frostfire Bolt (half of it) can make the next Arcane Missiles free and fire its missiles every 0.5 sec
+// instead of every second: the same count in half the channel. Client 70425 (16 October 2026 beta) gave
+// the talent a second rank and added Arcane Wrath and a quarter chance on each Arcane Missiles missile;
+// the 19 October hotfix (MissileBarrageHotfixedProcs) took the missiles out and added Frost Blast.
+// 400588 procs on a landed harmful spell (ProcFlags 0x10000), so a miss can't, and a bolt procs when it
+// arrives. Its trigger effect holds Arcane Blast's chance; the tooltip's half (and 70425's quarter) are
+// fractions of it the row doesn't state. The buff (400589) holds the duration, cost and tick changes.
+// 44404 stays the aura id because saved rotations key on it.
 func (mage *Mage) registerMissileBarrage() {
 	if mage.Talents.MissileBarrage == 0 {
 		return
@@ -252,10 +259,17 @@ func (mage *Mage) registerMissileBarrage() {
 		Kind:      core.SpellMod_DotTickLength_Flat,
 	})
 
+	procMask := MageSpellArcaneBlast | MageSpellArcaneWrath | MageSpellFireball | MageSpellFrostbolt | MageSpellFrostfireBolt
+	if MissileBarrageHotfixedProcs {
+		procMask |= MageSpellFrostBlast
+	} else {
+		procMask |= MageSpellArcaneMissilesTick
+	}
+
 	mage.MakeProcTriggerAura(core.ProcTrigger{
 		Name:               "Missile Barrage Trigger",
 		Callback:           core.CallbackOnSpellHitDealt,
-		ClassSpellMask:     MageSpellArcaneBlast | MageSpellArcaneMissilesTick | MageSpellArcaneWrath | MageSpellFireball | MageSpellFrostbolt | MageSpellFrostfireBolt,
+		ClassSpellMask:     procMask,
 		Outcome:            core.OutcomeLanded,
 		TriggerImmediately: true,
 		Handler: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {

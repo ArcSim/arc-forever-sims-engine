@@ -5155,3 +5155,28 @@ combatant info at 0.112 absolute). Taken together the seven measurements fit 0.1
   in the suite's fights). With the switch off every golden reproduces byte for byte.
 
 Downstream: the Rust engine needs Arcane Shot at 0.10 of ranged attack power.
+
+## 175. `mage: Missile Barrage procs from Frost Blast, not from Arcane Missiles (the 19 October in-game tooltip)`
+
+Source: the in-game tooltip a player posted in the MythicSim Discord's #mage channel (19 October 2026,
+acknowledged the same day; Bulver raised it again on 20 October): "Gives your Arcane Blast spell a 40%
+chance, and your Arcane Wrath, Fireball, Frostbolt, Frost Blast, and Frostfire Bolt spells a 20% chance to
+reduce the channeled duration of your next Arcane Missiles spell by 50%, reduce the Mana cost by 100%, and
+missiles fire every 0.5 sec." It is a server hotfix: client 70450's 400588 row and Wowhead's Forever tooltip
+(checked 20 October) still carry client 70425's text, with Arcane Missile hits at a quarter of Arcane
+Blast's chance and no Frost Blast. The talent's rows did not change, so the chances, the buff's 50%
+duration, 100% cost and 0.5 sec missiles stay as they were.
+
+- `MissileBarrageHotfixedProcs` (sim/mage/talents_arcane.go), **default true**: Frost Blast joins Arcane
+  Wrath, Fireball, Frostbolt and Frostfire Bolt at half of Arcane Blast's chance, and Arcane Missiles'
+  missiles no longer proc it. False restores the 70425 list (missiles at a quarter, no Frost Blast).
+- Test: `TestMissileBarrageHotfixedProcs` (sim/mage/missile_barrage_test.go): over 4000 landed hits each,
+  with the switch on Arcane Blast procs at the row's chance for the build's rank, Frost Blast and Fireball
+  at half of it, a missile never; with it off a missile procs at a quarter and Frost Blast never.
+- Goldens: `TestArcane` moves (Average-Default 249.86 to 243.58, -2.5%; up to -6.3% unbuffed), because its
+  rotation's missiles no longer chain the buff into the next Arcane Missiles. `TestFire` and `TestFrost` do
+  not. With the switch off every golden reproduces byte for byte.
+- Not changed: `TestDotsReadStatsAtTheTick` (sim/dot_rules_test.go) already fails on patch 174: it still
+  expects Serpent Sting to take spell power, which patch 173 removed.
+
+Downstream: the Rust engine needs the same proc list.
