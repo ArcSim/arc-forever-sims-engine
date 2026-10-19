@@ -44,9 +44,11 @@ func (hunter *Hunter) registerVolleySpell() {
 			},
 			NumberOfTicks: 6,
 			TickLength:    time.Second * 1,
-			// The tick spell has no coefficient and the channel's dummy effect carries .03, the
-			// same placeholder Blizzard and Rain of Fire carry, so Classic's .056 a tick stands.
-			BonusCoefficient: .056,
+			// The tick spells (1279721, 1279719, 1279715) have no coefficient and the channel's dummy
+			// effect carries .03, the same placeholder Blizzard and Rain of Fire carry. Bae's in-game
+			// tests find no Hunter ability scaling with spell power, so the ticks take none
+			// (HunterAbilitiesIgnoreSpellPower, patch 173); with the switch off, Classic's .056 a tick.
+			BonusCoefficient: hunterSpellPowerCoefficient(.056),
 
 			OnSnapshot: func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 				dot.Snapshot(target, baseDamage)

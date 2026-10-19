@@ -5102,3 +5102,35 @@ no log can).
 - Not changed (from the same audit, open until a live test): Immolation Trap's 13% of attack power over
   the burn or per tick, Arcane Shot and Serpent Sting spell power (rows carry 0), the pet's attack power
   from the Hunter, the Arcane Shot / Serpent Sting RAP shares. Downstream: the Rust engine needs the mask.
+
+## 173. `hunter: no Hunter ability scales with spell power (client 70425/70450, Bae's in-game tests)`
+
+Sources: client 70425's SpellEffect rows (`assets/db_inputs/spell_store_inputs.json`), unchanged in
+70450, give Arcane Shot (3044, 14281-14287) SPCoef 0, Serpent Sting (1978, 13549-13555, 25295) 0 on its
+periodic effect, and Volley's tick spells (1279721, 1279719, 1279715) 0; only the Volley channel's dummy
+effect carries .03, Blizzard's and Rain of Fire's placeholder. Bae on the MythicSim Discord (19 October
+2026, relayed by Sage) reports in-game tests in which no Hunter ability scales with spell power; only
+items do (Goblin Sapper Charge, Dragonbreath Chili, proc weapons). The engine kept Classic's values,
+which with Atiesh or a spell power consumable made those shots scale.
+
+- `HunterAbilitiesIgnoreSpellPower` (sim/hunter/hunter.go), **default true**: Arcane Shot, Serpent Sting
+  and Volley take no spell power coefficient. False restores Classic's (Arcane Shot .204/.3/.429 by rank,
+  Serpent Sting 1.0 over the duration, so 0.2 a tick at five ticks, Volley .056 a tick).
+- Unchanged: Arcane Shot's 0.11 of ranged attack power and Serpent Sting's 0.035 a tick (fitted from the
+  beta logs, patch notes in the code), and Volley's base tick. The physical abilities (Aimed, Multi-,
+  Sniper Shot, Raptor Strike, Mongoose Bite, Strider Kick, the pet's Bite and Claw) keep their
+  coefficient 1, which the rows also carry: on a physical spell it reads flat physical damage, never
+  spell power. Explosive and Immolation Trap already read attack power only (patch 147; the rows give
+  the trap effects 0), and the pet's Lightning Breath, Scorpid Poison and Thunderstomp have no
+  coefficient, as their rows. Items (Dragonbreath Chili, Goblin Sapper Charge, proc weapons) are not
+  Hunter abilities and keep theirs.
+- Test: `TestHunterAbilitiesIgnoreSpellPower` (sim/hunter/spell_power_test.go): with the switch on,
+  +1000 spell damage leaves Arcane Shot, Serpent Sting and Volley's damage identical to the last digit;
+  with it off, Classic's coefficients raise all three.
+- Goldens: `TestBeastMastery` and `TestMarksmanship` move, because the full party buffs carry the four
+  Atiesh auras' spell damage (e.g. Average-Default 420.01 to 418.40 and 341.04 to 338.28). `TestSurvival`
+  and `TestSurvivalMelee` do not (their rotations cast none of the three). With the switch off every
+  golden reproduces byte for byte.
+
+MythicSim's Hunter defaults carried spell power consumables only because of these coefficients and are
+re-picked on this engine. Downstream: the Rust engine needs the three coefficients at 0.

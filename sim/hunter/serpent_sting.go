@@ -11,9 +11,10 @@ func (hunter *Hunter) registerSerpentStingSpell() {
 	tickDamage := tick.Average(core.CharacterLevel)
 	numberOfTicks := int32(rank.Duration() / tickLength)
 
-	// The beta client carries no spell power coefficient on Serpent Sting at all, so Classic's
-	// stands: the full-duration 1.0 split across the ticks.
-	spellCoeff := 1.0 / float64(numberOfTicks)
+	// The beta client (70425, 70450) gives Serpent Sting no spell power coefficient (0) and Bae's
+	// in-game tests agree, so the ticks take none (HunterAbilitiesIgnoreSpellPower, patch 173). With
+	// the switch off, Classic's full-duration 1.0 split across the ticks.
+	spellCoeff := hunterSpellPowerCoefficient(1.0 / float64(numberOfTicks))
 	// Nor any attack power share, but the same combat logs that fit Arcane Shot's (arcane_shot.go) put
 	// each tick at base + about 0.035 of ranged attack power, and the same aspect swap moves a tick
 	// 0.037-0.041 a point. At levels 24-30 Hunter's Mark rank 2 moves a tick 0.034 (Miss, 2712, 549

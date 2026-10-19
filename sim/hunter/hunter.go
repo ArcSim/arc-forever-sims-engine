@@ -19,6 +19,23 @@ const (
 // Marksmanship node belongs to. See tools/database/tables.go.
 var TalentTreeSizes = [3]int{16, 16, 18}
 
+// HunterAbilitiesIgnoreSpellPower takes spell power off the Hunter's own abilities (mythicsim patch
+// 173): client 70425 and 70450 give Arcane Shot, Serpent Sting and Volley's tick spells no spell power
+// coefficient (0), and Bae's in-game tests (MythicSim Discord, 19 October 2026) find no Hunter ability
+// scaling with spell power; only items (Goblin Sapper Charge, Dragonbreath Chili, proc weapons) do.
+// False restores Classic's coefficients (Arcane Shot .204-.429, Serpent Sting 1.0 over the duration,
+// Volley .056 a tick). Their attack power shares are not touched.
+var HunterAbilitiesIgnoreSpellPower = true
+
+// hunterSpellPowerCoefficient is the spell power coefficient a Hunter ability takes: none, unless
+// HunterAbilitiesIgnoreSpellPower is off, when it is Classic's.
+func hunterSpellPowerCoefficient(classic float64) float64 {
+	if HunterAbilitiesIgnoreSpellPower {
+		return 0
+	}
+	return classic
+}
+
 type Hunter struct {
 	core.Character
 

@@ -4,7 +4,9 @@ import (
 	"github.com/wowsims/forever/sim/core"
 )
 
-// The beta client carries no spell power coefficient on Arcane Shot at all, so Classic's stand.
+// Classic's spell power coefficients. The beta client (70425, 70450) gives Arcane Shot none (0) and
+// Bae's in-game tests agree, so the shot takes none (HunterAbilitiesIgnoreSpellPower, patch 173);
+// these apply only with that switch off.
 var arcaneShotCoefficients = [9]float64{0, .204, .3, .429, .429, .429, .429, .429, .429}
 
 // Nor any attack power share, but the beta's combat logs show one: four level 20 hunters with known
@@ -40,7 +42,7 @@ func (hunter *Hunter) registerArcaneShotSpell(timer *core.Timer) {
 			},
 		},
 
-		BonusCoefficient: arcaneShotCoefficients[rank.RankNumber()],
+		BonusCoefficient: hunterSpellPowerCoefficient(arcaneShotCoefficients[rank.RankNumber()]),
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			result := spell.CalcDamage(sim, target, baseDamage+arcaneShotRAPCoefficient*spell.RangedAttackPower(target), spell.OutcomeRangedHitAndCrit)
