@@ -212,8 +212,8 @@ dps_results: {
 dps_results: {
  key: "TestBeastMastery-AllItems-BloodvineGarb"
  value: {
-  dps: 439.8973
-  tps: 235.18017
+  dps: 442.61993
+  tps: 234.54085
  }
 }
 dps_results: {
@@ -240,8 +240,8 @@ dps_results: {
 dps_results: {
  key: "TestBeastMastery-AllItems-CadaverousGarb"
  value: {
-  dps: 453.25235
-  tps: 244.87883
+  dps: 452.9497
+  tps: 243.61137
  }
 }
 dps_results: {
@@ -275,8 +275,8 @@ dps_results: {
 dps_results: {
  key: "TestBeastMastery-AllItems-CryptstalkerArmor"
  value: {
-  dps: 615.72357
-  tps: 342.70935
+  dps: 617.28582
+  tps: 341.45291
  }
 }
 dps_results: {
@@ -366,8 +366,8 @@ dps_results: {
 dps_results: {
  key: "TestBeastMastery-AllItems-DevilsaurArmor"
  value: {
-  dps: 428.83174
-  tps: 224.85963
+  dps: 430.19028
+  tps: 225.42022
  }
 }
 dps_results: {
@@ -639,8 +639,8 @@ dps_results: {
 dps_results: {
  key: "TestBeastMastery-AllItems-GiantstalkerArmor"
  value: {
-  dps: 535.46505
-  tps: 293.06072
+  dps: 537.11903
+  tps: 292.69903
  }
 }
 dps_results: {
@@ -1017,8 +1017,8 @@ dps_results: {
 dps_results: {
  key: "TestBeastMastery-AllItems-ShadowcraftArmor"
  value: {
-  dps: 491.14307
-  tps: 266.82175
+  dps: 491.88311
+  tps: 267.34791
  }
 }
 dps_results: {
@@ -1185,8 +1185,8 @@ dps_results: {
 dps_results: {
  key: "TestBeastMastery-AllItems-TheElements"
  value: {
-  dps: 450.45058
-  tps: 243.84256
+  dps: 452.02099
+  tps: 245.02824
  }
 }
 dps_results: {

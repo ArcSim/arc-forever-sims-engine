@@ -49,6 +49,8 @@ type Hunter struct {
 	Pet *HunterPet
 	// The ranged-or-melee crit offset the pet currently inherits (makeStatInheritance).
 	petCritOffset float64
+	// petHitOffset is the ranged hit the pet holds on top of the owner's melee hit (PetsInheritHit).
+	petHitOffset float64
 
 	AmmoDPS         float64
 	AmmoDamageBonus float64

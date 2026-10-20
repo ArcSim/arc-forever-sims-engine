@@ -4,16 +4,23 @@ import (
 	"github.com/wowsims/forever/sim/core"
 )
 
+// AmplifyCurseWholeTick (mythicsim patch 177, ported from wowsims/forever e2f38aef70): Amplify Curse raises
+// Bane of Agony's whole tick, the ramping base and the spell power share alike. False restores the base-only
+// reading, which left the spell power share unamplified.
+var AmplifyCurseWholeTick = true
+
 // Forever renamed Curse of Agony to Bane of Agony and moved it onto the bane slot, so it holds the
 // target beside a curse. It ramps: the snapshot pays half the tick, and the other half is added
-// back every four ticks, leaving the last four at 150%. Amplify Curse adds half again and is spent
-// on the snapshot.
+// back every four ticks, leaving the last four at 150%. Amplify Curse adds half again to the whole
+// tick (AmplifyCurseWholeTick) and is spent on the snapshot. The spell power share is read at each
+// tick (patch 22), so the multiplier is kept per target and applied to the tick as it lands.
 func (warlock *Warlock) registerCurseOfAgony() {
 	rank := spellData.BaneOfAgony.Highest()
 	tick := rank.PeriodicEffect()
 	amplify := 1 + spellData.AmplifyCurse.EffectAt(1).FractionAt(1)
 
 	rampStep := 0.0
+	wholeTickAmp := map[int32]float64{}
 
 	warlock.CurseOfAgony = warlock.RegisterSpell(core.SpellConfig{
 		ActionID:       core.ActionID{SpellID: rank.ID},
@@ -47,8 +54,13 @@ func (warlock *Warlock) registerCurseOfAgony() {
 
 			OnSnapshot: func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 				base := tick.Average(core.CharacterLevel)
+				wholeTickAmp[target.UnitIndex] = 1
 				if warlock.AmplifyCurseAura.IsActive() {
-					base *= amplify
+					if AmplifyCurseWholeTick {
+						wholeTickAmp[target.UnitIndex] = amplify
+					} else {
+						base *= amplify
+					}
 					warlock.AmplifyCurseAura.Deactivate(sim)
 				}
 
@@ -56,7 +68,9 @@ func (warlock *Warlock) registerCurseOfAgony() {
 				dot.Snapshot(target, rampStep)
 			},
 			OnTick: func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-				dot.CalcAndDealPeriodicSnapshotDamage(sim, target, periodicTickOutcome(rank, dot))
+				result := dot.CalcSnapshotDamage(sim, target, periodicTickOutcome(rank, dot))
+				result.Damage *= wholeTickAmp[target.UnitIndex]
+				dot.Spell.DealPeriodicDamage(sim, result)
 				if dot.TickCount()%4 == 0 {
 					dot.SnapshotBaseDamage += rampStep
 				}
@@ -77,7 +91,11 @@ func (warlock *Warlock) registerCurseOfAgony() {
 			// The ramp averages out to the plain tick over the full duration.
 			dot := spell.Dot(target)
 			if useSnapshot {
-				return dot.CalcSnapshotDamage(sim, target, spell.OutcomeExpectedMagicAlwaysHit)
+				result := dot.CalcSnapshotDamage(sim, target, spell.OutcomeExpectedMagicAlwaysHit)
+				if amp, ok := wholeTickAmp[target.UnitIndex]; ok {
+					result.Damage *= amp
+				}
+				return result
 			}
 			return spell.CalcPeriodicDamage(sim, target, tick.Average(core.CharacterLevel), spell.OutcomeExpectedMagicAlwaysHit)
 		},

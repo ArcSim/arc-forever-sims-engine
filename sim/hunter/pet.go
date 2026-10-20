@@ -227,15 +227,27 @@ func (hp *HunterPet) starves(sim *core.Simulation, ability *core.Spell, left flo
 // change). The target's side (crit suppression, ReducedCritTakenPercent) stays on the pet's own attack
 // table, as for any attacker. Crit auras on the pet itself still add: Ferocity ("Increases the critical
 // strike chance of your pets and hawks", 19598) and Intimidation's next attack.
+// PetsInheritHit (mythicsim patch 178, ported from wowsims/forever a205077834): the pet takes the hunter's hit,
+// the higher of melee hit and melee plus ranged hit, the way it takes crit. Hunter Pet Scaling (415429) lists
+// hit among the stats a pet inherits. False leaves the pet on its own hit, as before.
+var PetsInheritHit = true
+
 func (hunter *Hunter) makeStatInheritance() core.PetStatInheritance {
 	return func(ownerStats stats.Stats) stats.Stats {
 		offset := hunter.petCritOffsetNow()
 		change := offset - hunter.petCritOffset
 		hunter.petCritOffset = offset
-		return stats.Stats{
+		inherited := stats.Stats{
 			stats.PhysicalCritPercent: ownerStats[stats.PhysicalCritPercent] + change,
 			stats.ExpertisePercent:    ownerStats[stats.ExpertisePercent],
 		}
+		if PetsInheritHit {
+			// The owner's stats arrive as a change, so the ranged part is tracked as an offset, like crit's.
+			hitOffset := max(0, hunter.GetStat(stats.RangedHitPercent))
+			inherited[stats.PhysicalHitPercent] = ownerStats[stats.PhysicalHitPercent] + hitOffset - hunter.petHitOffset
+			hunter.petHitOffset = hitOffset
+		}
+		return inherited
 	}
 }
 
@@ -258,6 +270,7 @@ func (hunter *Hunter) petCritOffsetNow() float64 {
 func (hp *HunterPet) trackPetCritOffset() {
 	hp.OnPetDisable = func(sim *core.Simulation) {
 		hp.hunterOwner.petCritOffset = 0
+		hp.hunterOwner.petHitOffset = 0
 	}
 }
 

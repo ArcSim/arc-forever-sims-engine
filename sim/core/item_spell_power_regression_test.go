@@ -16,7 +16,7 @@ func TestForeverItemSpellPower(t *testing.T) {
 	for id, want := range map[int32][2]float64{ // SpellDamage, HealingPower
 		19102: {99, 99},   // Crackling Staff: 25 from the client row plus 74, as in game
 		19884: {94, 94},   // Jin'do's Judgement
-		20069: {94, 94},   // Ironbark Staff
+		20069: {88, 88},   // Ironbark Staff: the caster spell power row (patch 180), as Wowhead Forever shows
 		18608: {65, 195},  // Benediction: a healer's weapon, a third as damage
 		23451: {106, 106}, // Grand Marshal's Mageblade
 		18534: {23, 23},   // Rod of the Ogre Magi, from master's database: healing was missing

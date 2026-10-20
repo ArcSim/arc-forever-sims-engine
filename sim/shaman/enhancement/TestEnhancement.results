@@ -563,8 +563,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-GiftoftheGatheringStorm"
  value: {
-  dps: 321.62867
-  tps: 172.78235
+  dps: 296.73907
+  tps: 160.58645
  }
 }
 dps_results: {

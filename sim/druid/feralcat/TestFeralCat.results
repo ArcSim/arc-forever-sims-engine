@@ -612,8 +612,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-HowlingIdol-272427"
  value: {
-  dps: 299.59451
-  tps: 170.03637
+  dps: 295.45286
+  tps: 166.75875
  }
 }
 dps_results: {
@@ -983,8 +983,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-SymbolsofUnendingLife"
  value: {
-  dps: 415.71131
-  tps: 225.00842
+  dps: 390.71514
+  tps: 212.58533
  }
 }
 dps_results: {

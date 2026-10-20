@@ -341,6 +341,13 @@ func (warrior *Warrior) registerSpearingStrike() {
 	})
 }
 
+// BloodthrillWhiteSwingsOnly (mythicsim patch 176, ported from wowsims/forever 788f62ce0f): Bloodthrill procs
+// from main-hand white swings and the queued Heroic Strike and Cleave only. Upstream's combat logs: white
+// swings 19 + 6, Heroic Strike 4, Cleave 1; off-hand 0/200, Hamstring 0/99, Overpower 0/9, Execute 0/7,
+// Thunder Clap 0/13, Victory Rush 0/6, Sweeping Strikes 0/6, Deep Wound ticks 0/30. False restores the row's
+// reading, every landed main-hand hit.
+var BloodthrillWhiteSwingsOnly = true
+
 func (warrior *Warrior) registerBloodthrill() {
 	if warrior.Talents.Bloodthrill == 0 {
 		return
@@ -357,11 +364,18 @@ func (warrior *Warrior) registerBloodthrill() {
 		ActionID: core.ActionID{SpellID: 1289682},
 		Callback: core.CallbackOnSpellHitDealt,
 		// 1289682's proc flags are 0x14 (melee auto attacks and melee abilities) with attr3 0x400,
-		// main hand only: white MH swings plus MH abilities, Heroic Strike and Cleave included.
+		// main hand only. In game only white swings (extra attacks included), Heroic Strike and Cleave
+		// proc it (BloodthrillWhiteSwingsOnly); Retaliation carries the main-hand mask but is no swing.
 		ProcMask:   core.ProcMaskMeleeMH,
 		Outcome:    core.OutcomeLanded,
 		ProcChance: spellData.Bloodthrill.FractionAt(warrior.Talents.Bloodthrill),
 		ExtraCondition: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
+			if BloodthrillWhiteSwingsOnly {
+				swing := spell.ProcMask.Matches(core.ProcMaskMeleeMHAuto) && !spell.Matches(SpellMaskRetaliation)
+				if !swing && !spell.Matches(SpellMaskHeroicStrike|SpellMaskCleave) {
+					return false
+				}
+			}
 			return warrior.Rend.Dot(result.Target).IsActive()
 		},
 		Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {

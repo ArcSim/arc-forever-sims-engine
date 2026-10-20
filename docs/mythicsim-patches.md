@@ -5180,3 +5180,74 @@ duration, 100% cost and 0.5 sec missiles stay as they were.
   expects Serpent Sting to take spell power, which patch 173 removed.
 
 Downstream: the Rust engine needs the same proc list.
+
+## Upstream audit of 20 October 2026 (patches 176 to 180)
+
+ElliotWood/Forever, the fork's base, returned 404 from about 19 October 2026, so the fork now follows `wowsims/forever`
+directly. The histories diverged on 25 September (merge base `a539274efa`), so upstream is audited by behaviour and
+ported, not merged. The audit read the 182 upstream commits that changed `sim/` from 15 October to `7c9528c140`
+(19 October) against this fork; most were already here as our own patches, deliberately different, or irrelevant
+to the sims. The five below change results. The full table is `docs/forever-upstream-audit-2026-10-20.md` in the
+MythicSim repo.
+
+## 176. `warrior: Bloodthrill procs from main-hand white swings, Heroic Strike and Cleave only (ported from wowsims/forever 788f62ce0f)`
+
+Source: upstream's combat logs (Adrian Klingen, 18 October): white swings 19 + 6, Heroic Strike 4, Cleave 1;
+off-hand 0/200, Hamstring 0/99, Overpower 0/9, Execute 0/7, Thunder Clap 0/13, Victory Rush 0/6, Sweeping Strikes
+0/6, Deep Wound ticks 0/30. 1289682's proc flags (0x14, main hand) name melee abilities too, which in game do not
+proc it.
+
+- `BloodthrillWhiteSwingsOnly` (sim/warrior/talents_arms.go), **default true**: only main-hand white swings (extra
+  attacks included, Retaliation excluded) and the queued Heroic Strike and Cleave open Overpower, still only on a
+  target with the warrior's Rend. False restores every landed main-hand hit.
+- Test: `TestBloodthrillWhiteSwingsOnly` (sim/warrior/dps/bloodthrill_test.go): over 2000 landed hits each, a white
+  swing and Heroic Strike proc at the row's 20% and Mortal Strike never; off, Mortal Strike procs too.
+
+## 177. `warlock: Amplify Curse raises Bane of Agony's whole tick (ported from wowsims/forever e2f38aef70)`
+
+Upstream multiplies the whole tick, the ramping base and the spell power share, by Amplify Curse's 1.5; ours
+raised only the base. Our ticks keep reading spell power as they land (patch 22), so the multiplier is kept per
+target from the snapshot and applied to each tick's damage. Upstream's freezing of the spell power share at cast
+(90a76d0441) is not taken: it contradicts patch 22, which upstream's #668 adopted.
+
+- `AmplifyCurseWholeTick` (sim/warlock/agony.go), **default true**. False restores the base-only reading.
+- Test: `TestAmplifyCurseWholeTick` (sim/warlock/amplify_curse_test.go): with 1000 spell damage an amplified first
+  tick is exactly 1.5 of a plain one; off, the ratio stays between 1 and 1.5.
+
+## 178. `hunter: pets inherit the hunter's hit (ported from wowsims/forever a205077834)`
+
+Hunter Pet Scaling (415429) lists hit among the inherited stats. The pet takes the higher of the hunter's melee hit
+and melee plus ranged hit, the same way it takes crit (patch 136). The ranged part is tracked as an offset
+(`petHitOffset`), like crit's, because the owner's stats reach the pet as changes.
+
+- `PetsInheritHit` (sim/hunter/pet.go), **default true**. False leaves the pet on its own hit.
+- Test: `TestPetsInheritHit` (sim/hunter/pet_hit_test.go): +3 melee hit and +2 ranged hit reach the pet, the ranged
+  hit leaves it again when it comes off the hunter; off, neither does.
+- Only Beast Mastery among the references has a pet out (Marksmanship and Survival take Lone Wolf).
+
+## 179. `druid: Howling Idol takes its row's 0.5 seconds off Shifting Power (as wowsims/forever 7bf2911cbe)`
+
+Patch 103 hardcoded the -1000 ms of an earlier client. Client 70425's 1291059 says -500 ms ("by 0.5 sec").
+
+- `HowlingIdolFromRow` (sim/druid/items.go), **default true**: the reduction is read off 1291059. False restores
+  patch 103's 1 second.
+- Test: `TestHowlingIdolShortensShiftingPower` (sim/druid/feralcat): 16 s without the idol, 15.5 s with it, 15 s
+  with the switch off.
+
+## 180. `data: caster weapons take upstream's rows (ported from wowsims/forever's item generator)`
+
+Upstream's item generator (1864b7e43d, c5aea1c27f, af1289aabf, 7 and 8 October) applies two client flags ours
+never read: REDUCED_CASTER_DPS (Flags4 0x100) cuts a caster weapon's melee damage to 2/3 (one-hand) or 29/39
+(two-hand), and CASTER_SPELL_POWER / CASTER_HEALING_POWER (0x200 / 0x400) give it built-in spell power and
+healing. 158 weapons in our database differ, among them Ironbark Staff (20069 and 20220: 153-231 and 94 spell
+power here, 114-172 and 88 upstream), which 14 references wear, and Hand of Edward the Odd (2243: 50-94 and no
+spell power here, 33-62 with 90 spell damage and 90 healing upstream), the Holy-protection reference's weapon.
+
+- `assets/db_inputs/forever_caster_weapon_rows.json` carries the 158 weapons' damage, spell damage and healing from
+  upstream's `assets/database/db.json` at `7c9528c140`; `tools/database/apply_caster_weapon_rows.py` writes them
+  into `db.json` (items section only; other sections reuse ids). Then `go run ./tools/sync_db_binary`. Rerun both
+  after any item regeneration: patch 107's planner fill never lowers a value and would restore the old rows.
+- Test: `TestCasterWeaponRows` (sim/caster_weapon_rows_test.go): Ironbark Staff and Hand of Edward the Odd carry
+  upstream's damage, spell damage and healing.
+- Hand of Edward's Focus proc (18803) is not implemented here (the generated entry is commented out), so the
+  row's proc rate does not matter yet.

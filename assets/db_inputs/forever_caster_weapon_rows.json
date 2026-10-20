@@ -1,0 +1,1269 @@
+{
+ "source": "wowsims/forever 7c9528c140 assets/database/db.json: caster weapons the client flags REDUCED_CASTER_DPS deal reduced melee damage (2/3 one-hand, 29/39 two-hand), and CASTER_SPELL_POWER / CASTER_HEALING_POWER weapons carry built-in spell power and healing (upstream generator commits 1864b7e43d, c5aea1c27f, af1289aabf). Applied by tools/database/apply_caster_weapon_rows.py (mythicsim patch 180).",
+ "items": [
+  {
+   "id": 812,
+   "name": "Glowing Brightwood Staff",
+   "weaponDamageMin": 94,
+   "weaponDamageMax": 142,
+   "healingPower": 150,
+   "spellDamage": 50
+  },
+  {
+   "id": 873,
+   "name": "Staff of Jordan",
+   "weaponDamageMin": 88,
+   "weaponDamageMax": 133,
+   "healingPower": 60,
+   "spellDamage": 60
+  },
+  {
+   "id": 1155,
+   "name": "Rod of the Sleepwalker",
+   "weaponDamageMin": 39,
+   "weaponDamageMax": 60,
+   "healingPower": 32,
+   "spellDamage": 32
+  },
+  {
+   "id": 1317,
+   "name": "Hardened Root Staff",
+   "weaponDamageMin": 36,
+   "weaponDamageMax": 54,
+   "healingPower": 20,
+   "spellDamage": 20
+  },
+  {
+   "id": 1928,
+   "name": "Defias Mage Staff",
+   "weaponDamageMin": 17,
+   "weaponDamageMax": 27,
+   "healingPower": 8,
+   "spellDamage": 8
+  },
+  {
+   "id": 1933,
+   "name": "Staff of Conjuring",
+   "weaponDamageMin": 18,
+   "weaponDamageMax": 27,
+   "healingPower": 8,
+   "spellDamage": 8
+  },
+  {
+   "id": 2042,
+   "name": "Staff of Westfall",
+   "weaponDamageMin": 36,
+   "weaponDamageMax": 55,
+   "healingPower": 48,
+   "spellDamage": 16
+  },
+  {
+   "id": 2169,
+   "name": "Buzzer Blade",
+   "weaponDamageMin": 9,
+   "weaponDamageMax": 18,
+   "healingPower": 22,
+   "spellDamage": 22
+  },
+  {
+   "id": 2243,
+   "name": "Hand of Edward the Odd",
+   "weaponDamageMin": 33,
+   "weaponDamageMax": 62,
+   "healingPower": 90,
+   "spellDamage": 90
+  },
+  {
+   "id": 2271,
+   "name": "Staff of the Blessed Seer",
+   "weaponDamageMin": 37,
+   "weaponDamageMax": 57,
+   "healingPower": 28,
+   "spellDamage": 28
+  },
+  {
+   "id": 2280,
+   "name": "Kam's Walking Stick",
+   "weaponDamageMin": 39,
+   "weaponDamageMax": 60,
+   "healingPower": 32,
+   "spellDamage": 32
+  },
+  {
+   "id": 2567,
+   "name": "Evocator's Blade",
+   "weaponDamageMin": 12,
+   "weaponDamageMax": 23,
+   "healingPower": 28,
+   "spellDamage": 28
+  },
+  {
+   "id": 2950,
+   "name": "Icicle Rod",
+   "weaponDamageMin": 38,
+   "weaponDamageMax": 57,
+   "healingPower": 18,
+   "spellDamage": 18
+  },
+  {
+   "id": 3227,
+   "name": "Nightbane Staff",
+   "weaponDamageMin": 27,
+   "weaponDamageMax": 41,
+   "healingPower": 18,
+   "spellDamage": 18
+  },
+  {
+   "id": 3414,
+   "name": "Crested Scepter",
+   "weaponDamageMin": 22,
+   "weaponDamageMax": 41,
+   "healingPower": 32,
+   "spellDamage": 32
+  },
+  {
+   "id": 3415,
+   "name": "Staff of the Friar",
+   "weaponDamageMin": 33,
+   "weaponDamageMax": 50,
+   "healingPower": 52,
+   "spellDamage": 17
+  },
+  {
+   "id": 3446,
+   "name": "Darkwood Staff",
+   "weaponDamageMin": 17,
+   "weaponDamageMax": 26,
+   "healingPower": 6,
+   "spellDamage": 6
+  },
+  {
+   "id": 3452,
+   "name": "Ceranium Rod",
+   "weaponDamageMin": 23,
+   "weaponDamageMax": 35,
+   "healingPower": 14,
+   "spellDamage": 14
+  },
+  {
+   "id": 3851,
+   "name": "Solid Iron Maul",
+   "weaponDamageMin": 43,
+   "weaponDamageMax": 66,
+   "healingPower": 24,
+   "spellDamage": 24
+  },
+  {
+   "id": 3902,
+   "name": "Staff of Nobles",
+   "weaponDamageMin": 25,
+   "weaponDamageMax": 38,
+   "healingPower": 22,
+   "spellDamage": 7
+  },
+  {
+   "id": 4122,
+   "name": "Bookmaker's Scepter",
+   "weaponDamageMin": 21,
+   "weaponDamageMax": 39,
+   "healingPower": 30,
+   "spellDamage": 30
+  },
+  {
+   "id": 4134,
+   "name": "Nimboya's Mystical Staff",
+   "weaponDamageMin": 48,
+   "weaponDamageMax": 73,
+   "healingPower": 38,
+   "spellDamage": 38
+  },
+  {
+   "id": 4302,
+   "name": "Small Green Dagger",
+   "weaponDamageMin": 4,
+   "weaponDamageMax": 8,
+   "healingPower": 4,
+   "spellDamage": 4
+  },
+  {
+   "id": 5194,
+   "name": "Taskmaster Axe",
+   "weaponDamageMin": 31,
+   "weaponDamageMax": 48,
+   "healingPower": 45,
+   "spellDamage": 15
+  },
+  {
+   "id": 5201,
+   "name": "Emberstone Staff",
+   "weaponDamageMin": 34,
+   "weaponDamageMax": 51,
+   "healingPower": 24,
+   "spellDamage": 24
+  },
+  {
+   "id": 5306,
+   "name": "Wind Rider Staff",
+   "weaponDamageMin": 21,
+   "weaponDamageMax": 33,
+   "healingPower": 12,
+   "spellDamage": 12
+  },
+  {
+   "id": 5340,
+   "name": "Cauldron Stirrer",
+   "weaponDamageMin": 18,
+   "weaponDamageMax": 28,
+   "healingPower": 8,
+   "spellDamage": 8
+  },
+  {
+   "id": 5587,
+   "name": "Thornroot Club",
+   "weaponDamageMin": 6,
+   "weaponDamageMax": 13,
+   "healingPower": 6,
+   "spellDamage": 6
+  },
+  {
+   "id": 5613,
+   "name": "Staff of the Purifier",
+   "weaponDamageMin": 33,
+   "weaponDamageMax": 50,
+   "healingPower": 16,
+   "spellDamage": 16
+  },
+  {
+   "id": 6318,
+   "name": "Odo's Ley Staff",
+   "weaponDamageMin": 37,
+   "weaponDamageMax": 56,
+   "healingPower": 52,
+   "spellDamage": 17
+  },
+  {
+   "id": 6505,
+   "name": "Crescent Staff",
+   "weaponDamageMin": 35,
+   "weaponDamageMax": 53,
+   "healingPower": 26,
+   "spellDamage": 26
+  },
+  {
+   "id": 6631,
+   "name": "Living Root",
+   "weaponDamageMin": 34,
+   "weaponDamageMax": 51,
+   "healingPower": 45,
+   "spellDamage": 15
+  },
+  {
+   "id": 6689,
+   "name": "Wind Spirit Staff",
+   "weaponDamageMin": 56,
+   "weaponDamageMax": 85,
+   "healingPower": 71,
+   "spellDamage": 23
+  },
+  {
+   "id": 6691,
+   "name": "Swinetusk Shank",
+   "weaponDamageMin": 16,
+   "weaponDamageMax": 30,
+   "healingPower": 40,
+   "spellDamage": 40
+  },
+  {
+   "id": 7713,
+   "name": "Illusionary Rod",
+   "weaponDamageMin": 70,
+   "weaponDamageMax": 105,
+   "healingPower": 44,
+   "spellDamage": 44
+  },
+  {
+   "id": 7714,
+   "name": "Hypnotic Blade",
+   "weaponDamageMin": 17,
+   "weaponDamageMax": 32,
+   "healingPower": 44,
+   "spellDamage": 44
+  },
+  {
+   "id": 7721,
+   "name": "Hand of Righteousness",
+   "weaponDamageMin": 37,
+   "weaponDamageMax": 70,
+   "healingPower": 94,
+   "spellDamage": 31
+  },
+  {
+   "id": 9419,
+   "name": "Galgann's Firehammer",
+   "weaponDamageMin": 32,
+   "weaponDamageMax": 60,
+   "healingPower": 54,
+   "spellDamage": 54
+  },
+  {
+   "id": 9452,
+   "name": "Hydrocane",
+   "weaponDamageMin": 44,
+   "weaponDamageMax": 67,
+   "healingPower": 36,
+   "spellDamage": 36
+  },
+  {
+   "id": 9457,
+   "name": "Royal Diplomatic Scepter",
+   "weaponDamageMin": 24,
+   "weaponDamageMax": 46,
+   "healingPower": 75,
+   "spellDamage": 25
+  },
+  {
+   "id": 9513,
+   "name": "Ley Staff",
+   "weaponDamageMin": 12,
+   "weaponDamageMax": 19,
+   "healingPower": 2,
+   "spellDamage": 2
+  },
+  {
+   "id": 9514,
+   "name": "Arcane Staff",
+   "weaponDamageMin": 12,
+   "weaponDamageMax": 19,
+   "healingPower": 2,
+   "spellDamage": 2
+  },
+  {
+   "id": 9517,
+   "name": "Celestial Stave",
+   "weaponDamageMin": 63,
+   "weaponDamageMax": 96,
+   "healingPower": 46,
+   "spellDamage": 46
+  },
+  {
+   "id": 9603,
+   "name": "Gritroot Staff",
+   "weaponDamageMin": 11,
+   "weaponDamageMax": 17,
+   "healingPower": 2,
+   "spellDamage": 2
+  },
+  {
+   "id": 9683,
+   "name": "Strength of the Treant",
+   "weaponDamageMin": 85,
+   "weaponDamageMax": 128,
+   "healingPower": 42,
+   "spellDamage": 42
+  },
+  {
+   "id": 10826,
+   "name": "Staff of Lore",
+   "weaponDamageMin": 68,
+   "weaponDamageMax": 103,
+   "healingPower": 40,
+   "spellDamage": 40
+  },
+  {
+   "id": 11857,
+   "name": "Sanctimonial Rod",
+   "weaponDamageMin": 65,
+   "weaponDamageMax": 99,
+   "healingPower": 38,
+   "spellDamage": 38
+  },
+  {
+   "id": 15397,
+   "name": "Oakthrush Staff",
+   "weaponDamageMin": 16,
+   "weaponDamageMax": 24,
+   "healingPower": 6,
+   "spellDamage": 6
+  },
+  {
+   "id": 15443,
+   "name": "Kris of Orgrimmar",
+   "weaponDamageMin": 8,
+   "weaponDamageMax": 16,
+   "healingPower": 33,
+   "spellDamage": 11
+  },
+  {
+   "id": 15444,
+   "name": "Staff of Orgrimmar",
+   "weaponDamageMin": 31,
+   "weaponDamageMax": 47,
+   "healingPower": 18,
+   "spellDamage": 18
+  },
+  {
+   "id": 15801,
+   "name": "Valiant Shortsword",
+   "weaponDamageMin": 33,
+   "weaponDamageMax": 63,
+   "healingPower": 50,
+   "spellDamage": 50
+  },
+  {
+   "id": 15863,
+   "name": "Grave Scepter",
+   "weaponDamageMin": 24,
+   "weaponDamageMax": 45,
+   "healingPower": 46,
+   "spellDamage": 46
+  },
+  {
+   "id": 16889,
+   "name": "Polished Walking Staff",
+   "weaponDamageMin": 24,
+   "weaponDamageMax": 37,
+   "healingPower": 16,
+   "spellDamage": 16
+  },
+  {
+   "id": 16894,
+   "name": "Clear Crystal Rod",
+   "weaponDamageMin": 25,
+   "weaponDamageMax": 38,
+   "healingPower": 14,
+   "spellDamage": 14
+  },
+  {
+   "id": 17004,
+   "name": "Sarah's Guide",
+   "weaponDamageMin": 70,
+   "weaponDamageMax": 106,
+   "healingPower": 54,
+   "spellDamage": 54
+  },
+  {
+   "id": 17039,
+   "name": "Skullbreaker",
+   "weaponDamageMin": 23,
+   "weaponDamageMax": 43,
+   "healingPower": 30,
+   "spellDamage": 30
+  },
+  {
+   "id": 17743,
+   "name": "Resurgence Rod",
+   "weaponDamageMin": 103,
+   "weaponDamageMax": 156,
+   "healingPower": 112,
+   "spellDamage": 37
+  },
+  {
+   "id": 18608,
+   "name": "Benediction",
+   "weaponDamageMin": 89,
+   "weaponDamageMax": 155,
+   "healingPower": 195,
+   "spellDamage": 65
+  },
+  {
+   "id": 18874,
+   "name": "High Warlord's War Staff",
+   "weaponDamageMin": 138,
+   "weaponDamageMax": 207,
+   "healingPower": 106,
+   "spellDamage": 106
+  },
+  {
+   "id": 19101,
+   "name": "Whiteout Staff",
+   "weaponDamageMin": 102,
+   "weaponDamageMax": 154,
+   "healingPower": 74,
+   "spellDamage": 74
+  },
+  {
+   "id": 19102,
+   "name": "Crackling Staff",
+   "weaponDamageMin": 102,
+   "weaponDamageMax": 154,
+   "healingPower": 99,
+   "spellDamage": 99
+  },
+  {
+   "id": 19884,
+   "name": "Jin'do's Judgement",
+   "weaponDamageMin": 122,
+   "weaponDamageMax": 184,
+   "healingPower": 94,
+   "spellDamage": 94
+  },
+  {
+   "id": 20069,
+   "name": "Ironbark Staff",
+   "weaponDamageMin": 114,
+   "weaponDamageMax": 172,
+   "healingPower": 88,
+   "spellDamage": 88
+  },
+  {
+   "id": 20070,
+   "name": "Sageclaw",
+   "weaponDamageMin": 34,
+   "weaponDamageMax": 64,
+   "healingPower": 88,
+   "spellDamage": 88
+  },
+  {
+   "id": 20214,
+   "name": "Mindfang",
+   "weaponDamageMin": 34,
+   "weaponDamageMax": 64,
+   "healingPower": 88,
+   "spellDamage": 88
+  },
+  {
+   "id": 20220,
+   "name": "Ironbark Staff",
+   "weaponDamageMin": 114,
+   "weaponDamageMax": 172,
+   "healingPower": 88,
+   "spellDamage": 88
+  },
+  {
+   "id": 20647,
+   "name": "Black Crystal Dagger",
+   "weaponDamageMin": 29,
+   "weaponDamageMax": 55,
+   "healingPower": 52,
+   "spellDamage": 52
+  },
+  {
+   "id": 20724,
+   "name": "Corrupted Blackwood Staff",
+   "weaponDamageMin": 97,
+   "weaponDamageMax": 146,
+   "healingPower": 54,
+   "spellDamage": 54
+  },
+  {
+   "id": 21273,
+   "name": "Blessed Qiraji Acolyte Staff",
+   "weaponDamageMin": 140,
+   "weaponDamageMax": 211,
+   "healingPower": 108,
+   "spellDamage": 108
+  },
+  {
+   "id": 21275,
+   "name": "Blessed Qiraji Augur Staff",
+   "weaponDamageMin": 140,
+   "weaponDamageMax": 211,
+   "healingPower": 203,
+   "spellDamage": 67
+  },
+  {
+   "id": 21398,
+   "name": "Hammer of the Gathering Storm",
+   "weaponDamageMin": 33,
+   "weaponDamageMax": 83,
+   "healingPower": 98,
+   "spellDamage": 98
+  },
+  {
+   "id": 21407,
+   "name": "Mace of Unending Life",
+   "weaponDamageMin": 36,
+   "weaponDamageMax": 90,
+   "healingPower": 98,
+   "spellDamage": 98
+  },
+  {
+   "id": 21410,
+   "name": "Gavel of Infinite Wisdom",
+   "weaponDamageMin": 65,
+   "weaponDamageMax": 121,
+   "healingPower": 184,
+   "spellDamage": 61
+  },
+  {
+   "id": 21413,
+   "name": "Blade of Vaulted Secrets",
+   "weaponDamageMin": 32,
+   "weaponDamageMax": 80,
+   "healingPower": 98,
+   "spellDamage": 98
+  },
+  {
+   "id": 21521,
+   "name": "Runesword of the Red",
+   "weaponDamageMin": 59,
+   "weaponDamageMax": 110,
+   "healingPower": 104,
+   "spellDamage": 104
+  },
+  {
+   "id": 21523,
+   "name": "Fang of Korialstrasz",
+   "weaponDamageMin": 48,
+   "weaponDamageMax": 90,
+   "healingPower": 195,
+   "spellDamage": 65
+  },
+  {
+   "id": 21622,
+   "name": "Sharpened Silithid Femur",
+   "weaponDamageMin": 63,
+   "weaponDamageMax": 119,
+   "healingPower": 106,
+   "spellDamage": 106
+  },
+  {
+   "id": 21839,
+   "name": "Scepter of the False Prophet",
+   "weaponDamageMin": 55,
+   "weaponDamageMax": 104,
+   "healingPower": 210,
+   "spellDamage": 70
+  },
+  {
+   "id": 22379,
+   "name": "Shivsprocket's Shiv",
+   "weaponDamageMin": 29,
+   "weaponDamageMax": 56,
+   "healingPower": 74,
+   "spellDamage": 74
+  },
+  {
+   "id": 22380,
+   "name": "Simone's Cultivating Hammer",
+   "weaponDamageMin": 35,
+   "weaponDamageMax": 67,
+   "healingPower": 139,
+   "spellDamage": 46
+  },
+  {
+   "id": 22383,
+   "name": "Sageblade",
+   "weaponDamageMin": 39,
+   "weaponDamageMax": 73,
+   "healingPower": 94,
+   "spellDamage": 94
+  },
+  {
+   "id": 22688,
+   "name": "Verimonde's Last Resort",
+   "weaponDamageMin": 28,
+   "weaponDamageMax": 53,
+   "healingPower": 74,
+   "spellDamage": 74
+  },
+  {
+   "id": 23451,
+   "name": "Grand Marshal's Mageblade",
+   "weaponDamageMin": 55,
+   "weaponDamageMax": 103,
+   "healingPower": 106,
+   "spellDamage": 106
+  },
+  {
+   "id": 23454,
+   "name": "Grand Marshal's Warhammer",
+   "weaponDamageMin": 92,
+   "weaponDamageMax": 138,
+   "healingPower": 199,
+   "spellDamage": 66
+  },
+  {
+   "id": 23464,
+   "name": "High Warlord's Battle Mace",
+   "weaponDamageMin": 92,
+   "weaponDamageMax": 138,
+   "healingPower": 199,
+   "spellDamage": 66
+  },
+  {
+   "id": 23466,
+   "name": "High Warlord's Spellblade",
+   "weaponDamageMin": 55,
+   "weaponDamageMax": 103,
+   "healingPower": 106,
+   "spellDamage": 106
+  },
+  {
+   "id": 217497,
+   "name": "Narpas Sword",
+   "weaponDamageMin": 26,
+   "weaponDamageMax": 50,
+   "healingPower": 48,
+   "spellDamage": 48
+  },
+  {
+   "id": 248008,
+   "name": "Apprentice's Spellstaff",
+   "weaponDamageMin": 11,
+   "weaponDamageMax": 17,
+   "healingPower": 4,
+   "spellDamage": 4
+  },
+  {
+   "id": 249392,
+   "name": "Glimmering Staff",
+   "weaponDamageMin": 32,
+   "weaponDamageMax": 49,
+   "healingPower": 34,
+   "spellDamage": 34
+  },
+  {
+   "id": 249393,
+   "name": "Soulstaff",
+   "weaponDamageMin": 26,
+   "weaponDamageMax": 40,
+   "healingPower": 34,
+   "spellDamage": 34
+  },
+  {
+   "id": 249453,
+   "name": "Radiant Staff",
+   "weaponDamageMin": 62,
+   "weaponDamageMax": 93,
+   "healingPower": 56,
+   "spellDamage": 56
+  },
+  {
+   "id": 249454,
+   "name": "Dreamstaff",
+   "weaponDamageMin": 62,
+   "weaponDamageMax": 93,
+   "healingPower": 105,
+   "spellDamage": 35
+  },
+  {
+   "id": 251534,
+   "name": "Gnarled Necromancer's Staff",
+   "weaponDamageMin": 34,
+   "weaponDamageMax": 51,
+   "healingPower": 26,
+   "spellDamage": 26
+  },
+  {
+   "id": 260207,
+   "name": "Staff of Archmage Selwyn",
+   "weaponDamageMin": 63,
+   "weaponDamageMax": 95,
+   "healingPower": 48,
+   "spellDamage": 48
+  },
+  {
+   "id": 263937,
+   "name": "Skyseeker's Greatstaff",
+   "weaponDamageMin": 12,
+   "weaponDamageMax": 18,
+   "healingPower": 15,
+   "spellDamage": 5
+  },
+  {
+   "id": 269716,
+   "name": "Keen Skinning Knife",
+   "weaponDamageMin": 6,
+   "weaponDamageMax": 13,
+   "healingPower": 12,
+   "spellDamage": 12
+  },
+  {
+   "id": 270005,
+   "name": "Monastic Hammer",
+   "weaponDamageMin": 9,
+   "weaponDamageMax": 18,
+   "healingPower": 12,
+   "spellDamage": 12
+  },
+  {
+   "id": 270069,
+   "name": "Mindslicer",
+   "weaponDamageMin": 20,
+   "weaponDamageMax": 38,
+   "healingPower": 34,
+   "spellDamage": 34
+  },
+  {
+   "id": 270070,
+   "name": "Madman's Blade",
+   "weaponDamageMin": 19,
+   "weaponDamageMax": 37,
+   "healingPower": 32,
+   "spellDamage": 32
+  },
+  {
+   "id": 270088,
+   "name": "Thane's Hammer",
+   "weaponDamageMin": 27,
+   "weaponDamageMax": 51,
+   "healingPower": 38,
+   "spellDamage": 38
+  },
+  {
+   "id": 270228,
+   "name": "Golemheart Stave",
+   "weaponDamageMin": 30,
+   "weaponDamageMax": 46,
+   "healingPower": 18,
+   "spellDamage": 18
+  },
+  {
+   "id": 271095,
+   "name": "Fang of Magmatus",
+   "weaponDamageMin": 9,
+   "weaponDamageMax": 18,
+   "healingPower": 18,
+   "spellDamage": 18
+  },
+  {
+   "id": 271216,
+   "name": "Scepter of the Abandoned",
+   "weaponDamageMin": 17,
+   "weaponDamageMax": 33,
+   "healingPower": 24,
+   "spellDamage": 24
+  },
+  {
+   "id": 271664,
+   "name": "Hornbeam Heft",
+   "weaponDamageMin": 19,
+   "weaponDamageMax": 36,
+   "healingPower": 26,
+   "spellDamage": 26
+  },
+  {
+   "id": 271767,
+   "name": "Healer's Staff",
+   "weaponDamageMin": 43,
+   "weaponDamageMax": 65,
+   "healingPower": 67,
+   "spellDamage": 22
+  },
+  {
+   "id": 271797,
+   "name": "Staff of Revelations",
+   "weaponDamageMin": 47,
+   "weaponDamageMax": 72,
+   "healingPower": 30,
+   "spellDamage": 30
+  },
+  {
+   "id": 271799,
+   "name": "Desert Crawler's Claw",
+   "weaponDamageMin": 17,
+   "weaponDamageMax": 32,
+   "healingPower": 30,
+   "spellDamage": 30
+  },
+  {
+   "id": 271803,
+   "name": "Greatstaff of the Necrokhans",
+   "weaponDamageMin": 66,
+   "weaponDamageMax": 100,
+   "healingPower": 48,
+   "spellDamage": 48
+  },
+  {
+   "id": 271804,
+   "name": "Soulsplatter Mace",
+   "weaponDamageMin": 27,
+   "weaponDamageMax": 41,
+   "healingPower": 48,
+   "spellDamage": 48
+  },
+  {
+   "id": 271928,
+   "name": "Clever Expeditionary's Spellblade",
+   "weaponDamageMin": 27,
+   "weaponDamageMax": 50,
+   "healingPower": 72,
+   "spellDamage": 72
+  },
+  {
+   "id": 271929,
+   "name": "Clever Expeditionary's Spellblade",
+   "weaponDamageMin": 23,
+   "weaponDamageMax": 43,
+   "healingPower": 60,
+   "spellDamage": 60
+  },
+  {
+   "id": 271930,
+   "name": "Clever Expeditionary's Spellblade",
+   "weaponDamageMin": 19,
+   "weaponDamageMax": 36,
+   "healingPower": 48,
+   "spellDamage": 48
+  },
+  {
+   "id": 271931,
+   "name": "Clever Expeditionary's Spellblade",
+   "weaponDamageMin": 14,
+   "weaponDamageMax": 26,
+   "healingPower": 36,
+   "spellDamage": 36
+  },
+  {
+   "id": 272083,
+   "name": "Darkspear Insurgent's Spellblade",
+   "weaponDamageMin": 27,
+   "weaponDamageMax": 50,
+   "healingPower": 72,
+   "spellDamage": 72
+  },
+  {
+   "id": 272084,
+   "name": "Darkspear Insurgent's Spellblade",
+   "weaponDamageMin": 23,
+   "weaponDamageMax": 43,
+   "healingPower": 60,
+   "spellDamage": 60
+  },
+  {
+   "id": 272085,
+   "name": "Darkspear Insurgent's Spellblade",
+   "weaponDamageMin": 19,
+   "weaponDamageMax": 36,
+   "healingPower": 48,
+   "spellDamage": 48
+  },
+  {
+   "id": 272086,
+   "name": "Darkspear Insurgent's Spellblade",
+   "weaponDamageMin": 14,
+   "weaponDamageMax": 26,
+   "healingPower": 36,
+   "spellDamage": 36
+  },
+  {
+   "id": 272181,
+   "name": "Phantasmal Shiv",
+   "weaponDamageMin": 21,
+   "weaponDamageMax": 39,
+   "healingPower": 36,
+   "spellDamage": 36
+  },
+  {
+   "id": 272603,
+   "name": "Premier High Warlord's War Staff",
+   "weaponDamageMin": 109,
+   "weaponDamageMax": 165,
+   "healingPower": 94,
+   "spellDamage": 94
+  },
+  {
+   "id": 272681,
+   "name": "Premier High Warlord's Battle Mace",
+   "weaponDamageMin": 64,
+   "weaponDamageMax": 119,
+   "healingPower": 176,
+   "spellDamage": 58
+  },
+  {
+   "id": 272683,
+   "name": "Premier High Warlord's Spellblade",
+   "weaponDamageMin": 44,
+   "weaponDamageMax": 82,
+   "healingPower": 94,
+   "spellDamage": 94
+  },
+  {
+   "id": 272850,
+   "name": "Premier Grand Marshal's Stave",
+   "weaponDamageMin": 109,
+   "weaponDamageMax": 165,
+   "healingPower": 94,
+   "spellDamage": 94
+  },
+  {
+   "id": 272856,
+   "name": "Premier Grand Marshal's Mageblade",
+   "weaponDamageMin": 44,
+   "weaponDamageMax": 82,
+   "healingPower": 94,
+   "spellDamage": 94
+  },
+  {
+   "id": 272857,
+   "name": "Premier Grand Marshal's Warhammer",
+   "weaponDamageMin": 64,
+   "weaponDamageMax": 119,
+   "healingPower": 176,
+   "spellDamage": 58
+  },
+  {
+   "id": 272996,
+   "name": "Trogg Scepter",
+   "weaponDamageMin": 13,
+   "weaponDamageMax": 26,
+   "healingPower": 33,
+   "spellDamage": 11
+  },
+  {
+   "id": 273040,
+   "name": "Spine of the Devourer",
+   "weaponDamageMin": 59,
+   "weaponDamageMax": 90,
+   "healingPower": 36,
+   "spellDamage": 36
+  },
+  {
+   "id": 273053,
+   "name": "Tendonscraper Dagger",
+   "weaponDamageMin": 16,
+   "weaponDamageMax": 30,
+   "healingPower": 36,
+   "spellDamage": 36
+  },
+  {
+   "id": 273637,
+   "name": "Blade of Silverlaine",
+   "weaponDamageMin": 17,
+   "weaponDamageMax": 33,
+   "healingPower": 28,
+   "spellDamage": 28
+  },
+  {
+   "id": 273827,
+   "name": "Debt Collector",
+   "weaponDamageMin": 21,
+   "weaponDamageMax": 39,
+   "healingPower": 34,
+   "spellDamage": 34
+  },
+  {
+   "id": 274158,
+   "name": "Death Prophet Spine",
+   "weaponDamageMin": 42,
+   "weaponDamageMax": 64,
+   "healingPower": 34,
+   "spellDamage": 34
+  },
+  {
+   "id": 274420,
+   "name": "Wisepaw Totem",
+   "weaponDamageMin": 94,
+   "weaponDamageMax": 142,
+   "healingPower": 66,
+   "spellDamage": 66
+  },
+  {
+   "id": 274430,
+   "name": "Rock Sentinel Slicer",
+   "weaponDamageMin": 64,
+   "weaponDamageMax": 97,
+   "healingPower": 94,
+   "spellDamage": 31
+  },
+  {
+   "id": 274432,
+   "name": "Stone Keeper Spire",
+   "weaponDamageMin": 81,
+   "weaponDamageMax": 122,
+   "healingPower": 105,
+   "spellDamage": 35
+  },
+  {
+   "id": 274948,
+   "name": "Bottle of Powderfuse Port",
+   "weaponDamageMin": 20,
+   "weaponDamageMax": 38,
+   "healingPower": 63,
+   "spellDamage": 21
+  },
+  {
+   "id": 275291,
+   "name": "Staff of the Deeproar",
+   "weaponDamageMin": 88,
+   "weaponDamageMax": 133,
+   "healingPower": 94,
+   "spellDamage": 31
+  },
+  {
+   "id": 275293,
+   "name": "Barkskin Scepter",
+   "weaponDamageMin": 32,
+   "weaponDamageMax": 60,
+   "healingPower": 50,
+   "spellDamage": 50
+  },
+  {
+   "id": 275647,
+   "name": "Cleansed Ritual Kris",
+   "weaponDamageMin": 26,
+   "weaponDamageMax": 49,
+   "healingPower": 97,
+   "spellDamage": 32
+  },
+  {
+   "id": 275648,
+   "name": "Purified Gnarlybark Staff",
+   "weaponDamageMin": 84,
+   "weaponDamageMax": 127,
+   "healingPower": 52,
+   "spellDamage": 52
+  },
+  {
+   "id": 275698,
+   "name": "Yaely's Mending Tool",
+   "weaponDamageMin": 40,
+   "weaponDamageMax": 75,
+   "healingPower": 94,
+   "spellDamage": 31
+  },
+  {
+   "id": 275836,
+   "name": "Acolyte Blade",
+   "weaponDamageMin": 28,
+   "weaponDamageMax": 53,
+   "healingPower": 50,
+   "spellDamage": 50
+  },
+  {
+   "id": 276631,
+   "name": "Coldflame Saber",
+   "weaponDamageMin": 17,
+   "weaponDamageMax": 32,
+   "healingPower": 32,
+   "spellDamage": 32
+  },
+  {
+   "id": 276888,
+   "name": "Quilboar Toothpick",
+   "weaponDamageMin": 10,
+   "weaponDamageMax": 19,
+   "healingPower": 16,
+   "spellDamage": 16
+  },
+  {
+   "id": 277247,
+   "name": "Mug of Muddled Memories",
+   "weaponDamageMin": 8,
+   "weaponDamageMax": 16,
+   "healingPower": 4,
+   "spellDamage": 4
+  },
+  {
+   "id": 277248,
+   "name": "Notched Ritual Rib",
+   "weaponDamageMin": 24,
+   "weaponDamageMax": 45,
+   "healingPower": 52,
+   "spellDamage": 52
+  },
+  {
+   "id": 277288,
+   "name": "Pathfinder's Clearway",
+   "weaponDamageMin": 16,
+   "weaponDamageMax": 30,
+   "healingPower": 24,
+   "spellDamage": 24
+  },
+  {
+   "id": 279874,
+   "name": "The Stitcher",
+   "weaponDamageMin": 13,
+   "weaponDamageMax": 26,
+   "healingPower": 30,
+   "spellDamage": 10
+  },
+  {
+   "id": 280605,
+   "name": "Tidebringer's Claw",
+   "weaponDamageMin": 30,
+   "weaponDamageMax": 57,
+   "healingPower": 86,
+   "spellDamage": 28
+  },
+  {
+   "id": 280607,
+   "name": "Lightning's Grasp",
+   "weaponDamageMin": 28,
+   "weaponDamageMax": 52,
+   "healingPower": 46,
+   "spellDamage": 46
+  },
+  {
+   "id": 281274,
+   "name": "Makeshift Stormcaller",
+   "weaponDamageMin": 15,
+   "weaponDamageMax": 23,
+   "healingPower": 4,
+   "spellDamage": 4
+  },
+  {
+   "id": 281297,
+   "name": "Royal Dagger",
+   "weaponDamageMin": 10,
+   "weaponDamageMax": 19,
+   "healingPower": 18,
+   "spellDamage": 18
+  },
+  {
+   "id": 281312,
+   "name": "Fallen Dragon's Scepter",
+   "weaponDamageMin": 54,
+   "weaponDamageMax": 81,
+   "healingPower": 36,
+   "spellDamage": 36
+  },
+  {
+   "id": 281586,
+   "name": "Elderwild Construction Hammer",
+   "weaponDamageMin": 44,
+   "weaponDamageMax": 82,
+   "healingPower": 68,
+   "spellDamage": 68
+  },
+  {
+   "id": 281750,
+   "name": "Murloc Oracle's Dagger",
+   "weaponDamageMin": 16,
+   "weaponDamageMax": 31,
+   "healingPower": 56,
+   "spellDamage": 18
+  },
+  {
+   "id": 282007,
+   "name": "Emerald Watcher's Dreamstaff",
+   "weaponDamageMin": 76,
+   "weaponDamageMax": 114,
+   "healingPower": 56,
+   "spellDamage": 56
+  },
+  {
+   "id": 284173,
+   "name": "Impcaster's Staff",
+   "weaponDamageMin": 16,
+   "weaponDamageMax": 24,
+   "healingPower": 8,
+   "spellDamage": 8
+  },
+  {
+   "id": 284287,
+   "name": "Felweaver's Staff",
+   "weaponDamageMin": 13,
+   "weaponDamageMax": 21,
+   "healingPower": 6,
+   "spellDamage": 6
+  },
+  {
+   "id": 285238,
+   "name": "Chipped Spellstaff",
+   "weaponDamageMin": 9,
+   "weaponDamageMax": 14,
+   "healingPower": 2,
+   "spellDamage": 2
+  },
+  {
+   "id": 285350,
+   "name": "Alliance Outrunner Staff",
+   "weaponDamageMin": 32,
+   "weaponDamageMax": 49,
+   "healingPower": 28,
+   "spellDamage": 28
+  }
+ ]
+}

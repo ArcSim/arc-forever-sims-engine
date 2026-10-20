@@ -4,7 +4,12 @@ import (
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
 )
+
+// HowlingIdolFromRow (mythicsim patch 179, as wowsims/forever 7bf2911cbe): Howling Idol takes the cooldown
+// 1291059's row states off Shifting Power, 500 ms at client 70425. False restores patch 103's 1 second.
+var HowlingIdolFromRow = true
 
 func init() {
 	// Idol of the Moon
@@ -52,13 +57,18 @@ func init() {
 	// Howling Idol
 	// https://www.wowhead.com/forever/item=272427/howling-idol
 	//
-	// "Reduces the cooldown of your Shifting Power ability by 1 sec." (1291059: A_ADD_FLAT_MODIFIER,
-	// SPELLMOD_COOLDOWN, -1000 ms on Shifting Power's class mask). Stacks with Improved Shifting Power.
+	// "Reduces the cooldown of your Shifting Power ability by 0.5 sec." (1291059: A_ADD_FLAT_MODIFIER,
+	// SPELLMOD_COOLDOWN on Shifting Power's class mask). Stacks with Improved Shifting Power. Patch 103 wrote
+	// the -1000 ms of an earlier client; client 70425's row says -500 ms, which HowlingIdolFromRow reads.
 	core.NewItemEffect(272427, func(agent core.Agent) {
+		reduction := -time.Second
+		if HowlingIdolFromRow {
+			reduction = time.Duration(spelldata.MustFind(1291059).EffectN(1).BaseValue()) * time.Millisecond
+		}
 		agent.GetCharacter().AddStaticMod(core.SpellModConfig{
 			ClassMask: DruidSpellShiftingPower,
 			Kind:      core.SpellMod_Cooldown_Flat,
-			TimeValue: -time.Second,
+			TimeValue: reduction,
 		})
 	})
 
