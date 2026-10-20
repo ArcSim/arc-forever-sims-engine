@@ -5217,8 +5217,9 @@ target from the snapshot and applied to each tick's damage. Upstream's freezing 
 ## 178. `hunter: pets inherit the hunter's hit (ported from wowsims/forever a205077834)`
 
 Hunter Pet Scaling (415429) lists hit among the inherited stats. The pet takes the higher of the hunter's melee hit
-and melee plus ranged hit, the same way it takes crit (patch 136). The ranged part is tracked as an offset
-(`petHitOffset`), like crit's, because the owner's stats reach the pet as changes.
+and melee plus ranged hit. Ranged hit only ever adds (scopes, gear, talents), so that is melee plus ranged hit, a
+linear inheritance: the owner's stats reach the pet as changes, and the Rust engine carries pet inheritance as
+linear terms (a stateful offset like crit's made its exporter refuse a Survival case).
 
 - `PetsInheritHit` (sim/hunter/pet.go), **default true**. False leaves the pet on its own hit.
 - Test: `TestPetsInheritHit` (sim/hunter/pet_hit_test.go): +3 melee hit and +2 ranged hit reach the pet, the ranged
