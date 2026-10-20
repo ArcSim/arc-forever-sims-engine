@@ -33,9 +33,7 @@ func (hunter *Hunter) getMongooseBiteConfig(rank int) core.SpellConfig {
 			IgnoreHaste: true,
 		},
 		ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {
-			return hunter.DistanceFromTarget <= 5 &&
-				hunter.DefensiveState != nil &&
-				hunter.DefensiveState.IsActive()
+			return hunter.DistanceFromTarget <= 5 && (hunter.DefensiveState.IsActive() || hunter.ExposePrey.IsActive())
 		},
 
 		DamageMultiplier: 1,
@@ -45,7 +43,12 @@ func (hunter *Hunter) getMongooseBiteConfig(rank int) core.SpellConfig {
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			base := bonus + spell.Unit.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target))
 			result := spell.CalcAndDealDamage(sim, target, base, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
-			if result.Landed() && hunter.DefensiveState != nil && hunter.DefensiveState.IsActive() {
+			// one bite spends the ready state, whichever buff gave it
+			if result.Landed() {
+				if hunter.ExposePrey.IsActive() {
+					hunter.exposePreyUsed = true
+					hunter.ExposePrey.Deactivate(sim)
+				}
 				hunter.DefensiveState.Deactivate(sim)
 			}
 		},
@@ -53,12 +56,12 @@ func (hunter *Hunter) getMongooseBiteConfig(rank int) core.SpellConfig {
 }
 
 func (hunter *Hunter) registerMongooseBiteSpell() {
+	// dodges and parries (nothing attacks the hunter in a raid sim, so this one stays down there)
 	hunter.DefensiveState = hunter.RegisterAura(core.Aura{
 		Label:    "Defensive State",
 		ActionID: core.ActionID{SpellID: 5302},
 		Duration: time.Second * 10,
 	})
-
 	core.MakePermanent(hunter.RegisterAura(core.Aura{
 		Label: "Mongoose Bite Trigger",
 		OnSpellHitTaken: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
@@ -68,10 +71,34 @@ func (hunter *Hunter) registerMongooseBiteSpell() {
 		},
 	}))
 
+	// Expose Prey's own buff (1310726, 10 s), with short markers so the buff table counts (procs per fight) and the
+	// timeline shows what became of each one: used by a Mongoose Bite, run out unused, or refreshed by a new proc
+	// while it was still up
+	marker := func(tag int32, label string) *core.Aura {
+		return hunter.RegisterAura(core.Aura{Label: label, ActionID: core.ActionID{SpellID: 1310726, Tag: tag}, Duration: time.Millisecond * 100})
+	}
+	used := marker(1, "Expose Prey Used")
+	expired := marker(2, "Expose Prey Expired")
+	refreshed := marker(3, "Expose Prey Refreshed")
+	hunter.ExposePrey = hunter.RegisterAura(core.Aura{
+		Label:    "Expose Prey",
+		ActionID: core.ActionID{SpellID: 1310726},
+		Duration: time.Second * 10,
+		OnExpire: func(aura *core.Aura, sim *core.Simulation) {
+			// the fight's end also takes it down, and that wastes nothing
+			if hunter.exposePreyUsed {
+				used.Activate(sim)
+			} else if sim.CurrentTime < sim.Duration {
+				expired.Activate(sim)
+			}
+			hunter.exposePreyUsed = false
+		},
+	})
+
 	if hunter.Talents.ExposePrey > 0 {
 		procChance := 0.05 * float64(hunter.Talents.ExposePrey)
 		core.MakePermanent(hunter.RegisterAura(core.Aura{
-			Label: "Expose Prey",
+			Label: "Expose Prey Talent",
 			OnSpellHitDealt: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 				// the hunter's own melee and ranged attacks only (not the hawk's swings or traps)
 				if !spell.ProcMask.Matches(core.ProcMaskMeleeOrRanged) || spell.ActionID == (core.ActionID{SpellID: 1293241}.WithTag(1)) {
@@ -80,10 +107,11 @@ func (hunter *Hunter) registerMongooseBiteSpell() {
 				if !result.Landed() || sim.RandomFloat("Expose Prey") >= procChance {
 					return
 				}
-				if hunter.DefensiveState.IsActive() {
-					hunter.DefensiveState.Refresh(sim)
+				if hunter.ExposePrey.IsActive() {
+					refreshed.Activate(sim)
+					hunter.ExposePrey.Refresh(sim)
 				} else {
-					hunter.DefensiveState.Activate(sim)
+					hunter.ExposePrey.Activate(sim)
 				}
 			},
 		}))

@@ -5,6 +5,24 @@
       "action": {
         "castSpell": {
           "spellId": {
+            "spellId": 20905
+          }
+        }
+      },
+      "doAtValue": {
+        "const": {
+          "val": "-13s"
+        }
+      },
+      "simple": {
+        "text": "**Trueshot Aura** 13 s before the pull.",
+        "shown": true
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
             "spellId": 1299447
           }
         }
@@ -35,6 +53,24 @@
       },
       "simple": {
         "text": "**Move to 11 yd** 5 s before the pull."
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 14325
+          }
+        }
+      },
+      "doAtValue": {
+        "const": {
+          "val": "-4s"
+        }
+      },
+      "simple": {
+        "text": "**Hunter's Mark** 4 s before the pull.",
+        "shown": true
       }
     },
     {
@@ -374,7 +410,7 @@
                           {
                             "auraIsActive": {
                               "auraId": {
-                                "spellId": 5302
+                                "spellId": 1310726
                               }
                             }
                           },
@@ -705,7 +741,7 @@
                                     {
                                       "auraIsActive": {
                                         "auraId": {
-                                          "spellId": 5302
+                                          "spellId": 1310726
                                         }
                                       }
                                     },
@@ -997,7 +1033,7 @@
                                     {
                                       "auraIsActive": {
                                         "auraId": {
-                                          "spellId": 5302
+                                          "spellId": 1310726
                                         }
                                       }
                                     },

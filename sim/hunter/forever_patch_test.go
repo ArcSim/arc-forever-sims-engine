@@ -1342,6 +1342,137 @@ func TestRangedMinimumElevenYards(t *testing.T) {
 	}
 }
 
+// Trueshot Aura and Hunter's Mark are castable for a rotation's pull: each goes out once before the pull, and the mark
+// is on the target with the raid's Hunter's Mark debuff off. With that debuff on, the mark is up the whole fight
+// (the setting used to register it without ever putting it up) and the cast adds nothing on top. A hunter without the
+// talent skips Trueshot Aura, and a rotation shared with talented builds raises no warning for it.
+func TestPrepullTrueshotAndMark(t *testing.T) {
+	const talented, untalented = "-0053150011-500230230250222151", "-0053150010-500230230250222151"
+	run := func(talents string, cast bool, debuffs *proto.Debuffs) (casts map[int32]int32, markUptime, fight, dps float64, warnings []string) {
+		prepull := ""
+		if cast {
+			prepull = `{"action":{"castSpell":{"spellId":{"spellId":20905}}},"doAtValue":{"const":{"val":"-13s"}}},` +
+				`{"action":{"castSpell":{"spellId":{"spellId":14325}}},"doAtValue":{"const":{"val":"-4s"}}}`
+		}
+		rot := &proto.APLRotation{}
+		aplJSON := `{"type":"TypeAPL","prepullActions":[` + prepull + `],` +
+			`"priorityList":[{"action":{"castSpell":{"spellId":{"spellId":14287,"rank":8}}}}]}`
+		if err := protojson.Unmarshal([]byte(aplJSON), rot); err != nil {
+			t.Fatalf("rotation: %v", err)
+		}
+		player := core.WithSpec(&proto.Player{
+			Race:               proto.Race_RaceHuman,
+			Class:              proto.Class_ClassHunter,
+			Equipment:          core.GetGearSet("../../ui/hunter/gear_sets", "2h_weave").GearSet,
+			TalentsString:      talents,
+			Consumes:           abConsumes,
+			Buffs:              abIndividualBuffs,
+			Rotation:           rot,
+			DistanceFromTarget: 12,
+		}, abOptions)
+		raid := core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, abRaidBuffs, debuffs)
+		for _, a := range core.ComputeStats(&proto.ComputeStatsRequest{Raid: raid, Encounter: abEncounter()}).RaidStats.Parties[0].Players[0].RotationStats.PrepullActions {
+			warnings = append(warnings, a.Warnings...)
+		}
+		res := core.RunRaidSim(&proto.RaidSimRequest{
+			Raid:       raid,
+			Encounter:  abEncounter(),
+			SimOptions: &proto.SimOptions{Iterations: 50, RandomSeed: 20261019},
+		})
+		if res.Error != nil {
+			t.Fatalf("sim error: %s", res.Error.Message)
+		}
+		casts = map[int32]int32{}
+		for _, a := range res.RaidMetrics.Parties[0].Players[0].Actions {
+			for _, tm := range a.Targets {
+				casts[a.Id.GetSpellId()] += tm.Casts
+			}
+		}
+		for _, a := range res.EncounterMetrics.Targets[0].Auras {
+			if a.Id.GetSpellId() == 14325 {
+				markUptime = a.UptimeSecondsAvg
+			}
+		}
+		return casts, markUptime, res.AvgIterationDuration, res.RaidMetrics.Dps.Avg, warnings
+	}
+
+	casts, markUptime, _, _, warnings := run(talented, true, &proto.Debuffs{})
+	if len(warnings) > 0 {
+		t.Errorf("pull casts warn: %v", warnings)
+	}
+	if casts[20905] != 50 || casts[14325] != 50 {
+		t.Errorf("Trueshot Aura cast %d times in 50 fights, Hunter's Mark %d; want each once a fight, before the pull", casts[20905], casts[14325])
+	}
+	if markUptime < 60 {
+		t.Errorf("Hunter's Mark up %.1f s on the target; want it from the pull on", markUptime)
+	}
+
+	casts, _, _, _, warnings = run(untalented, true, &proto.Debuffs{})
+	if casts[20905] != 0 || casts[14325] != 50 || len(warnings) > 0 {
+		t.Errorf("without the talent: Trueshot Aura cast %d times, Hunter's Mark %d, warnings %v; want 0, 50, none", casts[20905], casts[14325], warnings)
+	}
+
+	_, raidUptime, fight, raidDps, _ := run(talented, false, abDebuffs)
+	if raidUptime < fight-0.5 {
+		t.Errorf("raid Hunter's Mark up %.1f s of a %.1f s fight; want all of it", raidUptime, fight)
+	}
+	_, _, _, bothDps, _ := run(talented, true, abDebuffs)
+	if math.Abs(bothDps-raidDps) > raidDps*0.005 {
+		t.Errorf("casting the mark over the raid's: %.1f DPS vs %.1f; want the same (one mark)", bothDps, raidDps)
+	}
+}
+
+// Expose Prey is its own buff, and every one ends one way: a landed Mongoose Bite uses it, or it runs out unused (one
+// still up when the fight ends counts as neither), and a proc while it is up refreshes it. The markers count each: used
+// matches the landed Mongoose Bites, and used + expired is every proc but at most one a fight.
+func TestExposePreyMarkers(t *testing.T) {
+	const iterations = 50
+	player := core.WithSpec(&proto.Player{
+		Race:               proto.Race_RaceHuman,
+		Class:              proto.Class_ClassHunter,
+		Equipment:          core.GetGearSet("../../ui/hunter/gear_sets", "surv_dw").GearSet,
+		TalentsString:      "-00531500111-500230230250122151",
+		Consumes:           abConsumes,
+		Buffs:              abIndividualBuffs,
+		Rotation:           core.GetAplRotation("../../ui/hunter/apls", "arc_weave_2h").Rotation,
+		DistanceFromTarget: 3,
+	}, abOptions)
+	res := core.RunRaidSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, abRaidBuffs, abDebuffs),
+		Encounter:  abEncounter(),
+		SimOptions: &proto.SimOptions{Iterations: iterations, RandomSeed: 20261019},
+	})
+	if res.Error != nil {
+		t.Fatalf("sim error: %s", res.Error.Message)
+	}
+	um := res.RaidMetrics.Parties[0].Players[0]
+	procs := map[int32]float64{}
+	for _, a := range um.Auras {
+		if a.Id.GetSpellId() == 1310726 {
+			procs[a.Id.Tag] = a.ProcsAvg
+		}
+	}
+	gained, used, expired, refreshed := procs[0], procs[1], procs[2], procs[3]
+	var landed int32
+	for _, a := range um.Actions {
+		if a.Id.GetSpellId() == 14271 {
+			for _, tm := range a.Targets {
+				landed += tm.Casts - tm.Misses - tm.Dodges - tm.Parries
+			}
+		}
+	}
+	if gained == 0 || landed == 0 {
+		t.Fatalf("no Expose Prey or no Mongoose Bite (procs %.2f, landed %d); the check needs both", gained, landed)
+	}
+	t.Logf("Expose Prey a fight: %.2f procs, %.2f used, %.2f expired unused, %.2f refreshed", gained, used, expired, refreshed)
+	if diff := used*iterations - float64(landed); diff > 0.01 || diff < -0.01 {
+		t.Errorf("used %.2f a fight, landed Mongoose Bites %.2f a fight; want equal", used, float64(landed)/iterations)
+	}
+	if left := gained - used - expired; left < -0.001 || left > 1.001 {
+		t.Errorf("procs %.2f, used %.2f, expired %.2f, refreshed %.2f a fight: %.2f unaccounted, want 0 to 1 (still up at the end)", gained, used, expired, refreshed, left)
+	}
+}
+
 // The end of a walk is a decision point: walking in to 3 yd during a busy GCD, the swing lands at 5 yd while the walk
 // goes on (no new move then), so the walk back has to start on arrival. Without the recheck it waited for the GCD.
 func TestMoveAfterArrivalDuringGcd(t *testing.T) {

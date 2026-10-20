@@ -5,6 +5,20 @@
       "action": {
         "castSpell": {
           "spellId": {
+            "spellId": 20905
+          }
+        }
+      },
+      "doAtValue": {
+        "const": {
+          "val": "-13s"
+        }
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
             "spellId": 25296,
             "rank": 7
           }
@@ -29,6 +43,20 @@
       "doAtValue": {
         "const": {
           "val": "-5s"
+        }
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 14325
+          }
+        }
+      },
+      "doAtValue": {
+        "const": {
+          "val": "-4s"
         }
       }
     }

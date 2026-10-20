@@ -102,7 +102,7 @@ func applyDebuffEffects(target *Unit, targetIdx int, debuffs *proto.Debuffs, rai
 		MakePermanent(DemoralizingShoutAura(target, 0, GetTristateValueInt32(debuffs.DemoralizingShout, 0, 5)))
 	}
 	if debuffs.HuntersMark != proto.TristateEffect_TristateEffectMissing {
-		HuntersMarkAura(target)
+		MakePermanent(HuntersMarkAura(target))
 	}
 
 	// Atk spd reduction

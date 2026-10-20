@@ -132,9 +132,20 @@ func (hunter *Hunter) ApplyTalents() {
 // The talent teaches Trueshot Aura, cast before the pull (it lasts 30 minutes), so the hunter has it even when the raid
 // buffs leave it out.
 func (hunter *Hunter) applyTrueshotAura() {
+	var aura *core.Aura
 	if hunter.Talents.TrueshotAura {
-		core.TrueshotAura(&hunter.Unit)
+		aura = core.TrueshotAura(&hunter.Unit)
 	}
+	// castable too, for a rotation's pull: the aura is up all fight either way, and it is cast long before the pull,
+	// so it costs nothing here. Every hunter knows the spell so a rotation shared with untalented builds raises no
+	// unknown-spell warning; it only goes out with the talent.
+	hunter.RegisterSpell(core.SpellConfig{
+		ActionID:           core.ActionID{SpellID: 20905},
+		Flags:              core.SpellFlagAPL,
+		Cast:               core.CastConfig{DefaultCast: core.Cast{GCD: core.GCDDefault}},
+		ExtraCastCondition: func(_ *core.Simulation, _ *core.Unit) bool { return aura != nil },
+		ApplyEffects:       func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) { aura.Activate(sim) },
+	})
 }
 
 func (hunter *Hunter) applyExposePrey() {

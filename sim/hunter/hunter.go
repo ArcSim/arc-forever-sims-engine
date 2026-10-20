@@ -110,7 +110,10 @@ type Hunter struct {
 	MeleeSpells []*core.Spell
 	LastShot    *core.Spell
 
-	DefensiveState      *core.Aura
+	DefensiveState *core.Aura
+	ExposePrey     *core.Aura
+	// a landed Mongoose Bite is what ended this Expose Prey (for the used / expired markers)
+	exposePreyUsed      bool
 	RapidFireAura       *core.Aura
 	BestialWrathPetAura *core.Aura
 	IntimidationPetAura *core.Aura
@@ -173,6 +176,7 @@ func (hunter *Hunter) Initialize() {
 	hunter.registerSummonHawkSpell(arcaneShotTimer)
 	hunter.registerStriderKickSpell()
 	hunter.registerMongooseBiteSpell()
+	hunter.registerHuntersMarkSpell()
 	hunter.registerWingClipSpell()
 	hunter.registerVolleySpell()
 
