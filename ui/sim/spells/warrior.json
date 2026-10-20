@@ -217,7 +217,7 @@
 	"25288": {
 		"ability": "Revenge",
 		"file": "sim/warrior/revenge.go",
-		"note": "Client 1.60.1.70009: rank 6 deals 138 to 168, about 70% more than Classic's 81 to 99; 5 Rage and a 5 sec cooldown unchanged. It is the only rank the sim casts. Beta logs add 25% of attack power on top, which the client row doesn't carry: 4 level 20 warriors, about 450 rank 1 hits, land 0.23-0.27 of their attack power over the base once armor is taken out. Threat is damage x1 plus a flat bonus, ~40 at rank 1 (46 damage for ~96 threat in Defensive Stance), measured in the level 20 beta on 2026-09-28; the sim had 2.25x damage plus 270. Rank 6's flat is carried as 2 per level (120), fitted to that one rank.",
+		"note": "Client 1.60.1.70009: rank 6 deals 138 to 168, about 70% more than Classic's 81 to 99; 5 Rage and a 5 sec cooldown unchanged. It is the only rank the sim casts. Beta logs add 25% of attack power on top, which the client row doesn't carry: 4 level 20 warriors, about 450 rank 1 hits, land 0.23-0.27 of their attack power over the base once armor is taken out. Threat is 2.25 times the damage, measured on rank 2 in game by wowsims/forever's owner (MythicSim patch 183); it replaced damage x1 plus 120, fitted to one rank 1 reading in the level 20 beta (46 damage for ~96 threat).",
 		"source": "forever",
 		"tooltip": "5 Rage\nMelee Range\nInstant\n5 sec cooldown\nRequires Defensive Stance\nInstantly counterattack an enemy for 138 to 168 damage and a high amount of threat. Revenge must follow a block, dodge or parry."
 	},

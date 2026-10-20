@@ -5252,3 +5252,65 @@ spell power here, 33-62 with 90 spell damage and 90 healing upstream), the Holy-
   upstream's damage, spell damage and healing.
 - Hand of Edward's Focus proc (18803) is not implemented here (the generated entry is commented out), so the
   row's proc rate does not matter yet.
+
+## 181. `shaman: Rockbiter Weapon adds 72 threat a second of main-hand swing to each melee hit (ported from wowsims/forever f128c3d268)`
+
+Rockbiter Weapon (Passive) casts Rockbiter Weapon Proc (20871) off each landed white swing and melee ability, and
+its script effect adds 72 threat for every second of the main hand's swing. No row triggers 20871, so our store
+does not carry it; the 72 is written beside the code. Players reported Rockbiter giving no threat in the sim
+(Discord, 19 and 20 October): without Spirit Weapons it gave none, since the passive's own threat effect is 0.
+
+- `RockbiterThreatProc` (sim/shaman/weapon_imbues.go), **default true**: the hit must come from a hand carrying
+  Rockbiter at the time (an item swap changes it), and the threat takes the shaman's multipliers, Spirit Weapons'
+  Rockbiter half included. False restores the attack power and Spirit Weapons' threat alone.
+- Test: `TestRockbiterThreatProc` (sim/shaman/enhancement/rockbiter_threat_test.go): a landed Sulfuras swing adds
+  72 x 3.7 = 266.4, a miss and a Windfury Weapon swing none; off, 20871 is not registered.
+
+## 182. `core: rage gained is 5 threat times the threat multiplier, split between the targets (ported from wowsims/forever 913a5bcf69)`
+
+Upstream's owner measured rage-gain threat in game: 5 a rage, times the unit's threat multiplier when the rage is
+gained (a warrior's stance and Defiance, a bear's form), split between the targets in combat. Ours was 5 a rage on
+every target, unmultiplied, so a Defensive Stance warrior with Defiance had a third less rage threat than in game.
+
+- `RageGainThreatMultiplied` (sim/core/rage.go), **default true**: `AddRage` keeps each source's threat at the
+  gain; `doneIteration` divides it between the active targets. The white-swing, damage-taken and refund exclusions
+  are unchanged. False restores 5 a rage on each target.
+- Test: `TestRageGainThreat` (sim/warrior/protection/threat_test.go): one target x1.495 of the old (Defensive
+  Stance and 5/5 Defiance), two targets each half of that.
+
+## 183. `warrior: Revenge's threat is 2.25 times its damage (ported from wowsims/forever 913a5bcf69)`
+
+The tooltip says only "a high amount of threat". Upstream's owner measured 2.25 times the damage on Rank 2 in
+game. Ours was damage x1 plus 2 a level (120 at Rank 6), fitted to one Rank 1 reading in the level 20 beta
+(46 damage, ~96 threat), which is also about 2.1 times the damage read without the stance.
+
+- `RevengeThreatFromDamage` (sim/warrior/revenge.go), **default true**. False restores x1 plus 120.
+- Test: `TestWarriorThreatCaptures` (sim/warrior/protection/threat_test.go).
+
+## 184. `warrior: Heroic Strike and Cleave threat from upstream's captures, Cleave's split between the targets it lands on (ported from wowsims/forever's 7 October overrides)`
+
+Upstream's threat captures (2026-10-07): Heroic Strike Rank 3 adds 40 to 40.6 beyond its damage at spell level 16
+and Rank 4 61 at 24, none with attack power, so 2.54 a spell level (152 at Rank 9); Cleave Rank 2 adds ~46 at
+spell level 30 on one target and ~23 on each of two, so 1.53 a level (92 at Rank 5), split between the targets
+the cleave lands on (913a5bcf69). Ours carried Classic's 173 and 100, Cleave's on each target.
+
+- `HeroicStrikeCleaveThreatPerLevel` (sim/warrior/heroic_strike_cleave.go), **default true**. False restores
+  173 and 100.
+- Test: `TestWarriorThreatCaptures`.
+
+## 185. `warrior: Sunder Armor adds 0.05 of the attack power to its threat (ported from wowsims/forever's 7 October overrides)`
+
+The 2026-09-24 notes give Sunder Armor "a small increase from attack power", which the client's E_THREAT effect
+does not carry. Upstream measured Rank 1 at 132, 158, 170 and 180 attack power, in Battle and Defensive Stance:
+34 + 0.05 x attack power, times the stance. The other ranks carry Rank 1's share until measured.
+
+- `SunderArmorThreatFromAttackPower` (sim/warrior/sunder_armor.go), **default true**: the client's 206 plus 0.05
+  of the attack power at the cast. False restores 206.
+- Test: `TestWarriorThreatCaptures`.
+
+Upstream's Sunder Armor and Heroic Strike captures were taken in Battle Stance as well as Defensive, the flat bonus
+times the stance in both, so patch 151's switch (flat threat only in Defensive Stance) stays off.
+
+Not taken from upstream's threat set: Shield Slam (upstream 0, untested; ours keeps 508 until a level 40 capture),
+Hamstring and Shield Bash (upstream 0; neither is in a MythicSim rotation that ranks threat), Battle Shout (ours
+reads the client's E_THREAT effect).

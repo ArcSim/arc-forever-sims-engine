@@ -4,6 +4,19 @@ import (
 	"github.com/wowsims/forever/sim/core"
 )
 
+// HeroicStrikeCleaveThreatPerLevel takes Heroic Strike's and Cleave's flat threat from upstream's
+// in-game captures (mythicsim patch 184, ported from wowsims/forever's 2026-10-07 overrides): Heroic
+// Strike adds 2.54 threat a spell level beyond its damage (Rank 3: 40 to 40.6 at level 16, Rank 4: 61
+// at 24), none with attack power, and Cleave 1.53 a level (Rank 2: ~46 at level 30 on one target,
+// ~23 on each of two), split between the targets it lands on. Both are multiplied by the stance with
+// the damage. Off, Classic's 173 and 100, Cleave's on every target.
+var HeroicStrikeCleaveThreatPerLevel = true
+
+const (
+	heroicStrikeThreatPerLevel = 2.54
+	cleaveThreatPerLevel       = 1.53
+)
+
 // Heroic Strike and Cleave carry the client's On Next Swing attribute (Attributes 0x4 on 25286 and
 // 20569, which Bloodthirst and Mortal Strike lack), so both queue onto the next main hand swing
 // instead of firing as instant specials.
@@ -32,8 +45,9 @@ func (warrior *Warrior) registerHeroicStrike() {
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
-		// Not in the client table (no E_THREAT effect), so the Classic rank 9 value stays ours.
-		FlatThreatBonus: 173,
+		// Not in the client table (no E_THREAT effect). Patch 184: 2.54 a spell level (152 at Rank 9).
+		FlatThreatBonus: core.TernaryFloat64(HeroicStrikeCleaveThreatPerLevel,
+			heroicStrikeThreatPerLevel*float64(heroicStrikeRank.SpellLevel), 173),
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			baseDamage := heroicStrikeBaseDamage + warrior.MHWeaponDamage(sim, spell.MeleeAttackPower(target))
@@ -80,8 +94,10 @@ func (warrior *Warrior) registerCleave() {
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
-		// Not in the client table (no E_THREAT effect), so the Classic rank 5 value stays ours.
-		FlatThreatBonus: 100,
+		// Not in the client table (no E_THREAT effect). Patch 184: 1.53 a spell level (92 at Rank 5),
+		// split between the targets the cleave lands on.
+		FlatThreatBonus: core.TernaryFloat64(HeroicStrikeCleaveThreatPerLevel,
+			cleaveThreatPerLevel*float64(cleaveRank.SpellLevel), 100),
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			results = results[:0]
@@ -90,6 +106,23 @@ func (warrior *Warrior) registerCleave() {
 				baseDamage := cleaveBaseDamage + warrior.MHWeaponDamage(sim, spell.MeleeAttackPower(target))
 				results = append(results, warrior.calcQueuedSwing(sim, spell, target, baseDamage))
 				target = sim.Environment.NextActiveTargetUnit(target)
+			}
+
+			if HeroicStrikeCleaveThreatPerLevel {
+				landed := 0
+				for _, result := range results {
+					if result.Landed() {
+						landed++
+					}
+				}
+				if landed > 1 {
+					flatThreat := spell.FlatThreatBonus
+					spell.FlatThreatBonus /= float64(landed)
+					for _, result := range results {
+						result.Threat = spell.ThreatFromDamage(sim, result.Outcome, result.Damage, warrior.AttackTables[result.Target.UnitIndex])
+					}
+					spell.FlatThreatBonus = flatThreat
+				}
 			}
 
 			for _, result := range results {

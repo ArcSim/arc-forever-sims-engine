@@ -6,11 +6,21 @@ import (
 	"github.com/wowsims/forever/sim/core/dbcenums"
 )
 
+// SunderArmorThreatFromAttackPower adds 0.05 of the warrior's attack power to Sunder Armor's threat
+// (mythicsim patch 185, ported from wowsims/forever's 2026-10-07 overrides): upstream measured Rank 1
+// at 132, 158, 170 and 180 attack power, in Battle and Defensive Stance, as 34 + 0.05 x attack power
+// times the stance, the "small increase from attack power" of the 2026-09-24 notes. The other ranks
+// carry Rank 1's share until measured. Off, the client's flat value alone.
+var SunderArmorThreatFromAttackPower = true
+
+const sunderThreatPerAttackPower = 0.05
+
 func (warrior *Warrior) registerSunderArmor() {
 	// The client supplies Sunder Armor's flat threat per rank: 34/75/117/158/206 (build 70009).
-	// The 2026-09-24 notes add "a small increase from attack power", but the E_THREAT effect
-	// carries no AP coefficient in the client data, so only the flat value is modelled.
+	// The 2026-09-24 notes add "a small increase from attack power", which the E_THREAT effect does
+	// not carry: patch 185 adds upstream's measured share.
 	sunderArmorRank := spellData.SunderArmor.Highest()
+	sunderThreat := sunderArmorRank.FindEffect(dbcenums.E_THREAT, 0, 0).Average(core.CharacterLevel)
 
 	actionId := core.ActionID{SpellID: sunderArmorRank.ID}
 
@@ -44,9 +54,12 @@ func (warrior *Warrior) registerSunderArmor() {
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
-		FlatThreatBonus:  sunderArmorRank.FindEffect(dbcenums.E_THREAT, 0, 0).Average(core.CharacterLevel),
+		FlatThreatBonus:  sunderThreat,
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			if SunderArmorThreatFromAttackPower {
+				spell.FlatThreatBonus = sunderThreat + sunderThreatPerAttackPower*spell.MeleeAttackPower(target)
+			}
 			result := spell.CalcOutcome(sim, target, spell.OutcomeMeleeSpecialHit)
 
 			if result.Landed() {

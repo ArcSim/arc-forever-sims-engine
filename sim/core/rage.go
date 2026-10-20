@@ -8,8 +8,15 @@ import (
 
 const ThreatPerRageGained = 5
 
+// RageGainThreatMultiplied makes rage gained count ThreatPerRageGained threat times the unit's threat
+// multiplier at the gain (a warrior's stance and Defiance, a bear's form), split between the targets
+// in combat (mythicsim patch 182, ported from wowsims/forever 913a5bcf69, its owner's in-game
+// measurements). Off, each rage is 5 threat on every target, with no multiplier.
+var RageGainThreatMultiplied = true
+
 // TODO: Ingame test needed at higher levels
 const DamageTakenRageFactor = 10
+
 // A critical auto attack adds its swing's rage again, before the two-hander's factor. Blizzard's
 // beta development notes (1 and 8 October, warrior and druid): "Additional Rage generated from
 // landing Critical Strikes increased to 100% increased Rage (was 75%)". The client hook, Rule of
@@ -33,6 +40,9 @@ type rageBar struct {
 
 	offHandRageMultiplier     float64
 	damageTakenRageMultiplier float64
+
+	// Threat from this iteration's rage gains, by source, before the split between targets (patch 182).
+	rageGainThreat map[*ResourceMetrics]float64
 
 	RageRefundMetrics     *ResourceMetrics
 	EncounterStartMetrics *ResourceMetrics
@@ -165,6 +175,13 @@ func (rb *rageBar) AddRage(sim *Simulation, amount float64, metrics *ResourceMet
 	newRage := min(rb.currentRage+amount, rb.maxRage)
 	metrics.AddEvent(amount, newRage-rb.currentRage)
 
+	if gain := newRage - rb.currentRage; gain > 0 && RageGainThreatMultiplied {
+		if rb.rageGainThreat == nil {
+			rb.rageGainThreat = make(map[*ResourceMetrics]float64)
+		}
+		rb.rageGainThreat[metrics] += gain * ThreatPerRageGained * rb.unit.PseudoStats.ThreatMultiplier
+	}
+
 	if sim.Log != nil {
 		rb.unit.Log(sim, "Gained %0.3f rage from %s (%0.3f --> %0.3f) of %0.0f total.", amount, metrics.ActionID, rb.currentRage, newRage, rb.maxRage)
 	}
@@ -205,6 +222,7 @@ func (rb *rageBar) reset(_ *Simulation) {
 
 	rb.currentRage = rb.startingRage
 	rb.damageTakenRageMultiplier = 1
+	clear(rb.rageGainThreat)
 }
 
 func (rb *rageBar) doneIteration() {
@@ -236,7 +254,11 @@ func (rb *rageBar) doneIteration() {
 		}
 
 		rageGainSpell.SpellMetrics[0].Casts += resourceMetrics.EventsForCurrentIteration()
-		rageGainSpell.ApplyAOEThreatIgnoreMultipliers(resourceMetrics.ActualGainForCurrentIteration() * ThreatPerRageGained)
+		if RageGainThreatMultiplied {
+			rageGainSpell.ApplyAOEThreatIgnoreMultipliers(rb.rageGainThreat[resourceMetrics] / float64(len(rb.unit.Env.GetActiveTargetUnits())))
+		} else {
+			rageGainSpell.ApplyAOEThreatIgnoreMultipliers(resourceMetrics.ActualGainForCurrentIteration() * ThreatPerRageGained)
+		}
 	}
 }
 

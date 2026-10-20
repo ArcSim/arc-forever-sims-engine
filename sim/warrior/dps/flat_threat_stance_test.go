@@ -28,7 +28,7 @@ func flatThreatTestWarrior(t *testing.T, only bool) (*core.Simulation, *DpsWarri
 }
 
 // Patch 151: with FlatThreatOnlyInDefensiveStance a Warrior's abilities add their flat bonus threat
-// only in Defensive Stance (Sunder Armor's client 206, Heroic Strike's 173); damage threat is kept.
+// only in Defensive Stance (Sunder Armor's client 206, Heroic Strike's flat bonus); damage threat is kept.
 func TestFlatThreatOnlyInDefensiveStance(t *testing.T) {
 	sim, war := flatThreatTestWarrior(t, true)
 	at := war.AttackTables[war.CurrentTarget.UnitIndex]
@@ -57,7 +57,7 @@ func TestFlatThreatOnlyInDefensiveStance(t *testing.T) {
 	if got, want := sunder.ThreatFromDamage(sim, core.OutcomeHit, 0, at), 206*inside; !core.WithinToleranceFloat64(want, got, 1e-9) {
 		t.Errorf("Sunder Armor in Defensive Stance: %.2f threat, want %.2f", got, want)
 	}
-	if got, want := heroicStrike.ThreatFromDamage(sim, core.OutcomeHit, 100, at), (100*heroicStrike.ThreatMultiplier+173)*inside; !core.WithinToleranceFloat64(want, got, 1e-9) {
+	if got, want := heroicStrike.ThreatFromDamage(sim, core.OutcomeHit, 100, at), (100*heroicStrike.ThreatMultiplier+heroicStrike.FlatThreatBonus)*inside; !core.WithinToleranceFloat64(want, got, 1e-9) {
 		t.Errorf("Heroic Strike for 100 in Defensive Stance: %.2f threat, want %.2f", got, want)
 	}
 

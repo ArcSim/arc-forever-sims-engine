@@ -144,7 +144,7 @@ dps_results: {
  key: "TestFeralCat-AllItems-BarbaricBelt-4264"
  value: {
   dps: 291.44414
-  tps: 164.6712
+  tps: 164.25203
  }
 }
 dps_results: {

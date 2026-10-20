@@ -448,6 +448,10 @@ func (shaman *Shaman) RegisterRockbiterImbue(procMask core.ProcMask) {
 		return
 	}
 
+	if RockbiterThreatProc {
+		shaman.registerRockbiterThreat()
+	}
+
 	attackPower := rockbiterImbue.Effect(dbcenums.A_MOD_ATTACK_POWER, 0).Average(core.CharacterLevel) *
 		(1 + spellData.ElementalWeapons.EffectAt(1).FractionAt(shaman.Talents.ElementalWeapons))
 	aura := shaman.NewTemporaryStatsAura("Rockbiter Weapon", core.ActionID{SpellID: rockbiterImbue.ID},
@@ -479,4 +483,53 @@ func (shaman *Shaman) RegisterRockbiterImbue(procMask core.ProcMask) {
 			aura.Deactivate(sim)
 		}
 	})
+}
+
+// RockbiterThreatProc adds the threat Rockbiter Weapon (Passive) puts on each melee hit (mythicsim patch
+// 181, ported from wowsims/forever f128c3d268): the passive casts Rockbiter Weapon Proc (20871) off every
+// landed white swing and melee ability of a weapon carrying Rockbiter, and its script effect adds 72
+// threat for every second of the main hand's swing. No row triggers 20871, so the store does not carry
+// it and its 72 is written here. It multiplies with the rest of the shaman's threat (Spirit Weapons'
+// Rockbiter half included). Off, Rockbiter adds only its attack power and Spirit Weapons' threat.
+var RockbiterThreatProc = true
+
+const (
+	rockbiterThreatSpellID     = 20871
+	rockbiterThreatPerSwingSec = 72
+)
+
+func (shaman *Shaman) registerRockbiterThreat() {
+	threatSpell := shaman.RegisterSpell(core.SpellConfig{
+		ActionID:         core.ActionID{SpellID: rockbiterThreatSpellID},
+		SpellSchool:      core.SpellSchoolPhysical,
+		ProcMask:         core.ProcMaskEmpty,
+		Flags:            core.SpellFlagNoOnCastComplete | core.SpellFlagPassiveSpell,
+		DamageMultiplier: 1,
+		ThreatMultiplier: 1,
+		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			spell.FlatThreatBonus = rockbiterThreatPerSwingSec * shaman.MainHand().SwingSpeed
+			spell.CalcAndDealOutcome(sim, target, spell.OutcomeAlwaysHit)
+		},
+	})
+
+	core.MakePermanent(shaman.RegisterAura(core.Aura{
+		Label: "Rockbiter Weapon Threat",
+		OnSpellHitDealt: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+			if !result.Landed() {
+				return
+			}
+			// The hand that struck must carry Rockbiter, as it does now (an item swap changes it).
+			var hands core.ProcMask
+			if shaman.MainHand().TempEnchant == rockbiterEnchantID {
+				hands |= core.ProcMaskMeleeMH
+			}
+			if shaman.OffHand().TempEnchant == rockbiterEnchantID {
+				hands |= core.ProcMaskMeleeOH
+			}
+			if !spell.ProcMask.Matches(hands) {
+				return
+			}
+			threatSpell.Cast(sim, result.Target)
+		},
+	}))
 }

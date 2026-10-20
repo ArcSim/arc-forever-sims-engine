@@ -6,6 +6,15 @@ import (
 	"github.com/wowsims/forever/sim/core"
 )
 
+// RevengeThreatFromDamage makes Revenge's threat 2.25 times its damage with no flat bonus (mythicsim
+// patch 183, ported from wowsims/forever 913a5bcf69): upstream's owner measured it on Rank 2 in game,
+// where the tooltip states only "a high amount of threat". It replaces our damage x1 plus 2 a level,
+// fitted to one Rank 1 reading; that reading (46 damage, ~96 threat) is about 2.1 times the damage
+// read without the stance, which fits the new value too. Off, damage x1 plus 120.
+var RevengeThreatFromDamage = true
+
+const revengeThreatMultiplier = 2.25
+
 func (warrior *Warrior) registerRevenge() {
 	// TODO: Manual review needed -- spell 25288 states "a high amount of threat" with no number;
 	// none is modelled until measured in game.
@@ -60,8 +69,8 @@ func (warrior *Warrior) registerRevenge() {
 		// (46 damage, 96 threat in Defensive Stance), before the stance modifier. Was 2.25x damage
 		// plus 270. The flat keeps the 2-per-level shape the old value had, which the rank 1
 		// reading (2 x 20 = 40) fits; rank 6's own bonus has not been measured.
-		ThreatMultiplier: 1,
-		FlatThreatBonus:  2 * 60,
+		ThreatMultiplier: core.TernaryFloat64(RevengeThreatFromDamage, revengeThreatMultiplier, 1),
+		FlatThreatBonus:  core.TernaryFloat64(RevengeThreatFromDamage, 0, 2*60),
 
 		ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {
 			return warrior.StanceMatches(DefensiveStance) && aura.IsActive()
