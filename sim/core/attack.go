@@ -123,13 +123,13 @@ func (weapon *Weapon) CalculateAverageWeaponDamage(attackPower float64) float64 
 	return weapon.AverageDamage() + (weapon.SwingSpeed*attackPower)/weapon.AttackPowerPerDPS
 }
 
-// Normalized instants (Strider Kick, Mongoose Bite): Forever logs (Zealot Blade 2.8 vs
-// Electrocutioner Leg 1.7, 30 Strider Kicks) show the slow weapon keeps its real speed while the fast
-// one is lifted to the normalized value, i.e. the higher of the two. Knob AB_NORM_MAX=0 restores
-// the plain normalized constant.
+// Normalized instants (Strider Kick, Mongoose Bite) take the plain normalized speed, slow weapons too: a 3.8
+// two-hander's Strider Kicks land at its 3.3 (16 kicks at 192.9, 192.2 predicted at 3.3, 204.7 at 3.8), and a 2.8 and
+// a 1.7 one-hander in the same session hit 24.7 apart, their base damage gap (24.5), not the 33 a kept 2.8 would add.
+// Knob AB_NORM_MAX=1 gives a slower weapon its real speed instead, for comparisons.
 func (weapon *Weapon) CalculateNormalizedWeaponDamage(sim *Simulation, attackPower float64) float64 {
 	speed := weapon.NormalizedSwingSpeed
-	if os.Getenv("AB_NORM_MAX") != "0" {
+	if os.Getenv("AB_NORM_MAX") == "1" {
 		speed = max(speed, weapon.SwingSpeed)
 	}
 	return weapon.BaseDamage(sim) + (speed*attackPower)/weapon.AttackPowerPerDPS

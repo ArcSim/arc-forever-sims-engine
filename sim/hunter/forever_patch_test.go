@@ -439,6 +439,31 @@ func TestArcaneShotScaling(t *testing.T) {
 	}
 }
 
+// Strider Kick and Mongoose Bite's weapon part takes the plain normalized speed whatever the weapon's own: a 3.8
+// two-hander 3.3, a 2.8 and a 1.7 one-hander 2.4 (Forever logs, a Corpsemaker test and a two-one-hander session).
+func TestNormalizedStrikeSpeed(t *testing.T) {
+	sim, hunter := newPatchTestHunter(t, patchTestSetup{talents: patchTestTalents, gear: true})
+	mh := hunter.AutoAttacks.MH()
+	saved := *mh
+	defer func() { *mh = saved }()
+	// a fixed base of 100 and 1,400 attack power: 100 + speed x 100
+	mh.BaseDamageMin, mh.BaseDamageMax, mh.AttackPowerPerDPS = 100, 100, core.DefaultAttackPowerPerDPS
+	for _, tc := range []struct {
+		name             string
+		real, normalized float64
+		want             float64
+	}{
+		{"3.8 two-hander", 3.8, 3.3, 430},
+		{"2.8 one-hander", 2.8, 2.4, 340},
+		{"1.7 one-hander", 1.7, 2.4, 340},
+	} {
+		mh.SwingSpeed, mh.NormalizedSwingSpeed = tc.real, tc.normalized
+		if got := mh.CalculateNormalizedWeaponDamage(sim, 1400); math.Abs(got-tc.want) > 1e-6 {
+			t.Errorf("%s: strike weapon damage %.1f, want %.1f", tc.name, got, tc.want)
+		}
+	}
+}
+
 // Serpent Sting ticks grow by 0.032 per point of ranged attack power and not with spell power (in game: rank 4 ticked
 // 27 at 174 ranged attack power, 33 at 361, unchanged with 20 spell power); the rank 4 base tick is the client's 22.
 func TestSerpentStingScaling(t *testing.T) {
