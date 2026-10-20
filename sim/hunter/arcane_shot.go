@@ -7,7 +7,8 @@ import (
 	"github.com/wowsims/classic/sim/core/proto"
 )
 
-const ArcaneShotAPCoeff = 0.15
+// players' logs hit for base + 0.10-0.12 of ranged attack power, and an aspect swap moved each hit about 0.10 a point
+const ArcaneShotAPCoeff = 0.10
 
 func (hunter *Hunter) getArcaneShotConfig(rank int, timer *core.Timer) core.SpellConfig {
 	spellId := [9]int32{0, 3044, 14281, 14282, 14283, 14284, 14285, 14286, 14287}[rank]

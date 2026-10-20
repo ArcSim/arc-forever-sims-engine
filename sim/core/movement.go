@@ -78,6 +78,10 @@ type MovementHandler struct {
 	MoveSpeed float64
 	// a move decided but not started yet (reaction delay experiment)
 	PendingMove bool
+	// the destination of the walk under way, and a walk decided during it that starts on arrival
+	moveTarget  float64
+	queuedMove  bool
+	queuedRange float64
 	// the move began inside melee range, so the melee attack never turned off
 	startedInMelee bool
 	// a melee swing landed during this walk
@@ -195,6 +199,41 @@ func WholeYards(distance float64) float64 {
 
 func (unit *Unit) MoveTo(moveRange float64, sim *Simulation) {
 	moveRange = WholeYards(moveRange)
+	mh := unit.MovementHandler
+	// decided during a walk: the reaction runs while the walk goes on, and the new walk starts on arrival (or once the
+	// reaction is over, if that is later), the way a player turns around at the spot they were heading for
+	if mh.Moving {
+		if moveRange == mh.moveTarget || mh.PendingMove || mh.queuedMove {
+			return
+		}
+		queue := func(sim *Simulation) {
+			if mh.Moving {
+				mh.queuedMove, mh.queuedRange = true, moveRange
+			} else {
+				unit.moveToNow(moveRange, sim)
+			}
+		}
+		if unit.MoveDelay <= 0 || sim.CurrentTime < 0 {
+			queue(sim)
+			return
+		}
+		mh.PendingMove = true
+		waitID := ActionID{OtherID: proto.OtherAction_OtherActionMove, Tag: 1}
+		if sim.Log != nil {
+			unit.Log(sim, "Casting %s (Cost = 0.000, Cast Time = %s, Effective Time = 0s)", waitID, unit.MoveDelay)
+		}
+		StartDelayedAction(sim, DelayedActionOptions{
+			DoAt: sim.CurrentTime + unit.MoveDelay,
+			OnAction: func(sim *Simulation) {
+				if sim.Log != nil {
+					unit.Log(sim, "Completed cast %s", waitID)
+				}
+				mh.PendingMove = false
+				queue(sim)
+			},
+		})
+		return
+	}
 	if moveRange == unit.DistanceFromTarget {
 		return
 	}
@@ -226,6 +265,7 @@ func (unit *Unit) moveToNow(moveRange float64, sim *Simulation) {
 		return
 	}
 
+	unit.MovementHandler.moveTarget = moveRange
 	moveDistance := moveRange - unit.DistanceFromTarget
 	moveTicks := math.Abs(moveDistance)
 	moveInterval := moveDistance / float64(moveTicks)
@@ -262,6 +302,11 @@ func (unit *Unit) moveToNow(moveRange float64, sim *Simulation) {
 			if unit.DistanceFromTarget == moveRange {
 				swung := unit.MovementHandler.swungWhileMoving
 				unit.MovementHandler.moveAura.Deactivate(sim)
+				if mh := unit.MovementHandler; mh.queuedMove {
+					mh.queuedMove = false
+					unit.moveToNow(mh.queuedRange, sim)
+					return
+				}
 				// a swing that landed mid-walk (melee starts at 5 yd) could not start the walk back then: its decision runs
 				// on arrival instead of waiting out a busy GCD. Only then: a walk that ends before its swing keeps waiting
 				// for the swing as before. Here and not in the aura's expiry, which also runs when a fight ends mid-walk.

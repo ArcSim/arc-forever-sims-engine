@@ -266,8 +266,19 @@ func (rot *APLRotation) newActionMove(config *proto.APLActionMove) APLActionImpl
 }
 func (action *APLActionMove) IsReady(sim *Simulation) bool {
 	isPrepull := sim.CurrentTime < 0
+	mh := action.unit.MovementHandler
+	if mh.PendingMove || mh.queuedMove || action.unit.IsCasting(sim) {
+		return false
+	}
 	// rounded here too, or a 4.6 yd spot standing at 5 would look ready forever and never move
-	return !action.unit.IsMoving() && !action.unit.MovementHandler.PendingMove && (WholeYards(action.moveRange.GetFloat(sim)) != action.unit.DistanceFromTarget || isPrepull) && !action.unit.IsCasting(sim)
+	moveRange := WholeYards(action.moveRange.GetFloat(sim))
+	// during a walk only the walk back out from melee, once inside 5 yd on the way in: decided now and started on arrival
+	// (MoveTo). A walk out still decides at the end, where the next Auto Shot needs standing still anyway.
+	if action.unit.IsMoving() {
+		d := action.unit.DistanceFromTarget
+		return d <= MaxMeleeAttackDistance && mh.moveTarget < d && moveRange > d
+	}
+	return moveRange != action.unit.DistanceFromTarget || isPrepull
 }
 func (action *APLActionMove) Execute(sim *Simulation) {
 	moveRange := WholeYards(action.moveRange.GetFloat(sim))

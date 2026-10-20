@@ -2,6 +2,7 @@ package hunter
 
 import (
 	"math"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -13,6 +14,7 @@ import (
 	"github.com/wowsims/classic/sim/core/simsignals"
 	"github.com/wowsims/classic/sim/core/stats"
 	"google.golang.org/protobuf/encoding/protojson"
+	googleProto "google.golang.org/protobuf/proto"
 )
 
 // The Survival weave talents (Strider Kick, Resourcefulness).
@@ -389,6 +391,51 @@ func TestImmolationTrapAttackPower(t *testing.T) {
 	}
 	if trap.MeleeAttackPower(target) <= trap.RangedAttackPower(target, false) {
 		t.Errorf("melee AP %.0f is not above ranged AP %.0f, so this cannot tell the two rules apart", trap.MeleeAttackPower(target), trap.RangedAttackPower(target, false))
+	}
+}
+
+// Arcane Shot (rank 8) hits for its base 217 plus 0.10 of ranged attack power, the target's Hunter's Mark (+110)
+// included, read from each hit's logged base damage (the logged attack power leaves the mark out).
+func TestArcaneShotScaling(t *testing.T) {
+	const aplJSON = `{"type":"TypeAPL","priorityList":[{"action":{"castSpell":{"spellId":{"spellId":14287,"rank":8}}}}]}`
+	rot := &proto.APLRotation{}
+	if err := protojson.Unmarshal([]byte(aplJSON), rot); err != nil {
+		t.Fatalf("rotation: %v", err)
+	}
+	player := core.WithSpec(&proto.Player{
+		Race:               proto.Race_RaceHuman,
+		Class:              proto.Class_ClassHunter,
+		Equipment:          core.GetGearSet("../../ui/hunter/gear_sets", "2h_weave").GearSet,
+		TalentsString:      patchTestTalents,
+		Consumes:           abConsumes,
+		Buffs:              abIndividualBuffs,
+		Rotation:           rot,
+		DistanceFromTarget: 12,
+	}, abOptions)
+	res := core.RunRaidSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, abRaidBuffs, abDebuffs),
+		Encounter:  abEncounter(),
+		SimOptions: &proto.SimOptions{Iterations: 1, RandomSeed: 20261020, Debug: true},
+	})
+	if res.Error != nil {
+		t.Fatalf("sim error: %s", res.Error.Message)
+	}
+	hit := regexp.MustCompile(`\{SpellID: 14287\} \[DEBUG\] .*RAP\+Bonus: ([0-9.]+), .*BaseDamage:([0-9.]+),`)
+	n := 0
+	for _, line := range strings.Split(res.Logs, "\n") {
+		m := hit.FindStringSubmatch(line)
+		if m == nil {
+			continue
+		}
+		rap, _ := strconv.ParseFloat(m[1], 64)
+		base, _ := strconv.ParseFloat(m[2], 64)
+		if want := 217 + 0.10*(rap+110); math.Abs(base-want) > 0.11 {
+			t.Fatalf("Arcane Shot base damage %.1f at %.1f ranged attack power + 110 from the mark, want %.1f (217 + 0.10 x RAP)", base, rap, want)
+		}
+		n++
+	}
+	if n == 0 {
+		t.Fatalf("no Arcane Shot hits logged")
 	}
 }
 
@@ -1470,6 +1517,118 @@ func TestExposePreyMarkers(t *testing.T) {
 	}
 	if left := gained - used - expired; left < -0.001 || left > 1.001 {
 		t.Errorf("procs %.2f, used %.2f, expired %.2f, refreshed %.2f a fight: %.2f unaccounted, want 0 to 1 (still up at the end)", gained, used, expired, refreshed, left)
+	}
+}
+
+// The shipped light weave uses one strike a trip but waits for one that is ready within a second of the global cooldown
+// ending; the same rotation without that second (leave as soon as none is ready) lands fewer strikes a fight.
+func TestLightWeaveWaitsForAStrike(t *testing.T) {
+	raw, err := os.ReadFile("../../ui/hunter/apls/arc_light_weave_2h_upd3.apl.json")
+	if err != nil {
+		t.Fatalf("rotation file: %v", err)
+	}
+	window := regexp.MustCompile(`("gcdTimeToReady": \{\}\s*\},\s*"rhs": \{\s*"const": \{\s*"val": )"1s"`)
+	if n := len(window.FindAll(raw, -1)); n == 0 {
+		t.Fatalf("no one-second strike window in the shipped light weave")
+	}
+	strikes := func(apl []byte) float64 {
+		rot := &proto.APLRotation{}
+		if err := protojson.Unmarshal(apl, rot); err != nil {
+			t.Fatalf("rotation: %v", err)
+		}
+		opts := &proto.Player_Hunter{Hunter: googleProto.Clone(abOptions.Hunter).(*proto.Hunter)}
+		opts.Hunter.Options.MoveDelayMs = 10
+		player := core.WithSpec(&proto.Player{
+			Race:               proto.Race_RaceHuman,
+			Class:              proto.Class_ClassHunter,
+			Equipment:          core.GetGearSet("../../ui/hunter/gear_sets", "2h_weave").GearSet,
+			TalentsString:      "-0053150011-500230230250222151",
+			Consumes:           abConsumes,
+			Buffs:              abIndividualBuffs,
+			Rotation:           rot,
+			DistanceFromTarget: 11,
+		}, opts)
+		const iterations = 300
+		res := core.RunRaidSim(&proto.RaidSimRequest{
+			Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, abRaidBuffs, abDebuffs),
+			Encounter:  abEncounter(),
+			SimOptions: &proto.SimOptions{Iterations: iterations, RandomSeed: 20261020},
+		})
+		if res.Error != nil {
+			t.Fatalf("sim error: %s", res.Error.Message)
+		}
+		var n int32
+		for _, a := range res.RaidMetrics.Parties[0].Players[0].Actions {
+			if id := a.Id.GetSpellId(); id == 1317257 || id == 14271 {
+				for _, tm := range a.Targets {
+					n += tm.Casts
+				}
+			}
+		}
+		return float64(n) / iterations
+	}
+	with, without := strikes(raw), strikes(window.ReplaceAll(raw, []byte("${1}\"0s\"")))
+	t.Logf("Strider Kick + Mongoose Bite a fight: %.2f with the one-second wait, %.2f without", with, without)
+	if with < without+0.2 {
+		t.Errorf("%.2f strikes a fight with the one-second wait, %.2f without; want at least 0.2 more", with, without)
+	}
+}
+
+// With a move reaction, the walk back out can be decided on the way in, once inside 5 yd: the reaction runs during the
+// rest of the walk, and the walk out starts as the hunter reaches the 3 yd spot (a player turns around there). Deciding
+// only on arrival added the whole reaction after it.
+func TestWalkOutDecidedOnTheWayIn(t *testing.T) {
+	const aplJSON = `{"type":"TypeAPL","priorityList":[` +
+		`{"action":{"condition":{"cmp":{"op":"OpGe","lhs":{"distanceToTarget":{}},"rhs":{"const":{"val":"11"}}}},"move":{"rangeFromTarget":{"const":{"val":"3"}}}}},` +
+		`{"action":{"condition":{"cmp":{"op":"OpLe","lhs":{"distanceToTarget":{}},"rhs":{"const":{"val":"5"}}}},"move":{"rangeFromTarget":{"const":{"val":"12"}}}}}]}`
+	rot := &proto.APLRotation{}
+	if err := protojson.Unmarshal([]byte(aplJSON), rot); err != nil {
+		t.Fatalf("rotation: %v", err)
+	}
+	opts := &proto.Player_Hunter{Hunter: googleProto.Clone(abOptions.Hunter).(*proto.Hunter)}
+	opts.Hunter.Options.MoveDelayMs = 200
+	player := core.WithSpec(&proto.Player{
+		Race:               proto.Race_RaceHuman,
+		Class:              proto.Class_ClassHunter,
+		Equipment:          core.GetGearSet("../../ui/hunter/gear_sets", "2h_weave").GearSet,
+		TalentsString:      patchTestTalents,
+		Consumes:           abConsumes,
+		Buffs:              abIndividualBuffs,
+		Rotation:           rot,
+		DistanceFromTarget: 12,
+	}, opts)
+	res := core.RunRaidSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, abRaidBuffs, abDebuffs),
+		Encounter:  abEncounter(),
+		SimOptions: &proto.SimOptions{Iterations: 1, RandomSeed: 20261020, Debug: true},
+	})
+	if res.Error != nil {
+		t.Fatalf("sim error: %s", res.Error.Message)
+	}
+	stamp := regexp.MustCompile(`^\[([0-9.]+)\]`)
+	var arrived, walkOut float64 = -1, -1
+	starts := 0
+	for _, line := range strings.Split(res.Logs, "\n") {
+		m := stamp.FindStringSubmatch(line)
+		if m == nil {
+			continue
+		}
+		at, _ := strconv.ParseFloat(m[1], 64)
+		if arrived < 0 && strings.Contains(line, "{OtherID: 14} stacks: 4 --> 3") {
+			arrived = at
+		}
+		if strings.Contains(line, "Aura gained: {OtherID: 14}") {
+			if starts++; starts == 2 {
+				walkOut = at
+				break
+			}
+		}
+	}
+	if arrived < 0 || walkOut < 0 {
+		t.Fatalf("no walk in to 3 yd and back out logged (arrived %.2f, walk out %.2f)", arrived, walkOut)
+	}
+	if gap := walkOut - arrived; gap > 0.011 {
+		t.Errorf("walk out started %.2f s after reaching 3 yd; want on arrival (the reaction ran during the walk in)", gap)
 	}
 }
 

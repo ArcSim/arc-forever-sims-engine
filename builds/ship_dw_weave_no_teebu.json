@@ -149,7 +149,7 @@
         "petWindfuryTotem": false,
         "petFlametongueTotem": false,
         "petDisabledAbilities": [],
-        "moveDelayMs": 200
+        "moveDelayMs": 10
       }
     },
     "rotation": {
@@ -928,7 +928,17 @@
                                         }
                                       },
                                       "rhs": {
-                                        "gcdTimeToReady": {}
+                                        "math": {
+                                          "op": "OpAdd",
+                                          "lhs": {
+                                            "gcdTimeToReady": {}
+                                          },
+                                          "rhs": {
+                                            "const": {
+                                              "val": "1s"
+                                            }
+                                          }
+                                        }
                                       }
                                     }
                                   },
@@ -954,7 +964,17 @@
                                               }
                                             },
                                             "rhs": {
-                                              "gcdTimeToReady": {}
+                                              "math": {
+                                                "op": "OpAdd",
+                                                "lhs": {
+                                                  "gcdTimeToReady": {}
+                                                },
+                                                "rhs": {
+                                                  "const": {
+                                                    "val": "1s"
+                                                  }
+                                                }
+                                              }
                                             }
                                           }
                                         }
@@ -972,7 +992,17 @@
                                         }
                                       },
                                       "rhs": {
-                                        "gcdTimeToReady": {}
+                                        "math": {
+                                          "op": "OpAdd",
+                                          "lhs": {
+                                            "gcdTimeToReady": {}
+                                          },
+                                          "rhs": {
+                                            "const": {
+                                              "val": "1s"
+                                            }
+                                          }
+                                        }
                                       }
                                     }
                                   }
@@ -1249,7 +1279,17 @@
                                         }
                                       },
                                       "rhs": {
-                                        "gcdTimeToReady": {}
+                                        "math": {
+                                          "op": "OpAdd",
+                                          "lhs": {
+                                            "gcdTimeToReady": {}
+                                          },
+                                          "rhs": {
+                                            "const": {
+                                              "val": "1s"
+                                            }
+                                          }
+                                        }
                                       }
                                     }
                                   },
@@ -1275,7 +1315,17 @@
                                               }
                                             },
                                             "rhs": {
-                                              "gcdTimeToReady": {}
+                                              "math": {
+                                                "op": "OpAdd",
+                                                "lhs": {
+                                                  "gcdTimeToReady": {}
+                                                },
+                                                "rhs": {
+                                                  "const": {
+                                                    "val": "1s"
+                                                  }
+                                                }
+                                              }
                                             }
                                           }
                                         }
@@ -1293,7 +1343,17 @@
                                         }
                                       },
                                       "rhs": {
-                                        "gcdTimeToReady": {}
+                                        "math": {
+                                          "op": "OpAdd",
+                                          "lhs": {
+                                            "gcdTimeToReady": {}
+                                          },
+                                          "rhs": {
+                                            "const": {
+                                              "val": "1s"
+                                            }
+                                          }
+                                        }
                                       }
                                     }
                                   }
@@ -1357,7 +1417,7 @@
             }
           },
           "simple": {
-            "text": "**Move out** to {Ranged spot} yd after your MH swing lands and you have used one strike, or straight away if none is ready when your global cooldown comes back, unless an OH swing lands within half a second.",
+            "text": "**Move out** to {Ranged spot} yd after your MH swing lands and you have used one strike, or straight away if no strike will be ready within a second of your global cooldown coming back, unless an OH swing lands within half a second.",
             "shown": true,
             "boxes": [
               {
