@@ -5314,3 +5314,80 @@ times the stance in both, so patch 151's switch (flat threat only in Defensive S
 Not taken from upstream's threat set: Shield Slam (upstream 0, untested; ours keeps 508 until a level 40 capture),
 Hamstring and Shield Bash (upstream 0; neither is in a MythicSim rotation that ranks threat), Battle Shout (ours
 reads the client's E_THREAT effect).
+
+## 187. `data: client hotfix push 112753 (20 October 2026), the mage talent shift (ported from wowsims/forever #594)`
+
+Source: the beta's hotfix cache (raidbots mirror of `classic_beta/enUS/DBCache.bin`, header build 70450, push
+112753), which wowsims/forever #594 ("mage hotfix and talent shift", 12f3f1db0a, merged 20 October) regenerated.
+The push changes only mage rows:
+
+- Elemental Precision (29438, trait node entry 130507, definition 135308): three ranks, curve 83078 at 2/4/6% hit
+  with Frost and Fire spells (five ranks of 1% before). `spellData.ElementalPrecision` is `Talent(29438, 3)`.
+- Piercing Ice (11151, node 105773) leaves the tree: its row, curve, spell icon and ladder are gone. Frost
+  Channeling (node 105772) moves to row 2 column 0 and Improved Blizzard (105771) to row 2 column 1, so the Frost
+  tree is 18 talents: `proto/mage.proto` renumbers `frost_channeling` to `ice_barrier` as fields 44 to 54
+  (`TalentTreeSizes` Frost 18), and `ui/sim/talents/trees/mage.json` follows. Protojson reads the talents by
+  name, so only talent strings and binary protos see the renumbering.
+- Ice Barrier (11426, 13031 to 13033) gains effects 2 and 3: +3% Frost damage on Piercing Ice's old SPELLMOD_DAMAGE
+  mask and +3% on its SPELLMOD_DOT mask (Blizzard and Frostfire Bolt), its class mask gains bit 1:1, and its
+  tooltip names Frost Warding and the new Frigid Power (1326891, 1 min, the same two 3% effects, `RefIDs`). The 30
+  sec category cooldown does not change.
+- Frost Warding (11189) gains effect 3 (+10/20% to the Ice Barrier and Frost Ward absorb, curve row 3), its effect
+  2 loses its 10 base points (the curve gives them), and Frost Ward's effect 2 becomes a dummy (the "negate"
+  Frost Warding gives a chance to), with `RefIDs` 11189.
+
+The rows in `sim/core/spelldata/spells_auto_gen.go` are #594's, written in this fork's effect field names
+(`SpellLevel`); this fork has no `ProcHintDamage`, which upstream's generator gives Frost Warding, and the row has
+no proc flags, so it is left out. `assets/database/db.json` loses Piercing Ice's spell icon and gains Frigid
+Power's; `db.bin` is rebuilt with `go run ./tools/sync_db_binary`. `spell_store_inputs.json` is left for the next
+regeneration, as in patch 164.
+
+Switch: none (client data). Tests: `TestHotfix112753MageRows` (`sim/mage/hotfix_112753_test.go`). Talent strings
+in the tests and `ui/specs/mage/dps/presets.ts` are re-encoded: Piercing Ice's digit dropped, Frost Channeling and
+Improved Blizzard swapped into the new order, Elemental Precision capped at 3 (the UI codec tests take #594's
+`--25352`). Goldens: every `TestArcane`, `TestFire` and `TestFrost` entry (Average-Default 243.58 to 238.26, 204.09
+to 206.77, 237.15 to 221.91 naked; Frost also casts Ice Barrier, patch 188). Downstream: MythicSim's mage talent
+strings (references, presets, stored profiles) need re-encoding, and the Rust engine needs the rows.
+
+## 188. `mage: Ice Barrier is castable, with its Frost damage bonus and Frigid Power (ported from wowsims/forever #594)`
+
+Ice Barrier was a talent that registered nothing (the sim takes no damage for a mage). Since push 112753 it is a
+damage buff, so `sim/mage/ice_barrier.go` registers the highest rank as an APL spell (`spelldata.SpellConfig`: 1.5
+sec GCD, 480 mana before Frost Channeling, category 471's 30 sec cooldown, which Cold Snap resets):
+
+- the shield, a `DamageAbsorptionAura` for 1 min absorbing `(819 + 0.1 x (spell damage + Frost spell damage)) x
+  (1 + Frost Warding's effect 3)` at level 60, the tooltip's `${$s1+($SPFR*0.1)*($11189s3/100+1)}` as upstream
+  reads it;
+- while the shield holds, effects 2 and 3; and Frigid Power, applied by every cast for its full minute whether or
+  not the shield breaks.
+
+Both 3% pairs are applied in Piercing Ice's shape (`attachFrostDamageBonus`, the code patch 187 removed from
+`talents_frost.go`): SPELLMOD_DAMAGE as an additive bonus on every Frost spell but Frostfire Bolt, Blizzard's ticks
+included (they are direct hits of 1279949), and on Frostfire Bolt SPELLMOD_DOT on the whole spell with the rest of
+SPELLMOD_DAMAGE on its hit alone (both 3%, so the bolt's hit and DoT each take 3%). Upstream reads the same rows
+through its effect parser. Not a major cooldown: `autocastOtherCooldowns` does not cast it, as upstream.
+
+`ui/specs/mage/dps/apls/frost.apl.json` casts it pre-pull at -4.5 sec, before the -3 sec Frostbolt, and again
+when Frigid Power has less than a Frostbolt cast left, while more than 25 sec of the fight remain (the 1.5 sec GCD
+against 6% for the rest of the fight breaks even at 25 sec). Upstream's presets do not cast it.
+
+Switch: none (the client spell). Tests: `TestIceBarrierShieldsAndRaisesFrostDamage`: the absorb with Frost Warding
+2/2, the 30 sec cooldown and the GCD, +6% on Frostbolt and on Frostfire Bolt's hit and DoT with both auras, +3%
+once the shield breaks, nothing on Fireball. MythicSim's frost-mage reference (Skyborne (High Order), 20,000 iterations,
+seed 42): 670.45 at b5c0b8bb2 with Piercing Ice, 645.99 on the hotfix without Ice Barrier, 666.71 casting it as
+above with `0502105003-03-053502030101301251`.
+
+## 189. `mage: a talent string longer than a tree is refused (pre-hotfix Frost strings)`
+
+`core.FillTalentsProto` reads each digit into the field its position names, so a tree string longer than the tree
+spills into the next tree's fields, and a Frost string from before push 112753 (19 digits) asks for field 55, which
+no longer exists, and panics with "Couldn't find proto field". Its first 18 digits would also be read in the new
+order. `checkTalentsString` (`sim/mage/mage.go`) refuses a mage string with more than three trees or a tree longer
+than `TalentTreeSizes`, naming the tree and both lengths, and `NewMage` refuses Elemental Precision above its three
+ranks (a pre-hotfix 4/5 or 5/5), which its ladder would otherwise panic on without naming the talent. Both panics
+reach the caller as the sim's error result. A pre-hotfix string with at most 18 Frost digits cannot be told from a
+current one and is read in the current order; MythicSim must re-encode stored strings rather than rely on this.
+
+Switch: none. Tests: `TestPreHotfixFrostTalentStringsAreRejected` (the live frost-mage reference string from
+before the hotfix, a five-rank Elemental Precision, an overlong Fire tree and four trees are refused with their
+reasons; the re-encoded reference runs). Only mages: the other classes' strings are unchanged.

@@ -462,7 +462,7 @@
         },
         "spellId": 29438,
         "definitionId": 135308,
-        "maxPoints": 5
+        "maxPoints": 3
       },
       {
         "fieldName": "iceShards",
@@ -509,25 +509,25 @@
         "maxPoints": 3
       },
       {
-        "fieldName": "piercingIce",
-        "fancyName": "Piercing Ice",
-        "location": {
-          "rowIdx": 2,
-          "colIdx": 0
-        },
-        "spellId": 11151,
-        "definitionId": 135303,
-        "maxPoints": 3
-      },
-      {
         "fieldName": "frostChanneling",
         "fancyName": "Frost Channeling",
         "location": {
           "rowIdx": 2,
-          "colIdx": 1
+          "colIdx": 0
         },
         "spellId": 11160,
         "definitionId": 135302,
+        "maxPoints": 3
+      },
+      {
+        "fieldName": "improvedBlizzard",
+        "fancyName": "Improved Blizzard",
+        "location": {
+          "rowIdx": 2,
+          "colIdx": 1
+        },
+        "spellId": 11185,
+        "definitionId": 135301,
         "maxPoints": 3
       },
       {
@@ -540,17 +540,6 @@
         "spellId": 1312002,
         "definitionId": 135297,
         "maxPoints": 1
-      },
-      {
-        "fieldName": "improvedBlizzard",
-        "fancyName": "Improved Blizzard",
-        "location": {
-          "rowIdx": 2,
-          "colIdx": 3
-        },
-        "spellId": 11185,
-        "definitionId": 135301,
-        "maxPoints": 3
       },
       {
         "fieldName": "arcticReach",

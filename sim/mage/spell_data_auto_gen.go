@@ -15,7 +15,6 @@ import (
 //   Fire Power: effect 1 of spell 11124 has no rank curve and is held at its base points
 //   Heating Up: effect 0 of spell 400624 has no rank curve and is held at its base points
 //   Missile Barrage: effect 1 of spell 400588 has no rank curve and is held at its base points
-//   Piercing Ice: effect 1 of spell 11151 has no rank curve and is held at its base points
 //   Winter's Chill: effect 2 of spell 11180 has no rank curve and is held at its base points
 
 type generatedSpellData struct {
@@ -86,6 +85,7 @@ type generatedSpellData struct {
 	FrostChanneling              spelldata.Ladder
 	FrostNova                    spelldata.Ladder
 	FrostWard                    spelldata.Ladder
+	FrostWardTriggered           spelldata.Ladder
 	FrostWarding                 spelldata.Ladder
 	Frostbite                    spelldata.Ladder
 	FrostbiteTriggered           spelldata.Ladder
@@ -96,6 +96,7 @@ type generatedSpellData struct {
 	IceArmor                     spelldata.Ladder
 	IceArmorTriggered            spelldata.Ladder
 	IceBarrier                   spelldata.Ladder
+	IceBarrierTriggered          spelldata.Ladder
 	IceBlock                     spelldata.Ladder
 	IceLance                     spelldata.Ladder
 	IceShards                    spelldata.Ladder
@@ -124,7 +125,6 @@ type generatedSpellData struct {
 	MissileBarrage               spelldata.Ladder
 	MissileBarrageTriggered      spelldata.Ladder
 	Permafrost                   spelldata.Ladder
-	PiercingIce                  spelldata.Ladder
 	Polymorph                    spelldata.Ladder
 	PolymorphCow                 spelldata.Ladder
 	PortalDarnassus              spelldata.Ladder
@@ -199,7 +199,7 @@ var spellData = generatedSpellData{
 	Counterspell:                 spelldata.Ranked(2139),
 	CriticalMass:                 spelldata.Talent(11115, 5),
 	DampenMagic:                  spelldata.Ranked(604, 8450, 8451, 10173, 10174),
-	ElementalPrecision:           spelldata.Talent(29438, 5),
+	ElementalPrecision:           spelldata.Talent(29438, 3),
 	Evocation:                    spelldata.Ranked(12051),
 	ExpandedIntellect:            spelldata.Ranked(436949),
 	Felfire:                      spelldata.Ranked(24530),
@@ -219,6 +219,7 @@ var spellData = generatedSpellData{
 	FrostChanneling:              spelldata.Talent(11160, 3),
 	FrostNova:                    spelldata.Ranked(122, 865, 6131, 10230),
 	FrostWard:                    spelldata.Ranked(6143, 8461, 8462, 10177, 28609),
+	FrostWardTriggered:           spelldata.Ranked(11189),
 	FrostWarding:                 spelldata.Talent(11189, 2),
 	Frostbite:                    spelldata.Talent(11071, 3),
 	FrostbiteTriggered:           spelldata.Ranked(12494),
@@ -229,6 +230,7 @@ var spellData = generatedSpellData{
 	IceArmor:                     spelldata.Ranked(7302, 7320, 10219, 10220),
 	IceArmorTriggered:            spelldata.Ranked(7321),
 	IceBarrier:                   spelldata.Ranked(11426, 13031, 13032, 13033),
+	IceBarrierTriggered:          spelldata.Ranked(11189, 1326891),
 	IceBlock:                     spelldata.Ranked(11958),
 	IceLance:                     spelldata.Ranked(1312002, 400640, 1240044, 1240045, 1240046, 1240047),
 	IceShards:                    spelldata.Talent(11207, 5),
@@ -257,7 +259,6 @@ var spellData = generatedSpellData{
 	MissileBarrage:               spelldata.Talent(400588, 2),
 	MissileBarrageTriggered:      spelldata.Ranked(400589),
 	Permafrost:                   spelldata.Talent(11175, 3),
-	PiercingIce:                  spelldata.Talent(11151, 3),
 	Polymorph:                    spelldata.Ranked(118, 12824, 12825, 12826),
 	PolymorphCow:                 spelldata.Ranked(28270),
 	PortalDarnassus:              spelldata.Ranked(11419),

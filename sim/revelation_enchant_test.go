@@ -22,7 +22,7 @@ const (
 	revelationEnchant = 8217
 	ironbarkStaff     = 20069
 
-	revelationMageJSON    = `{"name":"m","class":"ClassMage","race":"RaceHuman","talentsString":"0502105003-13550000130135031-004","mage":{"options":{"classOptions":{}}}}`
+	revelationMageJSON    = `{"name":"m","class":"ClassMage","race":"RaceHuman","talentsString":"0502105003-13550000130135031-003","mage":{"options":{"classOptions":{}}}}`
 	revelationWarlockJSON = `{"name":"l","class":"ClassWarlock","race":"RaceHuman","talentsString":"254-0050203001-155030510310005","warlock":{"options":{"classOptions":{}}}}`
 	revelationShamanJSON  = `{"name":"s","class":"ClassShaman","race":"RaceOrc","talentsString":"5501331020011351-052-05305","elementalShaman":{"options":{"classOptions":{}}}}`
 	revelationPriestJSON  = `{"name":"p","class":"ClassPriest","race":"RaceHuman","talentsString":"02530301103--50052201221302251","dpsPriest":{"options":{"classOptions":{}}}}`

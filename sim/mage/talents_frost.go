@@ -20,11 +20,10 @@ func (mage *Mage) registerFrostTalents() {
 	mage.registerImprovedFrostNova()
 	mage.registerFrostbite()
 
-	// Tier 3
-	mage.registerPiercingIce()
+	// Tier 3 (Piercing Ice left the tree in hotfix push 112753, patch 187)
 	mage.registerFrostChanneling()
-	// Ice Lance: ice_lance.go
 	// Improved Blizzard: blizzard.go
+	// Ice Lance: ice_lance.go
 
 	// Tier 4
 	mage.registerArcticReach()
@@ -45,8 +44,11 @@ func (mage *Mage) registerFrostTalents() {
 
 // registerFrostWarding implements Frost Warding, new in Forever.
 //
-// Not modelled: 11189 raises Frost/Ice Armor's armor and resistance and lets Frost Ward reflect
-// Frost spells; neither changes damage dealt.
+// "Increases the Armor and resistances granted by your Frost Armor and Ice Armor spells by $s1%, gives
+// your Frost Ward a $s2% chance to negate the warded damage spell, and increases the amount absorbed
+// by your Ice Barrier and Frost Ward by $s3%." Effect 3 (hotfix push 112753) is read by Ice Barrier's
+// absorb in ice_barrier.go. Not modelled: the armor and resistance, and the negate, which needs an
+// enemy casting Frost at the mage; neither changes damage dealt.
 func (mage *Mage) registerFrostWarding() {
 	if mage.Talents.FrostWarding == 0 {
 		return
@@ -70,6 +72,8 @@ func (mage *Mage) registerImprovedFrostbolt() {
 	})
 }
 
+// "Improves your chance to hit with Frost and Fire spells by $s1%." Three ranks of 2/4/6% since hotfix
+// push 112753 (curve 83078); five of 1% before.
 func (mage *Mage) registerElementalPrecision() {
 	if mage.Talents.ElementalPrecision == 0 {
 		return
@@ -123,34 +127,6 @@ func (mage *Mage) registerFrostbite() {
 	if mage.Talents.Frostbite == 0 {
 		return
 	}
-}
-
-// registerPiercingIce: effect 0 (SPELLMOD_DAMAGE, 2/4/6%) raises Frost spell hits, Blizzard's too (its
-// ticks are direct hits of 1279949). Effect 1 (SPELLMOD_DOT) names Blizzard and Frostfire Bolt but has
-// no rank curve in client 1.60.1.70170, so Frostfire Bolt's DoT gets its base 2% at every rank.
-func (mage *Mage) registerPiercingIce() {
-	if mage.Talents.PiercingIce == 0 {
-		return
-	}
-
-	hit := spellData.PiercingIce.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_DAMAGE)).FractionAt(mage.Talents.PiercingIce)
-	dot := spellData.PiercingIce.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_DOT)).FractionAt(mage.Talents.PiercingIce)
-	mage.AddStaticMod(core.SpellModConfig{
-		ClassMask:  MageSpellsAll &^ MageSpellFrostfireBolt,
-		School:     core.SpellSchoolFrost,
-		FloatValue: hit,
-		Kind:       core.SpellMod_DamageDone_Flat,
-	})
-	mage.AddStaticMod(core.SpellModConfig{
-		ClassMask:  MageSpellFrostfireBolt,
-		FloatValue: dot,
-		Kind:       core.SpellMod_DamageDone_Flat,
-	})
-	mage.AddStaticMod(core.SpellModConfig{
-		ClassMask:  MageSpellFrostfireBolt,
-		FloatValue: hit - dot,
-		Kind:       core.SpellMod_DirectDamageDone_Flat,
-	})
 }
 
 func (mage *Mage) registerFrostChanneling() {
@@ -384,11 +360,11 @@ func (mage *Mage) registerWinterChill() {
 	})
 }
 
-// registerIceBarrier implements Ice Barrier, new in Forever.
-//
-// Not modelled: 11426 is an absorb shield (rank 1 431); the sim models no damage taken for a mage.
+// registerIceBarrier makes Ice Barrier castable: ice_barrier.go (patch 188).
 func (mage *Mage) registerIceBarrier() {
 	if !mage.Talents.IceBarrier {
 		return
 	}
+
+	mage.registerIceBarrierSpell()
 }
