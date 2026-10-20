@@ -1005,6 +1005,12 @@ func TestForeverFoodAndElixirValues(t *testing.T) {
 		"Elixir of Cunning":     {&proto.Consumes{AgilityElixir: proto.AgilityElixir_ElixirOfCunning}, want{agi: 25, intel: 25}},
 		"Elixir of Ferocity":    {&proto.Consumes{AgilityElixir: proto.AgilityElixir_ElixirOfFerocity}, want{agi: 18, str: 18}},
 		"Elixir of the Grizzly": {&proto.Consumes{StrengthBuff: proto.StrengthBuff_ElixirOfTheGrizzly}, want{str: 25, crit: 2}},
+		"Elixir of the Owl":     {&proto.Consumes{ManaRegenElixir: proto.ManaRegenElixir_ElixirOfTheOwl}, want{intel: 25, crit: 2}},
+		// the three elixirs' +2% crit is one effect and never stacks
+		"Mongoose + Owl":     {&proto.Consumes{AgilityElixir: proto.AgilityElixir_ElixirOfTheMongoose, ManaRegenElixir: proto.ManaRegenElixir_ElixirOfTheOwl}, want{agi: 25, intel: 25, crit: 2}},
+		"Mongoose + Grizzly": {&proto.Consumes{AgilityElixir: proto.AgilityElixir_ElixirOfTheMongoose, StrengthBuff: proto.StrengthBuff_ElixirOfTheGrizzly}, want{agi: 25, str: 25, crit: 2}},
+		"Grizzly + Owl":      {&proto.Consumes{StrengthBuff: proto.StrengthBuff_ElixirOfTheGrizzly, ManaRegenElixir: proto.ManaRegenElixir_ElixirOfTheOwl}, want{str: 25, intel: 25, crit: 2}},
+		"Cunning + Owl":      {&proto.Consumes{AgilityElixir: proto.AgilityElixir_ElixirOfCunning, ManaRegenElixir: proto.ManaRegenElixir_ElixirOfTheOwl}, want{agi: 25, intel: 50, crit: 2}},
 	}
 	critPerAgi := core.CritPerAgiAtLevel[proto.Class_ClassHunter] * core.CritRatingPerCritChance
 	for name, tc := range cases {
@@ -1018,6 +1024,19 @@ func TestForeverFoodAndElixirValues(t *testing.T) {
 		}
 		if math.Abs(got.agi-tc.want.agi) > 1e-6 || math.Abs(got.str-tc.want.str) > 1e-6 || math.Abs(got.intel-tc.want.intel) > 1e-6 || math.Abs(got.crit-tc.want.crit) > 1e-6 {
 			t.Errorf("%s: %+v, want %+v", name, got, tc.want)
+		}
+	}
+	// the elixir crit is crit of every kind (aura 290), so spell crit too, and once
+	for name, c := range map[string]*proto.Consumes{
+		"Elixir of the Owl": {ManaRegenElixir: proto.ManaRegenElixir_ElixirOfTheOwl},
+		"Mongoose + Owl":    {AgilityElixir: proto.AgilityElixir_ElixirOfTheMongoose, ManaRegenElixir: proto.ManaRegenElixir_ElixirOfTheOwl},
+		"Grizzly + Owl":     {StrengthBuff: proto.StrengthBuff_ElixirOfTheGrizzly, ManaRegenElixir: proto.ManaRegenElixir_ElixirOfTheOwl},
+	} {
+		_, hunter := newPatchTestHunter(t, patchTestSetup{consumes: c})
+		intel := hunter.GetStat(stats.Intellect) - base.GetStat(stats.Intellect)
+		spellCrit := hunter.GetStat(stats.SpellCrit) - base.GetStat(stats.SpellCrit) - intel*core.CritPerIntAtLevel[proto.Class_ClassHunter]*core.SpellCritRatingPerCritChance
+		if math.Abs(spellCrit-2*core.SpellCritRatingPerCritChance) > 1e-6 {
+			t.Errorf("%s: spell crit +%.2f, want +2 (once)", name, spellCrit)
 		}
 	}
 }

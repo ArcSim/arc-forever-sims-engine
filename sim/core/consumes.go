@@ -573,9 +573,11 @@ func applyPhysicalBuffConsumes(character *Character, consumes *proto.Consumes) {
 	if consumes.AgilityElixir != proto.AgilityElixir_AgilityElixirUnknown {
 		switch consumes.AgilityElixir {
 		case proto.AgilityElixir_ElixirOfTheMongoose:
+			// Forever's elixir crit (aura 290) is crit of every kind, spells too
 			character.AddStats(stats.Stats{
 				stats.Agility:   25,
 				stats.MeleeCrit: 2 * CritRatingPerCritChance,
+				stats.SpellCrit: 2 * SpellCritRatingPerCritChance,
 			})
 		case proto.AgilityElixir_ElixirOfGreaterAgility:
 			character.AddStats(stats.Stats{
@@ -623,7 +625,8 @@ func applyPhysicalBuffConsumes(character *Character, consumes *proto.Consumes) {
 		case proto.StrengthBuff_ElixirOfTheGrizzly:
 			character.AddStats(stats.Stats{
 				stats.Strength:  25,
-				stats.MeleeCrit: 2 * CritRatingPerCritChance,
+				stats.MeleeCrit: elixirCrit(consumes, false) * CritRatingPerCritChance,
+				stats.SpellCrit: elixirCrit(consumes, false) * SpellCritRatingPerCritChance,
 			})
 		}
 	}
@@ -680,6 +683,12 @@ func applySpellBuffConsumes(character *Character, consumes *proto.Consumes) {
 
 	if consumes.ManaRegenElixir != proto.ManaRegenElixir_ManaRegenElixirUnknown {
 		switch consumes.ManaRegenElixir {
+		case proto.ManaRegenElixir_ElixirOfTheOwl:
+			character.AddStats(stats.Stats{
+				stats.Intellect: 25,
+				stats.MeleeCrit: elixirCrit(consumes, true) * CritRatingPerCritChance,
+				stats.SpellCrit: elixirCrit(consumes, true) * SpellCritRatingPerCritChance,
+			})
 		case proto.ManaRegenElixir_MagebloodPotion:
 			character.AddStats(stats.Stats{
 				stats.MP5: 12,
@@ -1399,4 +1408,14 @@ func registerConjuredCD(agent Agent, consumes *proto.Consumes) {
 	}
 
 	character.AddMajorCooldown(mcd)
+}
+
+// The Elixirs of the Mongoose, the Grizzly and the Owl share one +2% crit effect (aura 290, melee, ranged and spell), and
+// the same effect never stacks (Forever testers): the Grizzly adds none with the Mongoose up, the Owl none with either.
+// Returns the crit chance in percent.
+func elixirCrit(consumes *proto.Consumes, owl bool) float64 {
+	if consumes.AgilityElixir == proto.AgilityElixir_ElixirOfTheMongoose || (owl && consumes.StrengthBuff == proto.StrengthBuff_ElixirOfTheGrizzly) {
+		return 0
+	}
+	return 2
 }

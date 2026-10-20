@@ -12,6 +12,7 @@ var ForeverItemIcons = map[int32]ForeverIcon{
 	250068: {Name: "Savory Turtle Stew", Icon: "inv_misc_food_cooked_braisedturtle"},
 	250069: {Name: "Flank au Poivre", Icon: "inv_misc_food_meat_cooked_06"},
 	250328: {Name: "Elixir of Cunning", Icon: "inv_potion_166"},
+	250337: {Name: "Elixir of the Owl", Icon: "inv_potion_164"},
 	250350: {Name: "Elixir of Ferocity", Icon: "inv_potion_161"},
 	250351: {Name: "Elixir of the Grizzly", Icon: "inv_potion_160"},
 	250943: {Name: "Major Frenzy Potion", Icon: "inv_potione_6"},

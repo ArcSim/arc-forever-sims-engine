@@ -429,9 +429,11 @@ enum HealthElixir {
 	ElixirOfMinorFortitude = 2;
 }
 
+// guardian elixirs (one at a time): Mageblood and Forever's Elixir of the Owl
 enum ManaRegenElixir {
 	ManaRegenElixirUnknown = 0;
 	MagebloodPotion = 1;
+	ElixirOfTheOwl = 2;
 }
 
 enum StrengthBuff {

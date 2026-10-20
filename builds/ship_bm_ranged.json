@@ -104,9 +104,9 @@
     },
     "consumes": {
       "food": "FoodFlankAuPoivre",
-      "agilityElixir": "ElixirOfTheMongoose",
-      "manaRegenElixir": "MagebloodPotion",
-      "strengthBuff": "ElixirOfTheGrizzly",
+      "agilityElixir": "ElixirOfCunning",
+      "manaRegenElixir": "ElixirOfTheOwl",
+      "strengthBuff": "JujuPower",
       "attackPowerBuff": "JujuMight",
       "spellPowerBuff": "GreaterArcaneElixir",
       "mainHandImbue": "ElementalSharpeningStone",
@@ -144,7 +144,7 @@
         "petWindfuryTotem": false,
         "petFlametongueTotem": false,
         "petDisabledAbilities": [],
-        "moveDelayMs": 10
+        "moveDelayMs": 100
       }
     },
     "rotation": {

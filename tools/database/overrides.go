@@ -215,6 +215,7 @@ var ExtraItemIcons = []int32{
 	250068, // Savory Turtle Stew
 	274971, // Briny Seafood Stew
 	250328, // Elixir of Cunning
+	250337, // Elixir of the Owl
 	250350, // Elixir of Ferocity
 	250351, // Elixir of the Grizzly
 	250943, // Major Frenzy Potion
