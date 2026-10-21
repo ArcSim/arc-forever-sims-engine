@@ -24,8 +24,12 @@ const RangedAutoRetryInterval = time.Millisecond * 500
 // How long a unit has to stand still before its ranged auto can fire (16 October 2026 beta notes: "Auto
 // Shot now requires 0.5 seconds of standing still before shooting").
 const RangedAutoStandStill = time.Millisecond * 500
-const MaxMeleeRange = 5.0  // in yards
-const MinRangedRange = 8.0 // in yards; bows, guns, crossbows and thrown weapons cannot fire inside this, leaving a deadzone above melee range
+const MaxMeleeRange = 5.0 // in yards
+
+// In yards from the target's center, like every distance here; bows, guns, crossbows and thrown weapons fire only from
+// beyond this, leaving a deadzone above melee range. The client's 8 yd counts from the hitbox edges: logged shots go
+// off from 10.5-10.8 yd of a mob's center and stop inside that (patch 186).
+const MinRangedRange = 10.5
 
 const DefaultAttackPowerPerDPS = 14.0
 
