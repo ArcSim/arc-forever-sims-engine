@@ -4,6 +4,13 @@ import (
 	"time"
 )
 
+// RotationRunsAfterQueuedCast runs the rotation right after a queued spell goes off. A sequence that queues its
+// spell holds the rotation until 1 ns after the queued cast, but the cast's own GCD then moves the rotation timer
+// to the GCD's end, so nothing else the rotation wanted at that instant (a move, an off-GCD cooldown) happened
+// until that GCD ended or an auto attack woke the rotation. In game the player starts walking, or presses the next
+// key, as the queued spell goes off. Off, the old timing.
+var RotationRunsAfterQueuedCast = true
+
 type QueuedSpell struct {
 	spell       *Spell
 	target      *Unit
@@ -41,6 +48,12 @@ func (qs *QueuedSpell) InitiateQueue(sim *Simulation, spell *Spell, target *Unit
 
 			OnAction: func(sim *Simulation) {
 				qs.spell.Cast(sim, qs.target)
+				// A sequence that queued this spell holds the rotation timer 1 ns past this instant, and a cast on
+				// the GCD sets it to the GCD's end, so in those cases the rotation is only rescheduled to now and
+				// runs after the sequence hook wrapped around this action has advanced its sequence.
+				if unit := qs.spell.Unit; RotationRunsAfterQueuedCast && unit.Rotation != nil {
+					unit.ReactToEvent(sim, false, false)
+				}
 			},
 		}
 		qs.queueAction = pa
