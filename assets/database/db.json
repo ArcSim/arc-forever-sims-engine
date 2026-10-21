@@ -13747,7 +13747,6 @@
 {"id":11119,"name":"Ignite","icon":"spell_fire_incinerate"},
 {"id":11124,"name":"Fire Power","icon":"spell_fire_immolation"},
 {"id":11129,"name":"Combustion","icon":"spell_fire_sealoffire"},
-{"id":11151,"name":"Piercing Ice","icon":"spell_frost_frostbolt"},
 {"id":11160,"name":"Frost Channeling","icon":"spell_frost_stun"},
 {"id":11165,"name":"Improved Frost Nova","icon":"spell_frost_freezingbreath"},
 {"id":11170,"name":"Shatter","icon":"spell_frost_frostshock"},
@@ -15597,7 +15596,8 @@
 {"id":1326082,"name":"Arcane Wrath","icon":"ability_mage_netherwindpresence","rank":4},
 {"id":1326084,"name":"Reckoning","icon":"spell_holy_blessingofstrength","hasBuff":true},
 {"id":1326159,"name":"Dark Inspiration","icon":"spell_warlock_demonsoul"},
-{"id":1326168,"name":"Dark Inspiration","icon":"spell_warlock_demonsoul","hasBuff":true}
+{"id":1326168,"name":"Dark Inspiration","icon":"spell_warlock_demonsoul","hasBuff":true},
+{"id":1326891,"name":"Frigid Power","icon":"ability_creature_cursed_05","hasBuff":true}
 ],
 "encounters":[
 {"path":"Default/Raid Target","targets":[{"path":"Default/Raid Target","target":{"id":31146,"name":"Raid Target","level":63,"mobType":7,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,320,0,0,0,0,0,0,0,0,0,0,0,0,3731,0,6070400,0,0,0,0,0,0,0,0],"minBaseDamage":4192.05,"damageSpread":0.5,"swingSpeed":2,"parryHaste":true,"canCrush":true}}]},

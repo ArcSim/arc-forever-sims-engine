@@ -53,18 +53,17 @@ message MageTalents {
     int32 frostbite = 41;
     int32 improved_frost_nova = 42;
     int32 permafrost = 43;
-    int32 piercing_ice = 44;
-    int32 frost_channeling = 45;
+    int32 frost_channeling = 44;
+    int32 improved_blizzard = 45;
     bool ice_lance = 46;
-    int32 improved_blizzard = 47;
-    int32 arctic_reach = 48;
-    bool ice_block = 49;
-    int32 shatter = 50;
-    int32 improved_cone_of_cold = 51;
-    bool cold_snap = 52;
-    int32 fingers_of_frost = 53;
-    int32 winters_chill = 54;
-    bool ice_barrier = 55;
+    int32 arctic_reach = 47;
+    bool ice_block = 48;
+    int32 shatter = 49;
+    int32 improved_cone_of_cold = 50;
+    bool cold_snap = 51;
+    int32 fingers_of_frost = 52;
+    int32 winters_chill = 53;
+    bool ice_barrier = 54;
 }
 
 // END GENERATED

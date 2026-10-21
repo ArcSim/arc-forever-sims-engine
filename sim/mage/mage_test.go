@@ -33,9 +33,9 @@ func TestFrost(t *testing.T) {
 }
 
 // The community builds our Forever sim ranks: Arcane 35/0/16, Fire 0/35/16 and Frost 14/0/37.
-var ArcaneTalents = "0551005023100301531--005500033"
-var FireTalents = "-03552020130135131-005500033"
-var FrostTalents = "0500005013--0555300301001301251"
+var ArcaneTalents = "0551005023100301531--00350003"
+var FireTalents = "-03552020130135131-00350003"
+var FrostTalents = "0500005013--053530000101301251"
 
 func mageSuite(apl string, talents string) core.CharacterSuiteConfig {
 	return core.CharacterSuiteConfig{
@@ -308,11 +308,6 @@ func TestArcaneBonusesSkipFrostfireBoltDot(t *testing.T) {
 	}
 
 	instability := spellData.ArcaneInstability.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_DAMAGE)).FractionAt(mage.Talents.ArcaneInstability)
-	// Piercing Ice's hit/DoT split, if the build takes it (TestPiercingIceDotBonusStaysAtBasePoints).
-	if points := mage.Talents.PiercingIce; points > 0 {
-		instability += spellData.PiercingIce.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_DAMAGE)).FractionAt(points) -
-			spellData.PiercingIce.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_DOT)).FractionAt(points)
-	}
 	if got := gap(); math.Abs(got-instability) > 1e-9 {
 		t.Errorf("Frostfire Bolt hit - DoT multiplier = %.4f, want %.4f on the hit alone", got, instability)
 	}
@@ -320,39 +315,6 @@ func TestArcaneBonusesSkipFrostfireBoltDot(t *testing.T) {
 	power := spellData.ArcanePower.Highest().Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_DAMAGE)).Average(core.CharacterLevel) / 100
 	if got := gap(); math.Abs(got-instability-power) > 1e-9 {
 		t.Errorf("with Arcane Power, Frostfire Bolt hit - DoT multiplier = %.4f, want %.4f", got, instability+power)
-	}
-}
-
-// Piercing Ice (11151): effect 0 (SPELLMOD_DAMAGE) scales 2/4/6%, but effect 1 (SPELLMOD_DOT, Blizzard
-// and Frostfire Bolt) has no rank curve in client 1.60.1.70170 and stays at 2%. Frostfire Bolt's hit
-// takes the full bonus, its DoT 2%.
-func TestPiercingIceDotBonusStaysAtBasePoints(t *testing.T) {
-	sim := core.NewSim(&proto.RaidSimRequest{
-		SimOptions: &proto.SimOptions{RandomSeed: 1},
-		Raid: &proto.Raid{Parties: []*proto.Party{{Buffs: &proto.PartyBuffs{}, Players: []*proto.Player{{
-			Name: "Mage", Class: proto.Class_ClassMage, Race: proto.Race_RaceGnome, TalentsString: FrostTalents,
-			Equipment: &proto.EquipmentSpec{}, Buffs: &proto.IndividualBuffs{},
-			Spec:     &proto.Player_Mage{Mage: &proto.Mage{Options: &proto.Mage_Options{ClassOptions: &proto.MageOptions{}}}},
-			Rotation: &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
-		}}}}},
-		Encounter: core.MakeSingleTargetEncounter(0),
-	}, simsignals.CreateSignals())
-	sim.Reset()
-
-	mage := sim.Raid.Parties[0].Players[0].(MageAgent).GetMage()
-	if mage.Talents.PiercingIce < 2 {
-		t.Fatal("FrostTalents no longer take 2+ points of Piercing Ice; pick a build that does")
-	}
-	hit := spellData.PiercingIce.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_DAMAGE)).FractionAt(mage.Talents.PiercingIce)
-	dot := spellData.PiercingIce.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_DOT)).FractionAt(mage.Talents.PiercingIce)
-	if dot != 0.02 || hit <= dot {
-		t.Fatalf("Piercing Ice rank %d: hit %.3f, DoT %.3f; client 70170 has 2/4/6%% and a flat 2%%", mage.Talents.PiercingIce, hit, dot)
-	}
-
-	ffb := mage.GetSpell(core.ActionID{SpellID: spellData.FrostfireBolt.Highest().ID})
-	table := mage.AttackTables[mage.CurrentTarget.UnitIndex]
-	if got := ffb.AttackerDamageMultiplier(table, false) - ffb.AttackerDamageMultiplier(table, true); math.Abs(got-(hit-dot)) > 1e-9 {
-		t.Errorf("Frostfire Bolt hit - DoT multiplier = %.4f, want %.4f (Piercing Ice %.2f on the hit, %.2f on the DoT)", got, hit-dot, hit, dot)
 	}
 }
 
@@ -552,7 +514,7 @@ func TestArcaneWithoutArcaneBlastStillCasts(t *testing.T) {
 		Race:          proto.Race_RaceGnome,
 		Class:         proto.Class_ClassMage,
 		Equipment:     &proto.EquipmentSpec{},
-		TalentsString: "0551005023000301531--005500033",
+		TalentsString: "0551005023000301531--00350003",
 		Rotation:      core.GetAplRotation("../../ui/specs/mage/dps/apls", "arcane").Rotation,
 	}, &proto.Player_Mage{Mage: &proto.Mage{Options: &proto.Mage_Options{ClassOptions: &proto.MageOptions{}}}})
 	result := core.RunRaidSim(&proto.RaidSimRequest{
@@ -617,10 +579,10 @@ func TestSpellRangesFollowTheClient(t *testing.T) {
 		{"", spellData.Frostbolt.Highest().ID, 30},
 		{"", spellData.FireBlast.Highest().ID, 20},
 		{"", spellData.ConeOfCold.Highest().ID, 10},
-		{ArcaneTalents, spellData.ArcaneBlast.Highest().ID, 36},  // Arcane Geometry 2/2: +6 yd
-		{FireTalents, spellData.FireBlast.Highest().ID, 26},      // Flame Throwing 2/2: +6 yd
-		{"--000000000002", spellData.Blizzard.Highest().ID, 36},  // Arctic Reach 2/2: +20% range
-		{"--000000000002", spellData.FrostNova.Highest().ID, 12}, // and radius
+		{ArcaneTalents, spellData.ArcaneBlast.Highest().ID, 36}, // Arcane Geometry 2/2: +6 yd
+		{FireTalents, spellData.FireBlast.Highest().ID, 26},     // Flame Throwing 2/2: +6 yd
+		{"--00000000002", spellData.Blizzard.Highest().ID, 36},  // Arctic Reach 2/2: +20% range
+		{"--00000000002", spellData.FrostNova.Highest().ID, 12}, // and radius
 	} {
 		sim, mage := newThreeTargetMage(c.talents)
 		spell := mage.GetSpell(core.ActionID{SpellID: c.spell})

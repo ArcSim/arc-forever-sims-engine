@@ -1,6 +1,8 @@
 package mage
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
@@ -9,7 +11,29 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-var TalentTreeSizes = [3]int{19, 17, 19}
+// Arcane, Fire and Frost. Frost has 18 talents since client hotfix push 112753 (20 October 2026), which
+// removed Piercing Ice (patch 187).
+var TalentTreeSizes = [3]int{19, 17, 18}
+
+// checkTalentsString (MythicSim patch 189) rejects a talent string that gives a tree more digits than
+// the tree has talents, or more than three trees. core.FillTalentsProto would carry the extra digits
+// into the next tree's fields, or panic on a field the proto does not have: a Frost string from before
+// hotfix push 112753 has 19 digits, and its 19th asks for field 55, which is gone. Its first 18 would
+// also be read in the new order (Frost Channeling where Piercing Ice was), so it is refused as a whole
+// rather than trimmed. A pre-hotfix string with 18 or fewer Frost digits cannot be told apart from a
+// current one and is read in the current order.
+func checkTalentsString(talents string) {
+	trees := strings.Split(talents, "-")
+	if len(trees) > len(TalentTreeSizes) {
+		panic(fmt.Sprintf("mage talents %q: %d trees, a mage has %d", talents, len(trees), len(TalentTreeSizes)))
+	}
+	for i, tree := range trees {
+		if len(tree) > TalentTreeSizes[i] {
+			panic(fmt.Sprintf("mage talents %q: tree %d has %d talents, the string gives %d (a Frost string from before"+
+				" the 20 October 2026 hotfix has 19)", talents, i+1, TalentTreeSizes[i], len(tree)))
+		}
+	}
+}
 
 type Mage struct {
 	core.Character
@@ -122,7 +146,14 @@ func NewMage(character *core.Character, options *proto.Player) *Mage {
 		Options:   mageOptions,
 	}
 
+	checkTalentsString(options.TalentsString)
 	core.FillTalentsProto(mage.Talents.ProtoReflect(), options.TalentsString, TalentTreeSizes)
+	// Elemental Precision went from five ranks to three in the same hotfix; a pre-hotfix 4 or 5 would
+	// otherwise panic in its ladder with no word of the talent.
+	if maxRanks := spellData.ElementalPrecision.Len(); mage.Talents.ElementalPrecision > maxRanks {
+		panic(fmt.Sprintf("mage talents %q: Elemental Precision has %d ranks, the string gives %d (five before"+
+			" the 20 October 2026 hotfix)", options.TalentsString, maxRanks, mage.Talents.ElementalPrecision))
+	}
 
 	mage.EnableManaBar()
 	mage.AddStatDependency(stats.Agility, stats.PhysicalCritPercent, core.CritPerAgiMaxLevel[character.Class])

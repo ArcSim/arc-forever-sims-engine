@@ -11,7 +11,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-const frostfireHybridTalents = "-1355000013013403-00550003210013002"
+const frostfireHybridTalents = "-1355000013013403-0035000201013002"
 
 func frostfireSim(talents string) (*core.Simulation, *Mage) {
 	player := &proto.Player{
@@ -52,17 +52,18 @@ func TestFrostfireRanksAndTalents(t *testing.T) {
 	if got := spell.Cost.GetCurrentCost(); math.Abs(got-333) > 1e-9 {
 		t.Errorf("Frost Channeling cost = %v, want 333", got)
 	}
-	if got := spell.SpellHitChance(hybrid.CurrentTarget); math.Abs(got-.05) > 1e-9 {
-		t.Errorf("hit = %v, want .05", got)
+	// Elemental Precision 3/3 is 6% since hotfix push 112753 (patch 187).
+	if got := spell.SpellHitChance(hybrid.CurrentTarget); math.Abs(got-.06) > 1e-9 {
+		t.Errorf("hit = %v, want .06", got)
 	}
-	// Piercing Ice adds 6% to the hit and 2% to the DoT. Fire Power (client 70425) counts the Fire
-	// effects on the target, and a fresh target has none.
+	// The same hotfix removed Piercing Ice, so nothing raises the hit or the DoT. Fire Power (client
+	// 70425) counts the Fire effects on the target, and a fresh target has none.
 	table := hybrid.AttackTables[hybrid.CurrentTarget.UnitIndex]
-	if got := spell.AttackerDamageMultiplier(table, false); math.Abs(got-1.06) > 1e-9 {
-		t.Errorf("Piercing Ice direct multiplier = %v, want 1.06", got)
+	if got := spell.AttackerDamageMultiplier(table, false); math.Abs(got-1) > 1e-9 {
+		t.Errorf("direct multiplier = %v, want 1", got)
 	}
-	if got := spell.AttackerDamageMultiplier(table, true); math.Abs(got-1.02) > 1e-9 {
-		t.Errorf("Piercing Ice periodic multiplier = %v, want 1.02", got)
+	if got := spell.AttackerDamageMultiplier(table, true); math.Abs(got-1) > 1e-9 {
+		t.Errorf("periodic multiplier = %v, want 1", got)
 	}
 	if got := spell.TargetDamageMultiplier(sim, table, false); math.Abs(got-1) > 1e-9 {
 		t.Errorf("Fire Power with no Fire effect on the target = %v, want 1", got)
@@ -74,8 +75,8 @@ func TestFrostfireRanksAndTalents(t *testing.T) {
 	spell.BonusCritPercent += 100
 	spell.Flags |= core.SpellFlagIgnoreResists
 	result := spell.CalcDamage(sim, hybrid.CurrentTarget, 100, spell.OutcomeMagicCrit)
-	if math.Abs(result.Damage-212) > 1e-6 {
-		t.Errorf("Ice Shards crit = %v, want 212", result.Damage)
+	if math.Abs(result.Damage-200) > 1e-6 {
+		t.Errorf("Ice Shards crit = %v, want 200", result.Damage)
 	}
 	spell.CurCast.Cost = 333
 	hybrid.SpendMana(sim, 333, hybrid.NewManaMetrics(spell.ActionID))
