@@ -57,9 +57,14 @@ func (warrior *Warrior) registerHeroicStrike() {
 				spell.IssueRefund(sim)
 			}
 
+			// The strike has used the queue once it replaces the swing: an extra attack its hit
+			// procs (Windfury, Sword Specialization) is a plain swing, not a second Heroic Strike.
+			if core.QueuedSwingConsumedBeforeDamage {
+				warrior.consumeQueuedSwing(sim)
+			}
 			spell.DealDamage(sim, result)
-			if warrior.curQueueAura != nil {
-				warrior.curQueueAura.Deactivate(sim)
+			if !core.QueuedSwingConsumedBeforeDamage {
+				warrior.consumeQueuedSwing(sim)
 			}
 		},
 	})
@@ -125,12 +130,14 @@ func (warrior *Warrior) registerCleave() {
 				}
 			}
 
+			if core.QueuedSwingConsumedBeforeDamage {
+				warrior.consumeQueuedSwing(sim)
+			}
 			for _, result := range results {
 				spell.DealDamage(sim, result)
 			}
-
-			if warrior.curQueueAura != nil {
-				warrior.curQueueAura.Deactivate(sim)
+			if !core.QueuedSwingConsumedBeforeDamage {
+				warrior.consumeQueuedSwing(sim)
 			}
 		},
 	})
@@ -145,6 +152,13 @@ func (warrior *Warrior) calcQueuedSwing(sim *core.Simulation, spell *core.Spell,
 	result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 	warrior.PseudoStats.DisableDWMissPenalty = false
 	return result
+}
+
+// consumeQueuedSwing drops the queue the strike fired from.
+func (warrior *Warrior) consumeQueuedSwing(sim *core.Simulation) {
+	if warrior.curQueueAura != nil {
+		warrior.curQueueAura.Deactivate(sim)
+	}
 }
 
 func (warrior *Warrior) makeQueueSpellsAndAura(srcSpell *core.Spell) *core.Spell {

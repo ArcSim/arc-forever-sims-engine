@@ -12,6 +12,15 @@ import (
 // This allows for abilities that convert a white attack into a yellow attack.
 type ReplaceMHSwing func(sim *Simulation, mhSwingSpell *Spell) *Spell
 
+// QueuedSwingConsumedBeforeDamage makes an on-next-swing strike (Heroic Strike, Cleave, Maul) drop its
+// queue before it deals its damage instead of after (Ambiwar, MythicSim Discord #bugs, 21 October
+// 2026). Dropped after, an extra attack the strike's own hit procs at once (Windfury Totem, Windfury
+// Weapon, Sword Specialization) went through MaybeReplaceMHSwing while the queue was still up and
+// became a second strike from the one queue, paying the rage again. In Classic the queued strike
+// replaces one swing and is gone, and the extra attack is a white swing. An extra attack a yellow
+// ability procs still takes a queued strike, as in Classic. Off, the old order.
+var QueuedSwingConsumedBeforeDamage = true
+
 // Represents a generic weapon. Pets / unarmed / various other cases don't use
 // actual weapon items so this is an abstraction of a Weapon.
 type Weapon struct {

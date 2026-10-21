@@ -5314,3 +5314,21 @@ times the stance in both, so patch 151's switch (flat threat only in Defensive S
 Not taken from upstream's threat set: Shield Slam (upstream 0, untested; ours keeps 508 until a level 40 capture),
 Hamstring and Shield Bash (upstream 0; neither is in a MythicSim rotation that ranks threat), Battle Shout (ours
 reads the client's E_THREAT effect).
+
+## 186. `core, warrior, druid: a queued Heroic Strike, Cleave or Maul drops its queue before it deals its damage`
+
+Ambiwar (MythicSim Discord #bugs, 21 October 2026): "double triggering on extra attacks, consuming 2x rage cost".
+The strike dropped its queue only after dealing its damage, so an extra attack its own hit procced at once
+(Windfury Totem, Windfury Weapon, Sword Specialization) went through `MaybeReplaceMHSwing` while the queue was
+still up and became a second strike from the one queue, paying the rage twice. 116 of the committed first-fight
+logs carried a queue spent twice (Fury sapper at 43.43: two Heroic Strikes, 24 rage, one queue). In Classic the
+queued strike replaces one swing and is gone; the extra attack it procs is a white swing. An extra attack a
+yellow ability procs (Bloodthirst into Windfury Totem) still takes a queued strike, as in Classic, which is the
+"skills consume Heroic Strike" half of the report.
+
+- `QueuedSwingConsumedBeforeDamage` (sim/core/attack.go), **default true**: the strike calculates its hit, drops
+  the queue, then deals the damage, so no random draw moves. False restores the old order.
+- Test: `TestQueuedHeroicStrikeIsSpentOnce` (sim/warrior/dps/heroic_strike_queue_test.go): no queue fires twice, and with
+  the switch off the test sees one that does.
+- DPS on the references moves 0.1% to 0.5% either way (the free strike roughly cancels the rage it wasted):
+  Arms +0.5%, Fury-prot +0.35%, Fury with Heroic Strike -0.1%, Feral Bear +0.2%.

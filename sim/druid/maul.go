@@ -37,11 +37,18 @@ func (druid *Druid) registerMaulSpell() {
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			baseDamage := maulRank.DamageEffect().Average(core.CharacterLevel) + spell.Unit.MHWeaponDamage(sim, spell.MeleeAttackPower(target))
-			result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
+			// Maul has used the queue once it replaces the swing, so an extra attack its hit procs
+			// (Windfury Totem) is a plain swing, not a second Maul paying the rage again.
+			consumeBefore := core.QueuedSwingConsumedBeforeDamage
+			result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
+			if consumeBefore && druid.maulQueueAura != nil {
+				druid.maulQueueAura.Deactivate(sim)
+			}
+			spell.DealDamage(sim, result)
 			if !result.Landed() {
 				spell.IssueRefund(sim)
 			}
-			if druid.maulQueueAura != nil {
+			if !consumeBefore && druid.maulQueueAura != nil {
 				druid.maulQueueAura.Deactivate(sim)
 			}
 		},
