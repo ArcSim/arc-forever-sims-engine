@@ -926,8 +926,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-Settings-Gnome-Naked-Warlock-affliction-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 171.41246
-  tps: 106.67199
+  dps: 171.39971
+  tps: 106.66518
  }
 }
 dps_results: {

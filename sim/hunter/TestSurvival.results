@@ -65,8 +65,8 @@ dps_results: {
 dps_results: {
  key: "TestSurvival-AllItems-Alcor'sSunrazor-14555"
  value: {
-  dps: 431.31119
-  tps: 260.29257
+  dps: 431.30189
+  tps: 260.27526
  }
 }
 dps_results: {
@@ -191,8 +191,8 @@ dps_results: {
 dps_results: {
  key: "TestSurvival-AllItems-Bloodfist-11744"
  value: {
-  dps: 424.65797
-  tps: 255.4381
+  dps: 424.45192
+  tps: 255.30757
  }
 }
 dps_results: {
@@ -261,8 +261,8 @@ dps_results: {
 dps_results: {
  key: "TestSurvival-AllItems-ColdrageDagger-10761"
  value: {
-  dps: 420.36648
-  tps: 252.18457
+  dps: 420.368
+  tps: 252.19249
  }
 }
 dps_results: {
@@ -289,8 +289,8 @@ dps_results: {
 dps_results: {
  key: "TestSurvival-AllItems-Dal'Rend'sArms"
  value: {
-  dps: 360.61312
-  tps: 209.75895
+  dps: 360.77552
+  tps: 209.86426
  }
 }
 dps_results: {
@@ -317,8 +317,8 @@ dps_results: {
 dps_results: {
  key: "TestSurvival-AllItems-Darrowspike-13984"
  value: {
-  dps: 425.93577
-  tps: 256.06804
+  dps: 425.94158
+  tps: 256.07897
  }
 }
 dps_results: {
@@ -591,8 +591,8 @@ dps_results: {
 dps_results: {
  key: "TestSurvival-AllItems-FlurryAxe-871"
  value: {
-  dps: 429.65519
-  tps: 258.81328
+  dps: 430.58651
+  tps: 259.45177
  }
 }
 dps_results: {
@@ -1088,8 +1088,8 @@ dps_results: {
 dps_results: {
  key: "TestSurvival-AllItems-SpiritofEskhandar"
  value: {
-  dps: 361.50048
-  tps: 210.79639
+  dps: 360.32104
+  tps: 209.94709
  }
 }
 dps_results: {

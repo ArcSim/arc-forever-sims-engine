@@ -58,141 +58,141 @@ character_stats_results: {
 dps_results: {
  key: "TestSubtlety-AllItems-AccurateScope-33"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Alcor'sSunrazor-14555"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-ArenaGrandMaster-19024"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-ArgentAvenger-13246"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-BadgeoftheSwarmguard-21670"
  value: {
-  dps: 284.80374
-  tps: 141.54746
+  dps: 284.16004
+  tps: 141.22754
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-BarbaricBelt-4264"
  value: {
-  dps: 283.16054
-  tps: 140.73079
+  dps: 282.56119
+  tps: 140.43291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-BarbaricCrossbow-272999"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Bashguuder-13204"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-BlazefuryMedallion-17111"
  value: {
-  dps: 287.40303
-  tps: 142.83931
+  dps: 285.71001
+  tps: 141.99788
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-BlazingEmblem-2802"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-BloodTigerHarness"
  value: {
-  dps: 289.40989
-  tps: 143.83671
+  dps: 288.76304
+  tps: 143.51523
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-BloodfangArmor"
  value: {
-  dps: 312.35875
-  tps: 155.2423
+  dps: 311.58659
+  tps: 154.85853
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Bloodfist-11744"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-BloodvineGarb"
  value: {
-  dps: 291.4701
-  tps: 144.86064
+  dps: 291.19013
+  tps: 144.72149
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-BonechillHammer-14487"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-BurstofKnowledge-11832"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-CadaverousGarb"
  value: {
-  dps: 326.37637
-  tps: 162.20905
+  dps: 325.57788
+  tps: 161.81221
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-ColdrageDagger-10761"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-CrudeScope-30"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-CursedMurlocEye-273840"
  value: {
-  dps: 282.71651
-  tps: 140.5101
+  dps: 282.26077
+  tps: 140.2836
  }
 }
 dps_results: {
@@ -205,127 +205,127 @@ dps_results: {
 dps_results: {
  key: "TestSubtlety-AllItems-DarkmantleArmor"
  value: {
-  dps: 372.78945
-  tps: 185.27636
+  dps: 372.3972
+  tps: 185.08141
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-DarkmoonCard:Heroism-19287"
  value: {
-  dps: 281.09488
-  tps: 139.70415
+  dps: 280.52471
+  tps: 139.42078
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-DarkmoonCard:Maelstrom-19289"
  value: {
-  dps: 289.74917
-  tps: 144.00534
+  dps: 288.68006
+  tps: 143.47399
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Darrowspike-13984"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-DeadlyScope-663"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Deathdealer'sEmbrace"
  value: {
-  dps: 369.70693
-  tps: 183.74435
+  dps: 369.12513
+  tps: 183.45519
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-DefiasLeather"
  value: {
-  dps: 300.32546
-  tps: 149.26175
+  dps: 300.22218
+  tps: 149.21042
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Defiler'sTalisman-20072"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Defiler'sTalisman-21115"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Defiler'sTalisman-21116"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Defiler'sTalisman-21120"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-DevilsaurArmor"
  value: {
-  dps: 304.10356
-  tps: 151.13947
+  dps: 303.31721
+  tps: 150.74865
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-DraconicInfusedEmblem-22268"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Dragon'sCall-10847"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-DreadmistRaiment"
  value: {
-  dps: 282.00676
-  tps: 140.15736
+  dps: 281.42044
+  tps: 139.86596
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-EarthenSigil-20525"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Earthstrike-21180"
  value: {
-  dps: 290.85002
-  tps: 144.55246
+  dps: 290.13903
+  tps: 144.1991
  }
 }
 dps_results: {
@@ -338,247 +338,247 @@ dps_results: {
 dps_results: {
  key: "TestSubtlety-AllItems-EidolonTalisman-18340"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-ElectrifiedDagger-19100"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-EmblemsofVeiledShadows"
  value: {
-  dps: 294.26099
-  tps: 146.24771
+  dps: 293.582
+  tps: 145.91025
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Enchant2HWeapon-GrandArcanist-7941"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Enchant:FieryBlaze-36"
  value: {
-  dps: 282.38521
-  tps: 140.34545
+  dps: 281.814
+  tps: 140.06156
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-EnchantChest-Absorption-8220"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-EnchantChest-LesserAbsorption-63"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-EnchantChest-MinorAbsorption-44"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-EnchantWeapon-FieryWeapon-803"
  value: {
-  dps: 285.72591
-  tps: 142.00578
+  dps: 284.85451
+  tps: 141.57269
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-EnchantWeapon-Insight-8216"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-EnchantWeapon-Lifestealing-1898"
  value: {
-  dps: 285.64722
-  tps: 141.96667
+  dps: 284.64483
+  tps: 141.46848
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-EnchantWeapon-Recovery-8721"
  value: {
-  dps: 281.13374
-  tps: 139.72347
-  hps: 10.80042
+  dps: 280.54146
+  tps: 139.4291
+  hps: 10.74899
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-EnergyCloak-9397"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-EssenceofthePureFlame-18815"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-EverlookPathcarver-274759"
  value: {
-  dps: 283.18136
-  tps: 140.74114
+  dps: 281.73906
+  tps: 140.02431
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-EyeofMoam-21473"
  value: {
-  dps: 283.06831
-  tps: 140.68495
+  dps: 282.52855
+  tps: 140.41669
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-EyeoftheDead-23047"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-FieldMarshal'sVestments"
  value: {
-  dps: 328.88426
-  tps: 163.45548
+  dps: 327.97192
+  tps: 163.00204
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-ForceofWill-11810"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-FreezingBand-942"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-FrozenHeartoftheMountain-249469"
  value: {
-  dps: 281.49066
-  tps: 139.90086
+  dps: 280.89838
+  tps: 139.60649
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Gem-studdedLeatherBelt-4262"
  value: {
-  dps: 282.06919
-  tps: 140.18839
+  dps: 281.47364
+  tps: 139.8924
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-GlacialBlade-19099"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-GnomishHarmPreventionBelt-10721"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-GoblinConstructionHelmet-10543"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-GoldenBanana-270226"
  value: {
-  dps: 281.67611
-  tps: 139.99303
+  dps: 281.07964
+  tps: 139.69658
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-HandofJustice-11815"
  value: {
-  dps: 285.15952
-  tps: 141.72428
+  dps: 285.81462
+  tps: 142.04987
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-HeartofWyrmthalak-22321"
  value: {
-  dps: 283.81649
-  tps: 141.0568
+  dps: 282.70458
+  tps: 140.50418
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-HeartoftheScale-13164"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-HelmofFire-8348"
  value: {
-  dps: 288.09747
-  tps: 143.18444
+  dps: 286.65857
+  tps: 142.46931
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-HibernationCrystal-20636"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-InfernalLasso-219345"
  value: {
-  dps: 283.49555
-  tps: 140.89729
+  dps: 282.01057
+  tps: 140.15925
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-IronfeatherArmor"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
@@ -591,316 +591,316 @@ dps_results: {
 dps_results: {
  key: "TestSubtlety-AllItems-JomGabbar-23570"
  value: {
-  dps: 293.32231
-  tps: 145.78119
+  dps: 292.7122
+  tps: 145.47796
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-KissoftheSpider-22954"
  value: {
-  dps: 288.85362
-  tps: 143.56025
+  dps: 287.49195
+  tps: 142.8835
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-LieutenantCommander'sGuard"
  value: {
-  dps: 345.22455
-  tps: 171.5766
+  dps: 344.82897
+  tps: 171.38
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Lifestone-833"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Linken'sBoomerang-11905"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Loatheb'sReflection-23042"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Madcap'sOutfit"
  value: {
-  dps: 334.7461
-  tps: 166.36881
+  dps: 334.90002
+  tps: 166.44531
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Magister'sRegalia"
  value: {
-  dps: 281.87774
-  tps: 140.09324
+  dps: 281.28992
+  tps: 139.80109
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-MarkofResolution-17759"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-MarkofTyranny-13966"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-MarkoftheChampion-23206"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-MarkoftheChampion-23207"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-MarkoftheDragonLord-13143"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-MarkoftheRedFlight-282778"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-MasterworkStormhammer-12794"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-MindtapTalisman-18371"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-MoltenHeartoftheMountain-249470"
  value: {
-  dps: 284.49517
-  tps: 141.3941
+  dps: 283.89311
+  tps: 141.09487
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Naglering-11669"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-NecropileRaiment"
  value: {
-  dps: 281.44387
-  tps: 139.8776
+  dps: 280.85158
+  tps: 139.58324
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-NightslayerArmor"
  value: {
-  dps: 372.54646
-  tps: 185.15559
+  dps: 370.95749
+  tps: 184.36587
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-OrbofFire-12805"
  value: {
-  dps: 281.93771
-  tps: 140.12304
+  dps: 281.02532
+  tps: 139.66958
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-PetrolspillLeggings-9509"
  value: {
-  dps: 285.31338
-  tps: 141.80075
+  dps: 284.73031
+  tps: 141.51096
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Plaguefang-279876"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Prismcharm-15867"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-RaggedJohn'sNeverendingCup-15873"
  value: {
-  dps: 278.00991
-  tps: 138.17092
+  dps: 277.44404
+  tps: 137.88969
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-RedWhelpGloves-7284"
  value: {
-  dps: 285.62743
-  tps: 141.95683
+  dps: 284.83726
+  tps: 141.56412
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-RegaliaofUndeadCleansing"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Renataki'sCharmofTrickery-19954"
  value: {
-  dps: 288.53963
-  tps: 143.4042
+  dps: 287.77994
+  tps: 143.02663
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-RingofSaviors-1447"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-SatchelofBronzeBombs-285276"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-SatchelofCopperBombs-285275"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-SatchelofDarkIronBombs-285278"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-SatchelofIronBombs-285277"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-SearingDagger-273003"
  value: {
-  dps: 229.47653
-  tps: 114.04984
+  dps: 229.79722
+  tps: 114.20922
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-SecondWind-11819"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-SerenityField-272439"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-ShadowcraftArmor"
  value: {
-  dps: 348.85097
-  tps: 173.37893
+  dps: 348.8177
+  tps: 173.3624
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-ShardoftheFallenStar-21891"
  value: {
-  dps: 282.85031
-  tps: 140.57661
+  dps: 281.43097
+  tps: 139.87119
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-ShardoftheGods"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-SkullforgeReaver-13361"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Slayer'sCrest-23041"
  value: {
-  dps: 300.13408
-  tps: 149.16664
+  dps: 299.39678
+  tps: 148.8002
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Smokey'sLighter-13171"
  value: {
-  dps: 283.03876
-  tps: 140.67026
+  dps: 282.25712
+  tps: 140.28179
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-SmokingHeartoftheMountain-11811"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-SniperScope-664"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Spider'sKiss"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
@@ -913,29 +913,29 @@ dps_results: {
 dps_results: {
  key: "TestSubtlety-AllItems-StandardScope-32"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-StingingViper-6472"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-StormshroudArmor"
  value: {
-  dps: 336.2903
-  tps: 167.13628
+  dps: 335.49458
+  tps: 166.74081
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-SwineFists-10760"
  value: {
-  dps: 289.33618
-  tps: 143.80008
+  dps: 288.87832
+  tps: 143.57253
  }
 }
 dps_results: {
@@ -948,252 +948,252 @@ dps_results: {
 dps_results: {
  key: "TestSubtlety-AllItems-TalismanofArathor-20071"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-TalismanofArathor-21117"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-TalismanofArathor-21118"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-TalismanofArathor-21119"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-TalismanofAscendance-22678"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-TalismanofEphemeralPower-18820"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-TheBurrower'sShell-23558"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-TheCruelHandofTimmy-13401"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-TheLionHornofStormwind-14557"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-ThePostmaster"
  value: {
-  dps: 281.49066
-  tps: 139.90086
+  dps: 280.89838
+  tps: 139.60649
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-TheRestrainedEssenceofSapphiron-23046"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-ThorncursedGrips-274159"
  value: {
-  dps: 286.45233
-  tps: 142.36681
+  dps: 284.73863
+  tps: 141.5151
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Thunderfury,BlessedBladeoftheWindseeker-19019"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-UndeadSlayer'sArmor"
  value: {
-  dps: 285.81097
-  tps: 142.04805
+  dps: 285.20238
+  tps: 141.74558
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Uther'sStrength-11302"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Venomstrike-6469"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-VestmentsoftheDevout"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-VolcanicArmor"
  value: {
-  dps: 286.91511
-  tps: 142.59681
+  dps: 286.14064
+  tps: 142.2119
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-Warlord'sVestments"
  value: {
-  dps: 328.88426
-  tps: 163.45548
+  dps: 327.97192
+  tps: 163.00204
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-WarmthofForgiveness-23027"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-WildheartRaiment"
  value: {
-  dps: 289.86456
-  tps: 144.06269
+  dps: 289.24184
+  tps: 143.75319
  }
 }
 dps_results: {
  key: "TestSubtlety-AllItems-WrathofCenarius-21190"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-Average-Default"
  value: {
-  dps: 279.01135
-  tps: 138.66864
+  dps: 278.97763
+  tps: 138.65188
  }
 }
 dps_results: {
  key: "TestSubtlety-Settings-Human-Daggers-Poisons-forever_hemorrhage-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-Settings-Human-Daggers-Poisons-forever_hemorrhage-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 281.13374
-  tps: 139.72347
+  dps: 280.54146
+  tps: 139.4291
  }
 }
 dps_results: {
  key: "TestSubtlety-Settings-Human-Daggers-Poisons-forever_hemorrhage-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 289.13863
-  tps: 143.7019
+  dps: 288.94344
+  tps: 143.60489
  }
 }
 dps_results: {
  key: "TestSubtlety-Settings-Human-Daggers-Poisons-forever_hemorrhage-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 114.08004
-  tps: 80.99683
+  dps: 113.78818
+  tps: 80.78961
  }
 }
 dps_results: {
  key: "TestSubtlety-Settings-Human-Daggers-Poisons-forever_hemorrhage-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 114.08004
-  tps: 80.99683
+  dps: 113.78818
+  tps: 80.78961
  }
 }
 dps_results: {
  key: "TestSubtlety-Settings-Human-Daggers-Poisons-forever_hemorrhage-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 121.62148
-  tps: 86.35125
+  dps: 120.67222
+  tps: 85.67727
  }
 }
 dps_results: {
  key: "TestSubtlety-Settings-Orc-Daggers-Poisons-forever_hemorrhage-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 278.38075
-  tps: 138.35523
+  dps: 277.77903
+  tps: 138.05618
  }
 }
 dps_results: {
  key: "TestSubtlety-Settings-Orc-Daggers-Poisons-forever_hemorrhage-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 278.38075
-  tps: 138.35523
+  dps: 277.77903
+  tps: 138.05618
  }
 }
 dps_results: {
  key: "TestSubtlety-Settings-Orc-Daggers-Poisons-forever_hemorrhage-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 288.62881
-  tps: 143.44852
+  dps: 288.41691
+  tps: 143.3432
  }
 }
 dps_results: {
  key: "TestSubtlety-Settings-Orc-Daggers-Poisons-forever_hemorrhage-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 112.61964
-  tps: 79.95994
+  dps: 112.3362
+  tps: 79.7587
  }
 }
 dps_results: {
  key: "TestSubtlety-Settings-Orc-Daggers-Poisons-forever_hemorrhage-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 112.61964
-  tps: 79.95994
+  dps: 112.3362
+  tps: 79.7587
  }
 }
 dps_results: {
  key: "TestSubtlety-Settings-Orc-Daggers-Poisons-forever_hemorrhage-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 120.16649
-  tps: 85.31821
+  dps: 119.15693
+  tps: 84.60142
  }
 }
 dps_results: {
  key: "TestSubtlety-SwitchInFrontOfTarget-Default"
  value: {
-  dps: 217.32067
-  tps: 108.00837
+  dps: 218.00822
+  tps: 108.35009
  }
 }
