@@ -512,6 +512,53 @@ func TestTrueshotAuraFromTalent(t *testing.T) {
 
 // Immolation Trap is a real cast (placed on a GCD), so the results count its casts and cast time; without them the
 // table cannot show its damage per cast or per execute time.
+// The burn lands 1.2 s after the trap is dropped and first ticks 3 s later: a trap dropped at the pull from 3 yd has not
+// ticked by 4 s (a throw alone would tick at 3.1 s) and has by 4.5 s.
+func TestImmolationTrapArming(t *testing.T) {
+	const aplJSON = `{"type":"TypeAPL","priorityList":[{"action":{"castSpell":{"spellId":{"spellId":14305}}}}]}`
+	trapDamage := func(seconds float64) float64 {
+		rot := &proto.APLRotation{}
+		if err := protojson.Unmarshal([]byte(aplJSON), rot); err != nil {
+			t.Fatalf("rotation: %v", err)
+		}
+		player := core.WithSpec(&proto.Player{
+			Race:               proto.Race_RaceHuman,
+			Class:              proto.Class_ClassHunter,
+			Equipment:          core.GetGearSet("../../ui/hunter/gear_sets", "2h_weave").GearSet,
+			TalentsString:      patchTestTalents,
+			Consumes:           abConsumes,
+			Buffs:              abIndividualBuffs,
+			Rotation:           rot,
+			DistanceFromTarget: 3,
+		}, abOptions)
+		enc := abEncounter()
+		enc.Duration, enc.DurationVariation = seconds, 0
+		res := core.RunRaidSim(&proto.RaidSimRequest{
+			Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, abRaidBuffs, abDebuffs),
+			Encounter:  enc,
+			SimOptions: &proto.SimOptions{Iterations: 1, RandomSeed: 20261020},
+		})
+		if res.Error != nil {
+			t.Fatalf("sim error: %s", res.Error.Message)
+		}
+		var damage float64
+		for _, a := range res.RaidMetrics.Parties[0].Players[0].Actions {
+			if a.Id.GetSpellId() == 14305 {
+				for _, tm := range a.Targets {
+					damage += tm.Damage
+				}
+			}
+		}
+		return damage
+	}
+	if d := trapDamage(4); d != 0 {
+		t.Errorf("4 s fight: trap did %.0f damage; want none (burn lands at 1.2 s, first tick at 4.2 s)", d)
+	}
+	if d := trapDamage(4.5); d == 0 {
+		t.Error("4.5 s fight: trap did no damage; want its first tick at 4.2 s")
+	}
+}
+
 func TestImmolationTrapCastMetrics(t *testing.T) {
 	player := core.WithSpec(&proto.Player{
 		Race:               proto.Race_RaceHuman,
@@ -1128,6 +1175,43 @@ func TestForeverNaturalFlasks(t *testing.T) {
 	}
 	if got := out.GetStat(stats.MeleeCrit) - outBase.GetStat(stats.MeleeCrit); math.Abs(got) > 1e-6 {
 		t.Errorf("outside Hyjal: Natural Aggression still adds %.2f crit", got/core.CritRatingPerCritChance)
+	}
+}
+
+// Spell haste shortens the GCD (forever-bugs #389): Skyborne's 3% casting speed takes Arcane Shot's 1.5 s GCD to 1.456 s,
+// a big haste stops at 1 s, and a cast speed slow (Curse of Tongues) leaves it at 1.5 s (#284). With the switch off a
+// Skyborne GCD stays 1.5 s.
+func TestSpellHasteShortensGCD(t *testing.T) {
+	gcdAfterArcaneShot := func(race proto.Race, castSpeed float64) time.Duration {
+		sim, hunter := newPatchTestHunter(t, patchTestSetup{race: race, talents: patchTestTalents, gear: true})
+		if castSpeed != 1 {
+			hunter.MultiplyCastSpeed(castSpeed)
+		}
+		hunter.DistanceFromTarget = 20
+		if !hunter.ArcaneShot.Cast(sim, hunter.CurrentTarget) {
+			t.Fatal("Arcane Shot did not cast")
+		}
+		return hunter.GCD.TimeToReady(sim)
+	}
+	for _, tc := range []struct {
+		name      string
+		race      proto.Race
+		castSpeed float64
+		want      time.Duration
+	}{
+		{"Human", proto.Race_RaceHuman, 1, 1500 * time.Millisecond},
+		{"Skyborne", proto.Race_RaceSkyborneAlliance, 1, time.Duration(math.Round(1.5e9 / 1.03))},
+		{"double haste", proto.Race_RaceHuman, 2, time.Second},
+		{"cast speed slow", proto.Race_RaceHuman, 1 / 1.6, 1500 * time.Millisecond},
+	} {
+		if got := gcdAfterArcaneShot(tc.race, tc.castSpeed); (got - tc.want).Abs() > time.Millisecond {
+			t.Errorf("%s: GCD %v, want %v", tc.name, got, tc.want)
+		}
+	}
+	core.ForeverSpellHasteGCD = false
+	defer func() { core.ForeverSpellHasteGCD = true }()
+	if got := gcdAfterArcaneShot(proto.Race_RaceSkyborneAlliance, 1); got != 1500*time.Millisecond {
+		t.Errorf("switch off: Skyborne GCD %v, want 1.5s", got)
 	}
 }
 

@@ -20,6 +20,16 @@ func TestForeverSettings(t *testing.T) {
 	if path == "" {
 		t.Skip("AB_SETTINGS not set")
 	}
+	// comparison switches: the walk-in swing at 5 yd off, melee restarting Auto Shot off, spell haste on the GCD off
+	if os.Getenv("AB_NO_GCD_HASTE") != "" {
+		core.ForeverSpellHasteGCD = false
+	}
+	if os.Getenv("AB_NO_MIDWALK") != "" {
+		core.ForeverMeleeMidWalk = false
+	}
+	if os.Getenv("AB_NO_RESTART") != "" {
+		core.ForeverMeleeRestartsAutoShot = false
+	}
 	data, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatal(err)

@@ -33,6 +33,16 @@ func (hunter *Hunter) trapReach() float64 {
 	return core.MaxMeleeAttackDistance + 1
 }
 
+// trapArmDelay: time from the cast to the burn landing on the target. In Forever logs it lands 0.8 to 1.6 s after the
+// cast (65 traps in two reports, median 1.2 s in each), then ticks every 3 s; the sim takes the 1.2 s middle.
+// AB_TRAP_ARM sets it in seconds for comparisons.
+func trapArmDelay() time.Duration {
+	if v, err := strconv.ParseFloat(os.Getenv("AB_TRAP_ARM"), 64); err == nil {
+		return time.Duration(v * float64(time.Second))
+	}
+	return 1200 * time.Millisecond
+}
+
 func (hunter *Hunter) getImmolationTrapConfig(rank int, timer *core.Timer) core.SpellConfig {
 	// the Forever trap spells (the 4095xx ids are not in the Forever data)
 	spellId := [6]int32{0, 13795, 14302, 14303, 14304, 14305}[rank]
@@ -102,11 +112,14 @@ func (hunter *Hunter) getImmolationTrapConfig(rank int, timer *core.Timer) core.
 			spell.Unit.AddStatDynamic(sim, stats.SpellHit, spellHit*-1)
 			result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHitNoHitCounter)
 			spell.Unit.AddStatDynamic(sim, stats.SpellHit, spellHit)
-			spell.WaitTravelTime(sim, func(s *core.Simulation) {
-				spell.DealOutcome(sim, result)
-				if result.Landed() {
-					spell.Dot(target).Apply(sim)
-				}
+			core.StartDelayedAction(sim, core.DelayedActionOptions{
+				DoAt: sim.CurrentTime + max(spell.TravelTime(), trapArmDelay()),
+				OnAction: func(s *core.Simulation) {
+					spell.DealOutcome(sim, result)
+					if result.Landed() {
+						spell.Dot(target).Apply(sim)
+					}
+				},
 			})
 		},
 	}

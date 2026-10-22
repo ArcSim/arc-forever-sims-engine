@@ -5,6 +5,10 @@ import (
 	"time"
 )
 
+// ForeverSpellHasteGCD: spell haste (casting speed: Skyborne's Wind Blessed, Berserking) shortens the GCD. False only
+// for comparisons.
+var ForeverSpellHasteGCD = true
+
 // A cast corresponds to any action which causes the in-game castbar to be
 // shown, and activates the GCD. Note that a cast can also be instant, i.e.
 // the effects are applied immediately even though the GCD is still activated.
@@ -165,9 +169,14 @@ func (spell *Spell) makeCastFunc(config CastConfig) CastSuccessFunc {
 		}
 
 		if !config.IgnoreHaste {
-			// Vanilla has no natural GCD reduction besides abilities with 1s GCDs
-			// spell.CurCast.GCD = spell.Unit.ApplyFlatCastSpeed(spell.CurCast.GCD)
 			spell.CurCast.CastTime = config.CastTime(spell)
+		}
+
+		// Forever: spell haste shortens the GCD, to no less than 1 s, and cast speed slows never lengthen it
+		// (forever-bugs #389 and #284, dev replies). Applied to every spell on the GCD, including those whose cast
+		// time ignores haste.
+		if ForeverSpellHasteGCD && spell.CurCast.GCD > 0 {
+			spell.CurCast.GCD = min(spell.CurCast.GCD, max(GCDMin, spell.Unit.ApplyCastSpeed(spell.CurCast.GCD)))
 		}
 
 		if config.CD.Timer != nil {
