@@ -228,6 +228,21 @@ func (aa *AutoAttacks) MHConfig() *SpellConfig {
 	return &aa.mh.config
 }
 
+// RegisterExtraMHSwing hands register a copy of the main-hand swing under actionID once the auto attacks are finalized,
+// so it carries every change made to the main-hand config: an extra auto attack that rolls on the white table and
+// leaves the swing timer alone. Nothing is registered for a unit that does not swing in melee.
+func (aa *AutoAttacks) RegisterExtraMHSwing(actionID ActionID, register func(*Spell)) {
+	aa.extraMHSwings = append(aa.extraMHSwings, extraMHSwing{actionID: actionID, register: register})
+}
+
+// MaybeReplaceMHSwing gives a queued next-melee ability (Raptor Strike) the swing, as a main-hand auto attack would.
+func (aa *AutoAttacks) MaybeReplaceMHSwing(sim *Simulation, mhSwingSpell *Spell) *Spell {
+	if aa.mh.replaceSwing == nil {
+		return mhSwingSpell
+	}
+	return aa.mh.replaceSwing(sim, mhSwingSpell)
+}
+
 func (aa *AutoAttacks) OHConfig() *SpellConfig {
 	return &aa.oh.config
 }
@@ -407,7 +422,7 @@ func (wa *WeaponAttack) swing(sim *Simulation) time.Duration {
 
 		// Forever: melee restarts Auto Shot from this instant (does not add a full bow cycle).
 
-		if ForeverMeleeRestartsAutoShot && wa.unit.AutoAttacks.AutoSwingRanged &&
+		if ForeverMeleeRestartsAutoShot && wa.unit.AutoAttacks.MeleeResetsAutoShot && wa.unit.AutoAttacks.AutoSwingRanged &&
 			!attackSpell.ProcMask.Matches(ProcMaskRangedAuto) {
 
 			isWhite := attackSpell.ProcMask.Matches(ProcMaskMeleeMHAuto | ProcMaskMeleeOHAuto)
@@ -476,6 +491,9 @@ type AutoAttacks struct {
 
 	// RangedCycleCut comes off every Auto Shot timer that a shot starts (Forever's Auto Shot spam bug).
 	RangedCycleCut time.Duration
+	// MeleeResetsAutoShot: melee swings restart the Auto Shot timer, a live beta bug Blizzard confirmed (forever-bugs
+	// #14); off, they leave it alone, as once it is fixed.
+	MeleeResetsAutoShot bool
 	// an Auto Shot since the last melee swing: Auto Shot turning on is what turns the melee attack off
 	shotSinceMelee bool
 	// melee swings started on a walk in at 5 yd, before the walk ended
@@ -485,7 +503,15 @@ type AutoAttacks struct {
 	oh     WeaponAttack
 	ranged WeaponAttack
 
+	// copies of the main-hand swing for extra attacks, registered at finalize
+	extraMHSwings []extraMHSwing
+
 	enabled bool
+}
+
+type extraMHSwing struct {
+	actionID ActionID
+	register func(*Spell)
 }
 
 // Options for initializing auto attacks.
@@ -634,6 +660,12 @@ func (aa *AutoAttacks) finalize() {
 	if aa.AutoSwingMelee {
 		aa.mh.spell = aa.mh.unit.GetOrRegisterSpell(aa.mh.config)
 		aa.mh.spell.TagSplitMetric(1, tagExtraAttack)
+		for _, extra := range aa.extraMHSwings {
+			config := aa.mh.config
+			config.ActionID = extra.actionID
+			config.MetricSplits = 0
+			extra.register(aa.mh.unit.GetOrRegisterSpell(config))
+		}
 		// Will keep the OH spell registered for Item swapping
 		aa.oh.spell = aa.oh.unit.GetOrRegisterSpell(aa.oh.config)
 		aa.oh.spell.TagSplitMetric(1, tagExtraAttack)
@@ -983,7 +1015,7 @@ func (aa *AutoAttacks) DelayRangedUntil(sim *Simulation, readyAt time.Duration) 
 	sim.rescheduleWeaponAttack(aa.ranged.swingAt)
 }
 func (aa *AutoAttacks) RestartRangedSwing(sim *Simulation) {
-	if !ForeverMeleeRestartsAutoShot || !aa.AutoSwingRanged || aa.ranged.spell == nil {
+	if !ForeverMeleeRestartsAutoShot || !aa.MeleeResetsAutoShot || !aa.AutoSwingRanged || aa.ranged.spell == nil {
 		return
 	}
 	aa.ranged.updateSwingDuration(aa.ranged.unit.RangedSwingSpeed())
@@ -1181,9 +1213,9 @@ func (unit *Unit) applyParryHaste() {
 	})
 }
 
-// ForeverMeleeRestartsAutoShot: every melee swing and Raptor Strike restarts the Auto Shot timer (confirmed in game: the
-// swing timer events and logged Auto Shot casts both put the next shot one full cycle after the swing). False only for
-// comparisons.
+// ForeverMeleeRestartsAutoShot: on the beta every melee swing and Raptor Strike restarts the Auto Shot timer (the swing
+// timer events and logged Auto Shot casts both put the next shot one full cycle after the swing), a bug Blizzard
+// confirmed (forever-bugs #14). A hunter models it only with AutoAttacks.MeleeResetsAutoShot; false turns it off for all.
 var ForeverMeleeRestartsAutoShot = true
 
 // ForeverOffHandWaitsOnAttackStart: when the melee attack turns on, the main hand swings as soon as it is ready but the

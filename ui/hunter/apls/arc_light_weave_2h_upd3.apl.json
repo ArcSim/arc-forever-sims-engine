@@ -427,7 +427,7 @@
                               },
                               "rhs": {
                                 "const": {
-                                  "val": "0.5s"
+                                  "val": "1s"
                                 }
                               }
                             }
@@ -455,7 +455,7 @@
                                     },
                                     "rhs": {
                                       "const": {
-                                        "val": "0.5s"
+                                        "val": "1s"
                                       }
                                     }
                                   }
@@ -475,7 +475,7 @@
                               },
                               "rhs": {
                                 "const": {
-                                  "val": "0.5s"
+                                  "val": "1s"
                                 }
                               }
                             }
@@ -493,7 +493,7 @@
                         },
                         "rhs": {
                           "const": {
-                            "val": "1s"
+                            "val": "1.5s"
                           }
                         }
                       }
@@ -507,13 +507,13 @@
         "move": {
           "rangeFromTarget": {
             "const": {
-              "val": "3"
+              "val": "5"
             }
           }
         }
       },
       "simple": {
-        "text": "**Move in** to {Melee spot} yd right after your Auto Shot when Strider Kick, Mongoose Bite or Immolation Trap is ready, or when your MH swing timer is in its last second.",
+        "text": "**Move in** to {Melee spot} yd right after your Auto Shot when Strider Kick, Mongoose Bite or Immolation Trap is ready within a second, or when your MH swing timer is in its last 1.5 s.",
         "shown": true,
         "boxes": [
           {
@@ -774,17 +774,7 @@
                                     }
                                   },
                                   "rhs": {
-                                    "math": {
-                                      "op": "OpAdd",
-                                      "lhs": {
-                                        "gcdTimeToReady": {}
-                                      },
-                                      "rhs": {
-                                        "const": {
-                                          "val": "1s"
-                                        }
-                                      }
-                                    }
+                                    "gcdTimeToReady": {}
                                   }
                                 }
                               },
@@ -810,17 +800,7 @@
                                           }
                                         },
                                         "rhs": {
-                                          "math": {
-                                            "op": "OpAdd",
-                                            "lhs": {
-                                              "gcdTimeToReady": {}
-                                            },
-                                            "rhs": {
-                                              "const": {
-                                                "val": "1s"
-                                              }
-                                            }
-                                          }
+                                          "gcdTimeToReady": {}
                                         }
                                       }
                                     }
@@ -838,17 +818,7 @@
                                     }
                                   },
                                   "rhs": {
-                                    "math": {
-                                      "op": "OpAdd",
-                                      "lhs": {
-                                        "gcdTimeToReady": {}
-                                      },
-                                      "rhs": {
-                                        "const": {
-                                          "val": "1s"
-                                        }
-                                      }
-                                    }
+                                    "gcdTimeToReady": {}
                                   }
                                 }
                               }
@@ -1125,17 +1095,7 @@
                                     }
                                   },
                                   "rhs": {
-                                    "math": {
-                                      "op": "OpAdd",
-                                      "lhs": {
-                                        "gcdTimeToReady": {}
-                                      },
-                                      "rhs": {
-                                        "const": {
-                                          "val": "1s"
-                                        }
-                                      }
-                                    }
+                                    "gcdTimeToReady": {}
                                   }
                                 }
                               },
@@ -1161,17 +1121,7 @@
                                           }
                                         },
                                         "rhs": {
-                                          "math": {
-                                            "op": "OpAdd",
-                                            "lhs": {
-                                              "gcdTimeToReady": {}
-                                            },
-                                            "rhs": {
-                                              "const": {
-                                                "val": "1s"
-                                              }
-                                            }
-                                          }
+                                          "gcdTimeToReady": {}
                                         }
                                       }
                                     }
@@ -1189,17 +1139,7 @@
                                     }
                                   },
                                   "rhs": {
-                                    "math": {
-                                      "op": "OpAdd",
-                                      "lhs": {
-                                        "gcdTimeToReady": {}
-                                      },
-                                      "rhs": {
-                                        "const": {
-                                          "val": "1s"
-                                        }
-                                      }
-                                    }
+                                    "gcdTimeToReady": {}
                                   }
                                 }
                               }
@@ -1263,7 +1203,7 @@
         }
       },
       "simple": {
-        "text": "**Move out** to {Ranged spot} yd after your MH swing lands and you have used one strike, or straight away if no strike will be ready within a second of your global cooldown coming back, unless an OH swing lands within half a second.",
+        "text": "**Move out** to {Ranged spot} yd after your MH swing lands and you have used one strike, or straight away if no strike is ready when your global cooldown comes back, unless an OH swing lands within half a second.",
         "shown": true,
         "boxes": [
           {

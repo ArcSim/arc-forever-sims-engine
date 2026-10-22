@@ -21,28 +21,30 @@ import (
 const patchTestTalents = "-00531500101-500230230250222151"
 
 type patchTestSetup struct {
-	race      proto.Race
-	petType   proto.Hunter_Options_PetType
-	buffs     *proto.RaidBuffs
-	talents   string
-	gear      bool
-	distance  float64
-	stone     bool
-	ibuffs    *proto.IndividualBuffs
-	debuffs   *proto.Debuffs
-	petBug    bool // the old "Beta pet speed bug" option
-	autoSpam  bool
-	gearSet   string // a gear set other than 2h_weave (implies gear)
-	mhImbue   proto.WeaponImbue
-	ohImbue   proto.WeaponImbue
-	ohItem    int32 // replaces the gear set's off hand
-	runSpeed  float64
-	consumes  *proto.Consumes          // starting consumables (the stone and imbue fields still apply on top)
-	mhEnchant int32                    // replaces the gear set's main hand enchant
-	skyborne  bool                     // the Skyborne 15 min racial option
-	outside   bool                     // the encounter is outside the Natural flasks' zones
-	pieces    map[proto.ItemSlot]int32 // items put in these slots (on top of any gear set)
-	engineer  bool                     // Engineering as a profession
+	race        proto.Race
+	petType     proto.Hunter_Options_PetType
+	buffs       *proto.RaidBuffs
+	talents     string
+	gear        bool
+	distance    float64
+	stone       bool
+	ibuffs      *proto.IndividualBuffs
+	debuffs     *proto.Debuffs
+	petBug      bool // the old "Beta pet speed bug" option
+	autoSpam    bool
+	gearSet     string // a gear set other than 2h_weave (implies gear)
+	mhImbue     proto.WeaponImbue
+	ohImbue     proto.WeaponImbue
+	ohItem      int32 // replaces the gear set's off hand
+	runSpeed    float64
+	consumes    *proto.Consumes          // starting consumables (the stone and imbue fields still apply on top)
+	mhEnchant   int32                    // replaces the gear set's main hand enchant
+	skyborne    bool                     // the Skyborne 15 min racial option
+	outside     bool                     // the encounter is outside the Natural flasks' zones
+	pieces      map[proto.ItemSlot]int32 // items put in these slots (on top of any gear set)
+	engineer    bool                     // Engineering as a profession
+	msSkipsAuto bool                     // the Mortal Shots skips Auto Shot option
+	meleeResets bool                     // the beta bug: melee swings reset Auto Shot
 }
 
 func newPatchTestHunter(t *testing.T, setup patchTestSetup) (*core.Simulation, *Hunter) {
@@ -108,15 +110,17 @@ func newPatchTestHunter(t *testing.T, setup patchTestSetup) (*core.Simulation, *
 		Rotation: &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
 		Buffs:    setup.ibuffs,
 		Spec: &proto.Player_Hunter{Hunter: &proto.Hunter{Options: &proto.Hunter_Options{
-			PetType:             setup.petType,
-			PetUptime:           1,
-			PetAttackSpeed:      proto.Hunter_Options_One,
-			PetWindfuryTotem:    true,
-			PetFlametongueTotem: true,
-			PetSpeedBug:         setup.petBug,
-			AutoShotSpamBug:     setup.autoSpam,
-			RunSpeed:            setup.runSpeed,
-			SkyborneConvergence: setup.skyborne,
+			PetType:                  setup.petType,
+			PetUptime:                1,
+			PetAttackSpeed:           proto.Hunter_Options_One,
+			PetWindfuryTotem:         true,
+			PetFlametongueTotem:      true,
+			PetSpeedBug:              setup.petBug,
+			AutoShotSpamBug:          setup.autoSpam,
+			RunSpeed:                 setup.runSpeed,
+			SkyborneConvergence:      setup.skyborne,
+			MortalShotsSkipsAutoShot: setup.msSkipsAuto,
+			MeleeResetsAutoShot:      setup.meleeResets,
 		}}},
 	}
 	if setup.engineer {
@@ -920,7 +924,7 @@ func TestRaptorStrikeQueuesFromRange(t *testing.T) {
 // game with the swing timer events). Raptor Strike goes through the normal spell path; white swings restart it in the
 // core swing loop (attack.go), which a test cannot drive directly.
 func TestMeleeSwingRestartsAutoShot(t *testing.T) {
-	sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, distance: 3})
+	sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, distance: 3, meleeResets: true})
 	want := sim.CurrentTime + hunter.AutoAttacks.RangedSwingSpeed()
 	// a miss or dodge does not count: strike until one lands
 	for i := 0; i < 50 && hunter.AutoAttacks.NextRangedAttackAt() != want; i++ {
@@ -928,6 +932,16 @@ func TestMeleeSwingRestartsAutoShot(t *testing.T) {
 	}
 	if got := hunter.AutoAttacks.NextRangedAttackAt(); got != want {
 		t.Errorf("after a Raptor Strike hit the next Auto Shot is at %v, want %v (one cycle after the hit)", got, want)
+	}
+
+	// by default (the bug fixed, forever-bugs #14) a landed strike leaves the Auto Shot timer where it was
+	sim, hunter = newPatchTestHunter(t, patchTestSetup{gear: true, distance: 3})
+	before := hunter.AutoAttacks.NextRangedAttackAt()
+	for i := 0; i < 50; i++ {
+		hunter.RaptorStrikeHit.Cast(sim, hunter.CurrentTarget)
+	}
+	if got := hunter.AutoAttacks.NextRangedAttackAt(); got != before {
+		t.Errorf("bug off: Raptor Strike hits moved the next Auto Shot from %v to %v", before, got)
 	}
 }
 
@@ -1178,6 +1192,26 @@ func TestForeverNaturalFlasks(t *testing.T) {
 	}
 }
 
+// Mortal Shots covers Auto Shot (client mask; Arc's log 2026-10-21: 5/5 Auto Shot crits at 2.30-2.32x, as Arcane Shot's),
+// so Auto Shot crits get its bonus (4/5: +24% on the base +100%) like Arcane Shot; the option for the earlier "it skips
+// Auto Shot" report takes it off Auto Shot only.
+func TestMortalShotsOnAutoShot(t *testing.T) {
+	const talents = "-00531500114-530200230050022151" // Mortal Shots 4/5
+	for _, skip := range []bool{false, true} {
+		_, hunter := newPatchTestHunter(t, patchTestSetup{talents: talents, gear: true, msSkipsAuto: skip})
+		want := 1.24
+		if skip {
+			want = 1
+		}
+		if got := hunter.AutoAttacks.RangedAuto().CritDamageBonus; math.Abs(got-want) > 1e-9 {
+			t.Errorf("skip %v: Auto Shot crit damage bonus %.2f, want %.2f", skip, got, want)
+		}
+		if got := hunter.ArcaneShot.CritDamageBonus; math.Abs(got-1.24) > 1e-9 {
+			t.Errorf("skip %v: Arcane Shot crit damage bonus %.2f, want 1.24", skip, got)
+		}
+	}
+}
+
 // Spell haste shortens the GCD (forever-bugs #389): Skyborne's 3% casting speed takes Arcane Shot's 1.5 s GCD to 1.456 s,
 // a big haste stops at 1 s, and a cast speed slow (Curse of Tongues) leaves it at 1.5 s (#284). With the switch off a
 // Skyborne GCD stays 1.5 s.
@@ -1340,6 +1374,13 @@ func TestForeverExplosives(t *testing.T) {
 // The log carries every weapon's swing timer for the timeline: each main-hand swing starts a timer ready one swing time
 // later, a melee swing restarts the Auto Shot timer on the spot, ready one bow cycle later, and an extra attack (Hand of
 // Justice) restarts the main hand's own timer, never one of its own. Only the player's lines count (the pet swings too).
+// resetOptions: the A/B hunter options with the beta's melee reset of Auto Shot on.
+func resetOptions() *proto.Player_Hunter {
+	opts := &proto.Player_Hunter{Hunter: googleProto.Clone(abOptions.Hunter).(*proto.Hunter)}
+	opts.Hunter.Options.MeleeResetsAutoShot = true
+	return opts
+}
+
 func TestSwingTimerLogs(t *testing.T) {
 	player := core.WithSpec(&proto.Player{
 		Race:               proto.Race_RaceHuman,
@@ -1350,7 +1391,7 @@ func TestSwingTimerLogs(t *testing.T) {
 		Buffs:              abIndividualBuffs,
 		Rotation:           core.GetAplRotation("../../ui/hunter/apls", "arc_weave_2h").Rotation,
 		DistanceFromTarget: 3,
-	}, abOptions)
+	}, resetOptions())
 	// the first fight with a Hand of Justice proc, so a rotation change does not leave the check without one
 	var res *proto.RaidSimResult
 	for seed := int64(1); seed <= 40; seed++ {
@@ -1648,57 +1689,73 @@ func TestExposePreyMarkers(t *testing.T) {
 	}
 }
 
-// The shipped light weave uses one strike a trip but waits for one that is ready within a second of the global cooldown
-// ending; the same rotation without that second (leave as soon as none is ready) lands fewer strikes a fight.
-func TestLightWeaveWaitsForAStrike(t *testing.T) {
-	raw, err := os.ReadFile("../../ui/hunter/apls/arc_light_weave_2h_upd3.apl.json")
-	if err != nil {
-		t.Fatalf("rotation file: %v", err)
-	}
-	window := regexp.MustCompile(`("gcdTimeToReady": \{\}\s*\},\s*"rhs": \{\s*"const": \{\s*"val": )"1s"`)
-	if n := len(window.FindAll(raw, -1)); n == 0 {
-		t.Fatalf("no one-second strike window in the shipped light weave")
-	}
-	strikes := func(apl []byte) float64 {
+// The shipped weaves are tuned for melee swings leaving the Auto Shot timer alone (the beta's reset is off by default):
+// the hard weave stays for a swing landing up to 0.6 s after it would have to head back, and the light weave steps in to
+// the 5 yd melee edge. Each beats its earlier reset-era setting (leave a quarter second early, step in to 3 yd).
+func TestWeavesTunedWithoutTheMeleeReset(t *testing.T) {
+	dps := func(apl []byte, gear string) float64 {
 		rot := &proto.APLRotation{}
 		if err := protojson.Unmarshal(apl, rot); err != nil {
 			t.Fatalf("rotation: %v", err)
 		}
 		opts := &proto.Player_Hunter{Hunter: googleProto.Clone(abOptions.Hunter).(*proto.Hunter)}
-		opts.Hunter.Options.MoveDelayMs = 10
+		// the site's move reaction: the 5 yd edge wins with it, not with a 10 ms one
+		opts.Hunter.Options.MoveDelayMs = 100
+		opts.Hunter.Options.MeleeResetsAutoShot = false
 		player := core.WithSpec(&proto.Player{
 			Race:               proto.Race_RaceHuman,
 			Class:              proto.Class_ClassHunter,
-			Equipment:          core.GetGearSet("../../ui/hunter/gear_sets", "2h_weave").GearSet,
-			TalentsString:      "-0053150011-500230230250222151",
+			Equipment:          core.GetGearSet("../../ui/hunter/gear_sets", gear).GearSet,
+			TalentsString:      "-00531500113-500230230050122151",
 			Consumes:           abConsumes,
 			Buffs:              abIndividualBuffs,
 			Rotation:           rot,
 			DistanceFromTarget: 11,
 		}, opts)
-		const iterations = 300
 		res := core.RunRaidSim(&proto.RaidSimRequest{
 			Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, abRaidBuffs, abDebuffs),
 			Encounter:  abEncounter(),
-			SimOptions: &proto.SimOptions{Iterations: iterations, RandomSeed: 20261020},
+			SimOptions: &proto.SimOptions{Iterations: 1000, RandomSeed: 20261021},
 		})
 		if res.Error != nil {
 			t.Fatalf("sim error: %s", res.Error.Message)
 		}
-		var n int32
-		for _, a := range res.RaidMetrics.Parties[0].Players[0].Actions {
-			if id := a.Id.GetSpellId(); id == 1317257 || id == 14271 {
-				for _, tm := range a.Targets {
-					n += tm.Casts
-				}
-			}
-		}
-		return float64(n) / iterations
+		return res.RaidMetrics.Dps.Avg
 	}
-	with, without := strikes(raw), strikes(window.ReplaceAll(raw, []byte("${1}\"0s\"")))
-	t.Logf("Strider Kick + Mongoose Bite a fight: %.2f with the one-second wait, %.2f without", with, without)
-	if with < without+0.2 {
-		t.Errorf("%.2f strikes a fight with the one-second wait, %.2f without; want at least 0.2 more", with, without)
+	read := func(file string) []byte {
+		raw, err := os.ReadFile("../../ui/hunter/apls/" + file)
+		if err != nil {
+			t.Fatalf("rotation file: %v", err)
+		}
+		return raw
+	}
+
+	hard := read("arc_weave_2h.apl.json")
+	late := regexp.MustCompile(`"val": "-0.6s"`)
+	if len(late.FindAll(hard, -1)) == 0 {
+		t.Fatalf("no late swing hold in the shipped hard weave")
+	}
+	for _, gear := range []string{"2h_weave", "surv_dw"} {
+		with, early := dps(hard, gear), dps(late.ReplaceAll(hard, []byte(`"val": "0.25s"`)), gear)
+		t.Logf("hard weave, %s: %.1f DPS staying for a late swing, %.1f leaving a quarter second early", gear, with, early)
+		if with < early+10 {
+			t.Errorf("hard weave, %s: %.1f DPS with the late swing hold, %.1f without; want at least 10 more", gear, with, early)
+		}
+	}
+
+	light := read("arc_light_weave_2h_upd3.apl.json")
+	spot := regexp.MustCompile(`("move": \{\s*"rangeFromTarget": \{\s*"const": \{\s*"val": )"5"`)
+	if len(spot.FindAll(light, -1)) != 1 {
+		t.Fatalf("no single 5 yd melee spot in the shipped light weave")
+	}
+	// dual wield gains less from the edge since Windfury Totem swings miss and glance as white swings (shipped: 2H +12,
+	// DW +3), so it only must not lose
+	for gear, gain := range map[string]float64{"2h_light_weave": 4, "surv_dw": 0} {
+		edge, deep := dps(light, gear), dps(spot.ReplaceAll(light, []byte(`${1}"3"`)), gear)
+		t.Logf("light weave, %s: %.1f DPS stepping in to 5 yd, %.1f to 3 yd", gear, edge, deep)
+		if edge < deep+gain {
+			t.Errorf("light weave, %s: %.1f DPS at the 5 yd edge, %.1f at 3 yd; want at least %.0f more", gear, edge, deep, gain)
+		}
 	}
 }
 

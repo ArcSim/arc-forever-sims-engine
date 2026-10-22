@@ -26,7 +26,8 @@ runs the same way.
 
 `builds/compare/` has the tier list's Survival reference (its gear, talents, rotation, buffs and consumables, plus the
 sapper and food other specs get there) and our builds on that same setup (2H Weave on the harder and the light weave,
-DW Pure Melee), all with ignite-style Lacerating Strikes:
+DW Pure Melee), all with ignite-style Lacerating Strikes and melee swings restarting Auto Shot, as the tier list's engine
+still does (the shipped builds have that beta bug off):
 
 ```
 AB_SETTINGS=../../builds/compare/tierlist_survival.json AB_ITERS=50000 go test --tags=with_db ./sim/hunter/ -run TestForeverSettings -v

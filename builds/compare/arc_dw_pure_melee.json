@@ -146,7 +146,8 @@
         "petFlametongueTotem": false,
         "petDisabledAbilities": [],
         "moveDelayMs": 100,
-        "laceratingMode": "LaceratingRolling"
+        "laceratingMode": "LaceratingRolling",
+        "meleeResetsAutoShot": true
       }
     },
     "rotation": {

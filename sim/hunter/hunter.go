@@ -296,10 +296,15 @@ func NewHunter(character *core.Character, options *proto.Player) *Hunter {
 	if hunter.Options.AutoShotSpamBug {
 		hunter.AutoAttacks.RangedCycleCut = AutoShotSpamCut
 	}
+	hunter.AutoAttacks.MeleeResetsAutoShot = hunter.Options.MeleeResetsAutoShot
 	hunter.AutoAttacks.RangedConfig().Flags |= core.SpellFlagCastTimeNoGCD
 	hunter.AutoAttacks.RangedConfig().Flags |= core.SpellFlagMeleeMetrics
-	// Mortal Shots does not touch Auto Shot in game (tested); the client data mask says it would.
-	hunter.AutoAttacks.RangedConfig().CritDamageBonus = 0
+	// Mortal Shots covers Auto Shot: the client data mask, and Arc's log (2026-10-21, 5/5: Auto Shot crits 2.30-2.32x a
+	// normal hit, as Arcane Shot's). The option keeps the earlier report that it does not, for comparisons.
+	hunter.AutoAttacks.RangedConfig().CritDamageBonus = hunter.mortalShots()
+	if hunter.Options.MortalShotsSkipsAutoShot {
+		hunter.AutoAttacks.RangedConfig().CritDamageBonus = 0
+	}
 	hunter.AutoAttacks.RangedConfig().BonusCoefficient = 1
 	hunter.AutoAttacks.RangedConfig().ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		// the Auto Shot takes you out of melee mode too

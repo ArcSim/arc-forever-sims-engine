@@ -37,7 +37,7 @@
   "partyBuffs": {},
   "player": {
     "name": "Player",
-    "race": "RaceNightElf",
+    "race": "RaceHuman",
     "class": "ClassHunter",
     "equipment": {
       "items": [
@@ -50,7 +50,7 @@
           "enchant": 904
         },
         {
-          "id": 12927
+          "id": 13116
         },
         {
           "id": 13340,
@@ -76,7 +76,7 @@
           "enchant": 1508
         },
         {
-          "id": 13402,
+          "id": 13967,
           "enchant": 1887
         },
         {
@@ -92,12 +92,15 @@
           "id": 11815
         },
         {
-          "id": 12784,
-          "enchant": 2646
+          "id": 1728,
+          "enchant": 2564
         },
-        {},
         {
-          "id": 19107,
+          "id": 12590,
+          "enchant": 2564
+        },
+        {
+          "id": 19562,
           "enchant": 664
         }
       ]
@@ -119,6 +122,7 @@
       "zanzaBuff": "GroundScorpokAssay",
       "healthElixir": "ElixirOfFortitude",
       "alcohol": "AlcoholRumseyRumBlackLabel",
+      "offHandImbue": "DenseSharpeningStone",
       "firePowerBuff": "ElixirOfGreaterFirepower",
       "sapperExplosive": "SapperGoblinSapper",
       "fillerExplosive": "ExplosiveCrystalCharge"
@@ -128,7 +132,7 @@
       "blessingOfWisdom": "TristateEffectImproved",
       "blessingOfMight": "TristateEffectImproved"
     },
-    "talentsString": "-0053150011-500230230250222151",
+    "talentsString": "-00531500113-500230230050122151",
     "profession1": "Enchanting",
     "profession2": "Engineering",
     "cooldowns": {},
@@ -137,7 +141,7 @@
     "healingModel": {},
     "hunter": {
       "options": {
-        "ammo": "SwiftfeatherArrow",
+        "ammo": "SwiftstrikeShot",
         "quiverBonus": "Speed15",
         "petType": "Cat",
         "petUptime": 1,
@@ -577,7 +581,7 @@
                                   },
                                   "rhs": {
                                     "const": {
-                                      "val": "0.5s"
+                                      "val": "1s"
                                     }
                                   }
                                 }
@@ -605,7 +609,7 @@
                                         },
                                         "rhs": {
                                           "const": {
-                                            "val": "0.5s"
+                                            "val": "1s"
                                           }
                                         }
                                       }
@@ -625,7 +629,7 @@
                                   },
                                   "rhs": {
                                     "const": {
-                                      "val": "0.5s"
+                                      "val": "1s"
                                     }
                                   }
                                 }
@@ -643,7 +647,7 @@
                             },
                             "rhs": {
                               "const": {
-                                "val": "1s"
+                                "val": "1.5s"
                               }
                             }
                           }
@@ -657,13 +661,13 @@
             "move": {
               "rangeFromTarget": {
                 "const": {
-                  "val": "3"
+                  "val": "5"
                 }
               }
             }
           },
           "simple": {
-            "text": "**Move in** to {Melee spot} yd right after your Auto Shot when Strider Kick, Mongoose Bite or Immolation Trap is ready, or when your MH swing timer is in its last second.",
+            "text": "**Move in** to {Melee spot} yd right after your Auto Shot when Strider Kick, Mongoose Bite or Immolation Trap is ready within a second, or when your MH swing timer is in its last 1.5 s.",
             "shown": true,
             "boxes": [
               {
@@ -924,17 +928,7 @@
                                         }
                                       },
                                       "rhs": {
-                                        "math": {
-                                          "op": "OpAdd",
-                                          "lhs": {
-                                            "gcdTimeToReady": {}
-                                          },
-                                          "rhs": {
-                                            "const": {
-                                              "val": "1s"
-                                            }
-                                          }
-                                        }
+                                        "gcdTimeToReady": {}
                                       }
                                     }
                                   },
@@ -960,17 +954,7 @@
                                               }
                                             },
                                             "rhs": {
-                                              "math": {
-                                                "op": "OpAdd",
-                                                "lhs": {
-                                                  "gcdTimeToReady": {}
-                                                },
-                                                "rhs": {
-                                                  "const": {
-                                                    "val": "1s"
-                                                  }
-                                                }
-                                              }
+                                              "gcdTimeToReady": {}
                                             }
                                           }
                                         }
@@ -988,17 +972,7 @@
                                         }
                                       },
                                       "rhs": {
-                                        "math": {
-                                          "op": "OpAdd",
-                                          "lhs": {
-                                            "gcdTimeToReady": {}
-                                          },
-                                          "rhs": {
-                                            "const": {
-                                              "val": "1s"
-                                            }
-                                          }
-                                        }
+                                        "gcdTimeToReady": {}
                                       }
                                     }
                                   }
@@ -1275,17 +1249,7 @@
                                         }
                                       },
                                       "rhs": {
-                                        "math": {
-                                          "op": "OpAdd",
-                                          "lhs": {
-                                            "gcdTimeToReady": {}
-                                          },
-                                          "rhs": {
-                                            "const": {
-                                              "val": "1s"
-                                            }
-                                          }
-                                        }
+                                        "gcdTimeToReady": {}
                                       }
                                     }
                                   },
@@ -1311,17 +1275,7 @@
                                               }
                                             },
                                             "rhs": {
-                                              "math": {
-                                                "op": "OpAdd",
-                                                "lhs": {
-                                                  "gcdTimeToReady": {}
-                                                },
-                                                "rhs": {
-                                                  "const": {
-                                                    "val": "1s"
-                                                  }
-                                                }
-                                              }
+                                              "gcdTimeToReady": {}
                                             }
                                           }
                                         }
@@ -1339,17 +1293,7 @@
                                         }
                                       },
                                       "rhs": {
-                                        "math": {
-                                          "op": "OpAdd",
-                                          "lhs": {
-                                            "gcdTimeToReady": {}
-                                          },
-                                          "rhs": {
-                                            "const": {
-                                              "val": "1s"
-                                            }
-                                          }
-                                        }
+                                        "gcdTimeToReady": {}
                                       }
                                     }
                                   }
@@ -1413,7 +1357,7 @@
             }
           },
           "simple": {
-            "text": "**Move out** to {Ranged spot} yd after your MH swing lands and you have used one strike, or straight away if no strike will be ready within a second of your global cooldown coming back, unless an OH swing lands within half a second.",
+            "text": "**Move out** to {Ranged spot} yd after your MH swing lands and you have used one strike, or straight away if no strike is ready when your global cooldown comes back, unless an OH swing lands within half a second.",
             "shown": true,
             "boxes": [
               {

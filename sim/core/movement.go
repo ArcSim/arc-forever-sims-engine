@@ -169,10 +169,13 @@ func (unit *Unit) MultiplyStackingMoveSpeed(mult float64) {
 	unit.MovementHandler.updateMoveSpeed()
 }
 
-// AutoShotStandStill: AB_NO_STAND_STILL=1 turns it off for comparisons.
+// AutoShotStandStill: AB_NO_STAND_STILL=1 turns it off for comparisons, AB_STAND_STILL_MS sets it.
 var AutoShotStandStill = func() time.Duration {
 	if os.Getenv("AB_NO_STAND_STILL") != "" {
 		return 0
+	}
+	if ms, err := strconv.Atoi(os.Getenv("AB_STAND_STILL_MS")); err == nil {
+		return time.Duration(ms) * time.Millisecond
 	}
 	return time.Millisecond * 500
 }()

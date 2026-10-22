@@ -404,7 +404,7 @@
                   },
                   "rhs": {
                     "const": {
-                      "val": "0.5s"
+                      "val": "1s"
                     }
                   }
                 }
@@ -424,7 +424,7 @@
                         },
                         "rhs": {
                           "const": {
-                            "val": "0.5s"
+                            "val": "1s"
                           }
                         }
                       }
@@ -451,7 +451,7 @@
                               },
                               "rhs": {
                                 "const": {
-                                  "val": "0.5s"
+                                  "val": "1s"
                                 }
                               }
                             }
@@ -471,7 +471,7 @@
                         },
                         "rhs": {
                           "const": {
-                            "val": "0.5s"
+                            "val": "1s"
                           }
                         }
                       }
@@ -486,7 +486,7 @@
                         },
                         "rhs": {
                           "const": {
-                            "val": "1s"
+                            "val": "1.5s"
                           }
                         }
                       }
@@ -506,7 +506,7 @@
         }
       },
       "simple": {
-        "text": "**Move in** to {Melee spot} yd within half a second after your Auto Shot when Strider Kick, Mongoose Bite or Immolation Trap is ready, or when your MH swing timer is in its last second.",
+        "text": "**Move in** to {Melee spot} yd within a second after your Auto Shot when Strider Kick, Mongoose Bite or Immolation Trap is ready within a second, or when your MH swing timer is in its last 1.5 s.",
         "shown": true,
         "boxes": [
           {
@@ -612,7 +612,7 @@
                                 },
                                 "rhs": {
                                   "const": {
-                                    "val": "0.25s"
+                                    "val": "-0.6s"
                                   }
                                 }
                               }
@@ -681,7 +681,7 @@
                                 },
                                 "rhs": {
                                   "const": {
-                                    "val": "0.25s"
+                                    "val": "-0.6s"
                                   }
                                 }
                               }
@@ -822,7 +822,7 @@
                                 },
                                 "rhs": {
                                   "const": {
-                                    "val": "0.5s"
+                                    "val": "0s"
                                   }
                                 }
                               }
@@ -904,7 +904,7 @@
                                 },
                                 "rhs": {
                                   "const": {
-                                    "val": "0.25s"
+                                    "val": "-0.6s"
                                   }
                                 }
                               }
@@ -973,7 +973,7 @@
                                 },
                                 "rhs": {
                                   "const": {
-                                    "val": "0.25s"
+                                    "val": "-0.6s"
                                   }
                                 }
                               }
@@ -1114,7 +1114,7 @@
                                 },
                                 "rhs": {
                                   "const": {
-                                    "val": "0.5s"
+                                    "val": "0s"
                                   }
                                 }
                               }
@@ -1138,7 +1138,7 @@
         }
       },
       "simple": {
-        "text": "**Move out** to {Ranged spot} yd once your swings land, unless Strider Kick, Mongoose Bite or Immolation Trap is ready within half a second of your global cooldown ending and you'd still make your next Auto Shot.",
+        "text": "**Move out** to {Ranged spot} yd once your swings land (stay for one even if it holds your next Auto Shot back up to a second), unless Strider Kick, Mongoose Bite or Immolation Trap is ready within half a second of your global cooldown ending and you'd still make your next Auto Shot.",
         "shown": true,
         "boxes": [
           {

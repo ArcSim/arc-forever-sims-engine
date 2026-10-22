@@ -1516,20 +1516,11 @@ func BattleSquawkAura(character *Unit, stackcount int32) *Aura {
 func CreateExtraAttackAuraCommon(character *Character, buffActionID ActionID, auraLabel string, rank int32, getBonusAP func(aura *Aura, rank int32) float64) *Aura {
 	var bonusAP float64
 
-	wfHit := character.GetOrRegisterSpell(SpellConfig{
-		ActionID:         buffActionID.WithTag(1),
-		SpellSchool:      SpellSchoolPhysical,
-		DefenseType:      DefenseTypeMelee,
-		ProcMask:         ProcMaskMeleeMHSpecial,
-		Flags:            SpellFlagMeleeMetrics | SpellFlagNoOnCastComplete | SpellFlagPassiveSpell,
-		DamageMultiplier: 1,
-		ThreatMultiplier: 1,
-		BonusCoefficient: 1,
-		ApplyEffects: func(sim *Simulation, target *Unit, spell *Spell) {
-			base := spell.Unit.MHWeaponDamage(sim, spell.MeleeAttackPower(target))
-			spell.CalcAndDealDamage(sim, target, base, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
-		},
-	})
+	// Forever client data: the proc grants one extra auto attack (effect 19), a copy of the main-hand swing that rolls on
+	// the white table and so can glance (the shaman's Windfury Weapon attack is a weapon-damage special: no glancing in
+	// logs). It swings right after the proccing hit, leaves the swing timer alone, and a queued Raptor Strike takes it.
+	var wfHit *Spell
+	character.AutoAttacks.RegisterExtraMHSwing(buffActionID.WithTag(1), func(spell *Spell) { wfHit = spell })
 	apBuffAura := character.GetOrRegisterAura(Aura{
 		Label:     auraLabel + " Buff",
 		ActionID:  buffActionID,
@@ -1554,13 +1545,13 @@ func CreateExtraAttackAuraCommon(character *Character, buffActionID ActionID, au
 	MakePermanent(character.GetOrRegisterAura(Aura{
 		Label: auraLabel,
 		OnSpellHitDealt: func(aura *Aura, sim *Simulation, spell *Spell, result *SpellResult) {
-			if spell == wfHit {
-				return
-			}
-			if apBuffAura.IsActive() && spell.ProcMask.Matches(ProcMaskMeleeWhiteHit) {
+			// Forever client data: the attack power has 2 charges, spent by landed auto attacks, the extra attack's
+			// included: off an auto attack only the extra attack gains it (the proccing hit spends the first), off a special
+			// the extra attack and the next auto attack
+			if apBuffAura.IsActive() && result.Landed() && spell.ProcMask.Matches(ProcMaskMeleeWhiteHit) {
 				apBuffAura.RemoveStack(sim)
 			}
-			if !result.Landed() ||
+			if spell == wfHit || !result.Landed() ||
 				!spell.ProcMask.Matches(ProcMaskMeleeMHAuto|ProcMaskMeleeMHSpecial) ||
 				spell.Flags.Matches(SpellFlagSuppressEquipProcs) {
 				return
@@ -1573,7 +1564,16 @@ func CreateExtraAttackAuraCommon(character *Character, buffActionID ActionID, au
 				} else {
 					apBuffAura.SetStacks(sim, 2)
 				}
-				wfHit.Cast(sim, result.Target)
+				if wfHit == nil {
+					return
+				}
+				target := result.Target
+				StartDelayedAction(sim, DelayedActionOptions{
+					DoAt: sim.CurrentTime,
+					OnAction: func(sim *Simulation) {
+						character.AutoAttacks.MaybeReplaceMHSwing(sim, wfHit).Cast(sim, target)
+					},
+				})
 			}
 		},
 	}))
