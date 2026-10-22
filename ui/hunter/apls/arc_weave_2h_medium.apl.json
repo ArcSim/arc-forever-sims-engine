@@ -292,6 +292,33 @@
     {
       "action": {
         "condition": {
+          "not": {
+            "val": {
+              "auraIsActive": {
+                "sourceUnit": {
+                  "type": "CurrentTarget"
+                },
+                "auraId": {
+                  "spellId": 14325
+                }
+              }
+            }
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 14325
+          }
+        }
+      },
+      "simple": {
+        "text": "**Hunter's Mark** when it is not on the target (you are the raid's only hunter).",
+        "shown": true
+      }
+    },
+    {
+      "action": {
+        "condition": {
           "and": {
             "vals": [
               {

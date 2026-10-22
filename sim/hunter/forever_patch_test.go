@@ -258,7 +258,7 @@ func TestQuicknessStacksWithStriderKick(t *testing.T) {
 	}
 }
 
-// Auto Shot needs 0.5 s of standing still: after a move back to range it cannot fire sooner.
+// Auto Shot fires 0.6 s after a move back to range at the soonest: the windup and the moment to start it.
 func TestAutoShotStandStill(t *testing.T) {
 	sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, distance: 12})
 	sim.PrePull()
@@ -274,8 +274,8 @@ func TestAutoShotStandStill(t *testing.T) {
 	}
 	step(3)
 	stoppedAt := step(12)
-	if next := hunter.AutoAttacks.NextRangedAttackAt(); next < stoppedAt+time.Millisecond*500 {
-		t.Errorf("Auto Shot due %.3fs after stopping at range, want at least 0.5 s", (next - stoppedAt).Seconds())
+	if next := hunter.AutoAttacks.NextRangedAttackAt(); next < stoppedAt+time.Millisecond*600 {
+		t.Errorf("Auto Shot due %.3fs after stopping at range, want at least 0.6 s", (next - stoppedAt).Seconds())
 	}
 }
 
@@ -1735,11 +1735,12 @@ func TestWeavesTunedWithoutTheMeleeReset(t *testing.T) {
 	if len(late.FindAll(hard, -1)) == 0 {
 		t.Fatalf("no late swing hold in the shipped hard weave")
 	}
-	for _, gear := range []string{"2h_weave", "surv_dw"} {
+	// the 2H gain is small since Auto Shot waits 0.6 s after a move, so there it only must not lose
+	for gear, gain := range map[string]float64{"2h_weave": 0, "surv_dw": 10} {
 		with, early := dps(hard, gear), dps(late.ReplaceAll(hard, []byte(`"val": "0.25s"`)), gear)
 		t.Logf("hard weave, %s: %.1f DPS staying for a late swing, %.1f leaving a quarter second early", gear, with, early)
-		if with < early+10 {
-			t.Errorf("hard weave, %s: %.1f DPS with the late swing hold, %.1f without; want at least 10 more", gear, with, early)
+		if with < early+gain {
+			t.Errorf("hard weave, %s: %.1f DPS with the late swing hold, %.1f without; want at least %.0f more", gear, with, early, gain)
 		}
 	}
 

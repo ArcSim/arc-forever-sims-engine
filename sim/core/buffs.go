@@ -3,6 +3,8 @@ package core
 import (
 	"fmt"
 	"math"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/wowsims/classic/sim/core/proto"
@@ -1426,12 +1428,20 @@ func TrueshotAura(unit *Unit) *Aura {
 	makeExclusiveBuff(aura, BuffConfig{
 		Category: "TrueshotAura",
 		Stats: []StatConfig{
-			{stats.RangedAttackPower, 100, false},
+			{stats.RangedAttackPower, trueshotValue, false},
 		},
 	})
 
 	return aura
 }
+
+// Trueshot Aura's rank 3 is +100 (the client data's 50 is below rank 2's 75); AB_TRUESHOT sets it for engine comparisons
+var trueshotValue = func() float64 {
+	if v, err := strconv.ParseFloat(os.Getenv("AB_TRUESHOT"), 64); err == nil {
+		return v
+	}
+	return 100
+}()
 
 func BlessingOfMightAura(unit *Unit, impBomPts int32) *Aura {
 	spellID := TernaryInt32(IncludeAQ, 25291, 19838)

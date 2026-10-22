@@ -29,7 +29,6 @@
     "curseOfRecklessness": true,
     "exposeArmor": "TristateEffectRegular",
     "faerieFire": true,
-    "huntersMark": "TristateEffectRegular",
     "judgementOfWisdom": true,
     "sunderArmor": true,
     "giftOfArthas": true
@@ -149,7 +148,8 @@
         "petWindfuryTotem": false,
         "petFlametongueTotem": false,
         "petDisabledAbilities": [],
-        "moveDelayMs": 100
+        "moveDelayMs": 100,
+        "laceratingMode": "LaceratingRolling"
       }
     },
     "rotation": {
@@ -345,6 +345,29 @@
             "castSpell": {
               "spellId": {
                 "spellId": 14305
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "not": {
+                "val": {
+                  "auraIsActive": {
+                    "sourceUnit": {
+                      "type": "CurrentTarget"
+                    },
+                    "auraId": {
+                      "spellId": 14325
+                    }
+                  }
+                }
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "spellId": 14325
               }
             }
           }

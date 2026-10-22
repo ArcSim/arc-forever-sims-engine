@@ -197,6 +197,29 @@
     },
     {
       "action": {
+        "condition": {
+          "not": {
+            "val": {
+              "auraIsActive": {
+                "sourceUnit": {
+                  "type": "CurrentTarget"
+                },
+                "auraId": {
+                  "spellId": 14325
+                }
+              }
+            }
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 14325
+          }
+        }
+      }
+    },
+    {
+      "action": {
         "castSpell": {
           "spellId": {
             "spellId": 14266,

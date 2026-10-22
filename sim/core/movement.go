@@ -140,14 +140,15 @@ func (unit *Unit) initMovement() {
 
 			// a walk that reached 5 yd already started swinging (its attack delay and off-hand wait are set)
 			if !startedMidWalk {
-				// Simulate the delay from starting attack
-				unit.AutoAttacks.DelayMeleeBy(sim, time.Millisecond*50)
+				// Simulate the delay from starting attack (AB_ATTACK_START_MS sets it for engine comparisons)
+				unit.AutoAttacks.DelayMeleeBy(sim, attackStartDelay)
 				// a walk in from outside melee range turned the melee attack on when it started
 				if !unit.MovementHandler.startedInMelee && unit.DistanceFromTarget <= MaxMeleeAttackDistance {
 					unit.AutoAttacks.OffHandWaitsForAttackStart(sim, unit.MovementHandler.moveStartedAt, unit.MovementHandler.offHandWait)
 				}
 			}
-			// Forever: Auto Shot needs 0.5 s of standing still before it fires
+			// Forever: Auto Shot fires 0.6 s after you stop, the 0.5 s windup and the moment to start it (measured in game:
+			// 0.57-0.73 s after stopping)
 			unit.AutoAttacks.DelayRangedUntil(sim, sim.CurrentTime+AutoShotStandStill)
 		},
 	})
@@ -169,6 +170,22 @@ func (unit *Unit) MultiplyStackingMoveSpeed(mult float64) {
 	unit.MovementHandler.updateMoveSpeed()
 }
 
+var noShotRecheck = os.Getenv("AB_NO_SHOT_RECHECK") != ""
+
+var shotRecheckDelay = func() time.Duration {
+	if ms, err := strconv.Atoi(os.Getenv("AB_SHOT_RECHECK_MS")); err == nil {
+		return time.Duration(ms) * time.Millisecond
+	}
+	return 0
+}()
+
+var attackStartDelay = func() time.Duration {
+	if ms, err := strconv.Atoi(os.Getenv("AB_ATTACK_START_MS")); err == nil {
+		return time.Duration(ms) * time.Millisecond
+	}
+	return time.Millisecond * 50
+}()
+
 // AutoShotStandStill: AB_NO_STAND_STILL=1 turns it off for comparisons, AB_STAND_STILL_MS sets it.
 var AutoShotStandStill = func() time.Duration {
 	if os.Getenv("AB_NO_STAND_STILL") != "" {
@@ -177,7 +194,7 @@ var AutoShotStandStill = func() time.Duration {
 	if ms, err := strconv.Atoi(os.Getenv("AB_STAND_STILL_MS")); err == nil {
 		return time.Duration(ms) * time.Millisecond
 	}
-	return time.Millisecond * 500
+	return time.Millisecond * 600
 }()
 
 func (unit *Unit) IsMoving() bool {

@@ -104,7 +104,11 @@ func (hunter *Hunter) registerMongooseBiteSpell() {
 				if !spell.ProcMask.Matches(core.ProcMaskMeleeOrRanged) || spell.ActionID == (core.ActionID{SpellID: 1293241}.WithTag(1)) {
 					return
 				}
-				if !result.Landed() || sim.RandomFloat("Expose Prey") >= procChance {
+				// only on a target carrying a Hunter's Mark, any hunter's (the raid debuff setting counts as another hunter's)
+				if !result.Landed() || !result.Target.HasActiveAuraWithTag(core.HuntersMarkAuraTag) {
+					return
+				}
+				if sim.RandomFloat("Expose Prey") >= procChance {
 					return
 				}
 				if hunter.ExposePrey.IsActive() {

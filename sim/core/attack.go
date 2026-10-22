@@ -376,9 +376,17 @@ func (wa *WeaponAttack) swing(sim *Simulation) time.Duration {
 		wa.startTimer(sim, wa.swingAt)
 		wa.unit.AutoAttacks.shotSinceMelee = true
 		// the shot is a decision point like a melee swing: off-GCD actions (a move into melee) can start right after it
-		// instead of waiting out the GCD
-		if !sim.Options.Interactive && wa.unit.Rotation != nil {
-			wa.unit.Rotation.DoNextAction(sim)
+		// instead of waiting out the GCD (AB_NO_SHOT_RECHECK=1 turns it off, AB_SHOT_RECHECK_MS delays it, for engine
+		// comparisons)
+		if !sim.Options.Interactive && wa.unit.Rotation != nil && !noShotRecheck {
+			if shotRecheckDelay > 0 {
+				StartDelayedAction(sim, DelayedActionOptions{
+					DoAt:     sim.CurrentTime + shotRecheckDelay,
+					OnAction: func(sim *Simulation) { wa.unit.Rotation.DoNextAction(sim) },
+				})
+			} else {
+				wa.unit.Rotation.DoNextAction(sim)
+			}
 		}
 		return wa.swingAt
 	}

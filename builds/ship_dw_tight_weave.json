@@ -29,7 +29,6 @@
     "curseOfRecklessness": true,
     "exposeArmor": "TristateEffectRegular",
     "faerieFire": true,
-    "huntersMark": "TristateEffectRegular",
     "judgementOfWisdom": true,
     "sunderArmor": true,
     "giftOfArthas": true
@@ -149,7 +148,8 @@
         "petWindfuryTotem": false,
         "petFlametongueTotem": false,
         "petDisabledAbilities": [],
-        "moveDelayMs": 100
+        "moveDelayMs": 100,
+        "laceratingMode": "LaceratingRolling"
       }
     },
     "rotation": {
@@ -446,6 +446,33 @@
         {
           "action": {
             "condition": {
+              "not": {
+                "val": {
+                  "auraIsActive": {
+                    "sourceUnit": {
+                      "type": "CurrentTarget"
+                    },
+                    "auraId": {
+                      "spellId": 14325
+                    }
+                  }
+                }
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "spellId": 14325
+              }
+            }
+          },
+          "simple": {
+            "text": "**Hunter's Mark** when it is not on the target (you are the raid's only hunter).",
+            "shown": true
+          }
+        },
+        {
+          "action": {
+            "condition": {
               "and": {
                 "vals": [
                   {
@@ -558,7 +585,7 @@
                       },
                       "rhs": {
                         "const": {
-                          "val": "0.75s"
+                          "val": "1s"
                         }
                       }
                     }
@@ -581,7 +608,7 @@
                                   },
                                   "rhs": {
                                     "const": {
-                                      "val": "1s"
+                                      "val": "1.5s"
                                     }
                                   }
                                 }
@@ -609,7 +636,7 @@
                                         },
                                         "rhs": {
                                           "const": {
-                                            "val": "1s"
+                                            "val": "1.5s"
                                           }
                                         }
                                       }
@@ -629,7 +656,7 @@
                                   },
                                   "rhs": {
                                     "const": {
-                                      "val": "1s"
+                                      "val": "1.5s"
                                     }
                                   }
                                 }
@@ -667,7 +694,7 @@
             }
           },
           "simple": {
-            "text": "**Move in** to {Melee spot} yd right after your Auto Shot when Strider Kick, Mongoose Bite or Immolation Trap is ready within a second, or when your MH swing timer is in its last 1.5 s.",
+            "text": "**Move in** to {Melee spot} yd within a second after your Auto Shot when Strider Kick, Mongoose Bite or Immolation Trap is ready within 1.5 s, or when your MH swing timer is in its last 1.5 s.",
             "shown": true,
             "boxes": [
               {
@@ -928,7 +955,17 @@
                                         }
                                       },
                                       "rhs": {
-                                        "gcdTimeToReady": {}
+                                        "math": {
+                                          "op": "OpAdd",
+                                          "lhs": {
+                                            "gcdTimeToReady": {}
+                                          },
+                                          "rhs": {
+                                            "const": {
+                                              "val": "1s"
+                                            }
+                                          }
+                                        }
                                       }
                                     }
                                   },
@@ -954,7 +991,17 @@
                                               }
                                             },
                                             "rhs": {
-                                              "gcdTimeToReady": {}
+                                              "math": {
+                                                "op": "OpAdd",
+                                                "lhs": {
+                                                  "gcdTimeToReady": {}
+                                                },
+                                                "rhs": {
+                                                  "const": {
+                                                    "val": "1s"
+                                                  }
+                                                }
+                                              }
                                             }
                                           }
                                         }
@@ -972,7 +1019,17 @@
                                         }
                                       },
                                       "rhs": {
-                                        "gcdTimeToReady": {}
+                                        "math": {
+                                          "op": "OpAdd",
+                                          "lhs": {
+                                            "gcdTimeToReady": {}
+                                          },
+                                          "rhs": {
+                                            "const": {
+                                              "val": "1s"
+                                            }
+                                          }
+                                        }
                                       }
                                     }
                                   }
@@ -1249,7 +1306,17 @@
                                         }
                                       },
                                       "rhs": {
-                                        "gcdTimeToReady": {}
+                                        "math": {
+                                          "op": "OpAdd",
+                                          "lhs": {
+                                            "gcdTimeToReady": {}
+                                          },
+                                          "rhs": {
+                                            "const": {
+                                              "val": "1s"
+                                            }
+                                          }
+                                        }
                                       }
                                     }
                                   },
@@ -1275,7 +1342,17 @@
                                               }
                                             },
                                             "rhs": {
-                                              "gcdTimeToReady": {}
+                                              "math": {
+                                                "op": "OpAdd",
+                                                "lhs": {
+                                                  "gcdTimeToReady": {}
+                                                },
+                                                "rhs": {
+                                                  "const": {
+                                                    "val": "1s"
+                                                  }
+                                                }
+                                              }
                                             }
                                           }
                                         }
@@ -1293,7 +1370,17 @@
                                         }
                                       },
                                       "rhs": {
-                                        "gcdTimeToReady": {}
+                                        "math": {
+                                          "op": "OpAdd",
+                                          "lhs": {
+                                            "gcdTimeToReady": {}
+                                          },
+                                          "rhs": {
+                                            "const": {
+                                              "val": "1s"
+                                            }
+                                          }
+                                        }
                                       }
                                     }
                                   }
@@ -1357,7 +1444,7 @@
             }
           },
           "simple": {
-            "text": "**Move out** to {Ranged spot} yd after your MH swing lands and you have used one strike, or straight away if no strike is ready when your global cooldown comes back, unless an OH swing lands within half a second.",
+            "text": "**Move out** to {Ranged spot} yd after your MH swing lands and you have used one strike, or once no strike will be ready within a second of your global cooldown coming back, unless an OH swing lands within half a second.",
             "shown": true,
             "boxes": [
               {

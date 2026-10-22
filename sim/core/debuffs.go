@@ -2,6 +2,7 @@ package core
 
 import (
 	"math"
+	"os"
 	"strconv"
 	"time"
 
@@ -751,8 +752,12 @@ func CurseOfWeaknessAura(target *Unit, points int32) *Aura {
 const HuntersMarkAuraTag = "HuntersMark"
 
 func HuntersMarkAura(target *Unit) *Aura {
-	// Forever has no Improved Hunter's Mark talent, so an "Improved" setting is the plain Mark
+	// Forever has no Improved Hunter's Mark talent, so an "Improved" setting is the plain Mark (rank 4 is +110: the client
+	// data's 71 is below rank 3's 98); AB_MARK sets it for engine comparisons
 	bonus := 110.0
+	if v, err := strconv.ParseFloat(os.Getenv("AB_MARK"), 64); err == nil {
+		bonus = v
+	}
 
 	aura := target.GetOrRegisterAura(Aura{
 		Label:    "HuntersMark-" + strconv.Itoa(int(bonus)),
