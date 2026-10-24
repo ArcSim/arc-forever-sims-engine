@@ -79,8 +79,6 @@ type Hunter struct {
 	AspectOfTheHawkAPMultiplier float64
 
 	curQueueAura       *core.Aura
-	curQueuedAutoSpell *core.Spell
-	raptorFromSwing    bool
 	raptorQueueAura    *core.Aura
 
 	AimedShot       *core.Spell
@@ -109,6 +107,8 @@ type Hunter struct {
 	Strikes     []*core.Spell
 	MeleeSpells []*core.Spell
 	LastShot    *core.Spell
+	// a shot already pushed this Auto Shot cycle back (the Shots delay Auto Shot option)
+	autoShotDelayed bool
 
 	DefensiveState *core.Aura
 	ExposePrey     *core.Aura
@@ -186,12 +186,45 @@ func (hunter *Hunter) Initialize() {
 	hunter.registerFreezingTrapSpell(traps)
 	hunter.registerRapidFire()
 	hunter.registerRaptorStrikeSpell()
-	hunter.applyMeleeResetsRangedAuto()
+	hunter.applyShotsDelayAutoShot()
+}
+
+// rangedHastedCast: a shot's cast time under the hunter's ranged haste (quiver, Rapid Fire and the rest).
+func (hunter *Hunter) rangedHastedCast(base time.Duration) time.Duration {
+	mult := hunter.PseudoStats.RangedSpeedMultiplier
+	if mult < 0.01 {
+		mult = 1
+	}
+	return time.Duration(float64(base) / mult)
+}
+
+// shotAutoShotDelay: how far a shot or sting cast in an Auto Shot cycle pushes that cycle's Auto Shot back (beta logs,
+// standing still: +0.19 s middle with one cast in the cycle, +0.00 s with none)
+const shotAutoShotDelay = 200 * time.Millisecond
+
+// applyShotsDelayAutoShot: the "Shots delay Auto Shot" option (forever-bugs #43), once per Auto Shot cycle.
+func (hunter *Hunter) applyShotsDelayAutoShot() {
+	if !hunter.Options.ShotsDelayAutoShot {
+		return
+	}
+	core.MakePermanent(hunter.RegisterAura(core.Aura{
+		Label: "Shots Delay Auto Shot",
+		OnCastComplete: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
+			// the Auto Shot itself never reaches here (no cast-complete callbacks): its effects start the new cycle
+			if hunter.autoShotDelayed || spell.DefenseType != core.DefenseTypeRanged || !spell.ProcMask.Matches(core.ProcMaskRangedSpecial) {
+				return
+			}
+			hunter.autoShotDelayed = true
+			due := hunter.AutoAttacks.NextRangedAttackAt()
+			hunter.AutoAttacks.DelayRangedUntil(sim, due+shotAutoShotDelay)
+			hunter.AutoAttacks.LogShotDelay(sim, due, due+shotAutoShotDelay)
+		},
+	}))
 }
 
 func (hunter *Hunter) Reset(sim *core.Simulation) {
+	hunter.autoShotDelayed = false
 	hunter.activeHawks = 0
-	hunter.raptorFromSwing = false
 }
 
 func NewHunter(character *core.Character, options *proto.Player) *Hunter {
@@ -306,9 +339,14 @@ func NewHunter(character *core.Character, options *proto.Player) *Hunter {
 		hunter.AutoAttacks.RangedConfig().CritDamageBonus = 0
 	}
 	hunter.AutoAttacks.RangedConfig().BonusCoefficient = 1
+	// Auto Shot's projectile flies at 40 yd/s (client SpellMisc, spell 75), as Arcane Shot's, Serpent Sting's and Aimed
+	// Shot's; Multi-Shot's at 30
+	hunter.AutoAttacks.RangedConfig().MissileSpeed = 40
 	hunter.AutoAttacks.RangedConfig().ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		// the Auto Shot takes you out of melee mode too
 		hunter.unqueueRaptorStrike(sim)
+		// a new Auto Shot cycle: a shot in it may push the next Auto Shot back again (Shots delay Auto Shot)
+		hunter.autoShotDelayed = false
 		baseDamage := hunter.RangedWeaponDamage(sim, spell.RangedAttackPower(target, false)) +
 			hunter.AmmoDamageBonus
 		result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeRangedHitAndCrit)
@@ -335,38 +373,6 @@ func NewHunter(character *core.Character, options *proto.Player) *Hunter {
 }
 
 func (hunter *Hunter) OnGCDReady(_ *core.Simulation) {
-}
-
-func (hunter *Hunter) applyMeleeResetsRangedAuto() {
-	hunter.RegisterAura(core.Aura{
-		Label:    "Melee Resets Ranged Auto",
-		Duration: core.NeverExpires,
-		OnReset: func(aura *core.Aura, sim *core.Simulation) {
-			aura.Activate(sim)
-		},
-		OnSpellHitDealt: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-			if !result.Landed() {
-				return
-			}
-
-			id := spell.ActionID.SpellID
-			if id == 1317257 || id == 1495 || id == 14269 || id == 14270 || id == 14271 {
-				return
-			}
-			if spell.SpellCode == SpellCode_HunterMongooseBite {
-				return
-			}
-
-			isWhite := spell.ProcMask.Matches(core.ProcMaskMeleeMHAuto)
-			isRaptor := spell.SpellCode == SpellCode_HunterRaptorStrikeHit
-
-			if !isWhite && !isRaptor {
-				return
-			}
-
-			hunter.AutoAttacks.RestartRangedSwing(sim)
-		},
-	})
 }
 
 // AutoShotSpamCut: spamming Auto Shot in game gave 2.07 s between shots at best on a 2.52 s cycle (median 2.16, the

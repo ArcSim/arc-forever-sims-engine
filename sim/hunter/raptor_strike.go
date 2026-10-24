@@ -1,6 +1,7 @@
 package hunter
 
 import (
+	"os"
 	"time"
 
 	"github.com/wowsims/classic/sim/core"
@@ -9,7 +10,6 @@ import (
 const RaptorStrikeRanks = 8
 
 var RaptorStrikeSpellId = [RaptorStrikeRanks + 1]int32{0, 2973, 14260, 14261, 14262, 14263, 14264, 14265, 14266}
-var RaptorStrikeSpellIdMeleeSpecialist = [RaptorStrikeRanks + 1]int32{0, 415335, 415336, 415337, 415338, 415340, 415341, 415342, 415343}
 // Forever client data (the 34..140 values are the Season of Discovery rune version, not Forever's)
 var RaptorStrikeBaseDamage = [RaptorStrikeRanks + 1]float64{0, 5, 11, 21, 30, 35, 40, 55, 70}
 var RaptorStrikeManaCost = [RaptorStrikeRanks + 1]float64{0, 15, 25, 35, 45, 55, 70, 80, 100}
@@ -26,7 +26,13 @@ func (hunter *Hunter) TryRaptorStrike(sim *core.Simulation, mhSwingSpell *core.S
 	return hunter.RaptorStrikeHit
 }
 
+// AB_SHOTS_KEEP_RAPTOR=1 lets shots leave a queued Raptor Strike alone, for comparisons with engines that do
+var shotsKeepRaptor = os.Getenv("AB_SHOTS_KEEP_RAPTOR") != ""
+
 func (hunter *Hunter) unqueueRaptorStrike(sim *core.Simulation) {
+	if shotsKeepRaptor {
+		return
+	}
 	if hunter.curQueueAura != nil {
 		hunter.curQueueAura.Deactivate(sim)
 	}
@@ -66,14 +72,11 @@ func (hunter *Hunter) registerRaptorStrikeSpell() {
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			damage := baseDamage + hunter.MHWeaponDamage(sim, spell.MeleeAttackPower(target))
-			result := spell.CalcAndDealDamage(sim, target, damage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
+			spell.CalcAndDealDamage(sim, target, damage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 			if hunter.curQueueAura != nil {
 				hunter.curQueueAura.Deactivate(sim)
 			}
 			cd.Set(sim.CurrentTime + 6*time.Second)
-			if result.Landed() {
-				hunter.AutoAttacks.RestartRangedSwing(sim)
-			}
 		},
 	})
 
@@ -83,11 +86,9 @@ func (hunter *Hunter) registerRaptorStrikeSpell() {
 		Duration: core.NeverExpires,
 		OnGain: func(aura *core.Aura, sim *core.Simulation) {
 			hunter.curQueueAura = aura
-			hunter.curQueuedAutoSpell = hunter.RaptorStrikeHit
 		},
 		OnExpire: func(aura *core.Aura, sim *core.Simulation) {
 			hunter.curQueueAura = nil
-			hunter.curQueuedAutoSpell = nil
 		},
 	})
 

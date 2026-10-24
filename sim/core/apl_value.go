@@ -137,6 +137,8 @@ func (rot *APLRotation) newAPLValue(config *proto.APLValue) APLValue {
 		return rot.newValueAutoTimeToNext(config.GetAutoTimeToNext())
 	case *proto.APLValue_AutoSwingTime:
 		return rot.newValueAutoSwingTime(config.GetAutoSwingTime())
+	case *proto.APLValue_AutoTimeSinceLast:
+		return rot.newValueAutoTimeSinceLast(config.GetAutoTimeSinceLast())
 
 	// Spells
 	case *proto.APLValue_SpellIsKnown:

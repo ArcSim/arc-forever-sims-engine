@@ -23,7 +23,7 @@ func (hunter *Hunter) registerMultiShotSpell(timer *core.Timer) {
 		ProcMask:     core.ProcMaskRangedSpecial,
 		Flags:        core.SpellFlagMeleeMetrics | core.SpellFlagAPL | SpellFlagShot,
 		CastType:     proto.CastType_CastTypeRanged,
-		MissileSpeed: 24,
+		MissileSpeed: 30,
 
 		ManaCost: core.ManaCostOptions{
 			BaseCost: 0.139,
@@ -37,6 +37,10 @@ func (hunter *Hunter) registerMultiShotSpell(timer *core.Timer) {
 			CD: core.Cooldown{
 				Timer:    timer,
 				Duration: time.Second * 6,
+			},
+			// ranged haste speeds the cast, as Aimed Shot's
+			ModifyCast: func(sim *core.Simulation, spell *core.Spell, cast *core.Cast) {
+				cast.CastTime = hunter.rangedHastedCast(time.Millisecond * 500)
 			},
 		},
 		ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {

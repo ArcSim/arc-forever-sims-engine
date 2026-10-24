@@ -7,6 +7,7 @@ import (
 
 	"github.com/wowsims/classic/sim/core"
 	"github.com/wowsims/classic/sim/core/proto"
+	"github.com/wowsims/classic/sim/core/stats"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
@@ -47,14 +48,15 @@ func TestHawkSwingInterval(t *testing.T) {
 	check("15% quiver, Quick Strikes (melee only)", 1.15)
 }
 
-// Each hawk attack: about 36 at level 60 (the level 30 hawk's ~14.7 base x2.45, ExpectedStat creature melee damage
-// from level 30 to 60) plus 0.5% of ranged attack power (level 30 logs: +0.8 per attack for +109 ranged AP), 91-109%
-// spread. The dive: rank damage + 5% of ranged AP, Unleashed Fury a flat +3 per point (Forever data; logs: 66 raw at
-// 373 ranged AP, 72 at 482).
+// Each hawk attack before Unleashed Fury: 0.0815 of the level 60 creature dps over 2.5 s less Unleashed Fury's 20%, a
+// third either side, plus 2.5 / 134.4 a point of the hawk's attack power, 80% of the hunter's ranged attack power (logs:
+// 264 of 264 swings at 0.800). The dive: rank damage + 5% of ranged AP, Unleashed Fury a flat +3 per point (Forever
+// data; logs: 66 raw at 373 ranged AP, 72 at 482).
 func TestHawkDamage(t *testing.T) {
+	base := 0.0815 * 60.45 * 2.5 / 1.2
 	for _, tc := range []struct {
 		roll, rap, want float64
-	}{{0, 0, 36 * 0.91}, {1, 0, 36 * 1.09}, {0.5, 1000, 36 + 5}} {
+	}{{0, 0, base * 2 / 3}, {1, 0, base * 4 / 3}, {0.5, 1000, base + 2.5/134.4*800}} {
 		if got := hawkSwingBase(tc.roll, tc.rap); math.Abs(got-tc.want) > 1e-9 {
 			t.Errorf("hawk attack at roll %.1f, ranged AP %.0f: %.3f, want %.3f", tc.roll, tc.rap, got, tc.want)
 		}
@@ -65,8 +67,7 @@ func TestHawkDamage(t *testing.T) {
 }
 
 // The hawk's attacks resolve like a pet's white melee, by the target's level: against the level 63 dummy about 40%
-// glance, some are dodged or missed, and only about 1% crit (logs: 1 crit in 130 attacks), not the hunter's own
-// crit chance.
+// glance and some are dodged or missed; they crit for half the hunter's crit (no Ferocity here).
 func TestHawkSwingOutcomes(t *testing.T) {
 	rotation := &proto.APLRotation{}
 	if err := protojson.Unmarshal([]byte(`{"type":"TypeAPL","priorityList":[{"action":{"castSpell":{"spellId":{"spellId":1293241}}}}]}`), rotation); err != nil {
@@ -104,8 +105,8 @@ func TestHawkSwingOutcomes(t *testing.T) {
 		if total < 500 {
 			t.Fatalf("only %.0f hawk attacks", total)
 		}
-		if rate := float64(crits) / total; rate > 0.03 {
-			t.Errorf("hawk attacks crit %.1f%% of the time, want about 1%%", rate*100)
+		if rate := float64(crits) / total; rate < 0.05 || rate > 0.15 {
+			t.Errorf("hawk attacks crit %.1f%% of the time, want half the hunter's crit (5-15%% here)", rate*100)
 		}
 		if rate := float64(glances) / total; rate < 0.3 || rate > 0.5 {
 			t.Errorf("hawk attacks glance %.1f%% of the time against the level 63 dummy, want about 40%%", rate*100)
@@ -116,4 +117,25 @@ func TestHawkSwingOutcomes(t *testing.T) {
 		return
 	}
 	t.Fatal("no hawk attacks in the results")
+}
+
+// A hawk crits for half the hunter's crit plus 2% a point of Ferocity (an owner's pet critting 22.2% and hawk 16.2% in
+// the logs solve to 12% owner crit and 10% Ferocity), and Unleashed Fury raises its swings 3% a point.
+func TestHawkCritAndUnleashedFury(t *testing.T) {
+	_, hunter := newPatchTestHunter(t, patchTestSetup{talents: hawkTestTalents, gear: true})
+	owner := hunter.GetStat(stats.MeleeCrit) / core.CritRatingPerCritChance / 100
+	hunter.Talents.Ferocity = 5
+	if got, want := hunter.hawkCritChance(), owner/2+0.10; math.Abs(got-want) > 1e-9 {
+		t.Errorf("hawk crit %.2f%% with Ferocity 5/5 and %.2f%% owner crit, want %.2f%%", got*100, owner*100, want*100)
+	}
+	swing := hunter.GetSpell(core.ActionID{SpellID: 1293241}.WithTag(1))
+	if swing == nil {
+		t.Fatal("no hawk swing spell")
+	}
+	if hunter.Talents.UnleashedFury == 0 {
+		t.Fatal("test talents have no Unleashed Fury")
+	}
+	if got, want := swing.DamageMultiplier, 1+0.03*float64(hunter.Talents.UnleashedFury); math.Abs(got-want) > 1e-9 {
+		t.Errorf("hawk swing damage x%.2f, want x%.2f for Unleashed Fury %d/5", got, want, hunter.Talents.UnleashedFury)
+	}
 }

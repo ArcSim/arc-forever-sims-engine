@@ -148,25 +148,6 @@ func (hunter *Hunter) applyTrueshotAura() {
 	})
 }
 
-func (hunter *Hunter) applyExposePrey() {
-	if hunter.Talents.ExposePrey == 0 || hunter.DefensiveState == nil {
-		return
-	}
-	procChance := 0.05 * float64(hunter.Talents.ExposePrey)
-
-	core.MakePermanent(hunter.RegisterAura(core.Aura{
-		Label: "Expose Prey",
-		OnSpellHitDealt: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-			if !result.Landed() {
-				return
-			}
-			if sim.RandomFloat("Expose Prey") < procChance {
-				hunter.DefensiveState.Activate(sim)
-			}
-		},
-	}))
-}
-
 func (hunter *Hunter) applyLaceratingStrikes() {
 	if !hunter.Talents.LaceratingStrikes {
 		return

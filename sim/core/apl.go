@@ -33,6 +33,10 @@ type APLRotation struct {
 	// The last free GCD note logged (logs only).
 	lastFreeGcdNote string
 
+	// A move in the priority list: looked at during the GCD too (ForeverMovePoll), and the pending look.
+	hasMoves bool
+	gcdPoll  *PendingAction
+
 	// Validation warnings that occur during proto parsing.
 	// We return these back to the user for display in the UI.
 	curWarnings          []string
@@ -135,6 +139,12 @@ func (unit *Unit) newAPLRotation(config *proto.APLRotation) *APLRotation {
 		})
 	}
 
+	for _, action := range rotation.allAPLActions() {
+		if _, ok := action.impl.(*APLActionMove); ok {
+			rotation.hasMoves = true
+		}
+	}
+
 	// Remove MCDs that are referenced by APL actions, so that the Autocast Other Cooldowns
 	// action does not include them.
 	agent := unit.Env.GetAgentFromUnit(unit)
@@ -171,6 +181,7 @@ func (rot *APLRotation) reset(sim *Simulation) {
 	rot.inLoop = false
 	rot.interruptChannelIf = nil
 	rot.allowChannelRecastOnInterrupt = false
+	rot.gcdPoll = nil
 	for _, action := range rot.allAPLActions() {
 		action.impl.Reset(sim)
 	}
@@ -186,6 +197,15 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 
 	if apl.inLoop {
 		return
+	}
+
+	// a hardcast ending this instant completes before anything new starts: a swing or a shot landing in the same instant
+	// would otherwise start a cast (and its GCD) that pushes the completion back
+	if hc := &apl.unit.Hardcast; hc.Expires == sim.CurrentTime && !apl.unit.IsCasting(sim) {
+		hc.Expires = startingCDTime
+		if hc.OnComplete != nil {
+			hc.OnComplete(sim, hc.Target)
+		}
 	}
 
 	if apl.shouldInterruptChannel(sim) {
@@ -218,7 +238,35 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 	}
 	if gcdReady {
 		apl.unit.WaitUntil(sim, sim.CurrentTime+time.Millisecond*50)
+	} else if ForeverMovePoll && apl.hasMoves {
+		apl.pollDuringGcd(sim)
 	}
+}
+
+// ForeverMovePoll: a rotation with moves is looked at every 50 ms while the GCD rolls too, as it is while the GCD sits
+// free. A player steps in or out whenever a swing bar says so; between events the engine only looked again as the GCD
+// ended, so a walk timed to a swing timer during a GCD started late. The move reaction still comes on top.
+var ForeverMovePoll = true
+
+const gcdPollPeriod = 50 * time.Millisecond
+
+func (apl *APLRotation) pollDuringGcd(sim *Simulation) {
+	at := sim.CurrentTime + gcdPollPeriod
+	if at >= apl.unit.GCD.ReadyAt() {
+		return // the GCD ending looks again anyway
+	}
+	if pa := apl.gcdPoll; pa != nil && !pa.consumed && !pa.cancelled && pa.NextActionAt <= at {
+		return
+	}
+	if apl.gcdPoll == nil || !apl.gcdPoll.consumed {
+		if apl.gcdPoll != nil {
+			apl.gcdPoll.Cancel(sim)
+		}
+		apl.gcdPoll = &PendingAction{Priority: ActionPriorityLow, OnAction: apl.DoNextAction}
+	}
+	apl.gcdPoll.cancelled = false
+	apl.gcdPoll.NextActionAt = at
+	sim.AddPendingAction(apl.gcdPoll)
 }
 
 // For the timeline's free GCD stretches: which of the rotation's own GCD spells could have been pressed while the GCD

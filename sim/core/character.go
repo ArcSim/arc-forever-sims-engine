@@ -256,6 +256,10 @@ func (character *Character) applyEquipment() {
 	}
 	character.AddStats(character.EquipStats())
 	character.equipStatsApplied = true
+	// each item's mana per 5 (its enchant's too) under the item, for its own mana row
+	for _, item := range character.Equipment {
+		character.NameMP5(ActionID{ItemID: item.ID}, item.Stats[stats.MP5]+item.Enchant.Stats[stats.MP5])
+	}
 
 	for _, item := range character.Equipment {
 		if item.Stats[stats.MeleeHaste] != 0 {

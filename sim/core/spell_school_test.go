@@ -191,9 +191,9 @@ func Test_MultiSchoolResistance(t *testing.T) {
 				}
 
 				// Expected values
+				// Forever: the target's level adds no partial resist
 				resistanceCap := float64(attacker.Level * 5)
-				levelBased := float64(max(defender.Level-attacker.Level, 0)) * 0.02
-				expectedCoef := min(1, resistance/resistanceCap+levelBased*1/0.75)
+				expectedCoef := min(1, resistance/resistanceCap)
 				expectedAvgMitigation := expectedCoef*0.75 - 3.0/16.0*max(0, expectedCoef-2.0/3.0)
 
 				// Check if coef is correct to begin with

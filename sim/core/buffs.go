@@ -191,10 +191,12 @@ func makeExclusiveBuff(aura *Aura, config BuffConfig) {
 		totalStats += amount
 	}
 
+	mp5 := mp5ShareOf(aura.Unit, aura.ActionID, bonusStats)
 	aura.NewExclusiveEffect(config.Category, false, ExclusiveEffect{
 		Priority: totalStats,
 		OnGain: func(ee *ExclusiveEffect, sim *Simulation) {
 			aura.Unit.AddBuildPhaseStatsDynamic(sim, bonusStats)
+			mp5.add(bonusStats, 1)
 
 			for _, dep := range statDeps {
 				ee.Aura.Unit.EnableBuildPhaseStatDep(sim, dep)
@@ -206,6 +208,7 @@ func makeExclusiveBuff(aura *Aura, config BuffConfig) {
 		},
 		OnExpire: func(ee *ExclusiveEffect, sim *Simulation) {
 			aura.Unit.AddBuildPhaseStatsDynamic(sim, bonusStats.Multiply(-1))
+			mp5.add(bonusStats, -1)
 
 			for _, dep := range statDeps {
 				ee.Aura.Unit.DisableBuildPhaseStatDep(sim, dep)
@@ -379,10 +382,10 @@ func applyBuffEffects(agent Agent, playerFaction proto.Faction, raidBuffs *proto
 	// separate auras in Forever, so they stack
 	// Forever Improved Blessing of Wisdom +20%, Restorative Totems (one rank) +5%
 	if individualBuffs.BlessingOfWisdom > 0 {
-		character.AddStats(BuffSpellValues[BlessingOfWisdom].Multiply(TernaryFloat64(individualBuffs.BlessingOfWisdom == proto.TristateEffect_TristateEffectImproved, 1.2, 1)))
+		character.AddStatsNamed(ActionID{SpellID: 25290}, BuffSpellValues[BlessingOfWisdom].Multiply(TernaryFloat64(individualBuffs.BlessingOfWisdom == proto.TristateEffect_TristateEffectImproved, 1.2, 1)))
 	}
 	if raidBuffs.ManaSpringTotem > 0 {
-		character.AddStats(BuffSpellValues[ManaSpring].Multiply(TernaryFloat64(raidBuffs.ManaSpringTotem == proto.TristateEffect_TristateEffectImproved, 1.05, 1)))
+		character.AddStatsNamed(ActionID{SpellID: 10497}, BuffSpellValues[ManaSpring].Multiply(TernaryFloat64(raidBuffs.ManaSpringTotem == proto.TristateEffect_TristateEffectImproved, 1.05, 1)))
 	}
 
 	if raidBuffs.BattleSquawk > 0 {

@@ -490,14 +490,29 @@ func spellSchoolDamageEffect(aura *Aura, school stats.SchoolIndex, multiplier fl
 	})
 }
 
+// schoolResistance: the resistance stat a magic school's damage meets.
+var schoolResistance = map[stats.SchoolIndex]stats.Stat{
+	stats.SchoolIndexArcane: stats.ArcaneResistance,
+	stats.SchoolIndexFire:   stats.FireResistance,
+	stats.SchoolIndexFrost:  stats.FrostResistance,
+	stats.SchoolIndexNature: stats.NatureResistance,
+	stats.SchoolIndexShadow: stats.ShadowResistance,
+}
+
+// spellSchoolResistanceEffect lowers the one school's resistance (a curse covering five schools makes five of these).
 func spellSchoolResistanceEffect(aura *Aura, school stats.SchoolIndex, amount float64, extraPriority float64, exclusive bool) *ExclusiveEffect {
+	stat, ok := schoolResistance[school]
 	return aura.NewExclusiveEffect("resistance"+strconv.Itoa(int(school)), exclusive, ExclusiveEffect{
 		Priority: amount + extraPriority,
 		OnGain: func(ee *ExclusiveEffect, sim *Simulation) {
-			aura.Unit.AddResistancesDynamic(sim, -amount)
+			if ok {
+				aura.Unit.AddStatDynamic(sim, stat, -amount)
+			}
 		},
 		OnExpire: func(ee *ExclusiveEffect, sim *Simulation) {
-			aura.Unit.AddResistancesDynamic(sim, amount)
+			if ok {
+				aura.Unit.AddStatDynamic(sim, stat, amount)
+			}
 		},
 	})
 }

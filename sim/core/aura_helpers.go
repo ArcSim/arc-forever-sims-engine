@@ -162,8 +162,10 @@ type StackingStatAura struct {
 
 func MakeStackingAura(character *Character, config StackingStatAura) *Aura {
 	bonusPerStack := config.BonusPerStack
+	mp5 := mp5ShareOf(&character.Unit, config.Aura.ActionID, bonusPerStack)
 	config.Aura.OnStacksChange = func(aura *Aura, sim *Simulation, oldStacks int32, newStacks int32) {
 		character.AddStatsDynamic(sim, bonusPerStack.Multiply(float64(newStacks-oldStacks)))
+		mp5.add(bonusPerStack, float64(newStacks-oldStacks))
 	}
 	return character.RegisterAura(config.Aura)
 }
@@ -210,6 +212,7 @@ func (character *Character) NewTemporaryStatsAuraWrapped(auraLabel string, actio
 		}
 	}
 
+	mp5 := mp5ShareOf(&character.Unit, actionID, buffs)
 	config := Aura{
 		Label:    auraLabel,
 		ActionID: actionID,
@@ -219,6 +222,7 @@ func (character *Character) NewTemporaryStatsAuraWrapped(auraLabel string, actio
 				character.Log(sim, "Gained %s from %s.", buffs.FlatString(), actionID)
 			}
 			character.AddStatsDynamic(sim, buffs)
+			mp5.add(buffs, 1)
 
 			if includesHealthBuff {
 				character.GainHealth(sim, amountHealed, healthMetrics)
@@ -229,6 +233,7 @@ func (character *Character) NewTemporaryStatsAuraWrapped(auraLabel string, actio
 				character.Log(sim, "Lost %s from fading %s.", buffs.FlatString(), actionID)
 			}
 			character.AddStatsDynamic(sim, buffs.Invert())
+			mp5.add(buffs, -1)
 		},
 	}
 
@@ -287,14 +292,18 @@ func (parentAura *Aura) AttachStatDependency(statDep *stats.StatDependency) *Aur
 // Adds Stats to a parent Aura
 // Note: Only use when parent aura is used through RegisterAura() not GetOrRegisterAura. Otherwise this might apply multiple times.
 func (parentAura *Aura) AttachStatsBuff(stats stats.Stats) *Aura {
+	mp5 := mp5ShareOf(parentAura.Unit, parentAura.ActionID, stats)
 	parentAura.ApplyOnGain(func(aura *Aura, sim *Simulation) {
 		aura.Unit.AddStatsDynamic(sim, stats)
+		mp5.add(stats, 1)
 	}).ApplyOnExpire(func(aura *Aura, sim *Simulation) {
 		aura.Unit.AddStatsDynamic(sim, stats.Invert())
+		mp5.add(stats, -1)
 	})
 
 	if parentAura.IsActive() {
 		parentAura.Unit.AddStats(stats)
+		mp5.add(stats, 1)
 	}
 
 	return parentAura
@@ -382,4 +391,18 @@ func (parentAura *Aura) AttachMultiplyCastSpeed(unit *Unit, value float64) *Aura
 		unit.MultiplyCastSpeed(1 / value)
 	})
 	return parentAura
+}
+
+// mp5ShareOf is the named mana per 5 share an aura with these stats moves, or nil when they hold none.
+func mp5ShareOf(unit *Unit, actionID ActionID, s stats.Stats) *mp5Source {
+	if s[stats.MP5] == 0 {
+		return nil
+	}
+	return unit.mp5SourceFor(actionID)
+}
+
+func (src *mp5Source) add(s stats.Stats, times float64) {
+	if src != nil {
+		src.amount += times * s[stats.MP5]
+	}
 }

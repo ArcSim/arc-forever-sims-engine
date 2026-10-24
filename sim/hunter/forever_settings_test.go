@@ -30,6 +30,9 @@ func TestForeverSettings(t *testing.T) {
 	if os.Getenv("AB_NO_RESTART") != "" {
 		core.ForeverMeleeRestartsAutoShot = false
 	}
+	if os.Getenv("AB_NO_MOVE_POLL") != "" {
+		core.ForeverMovePoll = false
+	}
 	data, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatal(err)
@@ -90,6 +93,12 @@ func TestForeverSettings(t *testing.T) {
 	abPrint(label, res.RaidMetrics.Parties[0].Players[0], iters)
 	if os.Getenv("AB_IDS") != "" {
 		abPrintIDs("player", res.RaidMetrics.Parties[0].Players[0])
+	}
+	// AB_RES=1: every resource row (mana ticks, potions, talents) as gained per fight
+	if os.Getenv("AB_RES") != "" {
+		for _, r := range res.RaidMetrics.Parties[0].Players[0].Resources {
+			fmt.Printf("RES %v %s events %.1f gain %.1f actual %.1f\n", r.Type, r.Id.String(), float64(r.Events)/float64(iters), r.Gain/float64(iters), r.ActualGain/float64(iters))
+		}
 	}
 	fmt.Printf("  raid DPS incl. pets %.1f\n", res.RaidMetrics.Dps.Avg)
 }

@@ -11,6 +11,9 @@ import (
 	"github.com/wowsims/classic/sim/core/stats"
 )
 
+// ExpectedStat CreatureAutoAttackDps at level 60 (24.69 at 30): the hawks scale by the same table
+const petCreatureDps = 60.45
+
 type HunterPet struct {
 	core.Pet
 
@@ -76,12 +79,19 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 		attackSpeed = 2.5
 	}
 
-	baseMinDamage = 18.17 * attackSpeed
-	baseMaxDamage = 27.66 * attackSpeed
+	// a pet's swing is the creature dps for its level, 20% either side, over its swing time: a level 30 pet in the logs
+	// dealt 43.9 raw a second = 1.25 (happy) x (24.69 + its 146 attack power / 14); TestPetSwingFromCreatureDps.
+	// AB_PET_CLASSIC_BASE=1 (harness only) brings back the inherited Classic 18.17-27.66 for comparisons.
+	baseMinDamage = petCreatureDps * 0.8 * attackSpeed
+	baseMaxDamage = petCreatureDps * 1.2 * attackSpeed
+	if os.Getenv("AB_PET_CLASSIC_BASE") != "" {
+		baseMinDamage, baseMaxDamage = 18.17*attackSpeed, 27.66*attackSpeed
+	}
 
+	// no Agility: a pet's crit is its owner's alone (logs: a pet critting 9.9% of 5067 swings beside its owner's 11.5%
+	// melee and 7.5% Auto Shot crit)
 	hunterPetBaseStats = stats.Stats{
 		stats.Strength:  136,
-		stats.Agility:   100,
 		stats.Stamina:   274,
 		stats.Intellect: 50,
 		stats.Spirit:    80,
@@ -101,8 +111,8 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 	// proper DPS: the Forever beta bug, which the game does not have, kept for comparisons.
 	apPerDPS := core.DefaultAttackPowerPerDPS
 	if os.Getenv("AB_PET_BUG") != "" {
-		baseMinDamage = 18.17 * 2.0
-		baseMaxDamage = 27.66 * 2.0
+		baseMinDamage = baseMinDamage / attackSpeed * 2.0
+		baseMaxDamage = baseMaxDamage / attackSpeed * 2.0
 		apPerDPS = core.DefaultAttackPowerPerDPS * attackSpeed / 2.0
 	}
 
@@ -223,7 +233,8 @@ func (hunter *Hunter) makeStatInheritance() core.PetStatInheritance {
 			stats.Expertise:   ownerStats[stats.Expertise],
 			stats.SpellCrit:   ownerStats[stats.SpellCrit],
 			stats.MeleeHit:    ownerStats[stats.MeleeHit],
-			stats.SpellHit:    ownerStats[stats.MeleeHit],
+			// spell hit is 17/8 of the hit it inherits (a Forever dev, forever-bugs #394)
+			stats.SpellHit: ownerStats[stats.MeleeHit] * 17 / 8,
 		}
 	}
 }
@@ -241,7 +252,8 @@ type PetConfig struct {
 }
 
 // Families and their abilities per WoW Forever (wow-petopia.com/forever, checked against client data).
-// Health / armor / damage are the family scalars; Core Hound and Fox list damage 1.00 and nothing else yet.
+// Health / armor / damage are the family scalars from each family's Tamed Pet Passive in the client data (the Fox carries
+// the Wolf's).
 var PetConfigs = map[proto.Hunter_Options_PetType]PetConfig{
 	proto.Hunter_Options_Bat:         {Name: "Bat", Abilities: []PetAbilityType{SonicBlast, Bite}, Health: 1.00, Armor: 1.00, Damage: 1.07},
 	proto.Hunter_Options_Bear:        {Name: "Bear", Abilities: []PetAbilityType{Bite, Claw, Swipe}, Health: 1.08, Armor: 1.05, Damage: 0.91},
@@ -250,10 +262,10 @@ var PetConfigs = map[proto.Hunter_Options_PetType]PetConfig{
 	proto.Hunter_Options_Boar:        {Name: "Boar", Abilities: []PetAbilityType{Charge, Bite}, Health: 1.04, Armor: 1.09, Damage: 0.90},
 	proto.Hunter_Options_CarrionBird: {Name: "Carrion Bird", Abilities: []PetAbilityType{Bite, Claw, DemoralizingScreech}, Health: 1.00, Armor: 1.05, Damage: 1.00},
 	proto.Hunter_Options_Cat:         {Name: "Cat", Abilities: []PetAbilityType{Bite, Claw}, Health: 0.98, Armor: 1.00, Damage: 1.10},
-	proto.Hunter_Options_CoreHound:   {Name: "Core Hound", Abilities: []PetAbilityType{LavaBreath, Bite}, Health: 1.00, Armor: 1.00, Damage: 1.00},
+	proto.Hunter_Options_CoreHound:   {Name: "Core Hound", Abilities: []PetAbilityType{LavaBreath, Bite}, Health: 1.05, Armor: 1.00, Damage: 1.01},
 	proto.Hunter_Options_Crab:        {Name: "Crab", Abilities: []PetAbilityType{Pinch, Claw}, Health: 0.96, Armor: 1.13, Damage: 0.95},
 	proto.Hunter_Options_Crocolisk:   {Name: "Crocolisk", Abilities: []PetAbilityType{Bite, Dismember}, Health: 0.95, Armor: 1.10, Damage: 1.00},
-	proto.Hunter_Options_Fox:         {Name: "Fox", Abilities: []PetAbilityType{Bite, TrickstersDance}, Health: 1.00, Armor: 1.00, Damage: 1.00},
+	proto.Hunter_Options_Fox:         {Name: "Fox", Abilities: []PetAbilityType{Bite, TrickstersDance}, Health: 1.00, Armor: 1.05, Damage: 1.00},
 	proto.Hunter_Options_Gorilla:     {Name: "Gorilla", Abilities: []PetAbilityType{Thunderstomp, Bite}, Health: 1.04, Armor: 1.00, Damage: 1.02},
 	proto.Hunter_Options_Hyena:       {Name: "Hyena", Abilities: []PetAbilityType{TendonRip, Bite}, Health: 1.00, Armor: 1.05, Damage: 1.00},
 	proto.Hunter_Options_Raptor:      {Name: "Raptor", Abilities: []PetAbilityType{SavageRend, Bite, Claw}, Health: 0.95, Armor: 1.03, Damage: 1.10},

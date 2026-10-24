@@ -35,8 +35,6 @@ const ResilienceRatingPerCritDamageReductionPercent = ResilienceRatingPerCritRed
 // Updated based on formulas supplied by InDebt on WoWSims Discord
 const EnemyAutoAttackAPCoefficient = 1.0 / (14.0 * 177.0)
 
-const AverageMagicPartialResistPerLevelMultiplier = 0.02
-
 // IDs for items used in core
 const (
 	ItemIDBraidedEterniumChain  = 24114

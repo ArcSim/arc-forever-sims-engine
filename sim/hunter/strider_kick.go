@@ -29,7 +29,7 @@ func (hunter *Hunter) registerStriderKickSpell() {
 	})
 
 	hunter.StriderKick = hunter.RegisterSpell(core.SpellConfig{
-		ActionID:    core.ActionID{SpellID: 1317257}, // Classic icon; change when you have the Forever ID
+		ActionID:    core.ActionID{SpellID: 1317257}, // the Forever spell
 		SpellSchool: core.SpellSchoolPhysical,
 		DefenseType: core.DefenseTypeMelee,
 		ProcMask:    core.ProcMaskMeleeMHSpecial,

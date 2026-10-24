@@ -174,15 +174,15 @@ func addImbueStats(character *Character, imbue proto.WeaponImbue, isMh bool, sha
 
 		// Mana Oils
 		case proto.WeaponImbue_MinorManaOil:
-			character.AddStats(stats.Stats{
+			character.AddStatsNamed(ActionID{ItemID: 20745}, stats.Stats{
 				stats.MP5: 4,
 			})
 		case proto.WeaponImbue_LesserManaOil:
-			character.AddStats(stats.Stats{
+			character.AddStatsNamed(ActionID{ItemID: 20747}, stats.Stats{
 				stats.MP5: 8,
 			})
 		case proto.WeaponImbue_BrilliantManaOil:
-			character.AddStats(stats.Stats{
+			character.AddStatsNamed(ActionID{ItemID: 20748}, stats.Stats{
 				stats.MP5:          12,
 				stats.HealingPower: 25,
 			})
@@ -690,7 +690,7 @@ func applySpellBuffConsumes(character *Character, consumes *proto.Consumes) {
 				stats.SpellCrit: elixirCrit(consumes, true) * SpellCritRatingPerCritChance,
 			})
 		case proto.ManaRegenElixir_MagebloodPotion:
-			character.AddStats(stats.Stats{
+			character.AddStatsNamed(ActionID{ItemID: 20007}, stats.Stats{
 				stats.MP5: 12,
 			})
 		}

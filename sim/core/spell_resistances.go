@@ -153,11 +153,8 @@ func (unit *Unit) resistCoeff(spell *Spell, attacker *Unit, binary bool, pureDot
 		resistanceCoef /= 10
 	}
 
-	if !binary && unit.Type == EnemyUnit && unit.Level > attacker.Level {
-		avgMitigationAdded := AverageMagicPartialResistPerLevelMultiplier * float64(unit.Level-attacker.Level)
-		// coef is scaled 0 to 1, not 0 to 0.75
-		resistanceCoef += avgMitigationAdded * 1 / 0.75
-	}
+	// Forever: a target above your level resists no more for its level, only its resistance counts (wowsims and
+	// MythicSim agree; MythicSim's beta logs show no level partial resists)
 
 	return min(1, resistanceCoef)
 }

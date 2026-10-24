@@ -155,6 +155,7 @@ message APLValue {
         // Autoattack values
         APLValueAutoTimeToNext auto_time_to_next = 40;
         APLValueAutoSwingTime auto_swing_time = 64;
+        APLValueAutoTimeSinceLast auto_time_since_last = 80;
 
         // Spell values
         APLValueSpellIsKnown spell_is_known = 68;
@@ -456,6 +457,11 @@ message APLValueAutoSwingTime {
         Ranged = 5;
     }
     SwingType auto_type = 1;
+}
+
+// Time since the weapon last swung (or the Auto Shot fired), however long its next swing waits.
+message APLValueAutoTimeSinceLast {
+    APLValueAutoSwingTime.SwingType auto_type = 1;
 }
 
 message APLValueSpellIsKnown {

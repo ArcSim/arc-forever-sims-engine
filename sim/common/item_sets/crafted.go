@@ -94,10 +94,11 @@ var ItemSetDevilsaurArmor = core.NewItemSet(core.ItemSet{
 	Name: "Devilsaur Armor",
 	ID:   143,
 	Bonuses: map[int32]core.ApplyEffect{
-		// Improves your chance to hit by 2%.
+		// Improves your chance to hit by 2%: Forever's bonus (spell 460230) raises spell hit by 2% as well.
 		2: func(agent core.Agent) {
 			character := agent.GetCharacter()
 			character.AddStat(stats.MeleeHit, 2*core.MeleeHitRatingPerHitChance)
+			character.AddStat(stats.SpellHit, 2*core.SpellHitRatingPerHitChance)
 		},
 	},
 })

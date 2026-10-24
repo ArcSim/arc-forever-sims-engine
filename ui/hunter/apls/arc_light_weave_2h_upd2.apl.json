@@ -486,18 +486,8 @@
                 "cmp": {
                   "op": "OpLe",
                   "lhs": {
-                    "math": {
-                      "op": "OpSub",
-                      "lhs": {
-                        "autoSwingTime": {
-                          "autoType": "Ranged"
-                        }
-                      },
-                      "rhs": {
-                        "autoTimeToNext": {
-                          "autoType": "Ranged"
-                        }
-                      }
+                    "autoTimeSinceLast": {
+                      "autoType": "Ranged"
                     }
                   },
                   "rhs": {
@@ -592,18 +582,8 @@
                 "cmp": {
                   "op": "OpLe",
                   "lhs": {
-                    "math": {
-                      "op": "OpSub",
-                      "lhs": {
-                        "autoSwingTime": {
-                          "autoType": "MainHand"
-                        }
-                      },
-                      "rhs": {
-                        "autoTimeToNext": {
-                          "autoType": "MainHand"
-                        }
-                      }
+                    "autoTimeSinceLast": {
+                      "autoType": "MainHand"
                     }
                   },
                   "rhs": {
@@ -641,18 +621,8 @@
                                     "math": {
                                       "op": "OpAdd",
                                       "lhs": {
-                                        "math": {
-                                          "op": "OpSub",
-                                          "lhs": {
-                                            "autoSwingTime": {
-                                              "autoType": "MainHand"
-                                            }
-                                          },
-                                          "rhs": {
-                                            "autoTimeToNext": {
-                                              "autoType": "MainHand"
-                                            }
-                                          }
+                                        "autoTimeSinceLast": {
+                                          "autoType": "MainHand"
                                         }
                                       },
                                       "rhs": {
@@ -689,18 +659,8 @@
                                     "math": {
                                       "op": "OpAdd",
                                       "lhs": {
-                                        "math": {
-                                          "op": "OpSub",
-                                          "lhs": {
-                                            "autoSwingTime": {
-                                              "autoType": "MainHand"
-                                            }
-                                          },
-                                          "rhs": {
-                                            "autoTimeToNext": {
-                                              "autoType": "MainHand"
-                                            }
-                                          }
+                                        "autoTimeSinceLast": {
+                                          "autoType": "MainHand"
                                         }
                                       },
                                       "rhs": {
@@ -736,18 +696,8 @@
                                     "math": {
                                       "op": "OpAdd",
                                       "lhs": {
-                                        "math": {
-                                          "op": "OpSub",
-                                          "lhs": {
-                                            "autoSwingTime": {
-                                              "autoType": "MainHand"
-                                            }
-                                          },
-                                          "rhs": {
-                                            "autoTimeToNext": {
-                                              "autoType": "MainHand"
-                                            }
-                                          }
+                                        "autoTimeSinceLast": {
+                                          "autoType": "MainHand"
                                         }
                                       },
                                       "rhs": {
@@ -873,18 +823,8 @@
                 "cmp": {
                   "op": "OpLe",
                   "lhs": {
-                    "math": {
-                      "op": "OpSub",
-                      "lhs": {
-                        "autoSwingTime": {
-                          "autoType": "MainHand"
-                        }
-                      },
-                      "rhs": {
-                        "autoTimeToNext": {
-                          "autoType": "MainHand"
-                        }
-                      }
+                    "autoTimeSinceLast": {
+                      "autoType": "MainHand"
                     }
                   },
                   "rhs": {
@@ -922,18 +862,8 @@
                                     "math": {
                                       "op": "OpAdd",
                                       "lhs": {
-                                        "math": {
-                                          "op": "OpSub",
-                                          "lhs": {
-                                            "autoSwingTime": {
-                                              "autoType": "MainHand"
-                                            }
-                                          },
-                                          "rhs": {
-                                            "autoTimeToNext": {
-                                              "autoType": "MainHand"
-                                            }
-                                          }
+                                        "autoTimeSinceLast": {
+                                          "autoType": "MainHand"
                                         }
                                       },
                                       "rhs": {
@@ -970,18 +900,8 @@
                                     "math": {
                                       "op": "OpAdd",
                                       "lhs": {
-                                        "math": {
-                                          "op": "OpSub",
-                                          "lhs": {
-                                            "autoSwingTime": {
-                                              "autoType": "MainHand"
-                                            }
-                                          },
-                                          "rhs": {
-                                            "autoTimeToNext": {
-                                              "autoType": "MainHand"
-                                            }
-                                          }
+                                        "autoTimeSinceLast": {
+                                          "autoType": "MainHand"
                                         }
                                       },
                                       "rhs": {
@@ -1017,18 +937,8 @@
                                     "math": {
                                       "op": "OpAdd",
                                       "lhs": {
-                                        "math": {
-                                          "op": "OpSub",
-                                          "lhs": {
-                                            "autoSwingTime": {
-                                              "autoType": "MainHand"
-                                            }
-                                          },
-                                          "rhs": {
-                                            "autoTimeToNext": {
-                                              "autoType": "MainHand"
-                                            }
-                                          }
+                                        "autoTimeSinceLast": {
+                                          "autoType": "MainHand"
                                         }
                                       },
                                       "rhs": {

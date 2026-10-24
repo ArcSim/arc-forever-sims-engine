@@ -589,11 +589,10 @@ func (spell *Spell) ApplyAOEThreat(threatAmount float64) {
 }
 
 func (spell *Spell) finalizeExpectedDamage(result *SpellResult) {
+	// the expected value leaves out the partial resist roll; Forever has none from the target's level
 	if !spell.SpellSchool.Matches(SpellSchoolPhysical) {
 		result.Damage /= result.ResistanceMultiplier
-		averagePartialResistMultiplier := 1.0 - AverageMagicPartialResistPerLevelMultiplier*float64(result.Target.Level-spell.Unit.Level)
-		result.Damage *= averagePartialResistMultiplier
-		result.ResistanceMultiplier = averagePartialResistMultiplier
+		result.ResistanceMultiplier = 1
 	}
 	result.inUse = false
 }

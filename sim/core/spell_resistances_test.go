@@ -120,21 +120,21 @@ func ResistanceCheck(t *testing.T, isDoT bool) {
 
 	maxResist := float64(attacker.Level) * 5.0
 
-	// Check if coef is 0.08 (from +3 level based resist) at 0 res
+	// Forever: a boss 3 levels up resists nothing for its level, so 0 resistance means no partial resists
 	defender.stats[stats.NatureResistance] = 0
 	coef := defender.resistCoeff(spell, attacker, false, isDoT)
-	if coef != 0.08 {
-		t.Errorf("Resist coef is %.3f at 0 resistance, but should be 0.08!", coef)
+	if coef != 0 {
+		t.Errorf("Resist coef is %.3f at 0 resistance against a level 63 boss, but should be 0!", coef)
 		return
 	}
 
 	// Check known value
 	defender.stats[stats.NatureResistance] = 200
-	expectedMitigation := 0.545
-	expectedChances := []float64{0, 0.18, 0.46, 0.36}
+	expectedMitigation := 0.50
+	expectedChances := []float64{0, 0.22, 0.56, 0.22}
 	if isDoT {
-		expectedMitigation = 0.11
-		expectedChances = []float64{0.67, 0.24, 0.08, 0.01}
+		expectedMitigation = 0.05
+		expectedChances = []float64{0.85, 0.11, 0.04, 0.01}
 	}
 	threshold00, threshold25, threshold50 := attackTable.GetPartialResistThresholds(spell, spell.Flags.Matches(SpellFlagPureDot))
 	avgResist, chance0, chance25, chance50, chance75 := GetChancesAndMitFromThresholds(threshold00, threshold25, threshold50)
@@ -161,8 +161,7 @@ func ResistanceCheck(t *testing.T, isDoT bool) {
 
 		// Expected values
 		resistanceCap := float64(attacker.Level * 5)
-		levelBased := float64(max(defender.Level-attacker.Level, 0)) * 0.02
-		expectedCoef := min(1, resistanceUsed/resistanceCap+levelBased*1/0.75)
+		expectedCoef := min(1, resistanceUsed/resistanceCap)
 		expectedAvgMitigation := expectedCoef*0.75 - 3.0/16.0*max(0, expectedCoef-2.0/3.0)
 
 		// Check if coef is correct to begin with

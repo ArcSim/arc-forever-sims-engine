@@ -30,6 +30,10 @@ type manaBar struct {
 	// regen-while-casting buffs with their own row in the mana results
 	castingRegenSources []*CastingRegenSource
 
+	// named shares of the mana per 5, each with its own row; what nobody names goes to mp5UnnamedMetrics
+	mp5Sources        []*mp5Source
+	mp5UnnamedMetrics *ResourceMetrics
+
 	// For keeping track of OOM status.
 	waitingForMana          float64
 	waitingForManaStartTime time.Duration
@@ -58,6 +62,7 @@ func (character *Character) EnableManaBarWithModifier(modifier float64) {
 
 	character.manaCastingMetrics = character.NewManaMetrics(ActionID{OtherID: proto.OtherAction_OtherActionManaRegen, Tag: 1})
 	character.manaNotCastingMetrics = character.NewManaMetrics(ActionID{OtherID: proto.OtherAction_OtherActionManaRegen, Tag: 2})
+	character.mp5UnnamedMetrics = character.NewManaMetrics(ActionID{OtherID: proto.OtherAction_OtherActionManaRegen, Tag: 3})
 
 	character.BaseMana = character.GetBaseStats()[stats.Mana]
 	character.Unit.manaBar.unit = &character.Unit
@@ -230,29 +235,93 @@ func (src *CastingRegenSource) Deactivate() {
 	src.unit.UpdateManaRegenRates()
 }
 
+// mp5Source is a named share of the unit's mana per 5: the mana per 5 part of every tick is split by these amounts.
+type mp5Source struct {
+	metrics *ResourceMetrics
+	amount  float64
+}
+
+// mp5SourceFor returns the named mana per 5 share for actionID, made on first use.
+func (unit *Unit) mp5SourceFor(actionID ActionID) *mp5Source {
+	for _, src := range unit.mp5Sources {
+		if src.metrics.ActionID == actionID {
+			return src
+		}
+	}
+	src := &mp5Source{metrics: unit.NewManaMetrics(actionID)}
+	unit.mp5Sources = append(unit.mp5Sources, src)
+	return src
+}
+
+// NameMP5 gives amount of mana per 5 already in the unit's stats its own mana row under actionID (amounts under one id
+// add up). Mana per 5 nobody names still ticks, in the "Mana per 5 (unnamed)" row.
+func (unit *Unit) NameMP5(actionID ActionID, amount float64) {
+	if amount != 0 {
+		unit.mp5SourceFor(actionID).amount += amount
+	}
+}
+
+// AddStatsNamed adds stats and names any mana per 5 in them after actionID.
+func (unit *Unit) AddStatsNamed(actionID ActionID, s stats.Stats) {
+	unit.AddStats(s)
+	unit.NameMP5(actionID, s[stats.MP5])
+}
+
+// addMP5Ticks splits a tick's mana per 5 part over the named sources by their amounts; the rest is unnamed.
+func (unit *Unit) addMP5Ticks(sim *Simulation, mp5 float64) {
+	if mp5 <= 0 {
+		return
+	}
+	named := 0.0
+	for _, src := range unit.mp5Sources {
+		named += max(0, src.amount)
+	}
+	scale := max(unit.stats[stats.MP5], named)
+	left := mp5
+	for _, src := range unit.mp5Sources {
+		if src.amount > 0 && scale > 0 {
+			share := mp5 * src.amount / scale
+			unit.AddMana(sim, share, src.metrics)
+			left -= share
+		}
+	}
+	if left > 1e-9 && unit.mp5UnnamedMetrics != nil {
+		unit.AddMana(sim, left, unit.mp5UnnamedMetrics)
+	}
+}
+
 func (unit *Unit) GetManaNotCastingMetrics() *ResourceMetrics {
 	return unit.manaNotCastingMetrics
 }
 
 // Applies 1 'tick' of mana regen, which worth 2s of regeneration based on mp5/int/spirit/etc.
 func (unit *Unit) ManaTick(sim *Simulation) {
-	if sim.CurrentTime < unit.PseudoStats.FiveSecondRuleRefreshTime {
-		regen := max(0, unit.manaTickWhileCasting)
+	casting := sim.CurrentTime < unit.PseudoStats.FiveSecondRuleRefreshTime
+	regen := max(0, unit.manaTickWhileNotCasting)
+	if casting {
+		regen = max(0, unit.manaTickWhileCasting)
+	}
+	// mana per 5 ticks casting or not, in a row per named source
+	mp5 := min(max(0, unit.manaTickMP5), regen)
+	unit.addMP5Ticks(sim, mp5)
+	spirit := regen - mp5
+	if casting {
 		// each buff with its own row takes its share of the spirit part, by how much of the spirit regen it lets through
 		if total := unit.PseudoStats.SpiritRegenRateCasting; total > 0 && !unit.PseudoStats.ForceFullSpiritRegen {
-			spirit := regen - max(0, unit.manaTickMP5)
+			whole := spirit
 			for _, src := range unit.castingRegenSources {
-				if src.active && spirit > 0 {
-					share := spirit * src.rate / total
+				if src.active && whole > 0 {
+					share := whole * src.rate / total
 					unit.AddMana(sim, share, src.Metrics)
-					regen -= share
+					spirit -= share
 				}
 			}
 		}
-		unit.AddMana(sim, max(0, regen), unit.manaCastingMetrics)
-	} else {
-		regen := unit.manaTickWhileNotCasting
-		unit.AddMana(sim, max(0, regen), unit.manaNotCastingMetrics)
+		if spirit > 1e-9 {
+			unit.AddMana(sim, spirit, unit.manaCastingMetrics)
+		}
+	} else if spirit > 1e-9 {
+		unit.AddMana(sim, spirit, unit.manaNotCastingMetrics)
 	}
 }
 

@@ -270,9 +270,16 @@ type WeaponAttack struct {
 
 	swingAt             time.Duration
 	lastSwingAt         time.Duration
+	// when the weapon last really swung (or the Auto Shot fired); a restarted timer leaves it (autoTimeSinceLast)
+	lastAttackAt time.Duration
 	// when the running timer is ready with nothing in the way (walking, the stand-still wait, the off-hand wait): the
 	// timeline draws the timer up to here and any time after it that the weapon sat ready
 	readyAt time.Duration
+	// a swing retry wait since retryFrom (steps from retryOrigin): the timeline gets it once the swing lands, or as
+	// left if a walk takes the unit out first
+	retryPending bool
+	retryFrom    time.Duration
+	retryOrigin  time.Duration
 	extraAttacks        int32 // extra attacks that happen right away
 	extraAttacksStored  int32 // extra attack that happen on next auto (e.g reckoning)
 	extraAttacksPending int32 // extraAttacks prior to previous ones resolving for spell metrics
@@ -373,6 +380,7 @@ func (wa *WeaponAttack) swing(sim *Simulation) time.Duration {
 		wa.updateSwingDuration(wa.unit.RangedSwingSpeed())
 		wa.swingAt = sim.CurrentTime + max(wa.curSwingDuration-wa.unit.AutoAttacks.RangedCycleCut, 0)
 		wa.lastSwingAt = sim.CurrentTime
+		wa.lastAttackAt = sim.CurrentTime
 		wa.startTimer(sim, wa.swingAt)
 		wa.unit.AutoAttacks.shotSinceMelee = true
 		// the shot is a decision point like a melee swing: off-GCD actions (a move into melee) can start right after it
@@ -408,8 +416,10 @@ func (wa *WeaponAttack) swing(sim *Simulation) time.Duration {
 	}
 
 	if attackSpell.CanCast(sim, wa.unit.CurrentTarget) {
+		wa.endRetryWait(sim, "retry")
 		wa.swingAt = sim.CurrentTime + wa.curSwingDuration
 		wa.lastSwingAt = sim.CurrentTime
+		wa.lastAttackAt = sim.CurrentTime
 		wa.startTimer(sim, wa.swingAt)
 		wa.unit.AutoAttacks.shotSinceMelee = false
 		// a swing landing mid-walk (melee starts at 5 yd) cannot start a move now; the walk's end replays the decision
@@ -433,19 +443,12 @@ func (wa *WeaponAttack) swing(sim *Simulation) time.Duration {
 		if ForeverMeleeRestartsAutoShot && wa.unit.AutoAttacks.MeleeResetsAutoShot && wa.unit.AutoAttacks.AutoSwingRanged &&
 			!attackSpell.ProcMask.Matches(ProcMaskRangedAuto) {
 
+			// a white swing, or a queued ability that took the swing (Raptor Strike): one restart, from the swing
 			isWhite := attackSpell.ProcMask.Matches(ProcMaskMeleeMHAuto | ProcMaskMeleeOHAuto)
-			isRaptor := attackSpell.ActionID.SpellID == 14266 ||
-				attackSpell.ActionID.SpellID == 14265 ||
-				attackSpell.ActionID.SpellID == 14264 ||
-				attackSpell.ActionID.SpellID == 2973 && attackSpell.ActionID.Tag == 0
+			isQueued := attackSpell != wa.spell
 
-			if isWhite || isRaptor {
-				aa := &wa.unit.AutoAttacks
-				aa.ranged.updateSwingDuration(wa.unit.RangedSwingSpeed())
-				aa.ranged.swingAt = sim.CurrentTime + aa.ranged.curSwingDuration
-				aa.ranged.lastSwingAt = sim.CurrentTime
-				aa.ranged.startTimer(sim, aa.ranged.swingAt)
-				sim.rescheduleWeaponAttack(aa.ranged.swingAt)
+			if isWhite || isQueued {
+				wa.unit.AutoAttacks.RestartRangedSwing(sim)
 			}
 		}
 
@@ -693,6 +696,9 @@ func (aa *AutoAttacks) reset(sim *Simulation) {
 
 	aa.mh.swingAt = NeverExpires
 	aa.oh.swingAt = NeverExpires
+	aa.mh.retryPending, aa.oh.retryPending = false, false
+	// no swing yet this fight: long ago
+	aa.mh.lastAttackAt, aa.oh.lastAttackAt, aa.ranged.lastAttackAt = -time.Hour, -time.Hour, -time.Hour
 
 	// Make sure extra attacks are reset
 	aa.mh.extraAttacks = 0
@@ -777,7 +783,7 @@ func (aa *AutoAttacks) startPull(sim *Simulation) {
 	}
 }
 
-// Stops the auto swing action for the rest of the iteration. Used for pets
+// Stops the auto swing action until EnableAutoSwing (pets that are dismissed, walks)
 // after being disabled.
 func (aa *AutoAttacks) CancelAutoSwing(sim *Simulation) {
 	if !aa.AutoSwingMelee && !aa.AutoSwingRanged {
@@ -999,7 +1005,7 @@ func (aa *AutoAttacks) StopRangedUntil(sim *Simulation, readyAt time.Duration) {
 	sim.rescheduleWeaponAttack(aa.ranged.swingAt)
 }
 
-// Delays all swing timers for the specified amount. Only used by Slam.
+// Delays all swing timers for the specified amount (Slam, and the start of melee after a step inside melee range).
 func (aa *AutoAttacks) DelayMeleeBy(sim *Simulation, delay time.Duration) {
 	if delay <= 0 {
 		return
@@ -1165,6 +1171,10 @@ func (aa *AutoAttacks) ForceMeleeSwing(sim *Simulation) {
 	if aa.mh.spell == nil || !aa.AutoSwingMelee {
 		return
 	}
+	// the arrival sets the swing from the timer that ran out at range (ForeverSwingRetryBeat)
+	if ForeverSwingRetryBeat {
+		return
+	}
 	// Entering melee must not reset a 3.8s timer that still has time left.
 	if aa.mh.swingAt > sim.CurrentTime {
 		return
@@ -1237,6 +1247,116 @@ var ForeverOffHandWaitsOnAttackStart = true
 // events show swings while moving). False only for comparisons.
 var ForeverMeleeMidWalk = true
 
+// ForeverSwingRetryBeat: a weapon whose timer has run out while the target is out of reach retries the swing every half
+// second, counted from the later of the timer running out and the melee attack turning on, and swings on the first
+// retry after the server sees you in range (attackStartDelay after you get there). In range before the timer runs out,
+// it swings as it runs out. Measured on Forever: probe walk-ins land within 0.02 s of a retry, a Strider Kick that
+// passed its range check still waited for one, and 13 combat logs show the steps. False only for comparisons.
+var ForeverSwingRetryBeat = true
+
+const swingRetryPeriod = 500 * time.Millisecond
+
+// retrySwingAt: when a weapon whose timer runs out at ready swings for a unit in range from now, its attack on since
+// attackOn.
+func retrySwingAt(now, ready, attackOn time.Duration) time.Duration {
+	origin := max(ready, attackOn)
+	seen := now + attackStartDelay
+	if seen <= origin {
+		return origin
+	}
+	steps := (seen - origin + swingRetryPeriod - 1) / swingRetryPeriod
+	return origin + steps*swingRetryPeriod
+}
+
+// swingOnArrival sets each hand's next swing for a unit that just got in melee range after a walk that turned the melee
+// attack on at attackOn (the off hand also waits ohWait from then), from the timers each hand had at range.
+func (aa *AutoAttacks) swingOnArrival(sim *Simulation, mhReady, ohReady, attackOn, ohWait time.Duration) {
+	// no Auto Shot since the last swing: the attack stayed on and only the timers count
+	if !aa.shotSinceMelee {
+		attackOn = 0
+	}
+	aa.mh.swingAt = retrySwingAt(sim.CurrentTime, mhReady, attackOn)
+	sim.rescheduleWeaponAttack(aa.mh.swingAt)
+	aa.mh.logSwingWaits(sim, mhReady, max(mhReady, attackOn))
+	if aa.IsDualWielding {
+		timerEnd := ohReady
+		if ForeverOffHandWaitsOnAttackStart && aa.shotSinceMelee {
+			ohReady = max(ohReady, attackOn+ohWait)
+		}
+		aa.oh.swingAt = retrySwingAt(sim.CurrentTime, ohReady, attackOn)
+		sim.rescheduleWeaponAttack(aa.oh.swingAt)
+		aa.oh.logSwingWaits(sim, timerEnd, max(ohReady, attackOn))
+	}
+}
+
+// logSwingWaits tells the timeline why a weapon that got in range now waits for its swing: out of melee range since its
+// timer ran out (timerEnd), then the swing retry (counted from origin) until the swing.
+func (wa *WeaponAttack) logSwingWaits(sim *Simulation, timerEnd, origin time.Duration) {
+	if sim.Log == nil || wa.spell == nil {
+		return
+	}
+	now := sim.CurrentTime
+	if timerEnd < now-time.Millisecond {
+		wa.unit.Log(sim, "Swing wait %s range from %.3fs to %.3fs", wa.timerID(), max(timerEnd, 0).Seconds(), now.Seconds())
+	}
+	if from := max(now, timerEnd); wa.swingAt > from+time.Millisecond {
+		wa.retryPending, wa.retryFrom, wa.retryOrigin = true, from, origin
+	}
+}
+
+// endRetryWait logs a pending swing retry wait up to now: as retry when the swing lands, as left when a walk takes the
+// unit out before it.
+func (wa *WeaponAttack) endRetryWait(sim *Simulation, how string) {
+	if !wa.retryPending {
+		return
+	}
+	wa.retryPending = false
+	if sim.Log != nil && wa.spell != nil && sim.CurrentTime > wa.retryFrom+time.Millisecond {
+		wa.unit.Log(sim, "Swing wait %s %s from %.3fs to %.3fs, steps from %.3fs", wa.timerID(), how, wa.retryFrom.Seconds(), sim.CurrentTime.Seconds(), wa.retryOrigin.Seconds())
+	}
+}
+
+// logShotWaits tells the timeline why a ready Auto Shot waits when a walk ends at range: too close to shoot before the
+// walk began, the walk itself, then the windup after stopping.
+func (aa *AutoAttacks) logShotWaits(sim *Simulation, walkStart time.Duration, startDistance float64) {
+	wa := &aa.ranged
+	if sim.Log == nil || wa.spell == nil || !aa.AutoSwingRanged || wa.unit.DistanceFromTarget < MinRangedAttackDistance {
+		return
+	}
+	ready, stop := max(wa.swingAt, 0), sim.CurrentTime
+	if startDistance < MinRangedAttackDistance && ready < walkStart-time.Millisecond {
+		wa.unit.Log(sim, "Swing wait %s close from %.3fs to %.3fs", wa.timerID(), ready.Seconds(), walkStart.Seconds())
+	}
+	if ready < stop-time.Millisecond {
+		wa.unit.Log(sim, "Swing wait %s moving from %.3fs to %.3fs", wa.timerID(), max(ready, walkStart).Seconds(), stop.Seconds())
+	}
+	// the whole windup runs from the stop; it holds the shot only past the timer's ready (from)
+	fire := stop + AutoShotStandStill
+	from := min(max(ready, stop), fire)
+	wa.unit.Log(sim, "Swing wait %s windup from %.3fs to %.3fs, stopped at %.3fs", wa.timerID(), from.Seconds(), fire.Seconds(), stop.Seconds())
+}
+
+// LogShotDelay tells the timeline a shot pushed the Auto Shot back (the Shots delay Auto Shot option).
+func (aa *AutoAttacks) LogShotDelay(sim *Simulation, from, to time.Duration) {
+	if sim.Log != nil && aa.ranged.spell != nil {
+		aa.ranged.unit.Log(sim, "Swing wait %s shotdelay from %.3fs to %.3fs", aa.ranged.timerID(), from.Seconds(), to.Seconds())
+	}
+}
+
+// SwingOnArrival: a walk from outside melee range that ended in it (see swingOnArrival); mhReady and ohReady are the
+// timers from before the walk's end turned the swings back on.
+func (aa *AutoAttacks) SwingOnArrival(sim *Simulation, mhReady, ohReady, attackOn, ohWait time.Duration) {
+	if !aa.AutoSwingMelee || !aa.enabled || aa.mh.spell == nil {
+		return
+	}
+	aa.swingOnArrival(sim, mhReady, ohReady, attackOn, ohWait)
+}
+
+// MeleeTimers: when each hand's timer runs out, for SwingOnArrival.
+func (aa *AutoAttacks) MeleeTimers() (time.Duration, time.Duration) {
+	return aa.mh.swingAt, aa.oh.swingAt
+}
+
 // StartMeleeMidMove starts the melee swings when a walk in reaches melee range; the walk turned the attack on as it
 // started (attackOn), so the off hand keeps that wait.
 func (aa *AutoAttacks) StartMeleeMidMove(sim *Simulation, attackOn time.Duration, wait time.Duration) {
@@ -1244,6 +1364,14 @@ func (aa *AutoAttacks) StartMeleeMidMove(sim *Simulation, attackOn time.Duration
 		return
 	}
 	aa.meleeWhileMoving = true
+	if ForeverSwingRetryBeat {
+		aa.swingOnArrival(sim, aa.mh.swingAt, aa.oh.swingAt, attackOn, wait)
+		aa.mh.addWeaponAttack(sim, aa.mh.unit.SwingSpeed())
+		if aa.IsDualWielding {
+			aa.oh.addWeaponAttack(sim, aa.mh.unit.SwingSpeed())
+		}
+		return
+	}
 	// the same 50 ms start-of-attack delay as at the end of a walk
 	aa.mh.swingAt = max(aa.mh.swingAt, sim.CurrentTime) + 50*time.Millisecond
 	aa.mh.addWeaponAttack(sim, aa.mh.unit.SwingSpeed())

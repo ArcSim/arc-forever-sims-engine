@@ -43,12 +43,13 @@ func (hunter *Hunter) getMongooseBiteConfig(rank int) core.SpellConfig {
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			base := bonus + spell.Unit.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target))
 			result := spell.CalcAndDealDamage(sim, target, base, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
-			// one bite spends the ready state, whichever buff gave it
+			// any bite spends Expose Prey, a miss, dodge or parry too (the beta logs: 38 of them ended it); Defensive
+			// State goes with a bite that lands
+			if hunter.ExposePrey.IsActive() {
+				hunter.exposePreyUsed = true
+				hunter.ExposePrey.Deactivate(sim)
+			}
 			if result.Landed() {
-				if hunter.ExposePrey.IsActive() {
-					hunter.exposePreyUsed = true
-					hunter.ExposePrey.Deactivate(sim)
-				}
 				hunter.DefensiveState.Deactivate(sim)
 			}
 		},

@@ -88,7 +88,7 @@
           "id": 13965
         },
         {
-          "id": 11815
+          "id": 272437
         },
         {
           "id": 12940,
@@ -99,7 +99,7 @@
           "enchant": 7940
         },
         {
-          "id": 20722,
+          "id": 12651,
           "enchant": 664
         }
       ]
@@ -132,7 +132,7 @@
       "blessingOfMight": "TristateEffectImproved"
     },
     "talentsString": "502-005005-500230230250122151",
-    "profession1": "Enchanting",
+    "profession1": "Blacksmithing",
     "profession2": "Engineering",
     "cooldowns": {},
     "reactionTimeMs": 200,
@@ -140,7 +140,7 @@
     "healingModel": {},
     "hunter": {
       "options": {
-        "ammo": "SwiftstrikeShot",
+        "ammo": "SwiftfeatherArrow",
         "quiverBonus": "Speed15",
         "petType": "Cat",
         "petUptime": 1,

@@ -592,27 +592,17 @@
                               "math": {
                                 "op": "OpSub",
                                 "lhs": {
-                                  "math": {
-                                    "op": "OpSub",
-                                    "lhs": {
-                                      "autoTimeToNext": {
-                                        "autoType": "Ranged"
-                                      }
-                                    },
-                                    "rhs": {
-                                      "walkTime": {
-                                        "toDistance": {
-                                          "const": {
-                                            "val": "11"
-                                          }
-                                        }
-                                      }
-                                    }
+                                  "autoTimeToNext": {
+                                    "autoType": "Ranged"
                                   }
                                 },
                                 "rhs": {
-                                  "const": {
-                                    "val": "0.25s"
+                                  "walkTime": {
+                                    "toDistance": {
+                                      "const": {
+                                        "val": "11"
+                                      }
+                                    }
                                   }
                                 }
                               }
@@ -661,27 +651,17 @@
                               "math": {
                                 "op": "OpSub",
                                 "lhs": {
-                                  "math": {
-                                    "op": "OpSub",
-                                    "lhs": {
-                                      "autoTimeToNext": {
-                                        "autoType": "Ranged"
-                                      }
-                                    },
-                                    "rhs": {
-                                      "walkTime": {
-                                        "toDistance": {
-                                          "const": {
-                                            "val": "11"
-                                          }
-                                        }
-                                      }
-                                    }
+                                  "autoTimeToNext": {
+                                    "autoType": "Ranged"
                                   }
                                 },
                                 "rhs": {
-                                  "const": {
-                                    "val": "0.25s"
+                                  "walkTime": {
+                                    "toDistance": {
+                                      "const": {
+                                        "val": "11"
+                                      }
+                                    }
                                   }
                                 }
                               }
@@ -884,27 +864,17 @@
                               "math": {
                                 "op": "OpSub",
                                 "lhs": {
-                                  "math": {
-                                    "op": "OpSub",
-                                    "lhs": {
-                                      "autoTimeToNext": {
-                                        "autoType": "Ranged"
-                                      }
-                                    },
-                                    "rhs": {
-                                      "walkTime": {
-                                        "toDistance": {
-                                          "const": {
-                                            "val": "11"
-                                          }
-                                        }
-                                      }
-                                    }
+                                  "autoTimeToNext": {
+                                    "autoType": "Ranged"
                                   }
                                 },
                                 "rhs": {
-                                  "const": {
-                                    "val": "0.25s"
+                                  "walkTime": {
+                                    "toDistance": {
+                                      "const": {
+                                        "val": "11"
+                                      }
+                                    }
                                   }
                                 }
                               }
@@ -953,27 +923,17 @@
                               "math": {
                                 "op": "OpSub",
                                 "lhs": {
-                                  "math": {
-                                    "op": "OpSub",
-                                    "lhs": {
-                                      "autoTimeToNext": {
-                                        "autoType": "Ranged"
-                                      }
-                                    },
-                                    "rhs": {
-                                      "walkTime": {
-                                        "toDistance": {
-                                          "const": {
-                                            "val": "11"
-                                          }
-                                        }
-                                      }
-                                    }
+                                  "autoTimeToNext": {
+                                    "autoType": "Ranged"
                                   }
                                 },
                                 "rhs": {
-                                  "const": {
-                                    "val": "0.25s"
+                                  "walkTime": {
+                                    "toDistance": {
+                                      "const": {
+                                        "val": "11"
+                                      }
+                                    }
                                   }
                                 }
                               }

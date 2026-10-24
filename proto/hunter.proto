@@ -200,6 +200,9 @@ message Hunter {
 		// Melee swings restart the Auto Shot timer: a live beta bug Blizzard confirmed (forever-bugs #14), off by default
 		// as it is expected to be fixed.
 		bool melee_resets_auto_shot = 22;
+		// A shot or sting cast during an Auto Shot cycle pushes that cycle's Auto Shot back 0.2 s: a beta bug report
+		// (forever-bugs #43) the beta logs show, off by default.
+		bool shots_delay_auto_shot = 23;
 	}
 
 	Options options = 2;

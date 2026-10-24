@@ -415,18 +415,8 @@
                 "cmp": {
                   "op": "OpLe",
                   "lhs": {
-                    "math": {
-                      "op": "OpSub",
-                      "lhs": {
-                        "autoSwingTime": {
-                          "autoType": "Ranged"
-                        }
-                      },
-                      "rhs": {
-                        "autoTimeToNext": {
-                          "autoType": "Ranged"
-                        }
-                      }
+                    "autoTimeSinceLast": {
+                      "autoType": "Ranged"
                     }
                   },
                   "rhs": {
@@ -437,95 +427,18 @@
                 }
               },
               {
-                "or": {
-                  "vals": [
-                    {
-                      "or": {
-                        "vals": [
-                          {
-                            "cmp": {
-                              "op": "OpLe",
-                              "lhs": {
-                                "spellTimeToReady": {
-                                  "spellId": {
-                                    "spellId": 1317257
-                                  }
-                                }
-                              },
-                              "rhs": {
-                                "const": {
-                                  "val": "1.5s"
-                                }
-                              }
-                            }
-                          },
-                          {
-                            "and": {
-                              "vals": [
-                                {
-                                  "auraIsActive": {
-                                    "auraId": {
-                                      "spellId": 1310726
-                                    }
-                                  }
-                                },
-                                {
-                                  "cmp": {
-                                    "op": "OpLe",
-                                    "lhs": {
-                                      "spellTimeToReady": {
-                                        "spellId": {
-                                          "spellId": 14271,
-                                          "rank": 4
-                                        }
-                                      }
-                                    },
-                                    "rhs": {
-                                      "const": {
-                                        "val": "1.5s"
-                                      }
-                                    }
-                                  }
-                                }
-                              ]
-                            }
-                          },
-                          {
-                            "cmp": {
-                              "op": "OpLe",
-                              "lhs": {
-                                "spellTimeToReady": {
-                                  "spellId": {
-                                    "spellId": 14305
-                                  }
-                                }
-                              },
-                              "rhs": {
-                                "const": {
-                                  "val": "1.5s"
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "cmp": {
-                        "op": "OpLe",
-                        "lhs": {
-                          "autoTimeToNext": {
-                            "autoType": "MainHand"
-                          }
-                        },
-                        "rhs": {
-                          "const": {
-                            "val": "1.5s"
-                          }
-                        }
-                      }
+                "cmp": {
+                  "op": "OpLe",
+                  "lhs": {
+                    "autoTimeToNext": {
+                      "autoType": "MainHand"
                     }
-                  ]
+                  },
+                  "rhs": {
+                    "const": {
+                      "val": "1.5s"
+                    }
+                  }
                 }
               }
             ]
@@ -534,13 +447,13 @@
         "move": {
           "rangeFromTarget": {
             "const": {
-              "val": "5"
+              "val": "4"
             }
           }
         }
       },
       "simple": {
-        "text": "**Move in** to {Melee spot} yd within a second after your Auto Shot when Strider Kick, Mongoose Bite or Immolation Trap is ready within 1.5 s, or when your MH swing timer is in its last 1.5 s.",
+        "text": "**Move in** to {Melee spot} yd after your Auto Shot once your MH swing timer is at 1.5 s or less.",
         "shown": true,
         "boxes": [
           {
@@ -613,18 +526,8 @@
                 "cmp": {
                   "op": "OpLe",
                   "lhs": {
-                    "math": {
-                      "op": "OpSub",
-                      "lhs": {
-                        "autoSwingTime": {
-                          "autoType": "MainHand"
-                        }
-                      },
-                      "rhs": {
-                        "autoTimeToNext": {
-                          "autoType": "MainHand"
-                        }
-                      }
+                    "autoTimeSinceLast": {
+                      "autoType": "MainHand"
                     }
                   },
                   "rhs": {
@@ -632,259 +535,6 @@
                       "val": "2s"
                     }
                   }
-                }
-              },
-              {
-                "or": {
-                  "vals": [
-                    {
-                      "or": {
-                        "vals": [
-                          {
-                            "cmp": {
-                              "op": "OpGt",
-                              "lhs": {
-                                "spellTimeToReady": {
-                                  "spellId": {
-                                    "spellId": 1317257
-                                  }
-                                }
-                              },
-                              "rhs": {
-                                "math": {
-                                  "op": "OpSub",
-                                  "lhs": {
-                                    "const": {
-                                      "val": "8s"
-                                    }
-                                  },
-                                  "rhs": {
-                                    "math": {
-                                      "op": "OpAdd",
-                                      "lhs": {
-                                        "math": {
-                                          "op": "OpSub",
-                                          "lhs": {
-                                            "autoSwingTime": {
-                                              "autoType": "MainHand"
-                                            }
-                                          },
-                                          "rhs": {
-                                            "autoTimeToNext": {
-                                              "autoType": "MainHand"
-                                            }
-                                          }
-                                        }
-                                      },
-                                      "rhs": {
-                                        "const": {
-                                          "val": "0.5s"
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          },
-                          {
-                            "cmp": {
-                              "op": "OpGt",
-                              "lhs": {
-                                "spellTimeToReady": {
-                                  "spellId": {
-                                    "spellId": 14271,
-                                    "rank": 4
-                                  }
-                                }
-                              },
-                              "rhs": {
-                                "math": {
-                                  "op": "OpSub",
-                                  "lhs": {
-                                    "const": {
-                                      "val": "5s"
-                                    }
-                                  },
-                                  "rhs": {
-                                    "math": {
-                                      "op": "OpAdd",
-                                      "lhs": {
-                                        "math": {
-                                          "op": "OpSub",
-                                          "lhs": {
-                                            "autoSwingTime": {
-                                              "autoType": "MainHand"
-                                            }
-                                          },
-                                          "rhs": {
-                                            "autoTimeToNext": {
-                                              "autoType": "MainHand"
-                                            }
-                                          }
-                                        }
-                                      },
-                                      "rhs": {
-                                        "const": {
-                                          "val": "0.5s"
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          },
-                          {
-                            "cmp": {
-                              "op": "OpGt",
-                              "lhs": {
-                                "spellTimeToReady": {
-                                  "spellId": {
-                                    "spellId": 14305
-                                  }
-                                }
-                              },
-                              "rhs": {
-                                "math": {
-                                  "op": "OpSub",
-                                  "lhs": {
-                                    "const": {
-                                      "val": "18s"
-                                    }
-                                  },
-                                  "rhs": {
-                                    "math": {
-                                      "op": "OpAdd",
-                                      "lhs": {
-                                        "math": {
-                                          "op": "OpSub",
-                                          "lhs": {
-                                            "autoSwingTime": {
-                                              "autoType": "MainHand"
-                                            }
-                                          },
-                                          "rhs": {
-                                            "autoTimeToNext": {
-                                              "autoType": "MainHand"
-                                            }
-                                          }
-                                        }
-                                      },
-                                      "rhs": {
-                                        "const": {
-                                          "val": "0.5s"
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "not": {
-                        "val": {
-                          "or": {
-                            "vals": [
-                              {
-                                "cmp": {
-                                  "op": "OpLe",
-                                  "lhs": {
-                                    "spellTimeToReady": {
-                                      "spellId": {
-                                        "spellId": 1317257
-                                      }
-                                    }
-                                  },
-                                  "rhs": {
-                                    "math": {
-                                      "op": "OpAdd",
-                                      "lhs": {
-                                        "gcdTimeToReady": {}
-                                      },
-                                      "rhs": {
-                                        "const": {
-                                          "val": "1s"
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                              },
-                              {
-                                "and": {
-                                  "vals": [
-                                    {
-                                      "auraIsActive": {
-                                        "auraId": {
-                                          "spellId": 1310726
-                                        }
-                                      }
-                                    },
-                                    {
-                                      "cmp": {
-                                        "op": "OpLe",
-                                        "lhs": {
-                                          "spellTimeToReady": {
-                                            "spellId": {
-                                              "spellId": 14271,
-                                              "rank": 4
-                                            }
-                                          }
-                                        },
-                                        "rhs": {
-                                          "math": {
-                                            "op": "OpAdd",
-                                            "lhs": {
-                                              "gcdTimeToReady": {}
-                                            },
-                                            "rhs": {
-                                              "const": {
-                                                "val": "1s"
-                                              }
-                                            }
-                                          }
-                                        }
-                                      }
-                                    }
-                                  ]
-                                }
-                              },
-                              {
-                                "cmp": {
-                                  "op": "OpLe",
-                                  "lhs": {
-                                    "spellTimeToReady": {
-                                      "spellId": {
-                                        "spellId": 14305
-                                      }
-                                    }
-                                  },
-                                  "rhs": {
-                                    "math": {
-                                      "op": "OpAdd",
-                                      "lhs": {
-                                        "gcdTimeToReady": {}
-                                      },
-                                      "rhs": {
-                                        "const": {
-                                          "val": "1s"
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  ]
                 }
               },
               {
@@ -964,18 +614,8 @@
                 "cmp": {
                   "op": "OpLe",
                   "lhs": {
-                    "math": {
-                      "op": "OpSub",
-                      "lhs": {
-                        "autoSwingTime": {
-                          "autoType": "MainHand"
-                        }
-                      },
-                      "rhs": {
-                        "autoTimeToNext": {
-                          "autoType": "MainHand"
-                        }
-                      }
+                    "autoTimeSinceLast": {
+                      "autoType": "MainHand"
                     }
                   },
                   "rhs": {
@@ -983,259 +623,6 @@
                       "val": "2s"
                     }
                   }
-                }
-              },
-              {
-                "or": {
-                  "vals": [
-                    {
-                      "or": {
-                        "vals": [
-                          {
-                            "cmp": {
-                              "op": "OpGt",
-                              "lhs": {
-                                "spellTimeToReady": {
-                                  "spellId": {
-                                    "spellId": 1317257
-                                  }
-                                }
-                              },
-                              "rhs": {
-                                "math": {
-                                  "op": "OpSub",
-                                  "lhs": {
-                                    "const": {
-                                      "val": "8s"
-                                    }
-                                  },
-                                  "rhs": {
-                                    "math": {
-                                      "op": "OpAdd",
-                                      "lhs": {
-                                        "math": {
-                                          "op": "OpSub",
-                                          "lhs": {
-                                            "autoSwingTime": {
-                                              "autoType": "MainHand"
-                                            }
-                                          },
-                                          "rhs": {
-                                            "autoTimeToNext": {
-                                              "autoType": "MainHand"
-                                            }
-                                          }
-                                        }
-                                      },
-                                      "rhs": {
-                                        "const": {
-                                          "val": "0.5s"
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          },
-                          {
-                            "cmp": {
-                              "op": "OpGt",
-                              "lhs": {
-                                "spellTimeToReady": {
-                                  "spellId": {
-                                    "spellId": 14271,
-                                    "rank": 4
-                                  }
-                                }
-                              },
-                              "rhs": {
-                                "math": {
-                                  "op": "OpSub",
-                                  "lhs": {
-                                    "const": {
-                                      "val": "5s"
-                                    }
-                                  },
-                                  "rhs": {
-                                    "math": {
-                                      "op": "OpAdd",
-                                      "lhs": {
-                                        "math": {
-                                          "op": "OpSub",
-                                          "lhs": {
-                                            "autoSwingTime": {
-                                              "autoType": "MainHand"
-                                            }
-                                          },
-                                          "rhs": {
-                                            "autoTimeToNext": {
-                                              "autoType": "MainHand"
-                                            }
-                                          }
-                                        }
-                                      },
-                                      "rhs": {
-                                        "const": {
-                                          "val": "0.5s"
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          },
-                          {
-                            "cmp": {
-                              "op": "OpGt",
-                              "lhs": {
-                                "spellTimeToReady": {
-                                  "spellId": {
-                                    "spellId": 14305
-                                  }
-                                }
-                              },
-                              "rhs": {
-                                "math": {
-                                  "op": "OpSub",
-                                  "lhs": {
-                                    "const": {
-                                      "val": "18s"
-                                    }
-                                  },
-                                  "rhs": {
-                                    "math": {
-                                      "op": "OpAdd",
-                                      "lhs": {
-                                        "math": {
-                                          "op": "OpSub",
-                                          "lhs": {
-                                            "autoSwingTime": {
-                                              "autoType": "MainHand"
-                                            }
-                                          },
-                                          "rhs": {
-                                            "autoTimeToNext": {
-                                              "autoType": "MainHand"
-                                            }
-                                          }
-                                        }
-                                      },
-                                      "rhs": {
-                                        "const": {
-                                          "val": "0.5s"
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "not": {
-                        "val": {
-                          "or": {
-                            "vals": [
-                              {
-                                "cmp": {
-                                  "op": "OpLe",
-                                  "lhs": {
-                                    "spellTimeToReady": {
-                                      "spellId": {
-                                        "spellId": 1317257
-                                      }
-                                    }
-                                  },
-                                  "rhs": {
-                                    "math": {
-                                      "op": "OpAdd",
-                                      "lhs": {
-                                        "gcdTimeToReady": {}
-                                      },
-                                      "rhs": {
-                                        "const": {
-                                          "val": "1s"
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                              },
-                              {
-                                "and": {
-                                  "vals": [
-                                    {
-                                      "auraIsActive": {
-                                        "auraId": {
-                                          "spellId": 1310726
-                                        }
-                                      }
-                                    },
-                                    {
-                                      "cmp": {
-                                        "op": "OpLe",
-                                        "lhs": {
-                                          "spellTimeToReady": {
-                                            "spellId": {
-                                              "spellId": 14271,
-                                              "rank": 4
-                                            }
-                                          }
-                                        },
-                                        "rhs": {
-                                          "math": {
-                                            "op": "OpAdd",
-                                            "lhs": {
-                                              "gcdTimeToReady": {}
-                                            },
-                                            "rhs": {
-                                              "const": {
-                                                "val": "1s"
-                                              }
-                                            }
-                                          }
-                                        }
-                                      }
-                                    }
-                                  ]
-                                }
-                              },
-                              {
-                                "cmp": {
-                                  "op": "OpLe",
-                                  "lhs": {
-                                    "spellTimeToReady": {
-                                      "spellId": {
-                                        "spellId": 14305
-                                      }
-                                    }
-                                  },
-                                  "rhs": {
-                                    "math": {
-                                      "op": "OpAdd",
-                                      "lhs": {
-                                        "gcdTimeToReady": {}
-                                      },
-                                      "rhs": {
-                                        "const": {
-                                          "val": "1s"
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  ]
                 }
               },
               {
@@ -1290,7 +677,7 @@
         }
       },
       "simple": {
-        "text": "**Move out** to {Ranged spot} yd after your MH swing lands and you have used one strike, or once no strike will be ready within a second of your global cooldown coming back, unless an OH swing lands within half a second.",
+        "text": "**Move out** to {Ranged spot} yd as soon as your MH swing lands, unless an OH swing lands within half a second.",
         "shown": true,
         "boxes": [
           {

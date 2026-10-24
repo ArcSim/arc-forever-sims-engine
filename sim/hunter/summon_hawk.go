@@ -5,21 +5,25 @@ import (
 
 	"github.com/wowsims/classic/sim/core"
 	"github.com/wowsims/classic/sim/core/proto"
+	"github.com/wowsims/classic/sim/core/stats"
 )
 
-// Level 30 hawk logs (150 hawk attacks): a hawk follows the hunter's ranged attack speed (2.27 s
-// with a 13% quiver, 2.23 s with a 15% one; 40% faster under Rapid Fire, 30% under Quick Shots, unchanged
-// under the melee proc Quick Strikes); its attacks resolve like a pet's white melee (glancing, dodged, missed) and
-// crit about 1% of the time for double damage; each attack is 15-18 raw at level 30 and gains about 0.5% of ranged AP.
+// Level 30 hawk logs: a hawk follows the hunter's ranged attack speed (2.27 s with a 13% quiver, 2.23 s with a 15% one;
+// 40% faster under Rapid Fire, 30% under Quick Shots, unchanged under the melee proc Quick Strikes); its attacks resolve
+// like a pet's white melee (glancing, dodged, missed) and crit for double damage. Its own attack power is 80% of the
+// hunter's ranged attack power (1,245 logged swings: 264 of 264 beside an owner swing at 0.800; the owner's logged value
+// moves 50 with Aspect of the Hawk, so it is ranged), and its crit half the hunter's plus Ferocity (an owner's pet critting
+// 22.2% and hawk 16.2% solve to 12% owner crit and 10% Ferocity).
 const (
 	// before ranged haste (quiver, Rapid Fire, Quick Shots)
 	hawkSwingSpeed = 2570 * time.Millisecond
-	hawkCritChance = 0.01
-	// level 60: the level 30 hawk's ~14.7 base scaled by ExpectedStat CreatureAutoAttackDps (24.69 at 30, 60.45 at
-	// 60). Forever's creatures follow that table: a level 30 tiger in the logs had its level 30 armor (1212), and the
-	// level 63 boss its 3731. Assumes the hawk is the hunter's level.
-	hawkSwingBaseDamage = 36.0
-	hawkSwingAPShare    = 0.005
+	// a swing before Unleashed Fury: 0.0815 of the creature dps over 2.5 s with Unleashed Fury 5/5 at 20% taken out, a
+	// third either side, plus 2.5 / 134.4 a point of the hawk's attack power (a fit of 2,862 level 30 swings at 407 to
+	// 1,023 ranged attack power; our logs read 0.017-0.022 a point at levels 22-34). Assumes the hawk is the hunter's level.
+	hawkSwingBaseDamage = 0.0815 * petCreatureDps * 2.5 / 1.2
+	hawkSwingPerHawkAP  = 2.5 / 134.4
+	hawkAPShare         = 0.8
+	hawkOwnerCritShare  = 0.5
 )
 
 func (hunter *Hunter) hawkSwingInterval() time.Duration {
@@ -27,9 +31,15 @@ func (hunter *Hunter) hawkSwingInterval() time.Duration {
 	return time.Duration(float64(speed) / hunter.PseudoStats.RangedSpeedMultiplier)
 }
 
-// one hawk attack before armor and outcome; roll in [0, 1) spreads it 91-109%
+// one hawk attack before Unleashed Fury, armor and outcome; roll in [0, 1) spreads the base a third either side
 func hawkSwingBase(roll, rangedAP float64) float64 {
-	return hawkSwingBaseDamage*(0.91+0.18*roll) + hawkSwingAPShare*rangedAP
+	return hawkSwingBaseDamage*(2.0/3+roll*2.0/3) + hawkSwingPerHawkAP*hawkAPShare*rangedAP
+}
+
+// half the hunter's crit (the higher of melee and ranged: only a main-hand stone sets them apart) plus Ferocity
+func (hunter *Hunter) hawkCritChance() float64 {
+	owner := (hunter.GetStat(stats.MeleeCrit) + max(hunter.MainHandCritBonus, 0)) / core.CritRatingPerCritChance / 100
+	return hawkOwnerCritShare*owner + 0.02*float64(hunter.Talents.Ferocity)
 }
 
 // the dive: rank damage + 5% of ranged AP; Unleashed Fury adds a flat 3 per point to it (Forever data, a flat
@@ -56,9 +66,6 @@ func (hunter *Hunter) registerSummonHawkSpell(sharedTimer *core.Timer) {
 		baseDamage, manaCost = 47, 105
 	}
 
-	// Ferocity: +2% crit per point for pets and hawks
-	hawkCrit := hawkCritChance + 0.02*float64(hunter.Talents.Ferocity)
-
 	var swingTarget *core.Unit
 	expireAt := []time.Duration{0, 0}
 	alive := []bool{false, false}
@@ -76,6 +83,7 @@ func (hunter *Hunter) registerSummonHawkSpell(sharedTimer *core.Timer) {
 		}
 		dodge := 0.05 + diff*0.001
 		glance := 0.1 + diff*0.02
+		hawkCrit := hunter.hawkCritChance()
 		roll := sim.RandomFloat("Hawk Hit Table")
 		switch {
 		case roll < miss:
@@ -111,7 +119,8 @@ func (hunter *Hunter) registerSummonHawkSpell(sharedTimer *core.Timer) {
 		Flags:    core.SpellFlagMeleeMetrics | core.SpellFlagPassiveSpell | core.SpellFlagIgnoreAttackerModifiers,
 		CastType: proto.CastType_CastTypeMainHand,
 
-		DamageMultiplier: 1,
+		// Unleashed Fury: pets and hawks
+		DamageMultiplier: 1 + 0.03*float64(hunter.Talents.UnleashedFury),
 		ThreatMultiplier: 1,
 
 		ApplyEffects: func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {

@@ -2,6 +2,7 @@ package hunter
 
 import (
 	"testing"
+	"time"
 
 	"github.com/wowsims/classic/sim/core"
 	"github.com/wowsims/classic/sim/core/proto"
@@ -60,5 +61,29 @@ func TestExposePreyNeedsHuntersMark(t *testing.T) {
 	}
 	if with < 3 {
 		t.Errorf("%.2f Mongoose Bites a fight with Hunter's Mark up, want Expose Prey to open some", with)
+	}
+}
+
+// Any Mongoose Bite spends Expose Prey, one that misses too (the beta logs: missed, dodged and parried bites ended it).
+func TestMissedBiteSpendsExposePrey(t *testing.T) {
+	sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, distance: 3})
+	sim.PrePull()
+	for guard := 0; sim.CurrentTime < time.Second && guard < 100000; guard++ {
+		sim.Step()
+	}
+	// the target dodges everything: every bite misses
+	for _, table := range hunter.AttackTables[hunter.CurrentTarget.UnitIndex] {
+		table.BaseDodgeChance = 1
+	}
+	hunter.ExposePrey.Activate(sim)
+	hunter.SetGCDTimer(sim, sim.CurrentTime)
+	if !hunter.MongooseBite.Cast(sim, hunter.CurrentTarget) {
+		t.Fatal("Mongoose Bite did not cast with Expose Prey up")
+	}
+	if hunter.MongooseBite.SpellMetrics[hunter.CurrentTarget.UnitIndex].Dodges != 1 {
+		t.Fatalf("test setup: the bite was not dodged")
+	}
+	if hunter.ExposePrey.IsActive() {
+		t.Error("Expose Prey is still up after a missed Mongoose Bite")
 	}
 }

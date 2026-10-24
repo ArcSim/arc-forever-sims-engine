@@ -4,6 +4,7 @@ import (
 	"math"
 	"os"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -45,6 +46,8 @@ type patchTestSetup struct {
 	engineer    bool                     // Engineering as a profession
 	msSkipsAuto bool                     // the Mortal Shots skips Auto Shot option
 	meleeResets bool                     // the beta bug: melee swings reset Auto Shot
+	shotsDelay  bool                     // the beta bug: a shot in an Auto Shot cycle pushes it back
+	quiver      proto.Hunter_Options_QuiverBonus
 }
 
 func newPatchTestHunter(t *testing.T, setup patchTestSetup) (*core.Simulation, *Hunter) {
@@ -121,6 +124,8 @@ func newPatchTestHunter(t *testing.T, setup patchTestSetup) (*core.Simulation, *
 			SkyborneConvergence:      setup.skyborne,
 			MortalShotsSkipsAutoShot: setup.msSkipsAuto,
 			MeleeResetsAutoShot:      setup.meleeResets,
+			ShotsDelayAutoShot:       setup.shotsDelay,
+			QuiverBonus:              setup.quiver,
 		}}},
 	}
 	if setup.engineer {
@@ -617,7 +622,7 @@ func TestExplosiveTrapAttackPower(t *testing.T) {
 		player := core.WithSpec(&proto.Player{
 			Race:               proto.Race_RaceHuman,
 			Class:              proto.Class_ClassHunter,
-			Equipment:          core.GetGearSet("../../ui/hunter/gear_sets", "2h_weave").GearSet,
+			Equipment:          core.GetGearSet("../../ui/hunter/gear_sets", "2h_light_weave").GearSet,
 			TalentsString:      patchTestTalents,
 			BonusStats:         &proto.UnitStats{Stats: bonus},
 			Rotation:           rotation,
@@ -920,28 +925,50 @@ func TestRaptorStrikeQueuesFromRange(t *testing.T) {
 	}
 }
 
-// A melee hit restarts the Auto Shot timer from that moment: the next Auto Shot is one full cycle after it (confirmed in
-// game with the swing timer events). Raptor Strike goes through the normal spell path; white swings restart it in the
-// core swing loop (attack.go), which a test cannot drive directly.
+// A melee swing restarts the Auto Shot timer from that moment when the beta bug is on: the next Auto Shot is one full
+// cycle after it (confirmed in game with the swing timer events), a queued Raptor Strike taking the swing as well. One
+// restart, from the swing (at 3 yd no Auto Shot fires, so the timer only moves by the restart).
 func TestMeleeSwingRestartsAutoShot(t *testing.T) {
-	sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, distance: 3, meleeResets: true})
-	want := sim.CurrentTime + hunter.AutoAttacks.RangedSwingSpeed()
-	// a miss or dodge does not count: strike until one lands
-	for i := 0; i < 50 && hunter.AutoAttacks.NextRangedAttackAt() != want; i++ {
-		hunter.RaptorStrikeHit.Cast(sim, hunter.CurrentTarget)
+	raptorSwing := func(meleeResets bool) (before, hitAt, after time.Duration) {
+		sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, distance: 3, meleeResets: meleeResets})
+		sim.PrePull()
+		for guard := 0; sim.CurrentTime < time.Second && guard < 100000; guard++ {
+			sim.Step()
+		}
+		before = hunter.AutoAttacks.NextRangedAttackAt()
+		if !hunter.RaptorStrike.Cast(sim, hunter.CurrentTarget) {
+			t.Fatal("Raptor Strike did not queue")
+		}
+		casts := func() int32 { return hunter.RaptorStrikeHit.SpellMetrics[hunter.CurrentTarget.UnitIndex].Casts }
+		for guard := 0; casts() == 0 && guard < 100000; guard++ {
+			sim.Step()
+		}
+		return before, sim.CurrentTime, hunter.AutoAttacks.NextRangedAttackAt()
 	}
-	if got := hunter.AutoAttacks.NextRangedAttackAt(); got != want {
-		t.Errorf("after a Raptor Strike hit the next Auto Shot is at %v, want %v (one cycle after the hit)", got, want)
+	_, hitAt, after := raptorSwing(true)
+	_, h := newPatchTestHunter(t, patchTestSetup{gear: true, distance: 3, meleeResets: true})
+	if want := hitAt + h.AutoAttacks.RangedSwingSpeed(); after != want {
+		t.Errorf("bug on: after the Raptor Strike swing at %v the next Auto Shot is at %v, want %v (one cycle after it)", hitAt, after, want)
+	}
+	// a white swing restarts it once too, from the swing (it used to restart again as the hit landed)
+	sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, distance: 3, meleeResets: true})
+	sim.PrePull()
+	white := func() int32 { return hunter.AutoAttacks.MHAuto().SpellMetrics[hunter.CurrentTarget.UnitIndex].Casts }
+	for guard := 0; white() == 0 && guard < 100000; guard++ {
+		sim.Step()
+	}
+	swingAt := sim.CurrentTime
+	for guard := 0; sim.CurrentTime < swingAt+50*time.Millisecond && guard < 100000; guard++ {
+		sim.Step()
+	}
+	if got, want := hunter.AutoAttacks.NextRangedAttackAt(), swingAt+hunter.AutoAttacks.RangedSwingSpeed(); got != want {
+		t.Errorf("bug on: after the white swing at %v the next Auto Shot is at %v, want %v (one cycle after the swing)", swingAt, got, want)
 	}
 
-	// by default (the bug fixed, forever-bugs #14) a landed strike leaves the Auto Shot timer where it was
-	sim, hunter = newPatchTestHunter(t, patchTestSetup{gear: true, distance: 3})
-	before := hunter.AutoAttacks.NextRangedAttackAt()
-	for i := 0; i < 50; i++ {
-		hunter.RaptorStrikeHit.Cast(sim, hunter.CurrentTarget)
-	}
-	if got := hunter.AutoAttacks.NextRangedAttackAt(); got != before {
-		t.Errorf("bug off: Raptor Strike hits moved the next Auto Shot from %v to %v", before, got)
+	// by default (the bug fixed, forever-bugs #14) the swing leaves the Auto Shot timer where it was
+	before, _, after := raptorSwing(false)
+	if after != before {
+		t.Errorf("bug off: the Raptor Strike swing moved the next Auto Shot from %v to %v", before, after)
 	}
 }
 
@@ -973,8 +1000,18 @@ func TestAutoShotSpamBugCutsTheCycle(t *testing.T) {
 	}
 }
 
-// Stepping into melee turns the melee attack on as the walk starts: the main hand swings as soon as it is ready, the
-// off hand only half its swing time after the walk began (or once in range when the walk took longer).
+// swingRetry: the first half-second swing retry from origin that the server sees you in range for (seen).
+func swingRetry(origin, seen time.Duration) time.Duration {
+	const beat = 500 * time.Millisecond
+	if seen <= origin {
+		return origin
+	}
+	return origin + (seen-origin+beat-1)/beat*beat
+}
+
+// Stepping into melee turns the melee attack on as the walk starts: the main hand, ready long ago, swings on the first
+// retry after the server sees you at 5 yd, the off hand half its swing time after the walk began (or on the first
+// retry after that once in range).
 func TestOffHandWaitsHalfItsSwingOnStepIn(t *testing.T) {
 	sim, hunter := newPatchTestHunter(t, patchTestSetup{gearSet: "surv_dw", distance: 9})
 	if !hunter.AutoAttacks.IsDualWielding {
@@ -987,15 +1024,15 @@ func TestOffHandWaitsHalfItsSwingOnStepIn(t *testing.T) {
 	walkStart := sim.CurrentTime
 	hunter.MoveTo(3, sim)
 	walkUntilMeleeRange(sim, hunter)
-	attackOn := sim.CurrentTime + 50*time.Millisecond
-	if got, want := hunter.AutoAttacks.OffhandSwingAt(), max(attackOn, walkStart+hunter.AutoAttacks.OffhandSwingSpeed()/2); got != want {
-		t.Errorf("off hand swings at %v, want %v (walk start + half its swing time)", got, want)
+	seen := sim.CurrentTime + 50*time.Millisecond
+	if got, want := hunter.AutoAttacks.OffhandSwingAt(), swingRetry(walkStart+hunter.AutoAttacks.OffhandSwingSpeed()/2, seen); got != want {
+		t.Errorf("off hand swings at %v, want %v (walk start + half its swing time, or the retry after)", got, want)
 	}
-	if got := hunter.AutoAttacks.MainhandSwingAt(); got > attackOn {
-		t.Errorf("main hand swings at %v, want by %v (ready, no wait)", got, attackOn)
+	if got, want := hunter.AutoAttacks.MainhandSwingAt(), swingRetry(walkStart, seen); got != want {
+		t.Errorf("main hand swings at %v, want %v (the retry after reaching 5 yd)", got, want)
 	}
 
-	// out and straight back in without a shot: the attack stayed on, so a ready off hand swings once in range
+	// out and straight back in without a shot: the attack stayed on, so a ready off hand retries from its timer's end
 	for i := 0; i < 100000 && hunter.MovementHandler.Moving; i++ {
 		sim.Step()
 	}
@@ -1007,32 +1044,38 @@ func TestOffHandWaitsHalfItsSwingOnStepIn(t *testing.T) {
 	for i := 0; i < 100000 && hunter.MovementHandler.Moving; i++ {
 		sim.Step()
 	}
-	hunter.AutoAttacks.SetOffhandSwingAt(sim.CurrentTime)
+	ohReady := sim.CurrentTime
+	hunter.AutoAttacks.SetOffhandSwingAt(ohReady)
 	hunter.MoveTo(3, sim)
 	walkUntilMeleeRange(sim, hunter)
-	if got, want := hunter.AutoAttacks.OffhandSwingAt(), sim.CurrentTime+50*time.Millisecond; got != want {
-		t.Errorf("no shot between: off hand swings at %v, want %v (once in range, no wait)", got, want)
+	if got, want := hunter.AutoAttacks.OffhandSwingAt(), swingRetry(ohReady, sim.CurrentTime+50*time.Millisecond); got != want {
+		t.Errorf("no shot between: off hand swings at %v, want %v (the retry from its timer's end)", got, want)
 	}
 }
 
-// A walk into melee swings the moment it reaches 5 yd, before it ends at 3 yd.
+// A walk into melee swings from 5 yd on, mid-walk when the retry comes before the walk ends: the main hand, ready long
+// ago, swings on the first retry after the server sees it at 5 yd, counted from the walk's start.
 func TestMeleeSwingsStartAtFiveYards(t *testing.T) {
 	sim, hunter := newPatchTestHunter(t, patchTestSetup{gearSet: "surv_dw", distance: 9})
 	sim.PrePull()
 	for i := 0; i < 100000 && sim.CurrentTime < 5*time.Second; i++ {
 		sim.Step()
 	}
-	hunter.MoveTo(3, sim)
+	walkStart := sim.CurrentTime
+	hunter.MoveTo(1, sim)
 	walkUntilMeleeRange(sim, hunter)
 	if !hunter.MovementHandler.Moving {
 		t.Fatal("the walk ended at 5 yd")
 	}
 	swing := hunter.AutoAttacks.MainhandSwingAt()
+	if want := swingRetry(walkStart, sim.CurrentTime+50*time.Millisecond); swing != want {
+		t.Errorf("main hand swings at %v, want the retry at %v", swing, want)
+	}
 	for i := 0; i < 100000 && hunter.MovementHandler.Moving; i++ {
 		sim.Step()
 	}
 	if arrival := sim.CurrentTime; swing >= arrival {
-		t.Errorf("main hand swing at %v, want before the walk ends at %v", swing, arrival)
+		t.Fatalf("test setup: the retry at %v comes after the walk ends at %v", swing, arrival)
 	}
 	if got, want := hunter.AutoAttacks.MainhandSwingAt(), swing+hunter.AutoAttacks.MainhandSwingSpeed(); got != want {
 		t.Errorf("next main hand swing at %v, want %v (one swing mid-walk at %v)", got, want, swing)
@@ -1342,6 +1385,14 @@ func TestForeverSetBonuses(t *testing.T) {
 	if got := bonus(cadaver5, feet, stats.MeleeHit) / core.MeleeHitRatingPerHitChance; math.Abs(got-2) > 1e-6 {
 		t.Errorf("Cadaverous Garb 5 pieces: +%.2f%% hit, want 2", got)
 	}
+	// Devilsaur Armor 2 pieces (spell 460230): +2% hit and +2% spell hit
+	devil2 := map[proto.ItemSlot]int32{legs: 15062, hands: 15063}
+	if got := bonus(devil2, hands, stats.MeleeHit) / core.MeleeHitRatingPerHitChance; math.Abs(got-2) > 1e-6 {
+		t.Errorf("Devilsaur Armor 2 pieces: +%.2f%% hit, want 2", got)
+	}
+	if got := bonus(devil2, hands, stats.SpellHit) / core.SpellHitRatingPerHitChance; math.Abs(got-2) > 1e-6 {
+		t.Errorf("Devilsaur Armor 2 pieces: +%.2f%% spell hit, want 2", got)
+	}
 }
 
 // Forever explosives: Crystal Charge (instant) and the EZ-Thro line need no profession, Dark Iron Bomb needs Engineering;
@@ -1385,7 +1436,7 @@ func TestSwingTimerLogs(t *testing.T) {
 	player := core.WithSpec(&proto.Player{
 		Race:               proto.Race_RaceHuman,
 		Class:              proto.Class_ClassHunter,
-		Equipment:          core.GetGearSet("../../ui/hunter/gear_sets", "2h_weave").GearSet,
+		Equipment:          core.GetGearSet("../../ui/hunter/gear_sets", "2h_light_weave").GearSet,
 		TalentsString:      patchTestTalents,
 		Consumes:           abConsumes,
 		Buffs:              abIndividualBuffs,
@@ -1638,9 +1689,9 @@ func TestPrepullTrueshotAndMark(t *testing.T) {
 	}
 }
 
-// Expose Prey is its own buff, and every one ends one way: a landed Mongoose Bite uses it, or it runs out unused (one
+// Expose Prey is its own buff, and every one ends one way: a Mongoose Bite uses it (one that misses too), or it runs out unused (one
 // still up when the fight ends counts as neither), and a proc while it is up refreshes it. The markers count each: used
-// matches the landed Mongoose Bites, and used + expired is every proc but at most one a fight.
+// matches the Mongoose Bites, and used + expired is every proc but at most one a fight.
 func TestExposePreyMarkers(t *testing.T) {
 	const iterations = 50
 	player := core.WithSpec(&proto.Player{
@@ -1673,7 +1724,7 @@ func TestExposePreyMarkers(t *testing.T) {
 	for _, a := range um.Actions {
 		if a.Id.GetSpellId() == 14271 {
 			for _, tm := range a.Targets {
-				landed += tm.Casts - tm.Misses - tm.Dodges - tm.Parries
+				landed += tm.Casts // a bite that misses spends it too
 			}
 		}
 	}
@@ -1682,7 +1733,7 @@ func TestExposePreyMarkers(t *testing.T) {
 	}
 	t.Logf("Expose Prey a fight: %.2f procs, %.2f used, %.2f expired unused, %.2f refreshed", gained, used, expired, refreshed)
 	if diff := used*iterations - float64(landed); diff > 0.01 || diff < -0.01 {
-		t.Errorf("used %.2f a fight, landed Mongoose Bites %.2f a fight; want equal", used, float64(landed)/iterations)
+		t.Errorf("used %.2f a fight, Mongoose Bites %.2f a fight; want equal", used, float64(landed)/iterations)
 	}
 	if left := gained - used - expired; left < -0.001 || left > 1.001 {
 		t.Errorf("procs %.2f, used %.2f, expired %.2f, refreshed %.2f a fight: %.2f unaccounted, want 0 to 1 (still up at the end)", gained, used, expired, refreshed, left)
@@ -1690,8 +1741,8 @@ func TestExposePreyMarkers(t *testing.T) {
 }
 
 // The shipped weaves are tuned for melee swings leaving the Auto Shot timer alone (the beta's reset is off by default):
-// the hard weave stays for a swing landing up to 0.6 s after it would have to head back, and the light weave steps in to
-// the 5 yd melee edge. Each beats its earlier reset-era setting (leave a quarter second early, step in to 3 yd).
+// the hard weave stays for a swing landing up to 0.6 s after it would have to head back (it beats leaving a quarter
+// second early, the reset-era setting), and Arc Tight Weave reads the MH swing timer.
 func TestWeavesTunedWithoutTheMeleeReset(t *testing.T) {
 	dps := func(apl []byte, gear string) float64 {
 		rot := &proto.APLRotation{}
@@ -1745,17 +1796,31 @@ func TestWeavesTunedWithoutTheMeleeReset(t *testing.T) {
 	}
 
 	light := read("arc_light_weave_2h_upd3.apl.json")
-	spot := regexp.MustCompile(`("move": \{\s*"rangeFromTarget": \{\s*"const": \{\s*"val": )"5"`)
-	if len(spot.FindAll(light, -1)) != 1 {
-		t.Fatalf("no single 5 yd melee spot in the shipped light weave")
+	one := func(what string) {
+		if n := strings.Count(string(light), what); n != 1 {
+			t.Fatalf("%s %d times in the shipped Tight Weave, want once", what, n)
+		}
 	}
-	// dual wield gains less from the edge since Windfury Totem swings miss and glance as white swings (shipped: 2H +12,
-	// DW +3), so it only must not lose
-	for gear, gain := range map[string]float64{"2h_light_weave": 4, "surv_dw": 0} {
-		edge, deep := dps(light, gear), dps(spot.ReplaceAll(light, []byte(`${1}"3"`)), gear)
-		t.Logf("light weave, %s: %.1f DPS stepping in to 5 yd, %.1f to 3 yd", gear, edge, deep)
-		if edge < deep+gain {
-			t.Errorf("light weave, %s: %.1f DPS at the 5 yd edge, %.1f at 3 yd; want at least %.0f more", gear, edge, deep, gain)
+	const entry, spot, ohHold = `"val": "1.5s"`, `"val": "4"`, `"val": "0.5s"`
+	one(entry)
+	one(spot)
+	swap := func(from, to string) []byte { return []byte(strings.ReplaceAll(string(light), from, to)) }
+	// with the swing retry and the rotation looked at through the GCD (shipped: 2H in at 1.5 s vs every shot +5, vs 1 s
+	// +80; DW off-hand hold +45, 4 yd vs 3 yd +9)
+	for _, c := range []struct {
+		gear, what string
+		other      []byte
+		gain       float64
+	}{
+		{"2h_weave", "in after every Auto Shot", swap(entry, `"val": "9s"`), 0},
+		{"2h_weave", "in at 1 s left on the MH timer", swap(entry, `"val": "1s"`), 30},
+		{"surv_dw", "no off-hand hold", swap(ohHold, `"val": "0s"`), 20},
+		{"surv_dw", "a 3 yd melee spot", swap(spot, `"val": "3"`), 3},
+	} {
+		shipped, other := dps(light, c.gear), dps(c.other, c.gear)
+		t.Logf("Tight Weave, %s: %.1f DPS shipped, %.1f with %s", c.gear, shipped, other, c.what)
+		if shipped < other+c.gain {
+			t.Errorf("Tight Weave, %s: %.1f DPS shipped, %.1f with %s; want at least %.0f more", c.gear, shipped, other, c.what, c.gain)
 		}
 	}
 }
@@ -1818,8 +1883,8 @@ func TestWalkOutDecidedOnTheWayIn(t *testing.T) {
 	}
 }
 
-// The end of a walk is a decision point: walking in to 3 yd during a busy GCD, the swing lands at 5 yd while the walk
-// goes on (no new move then), so the walk back has to start on arrival. Without the recheck it waited for the GCD.
+// The end of a walk is a decision point: walking in from 11 to 3 yd during a busy GCD, the swing retry lands while the
+// walk goes on (no new move then), so the walk back has to start on arrival. Without the recheck it waited for the GCD.
 func TestMoveAfterArrivalDuringGcd(t *testing.T) {
 	const aplJSON = `{"type":"TypeAPL","priorityList":[` +
 		`{"action":{"condition":{"cmp":{"op":"OpGe","lhs":{"distanceToTarget":{}},"rhs":{"const":{"val":"11"}}}},"castSpell":{"spellId":{"spellId":14287,"rank":8}}}},` +
@@ -1837,7 +1902,7 @@ func TestMoveAfterArrivalDuringGcd(t *testing.T) {
 		Consumes:           abConsumes,
 		Buffs:              abIndividualBuffs,
 		Rotation:           rot,
-		DistanceFromTarget: 12,
+		DistanceFromTarget: 11,
 	}, abOptions)
 	res := core.RunRaidSim(&proto.RaidSimRequest{
 		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, abRaidBuffs, abDebuffs),
@@ -1920,9 +1985,9 @@ func TestWholeYardMoveSpots(t *testing.T) {
 	}
 }
 
-// Only a swing that landed during the walk makes the arrival a decision point: a walk to 6 yd (no swing) during a busy
-// GCD waits for the GCD before walking back, as rotations written for the old decision points expect (one that steps
-// out when the next swing is more than half a second away would otherwise leave on arrival, before its swing).
+// A walk to 6 yd (no swing on the way) that ends during a busy GCD walks back within one 50 ms look of arriving: moves
+// are looked at through the GCD (ForeverMovePoll). Rotations read "swung this trip" from the swing itself
+// (TestTimeSinceLastSwing), so a look on arrival no longer sends them out before their swing.
 func TestNoArrivalRecheckWithoutSwing(t *testing.T) {
 	const aplJSON = `{"type":"TypeAPL","priorityList":[` +
 		`{"action":{"condition":{"cmp":{"op":"OpGe","lhs":{"distanceToTarget":{}},"rhs":{"const":{"val":"11"}}}},"castSpell":{"spellId":{"spellId":14287,"rank":8}}}},` +
@@ -1974,8 +2039,8 @@ func TestNoArrivalRecheckWithoutSwing(t *testing.T) {
 	if arrived >= shot+1.4 {
 		t.Fatalf("arrived %.2f s after the shot, not inside its GCD; the walk is too long for this check", arrived-shot)
 	}
-	if out < shot+1.45 {
-		t.Errorf("walked back at %.2f s, before the GCD ended at %.2f s (arrived %.2f s, no swing on the way)", out, shot+1.5, arrived)
+	if out > arrived+0.051 {
+		t.Errorf("walked back at %.2f s, %.2f s after arriving at %.2f s; want within one 50 ms look (the GCD ends at %.2f s)", out, out-arrived, arrived, shot+1.5)
 	}
 }
 
@@ -2145,5 +2210,464 @@ func TestRangedAttackUnqueuesRaptorStrike(t *testing.T) {
 	hunter.AutoAttacks.RangedAuto().Cast(sim, hunter.CurrentTarget)
 	if queued(hunter) {
 		t.Error("Raptor Strike is still queued after an Auto Shot")
+	}
+}
+
+// A walk into melee with the main hand ready swings on the first half-second retry after the server sees you there,
+// counted from the later of the timer running out and the walk turning the attack on (an Auto Shot turned it off);
+// in range before the timer runs out, it swings as it runs out, and a walk out leaves the timer alone (probe walk-ins
+// and the beta combat logs).
+func TestSwingRetryOnArrival(t *testing.T) {
+	const beat = 500 * time.Millisecond
+	walk := func(sim *core.Simulation, hunter *Hunter, to float64) (started, arrived time.Duration) {
+		hunter.MoveTo(to, sim)
+		for guard := 0; !hunter.IsMoving() && guard < 100000; guard++ {
+			sim.Step()
+		}
+		started = sim.CurrentTime
+		for guard := 0; hunter.IsMoving() && guard < 100000; guard++ {
+			sim.Step()
+		}
+		return started, sim.CurrentTime
+	}
+
+	// timer long run out, attack turned on by the walk: the retries count from the walk's start
+	sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, distance: 12})
+	sim.PrePull()
+	for guard := 0; sim.CurrentTime < time.Second*4 && guard < 100000; guard++ {
+		sim.Step()
+	}
+	started, arrived := walk(sim, hunter, 5)
+	seen := arrived + 50*time.Millisecond
+	want := started + (seen-started+beat-1)/beat*beat
+	if got := hunter.AutoAttacks.MainhandSwingAt(); got != want {
+		t.Errorf("walk in from 12 yd (started %.3f, arrived %.3f): main hand swings at %.3f, want the retry at %.3f",
+			started.Seconds(), arrived.Seconds(), got.Seconds(), want.Seconds())
+	}
+
+	// in range again before the timer runs out (no Auto Shot, the attack stayed on): it swings as the timer runs out
+	sim, hunter = newPatchTestHunter(t, patchTestSetup{gear: true, distance: 5})
+	sim.PrePull()
+	for guard := 0; sim.CurrentTime < time.Second*2 && guard < 100000; guard++ {
+		sim.Step()
+	}
+	end := hunter.AutoAttacks.MainhandSwingAt()
+	walk(sim, hunter, 9)
+	_, back := walk(sim, hunter, 5)
+	if back >= end {
+		t.Fatalf("test setup: back in range at %.3f, after the timer ran out at %.3f", back.Seconds(), end.Seconds())
+	}
+	if got := hunter.AutoAttacks.MainhandSwingAt(); got != end {
+		t.Errorf("back in range at %.3f before the timer ran out at %.3f: main hand swings at %.3f, want %.3f",
+			back.Seconds(), end.Seconds(), got.Seconds(), end.Seconds())
+	}
+
+	// in range just after the timer ran out, attack still on: the next retry from the timer's end
+	sim, hunter = newPatchTestHunter(t, patchTestSetup{gear: true, distance: 5})
+	sim.PrePull()
+	for guard := 0; sim.CurrentTime < time.Second*2 && guard < 100000; guard++ {
+		sim.Step()
+	}
+	end = hunter.AutoAttacks.MainhandSwingAt()
+	walk(sim, hunter, 9)
+	for guard := 0; sim.CurrentTime < end+300*time.Millisecond && guard < 100000; guard++ {
+		sim.Step()
+	}
+	_, back = walk(sim, hunter, 5)
+	seen = back + 50*time.Millisecond
+	want = end + (seen-end+beat-1)/beat*beat
+	if got := hunter.AutoAttacks.MainhandSwingAt(); got != want {
+		t.Errorf("back in range at %.3f after the timer ran out at %.3f: main hand swings at %.3f, want the retry at %.3f",
+			back.Seconds(), end.Seconds(), got.Seconds(), want.Seconds())
+	}
+}
+
+// The "Shots delay Auto Shot" option (forever-bugs #43): a shot cast during an Auto Shot cycle pushes that cycle's
+// Auto Shot back 0.2 s, once a cycle, every cycle; off (the default) it does not.
+func TestShotsDelayAutoShot(t *testing.T) {
+	type dues struct{ base, first, sameCycle, nextBase, next time.Duration }
+	run := func(on bool) (d dues) {
+		sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, distance: 12, shotsDelay: on})
+		sim.PrePull()
+		for guard := 0; sim.CurrentTime < time.Second*2 && guard < 100000; guard++ {
+			sim.Step()
+		}
+		d.base = hunter.AutoAttacks.NextRangedAttackAt()
+		hunter.ArcaneShot.Cast(sim, hunter.CurrentTarget)
+		d.first = hunter.AutoAttacks.NextRangedAttackAt()
+		// a second shot in the same cycle (its GCD cleared for the check) adds nothing
+		hunter.SetGCDTimer(sim, sim.CurrentTime)
+		hunter.SerpentSting.Cast(sim, hunter.CurrentTarget)
+		d.sameCycle = hunter.AutoAttacks.NextRangedAttackAt()
+		// that Auto Shot fires: a shot in the next cycle pushes it back again
+		for guard := 0; sim.CurrentTime <= d.sameCycle && guard < 100000; guard++ {
+			sim.Step()
+		}
+		d.nextBase = hunter.AutoAttacks.NextRangedAttackAt()
+		hunter.SetGCDTimer(sim, sim.CurrentTime)
+		hunter.SerpentSting.Cast(sim, hunter.CurrentTarget)
+		d.next = hunter.AutoAttacks.NextRangedAttackAt()
+		return
+	}
+	on := run(true)
+	if on.first-on.base != shotAutoShotDelay || on.sameCycle != on.first || on.next-on.nextBase != shotAutoShotDelay {
+		t.Errorf("option on: Auto Shot due %.3f, %.3f after an Arcane Shot, %.3f after a second shot that cycle; next cycle %.3f, %.3f after a shot; want +0.2 s once each cycle",
+			on.base.Seconds(), on.first.Seconds(), on.sameCycle.Seconds(), on.nextBase.Seconds(), on.next.Seconds())
+	}
+	off := run(false)
+	if off.first != off.base || off.sameCycle != off.base || off.next != off.nextBase {
+		t.Errorf("option off: Auto Shot due %.3f moved to %.3f / %.3f, next cycle %.3f moved to %.3f", off.base.Seconds(), off.first.Seconds(), off.sameCycle.Seconds(), off.nextBase.Seconds(), off.next.Seconds())
+	}
+}
+
+// Aimed Shot and Multi-Shot casts take all ranged haste, the quiver's included (beta logs: 1.81 s and 0.45 s with an
+// 11% quiver; 0.32 s Multi-Shots with Rapid Fire on top).
+func TestShotCastsTakeRangedHaste(t *testing.T) {
+	for _, c := range []struct {
+		name  string
+		spell func(*Hunter) *core.Spell
+		base  time.Duration
+	}{{"Multi-Shot", func(h *Hunter) *core.Spell { return h.MultiShot }, 500 * time.Millisecond},
+		{"Aimed Shot", func(h *Hunter) *core.Spell { return h.AimedShot }, 2000 * time.Millisecond}} {
+		// a hunter each: the two shots share a cooldown
+		sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, distance: 12, quiver: proto.Hunter_Options_Speed15})
+		if hunter.quiverBonus <= 1 {
+			t.Fatalf("test setup: no quiver bonus (%.2f)", hunter.quiverBonus)
+		}
+		sim.PrePull()
+		for guard := 0; sim.CurrentTime < time.Second && guard < 100000; guard++ {
+			sim.Step()
+		}
+		haste := hunter.PseudoStats.RangedSpeedMultiplier
+		hunter.SetGCDTimer(sim, sim.CurrentTime)
+		if !c.spell(hunter).Cast(sim, hunter.CurrentTarget) {
+			t.Fatalf("%s did not cast", c.name)
+		}
+		want := time.Duration(float64(c.base) / haste)
+		if got := hunter.Hardcast.Expires - sim.CurrentTime; got != want {
+			t.Errorf("%s casts in %.3f s, want %.3f s (%.3f s at %.2fx ranged haste)", c.name, got.Seconds(), want.Seconds(), c.base.Seconds(), haste)
+		}
+	}
+}
+
+// A pre-pull Aimed Shot that ends as the pull's Auto Shot fires completes then: the shot's decision point must not
+// start a Serpent Sting first, whose GCD pushed the completion to 1.5 s.
+func TestPrepullAimedShotCompletesAtPull(t *testing.T) {
+	const aplJSON = `{"type":"TypeAPL","prepullActions":[{"action":{"castSpell":{"spellId":{"spellId":20904}}},"doAtValue":{"const":{"val":"-2s"}}}],` +
+		`"priorityList":[{"action":{"castSpell":{"spellId":{"spellId":25295,"rank":9}}}}]}`
+	rot := &proto.APLRotation{}
+	if err := protojson.Unmarshal([]byte(aplJSON), rot); err != nil {
+		t.Fatalf("rotation: %v", err)
+	}
+	// no quiver: the 2 s cast from -2 s ends exactly as the pull's Auto Shot fires
+	noQuiver := &proto.Player_Hunter{Hunter: googleProto.Clone(abOptions.Hunter).(*proto.Hunter)}
+	noQuiver.Hunter.Options.QuiverBonus = proto.Hunter_Options_QuiverNone
+	player := core.WithSpec(&proto.Player{
+		Race:               proto.Race_RaceHuman,
+		Class:              proto.Class_ClassHunter,
+		Equipment:          core.GetGearSet("../../ui/hunter/gear_sets", "2h_weave").GearSet,
+		TalentsString:      patchTestTalents,
+		Consumes:           abConsumes,
+		Buffs:              abIndividualBuffs,
+		Rotation:           rot,
+		DistanceFromTarget: 12,
+	}, noQuiver)
+	res := core.RunRaidSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, abRaidBuffs, abDebuffs),
+		Encounter:  abEncounter(),
+		SimOptions: &proto.SimOptions{Iterations: 1, RandomSeed: 20261023, DebugFirstIteration: true},
+	})
+	if res.Error != nil {
+		t.Fatalf("sim error: %s", res.Error.Message)
+	}
+	for _, line := range strings.Split(res.Logs, "\n") {
+		if strings.Contains(line, "Completed cast {SpellID: 20904") {
+			at, _ := strconv.ParseFloat(strings.TrimPrefix(strings.SplitN(line, "]", 2)[0], "["), 64)
+			if at > 0.001 {
+				t.Errorf("the pre-pull Aimed Shot completed at %.2f s, want at the pull (0.00)", at)
+			}
+			return
+		}
+	}
+	t.Fatal("no completed Aimed Shot in the log")
+}
+
+// Curse of the Elements lowers each of its five schools' resistance by 75 once (it used to take 75 off all five schools
+// for each school it covers: 375 each).
+func TestCurseOfElementsResistance(t *testing.T) {
+	_, plain := newPatchTestHunter(t, patchTestSetup{gear: true, debuffs: &proto.Debuffs{}})
+	sim, cursed := newPatchTestHunter(t, patchTestSetup{gear: true, debuffs: &proto.Debuffs{CurseOfElements: true}})
+	sim.PrePull()
+	for guard := 0; sim.CurrentTime < time.Second && guard < 100000; guard++ {
+		sim.Step()
+	}
+	for _, s := range []stats.Stat{stats.ArcaneResistance, stats.FireResistance, stats.FrostResistance, stats.NatureResistance, stats.ShadowResistance} {
+		if got := cursed.CurrentTarget.GetStat(s) - plain.CurrentTarget.GetStat(s); math.Abs(got+75) > 1e-9 {
+			t.Errorf("Curse of the Elements changes %v by %.0f, want -75", s, got)
+		}
+	}
+}
+
+// Projectile speeds from the client's SpellMisc: Auto Shot, Arcane Shot, Serpent Sting and Aimed Shot 40 yd/s,
+// Multi-Shot 30.
+func TestShotMissileSpeeds(t *testing.T) {
+	_, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, distance: 12})
+	for _, c := range []struct {
+		spell *core.Spell
+		speed float64
+	}{{hunter.AutoAttacks.RangedAuto(), 40}, {hunter.ArcaneShot, 40}, {hunter.SerpentSting, 40}, {hunter.AimedShot, 40}, {hunter.MultiShot, 30}} {
+		if c.spell.MissileSpeed != c.speed {
+			t.Errorf("%s flies at %.0f yd/s, want %.0f", c.spell.ActionID, c.spell.MissileSpeed, c.speed)
+		}
+	}
+}
+
+// The timeline's wait lines tell the truth: in a weave fight there are swing retry and Auto Shot windup waits, each
+// retry wait ends exactly when the main hand swings (one cut short by a walk out is logged as left), and each windup runs
+// the full 0.6 s from its stop.
+func TestSwingWaitLogs(t *testing.T) {
+	data, err := os.ReadFile("../../../builds/variants/ship_2h_tight_weave.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	settings := &proto.IndividualSimSettings{}
+	if err := (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(data, settings); err != nil {
+		t.Fatal(err)
+	}
+	res := core.RunRaidSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(settings.Player, settings.PartyBuffs, settings.RaidBuffs, settings.Debuffs),
+		Encounter:  settings.Encounter,
+		SimOptions: &proto.SimOptions{Iterations: 1, RandomSeed: 7, DebugFirstIteration: true},
+	})
+	if res.Error != nil {
+		t.Fatalf("sim error: %s", res.Error.Message)
+	}
+	waitRe := regexp.MustCompile(`Swing wait \{OtherID: (\d+)(?:, Tag: (\d+))?\} (\w+) from (-?[0-9.]+)s to (-?[0-9.]+)s(?:, steps from (-?[0-9.]+)s)?(?:, stopped at (-?[0-9.]+)s)?`)
+	swingRe := regexp.MustCompile(`^\[(-?[0-9.]+)\] \[Player \(#1\)\] Swing timer \{OtherID: 7, Tag: 1\} started`)
+	swings := map[string]bool{}
+	var retries, windups []string
+	for _, line := range strings.Split(res.Logs, "\n") {
+		if m := swingRe.FindStringSubmatch(line); m != nil {
+			v, _ := strconv.ParseFloat(m[1], 64)
+			swings[strconv.FormatFloat(v, 'f', 2, 64)] = true
+		}
+		if m := waitRe.FindStringSubmatch(line); m != nil {
+			switch m[3] {
+			case "retry":
+				retries = append(retries, m[5])
+			case "windup":
+				windups = append(windups, m[5])
+				to, _ := strconv.ParseFloat(m[5], 64)
+				stop, _ := strconv.ParseFloat(m[7], 64)
+				if math.Abs(to-stop-core.AutoShotStandStill.Seconds()) > 0.0015 {
+					t.Errorf("a windup runs from the stop at %.3fs to %.3fs, want %.1f s", stop, to, core.AutoShotStandStill.Seconds())
+				}
+			}
+		}
+	}
+	if len(retries) == 0 || len(windups) == 0 {
+		t.Fatalf("%d swing retry and %d windup waits in a weave fight, want some of each", len(retries), len(windups))
+	}
+	// the log stamps lines to 0.01 s: a swing within 6 ms of the wait's end is the one it waited for
+	for _, to := range retries {
+		v, _ := strconv.ParseFloat(to, 64)
+		found := false
+		for k := range swings {
+			if s, _ := strconv.ParseFloat(k, 64); math.Abs(s-v) <= 0.006 {
+				found = true
+			}
+		}
+		if !found {
+			t.Errorf("a swing retry wait ends at %ss, but the main hand did not swing then", to)
+		}
+	}
+}
+
+// "Time since last swing" counts from the swing itself. Swing time minus time to the next swing (how the rotations
+// read it before) comes out short while a swing retry holds the next swing, so a trip that has not swung looked swung.
+func TestTimeSinceLastSwing(t *testing.T) {
+	sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, distance: 5})
+	sim.PrePull()
+	for guard := 0; sim.CurrentTime < time.Second*2 && guard < 100000; guard++ {
+		sim.Step()
+	}
+	// a swing has landed: walk out, wait out the timer at range, walk back in for a retry
+	end := hunter.AutoAttacks.MainhandSwingAt()
+	lastSwing := end - hunter.AutoAttacks.MainhandSwingSpeed()
+	hunter.MoveTo(9, sim)
+	for guard := 0; sim.CurrentTime < end+300*time.Millisecond && guard < 100000; guard++ {
+		sim.Step()
+	}
+	hunter.MoveTo(5, sim)
+	for guard := 0; (hunter.IsMoving() || sim.CurrentTime == 0) && guard < 100000; guard++ {
+		sim.Step()
+	}
+	if hunter.AutoAttacks.MainhandSwingAt() <= sim.CurrentTime {
+		t.Fatal("test setup: no swing retry pending on arrival")
+	}
+	since := hunter.AutoAttacks.TimeSinceLastAttack(sim, proto.APLValueAutoSwingTime_MainHand)
+	if want := sim.CurrentTime - lastSwing; since != want {
+		t.Errorf("on arrival, time since the last swing reads %v, want %v (the swing at %v)", since, want, lastSwing)
+	}
+	old := hunter.AutoAttacks.MainhandSwingSpeed() - (hunter.AutoAttacks.MainhandSwingAt() - sim.CurrentTime)
+	if old >= since {
+		t.Fatalf("test setup: the old reading %v is not short of %v here", old, since)
+	}
+}
+
+// A move is looked at every 50 ms while the GCD rolls, as a player steps in when a timer says so: a walk due 0.7 s into
+// an Arcane Shot's GCD starts within 50 ms of it. The engine used to look again only as the GCD ended.
+func TestMovePollDuringGcd(t *testing.T) {
+	const aplJSON = `{"type":"TypeAPL","priorityList":[` +
+		`{"action":{"condition":{"cmp":{"op":"OpGe","lhs":{"distanceToTarget":{}},"rhs":{"const":{"val":"11"}}}},"castSpell":{"spellId":{"spellId":14287,"rank":8}}}},` +
+		`{"action":{"condition":{"and":{"vals":[{"cmp":{"op":"OpGe","lhs":{"distanceToTarget":{}},"rhs":{"const":{"val":"11"}}}},{"cmp":{"op":"OpGe","lhs":{"currentTime":{}},"rhs":{"const":{"val":"0.7s"}}}}]}},"move":{"rangeFromTarget":{"const":{"val":"5"}}}}}]}`
+	rot := &proto.APLRotation{}
+	if err := protojson.Unmarshal([]byte(aplJSON), rot); err != nil {
+		t.Fatalf("rotation: %v", err)
+	}
+	player := core.WithSpec(&proto.Player{
+		Race:               proto.Race_RaceHuman,
+		Class:              proto.Class_ClassHunter,
+		Equipment:          core.GetGearSet("../../ui/hunter/gear_sets", "2h_weave").GearSet,
+		TalentsString:      patchTestTalents,
+		Consumes:           abConsumes,
+		Buffs:              abIndividualBuffs,
+		Rotation:           rot,
+		DistanceFromTarget: 11,
+	}, abOptions)
+	res := core.RunRaidSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, abRaidBuffs, abDebuffs),
+		Encounter:  abEncounter(),
+		SimOptions: &proto.SimOptions{Iterations: 1, RandomSeed: 20261023, DebugFirstIteration: true},
+	})
+	if res.Error != nil {
+		t.Fatalf("sim error: %s", res.Error.Message)
+	}
+	at := func(line string) float64 {
+		v, _ := strconv.ParseFloat(strings.TrimPrefix(strings.SplitN(line, "]", 2)[0], "["), 64)
+		return v
+	}
+	shot, move := -1.0, -1.0
+	for _, line := range strings.Split(res.Logs, "\n") {
+		switch {
+		case shot < 0 && at(line) >= 0 && strings.Contains(line, "Completed cast {SpellID: 14287"):
+			shot = at(line)
+		case shot >= 0 && strings.Contains(line, "Moving to %!s(float64=5)"):
+			move = at(line)
+		}
+		if move >= 0 {
+			break
+		}
+	}
+	if shot < 0 || move < 0 {
+		t.Fatalf("no Arcane Shot and walk in logged (shot %.2f, move %.2f)", shot, move)
+	}
+	if shot > 0.2 {
+		t.Fatalf("Arcane Shot at %.2f s: its GCD does not cover 0.7 s", shot)
+	}
+	if move > 0.75+0.001 {
+		t.Errorf("walk in started at %.2f s; want by 0.75 s (due at 0.7 s, the GCD ends at %.2f s)", move, shot+1.5)
+	}
+}
+
+// A pet swings for the level 60 creature dps (60.45), 20% either side, over its swing time; its crit is its owner's
+// with nothing from its own Agility, and its spell hit is 17/8 of the hit it inherits (forever-bugs #394).
+func TestPetSwingFromCreatureDps(t *testing.T) {
+	_, hunter := newPatchTestHunter(t, patchTestSetup{gear: true})
+	mh := hunter.pet.AutoAttacks.MH()
+	speed := mh.SwingSpeed
+	if want := 60.45 * 0.8 * speed; math.Abs(mh.BaseDamageMin-want) > 1e-6 {
+		t.Errorf("pet swing minimum %.2f at %.1f s, want %.2f", mh.BaseDamageMin, speed, want)
+	}
+	if want := 60.45 * 1.2 * speed; math.Abs(mh.BaseDamageMax-want) > 1e-6 {
+		t.Errorf("pet swing maximum %.2f at %.1f s, want %.2f", mh.BaseDamageMax, speed, want)
+	}
+	if got, want := hunter.pet.GetStat(stats.MeleeCrit), hunter.GetStat(stats.MeleeCrit); math.Abs(got-want) > 1e-9 {
+		t.Errorf("pet crit %.2f, want its owner's %.2f", got/core.CritRatingPerCritChance, want/core.CritRatingPerCritChance)
+	}
+	if got, want := hunter.pet.GetStat(stats.SpellHit), hunter.GetStat(stats.MeleeHit)*17/8; math.Abs(got-want) > 1e-9 {
+		t.Errorf("pet spell hit %.2f, want 17/8 of the owner's %.2f hit", got, hunter.GetStat(stats.MeleeHit))
+	}
+}
+
+// Each family's damage, armor and health scalars are its Tamed Pet Passive in the client data (the Fox carries the
+// Wolf's), and the Bat keeps Sonic Blast (Forever's new ranks sit on the Bat skill line, 653).
+func TestPetFamilyScalars(t *testing.T) {
+	// passive: damage %, armor %, health %
+	client := map[proto.Hunter_Options_PetType][3]float64{
+		proto.Hunter_Options_Bat: {7, 0, 0}, proto.Hunter_Options_Bear: {-9, 5, 8}, proto.Hunter_Options_BirdOfPrey: {7, 0, 0},
+		proto.Hunter_Options_Boar: {-10, 9, 4}, proto.Hunter_Options_CarrionBird: {0, 5, 0}, proto.Hunter_Options_Cat: {10, 0, -2},
+		proto.Hunter_Options_CoreHound: {1, 0, 5}, proto.Hunter_Options_Crab: {-5, 13, -4}, proto.Hunter_Options_Crocolisk: {0, 10, -5},
+		proto.Hunter_Options_Fox: {0, 5, 0}, proto.Hunter_Options_Gorilla: {2, 0, 4}, proto.Hunter_Options_Hyena: {0, 5, 0},
+		proto.Hunter_Options_Raptor: {10, 3, -5}, proto.Hunter_Options_Scorpid: {-6, 10, 0}, proto.Hunter_Options_Spider: {7, 0, 0},
+		proto.Hunter_Options_Tallstrider: {0, 0, 5}, proto.Hunter_Options_Turtle: {-10, 13, 0}, proto.Hunter_Options_WindSerpent: {7, 0, 0},
+		proto.Hunter_Options_Wolf: {0, 5, 0},
+	}
+	for family, want := range client {
+		c := PetConfigs[family]
+		if math.Abs(c.Damage-(1+want[0]/100)) > 1e-9 || math.Abs(c.Armor-(1+want[1]/100)) > 1e-9 || math.Abs(c.Health-(1+want[2]/100)) > 1e-9 {
+			t.Errorf("%s: damage %.2f armor %.2f health %.2f, want %+.0f%% %+.0f%% %+.0f%%", c.Name, c.Damage, c.Armor, c.Health, want[0], want[1], want[2])
+		}
+	}
+	if !slices.Contains(PetConfigs[proto.Hunter_Options_Bat].Abilities, SonicBlast) {
+		t.Error("the Bat has no Sonic Blast; Forever's ranks are on the Bat skill line")
+	}
+}
+
+// Mana per 5 shows in a row per source: Blessing of Wisdom (40, improved x1.2) and Mana Spring Totem (25, improved
+// x1.05) split every tick's mana per 5 by their amounts, casting or not; mana per 5 nobody names (here bonus stats)
+// lands in the "Mana per 5 (unnamed source)" row rather than hiding in another.
+func TestManaPerFiveRowsBySource(t *testing.T) {
+	run := func(bonusMP5 float64) map[string]float64 {
+		rot := &proto.APLRotation{}
+		if err := protojson.Unmarshal([]byte(`{"type":"TypeAPL","priorityList":[{"action":{"castSpell":{"spellId":{"spellId":14287,"rank":8}}}}]}`), rot); err != nil {
+			t.Fatalf("rotation: %v", err)
+		}
+		bonus := make([]float64, stats.Len)
+		bonus[stats.MP5] = bonusMP5
+		player := core.WithSpec(&proto.Player{
+			Race:               proto.Race_RaceHuman,
+			Class:              proto.Class_ClassHunter,
+			Equipment:          core.GetGearSet("../../ui/hunter/gear_sets", "2h_weave").GearSet,
+			TalentsString:      patchTestTalents,
+			Rotation:           rot,
+			DistanceFromTarget: 11,
+			Buffs:              &proto.IndividualBuffs{BlessingOfWisdom: proto.TristateEffect_TristateEffectImproved},
+			BonusStats:         &proto.UnitStats{Stats: bonus},
+		}, abOptions)
+		res := core.RunRaidSim(&proto.RaidSimRequest{
+			Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{ManaSpringTotem: proto.TristateEffect_TristateEffectImproved}, &proto.Debuffs{}),
+			Encounter:  abEncounter(),
+			SimOptions: &proto.SimOptions{Iterations: 1, RandomSeed: 20261023},
+		})
+		if res.Error != nil {
+			t.Fatalf("sim error: %s", res.Error.Message)
+		}
+		rows := map[string]float64{}
+		for _, r := range res.RaidMetrics.Parties[0].Players[0].Resources {
+			switch {
+			case r.Id.GetSpellId() == 25290:
+				rows["wisdom"] += r.Gain
+			case r.Id.GetSpellId() == 10497:
+				rows["spring"] += r.Gain
+			case r.Id.GetOtherId() == proto.OtherAction_OtherActionManaRegen && r.Id.Tag == 3:
+				rows["unnamed"] += r.Gain
+			}
+		}
+		return rows
+	}
+	named := run(0)
+	if named["wisdom"] <= 0 || named["spring"] <= 0 {
+		t.Fatalf("no Blessing of Wisdom or Mana Spring Totem row: %v", named)
+	}
+	if got, want := named["wisdom"]/named["spring"], 48/26.25; math.Abs(got-want) > 1e-6 {
+		t.Errorf("Blessing of Wisdom / Mana Spring Totem mana %.4f, want %.4f (their mana per 5)", got, want)
+	}
+	if named["unnamed"] > 0 {
+		t.Errorf("%.1f mana per 5 unnamed with only named sources", named["unnamed"])
+	}
+	extra := run(10)
+	if got, want := extra["unnamed"]/extra["wisdom"], 10.0/48; math.Abs(got-want) > 1e-6 {
+		t.Errorf("unnamed / Blessing of Wisdom mana %.4f, want %.4f for 10 unnamed mana per 5", got, want)
 	}
 }

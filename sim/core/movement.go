@@ -89,6 +89,8 @@ type MovementHandler struct {
 	// a walk into melee turns the melee attack on as it starts, and the off hand's wait is set then
 	moveStartedAt time.Duration
 	offHandWait   time.Duration
+	// how far from the target the walk began (the timeline names a ready Auto Shot's wait from it)
+	moveStartDistance float64
 
 	baseSpeed float64
 	// speed bonuses that stack with the rest instead of competing for the highest
@@ -126,29 +128,47 @@ func (unit *Unit) initMovement() {
 			if unit.IsChanneling(sim) {
 				unit.ChanneledDot.Cancel(sim)
 			}
+			// walking out of melee before a swing retry landed: the timeline shows that wait as left
+			if unit.MovementHandler.moveTarget > MaxMeleeAttackDistance {
+				unit.AutoAttacks.mh.endRetryWait(sim, "left")
+				unit.AutoAttacks.oh.endRetryWait(sim, "left")
+			}
 			unit.AutoAttacks.CancelAutoSwing(sim)
 			unit.MovementHandler.Moving = true
 			unit.MovementHandler.swungWhileMoving = false
 			unit.MovementHandler.startedInMelee = unit.DistanceFromTarget <= MaxMeleeAttackDistance
 			unit.MovementHandler.moveStartedAt = sim.CurrentTime
+			unit.MovementHandler.moveStartDistance = unit.DistanceFromTarget
 			unit.MovementHandler.offHandWait = unit.AutoAttacks.OffHandWait()
 		},
 		OnExpire: func(aura *Aura, sim *Simulation) {
 			unit.MovementHandler.Moving = false
 			startedMidWalk := unit.AutoAttacks.MeleeStartedMidMove()
+			mhReady, ohReady := unit.AutoAttacks.MeleeTimers()
 			unit.AutoAttacks.EnableAutoSwing(sim)
 
 			// a walk that reached 5 yd already started swinging (its attack delay and off-hand wait are set)
 			if !startedMidWalk {
-				// Simulate the delay from starting attack (AB_ATTACK_START_MS sets it for engine comparisons)
-				unit.AutoAttacks.DelayMeleeBy(sim, attackStartDelay)
 				// a walk in from outside melee range turned the melee attack on when it started
-				if !unit.MovementHandler.startedInMelee && unit.DistanceFromTarget <= MaxMeleeAttackDistance {
-					unit.AutoAttacks.OffHandWaitsForAttackStart(sim, unit.MovementHandler.moveStartedAt, unit.MovementHandler.offHandWait)
+				walkedIn := !unit.MovementHandler.startedInMelee && unit.DistanceFromTarget <= MaxMeleeAttackDistance
+				if ForeverSwingRetryBeat {
+					if walkedIn {
+						unit.AutoAttacks.SwingOnArrival(sim, mhReady, ohReady, unit.MovementHandler.moveStartedAt, unit.MovementHandler.offHandWait)
+					} else if unit.DistanceFromTarget <= MaxMeleeAttackDistance {
+						// a step inside melee range; a walk out leaves the timers running untouched
+						unit.AutoAttacks.DelayMeleeBy(sim, attackStartDelay)
+					}
+				} else {
+					// Simulate the delay from starting attack (AB_ATTACK_START_MS sets it for engine comparisons)
+					unit.AutoAttacks.DelayMeleeBy(sim, attackStartDelay)
+					if walkedIn {
+						unit.AutoAttacks.OffHandWaitsForAttackStart(sim, unit.MovementHandler.moveStartedAt, unit.MovementHandler.offHandWait)
+					}
 				}
 			}
 			// Forever: Auto Shot fires 0.6 s after you stop, the 0.5 s windup and the moment to start it (measured in game:
 			// 0.57-0.73 s after stopping)
+			unit.AutoAttacks.logShotWaits(sim, unit.MovementHandler.moveStartedAt, unit.MovementHandler.moveStartDistance)
 			unit.AutoAttacks.DelayRangedUntil(sim, sim.CurrentTime+AutoShotStandStill)
 		},
 	})
@@ -179,6 +199,8 @@ var shotRecheckDelay = func() time.Duration {
 	return 0
 }()
 
+// attackStartDelay: from getting in melee range to the server seeing it, so a swing retry this close after arrival is
+// missed (AB_ATTACK_START_MS sets it for comparisons)
 var attackStartDelay = func() time.Duration {
 	if ms, err := strconv.Atoi(os.Getenv("AB_ATTACK_START_MS")); err == nil {
 		return time.Duration(ms) * time.Millisecond

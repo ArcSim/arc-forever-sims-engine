@@ -49,15 +49,9 @@ func (hunter *Hunter) registerSniperShotSpell() {
 				Duration: time.Second * 15,
 			},
 			IgnoreHaste: true,
+			// all ranged haste speeds the cast, the quiver's too, as Aimed Shot's and Multi-Shot's in the beta logs
 			ModifyCast: func(sim *core.Simulation, spell *core.Spell, cast *core.Cast) {
-				mult := hunter.PseudoStats.RangedSpeedMultiplier
-				if hunter.quiverBonus > 1 {
-					mult /= hunter.quiverBonus
-				}
-				if mult < 0.01 {
-					mult = 1
-				}
-				cast.CastTime = time.Duration(float64(time.Millisecond*4000) / mult)
+				cast.CastTime = hunter.rangedHastedCast(time.Millisecond * 4000)
 			},
 		},
 		ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {

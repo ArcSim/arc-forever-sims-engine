@@ -88,18 +88,18 @@
           "id": 13965
         },
         {
-          "id": 11815
+          "id": 272437
         },
         {
           "id": 1728,
           "enchant": 2564
         },
         {
-          "id": 12590,
+          "id": 250618,
           "enchant": 2564
         },
         {
-          "id": 19562,
+          "id": 19107,
           "enchant": 664
         }
       ]
@@ -132,7 +132,7 @@
       "blessingOfMight": "TristateEffectImproved"
     },
     "talentsString": "-00531500113-500230230050122151",
-    "profession1": "Enchanting",
+    "profession1": "Blacksmithing",
     "profession2": "Engineering",
     "cooldowns": {},
     "reactionTimeMs": 200,
@@ -140,7 +140,7 @@
     "healingModel": {},
     "hunter": {
       "options": {
-        "ammo": "SwiftstrikeShot",
+        "ammo": "SwiftfeatherArrow",
         "quiverBonus": "Speed15",
         "petType": "Cat",
         "petUptime": 1,
@@ -566,18 +566,8 @@
               "cmp": {
                 "op": "OpLe",
                 "lhs": {
-                  "math": {
-                    "op": "OpSub",
-                    "lhs": {
-                      "autoSwingTime": {
-                        "autoType": "Ranged"
-                      }
-                    },
-                    "rhs": {
-                      "autoTimeToNext": {
-                        "autoType": "Ranged"
-                      }
-                    }
+                  "autoTimeSinceLast": {
+                    "autoType": "Ranged"
                   }
                 },
                 "rhs": {
@@ -669,18 +659,8 @@
                     "cmp": {
                       "op": "OpLe",
                       "lhs": {
-                        "math": {
-                          "op": "OpSub",
-                          "lhs": {
-                            "autoSwingTime": {
-                              "autoType": "MainHand"
-                            }
-                          },
-                          "rhs": {
-                            "autoTimeToNext": {
-                              "autoType": "MainHand"
-                            }
-                          }
+                        "autoTimeSinceLast": {
+                          "autoType": "MainHand"
                         }
                       },
                       "rhs": {
@@ -718,18 +698,8 @@
                                         "math": {
                                           "op": "OpAdd",
                                           "lhs": {
-                                            "math": {
-                                              "op": "OpSub",
-                                              "lhs": {
-                                                "autoSwingTime": {
-                                                  "autoType": "MainHand"
-                                                }
-                                              },
-                                              "rhs": {
-                                                "autoTimeToNext": {
-                                                  "autoType": "MainHand"
-                                                }
-                                              }
+                                            "autoTimeSinceLast": {
+                                              "autoType": "MainHand"
                                             }
                                           },
                                           "rhs": {
@@ -766,18 +736,8 @@
                                         "math": {
                                           "op": "OpAdd",
                                           "lhs": {
-                                            "math": {
-                                              "op": "OpSub",
-                                              "lhs": {
-                                                "autoSwingTime": {
-                                                  "autoType": "MainHand"
-                                                }
-                                              },
-                                              "rhs": {
-                                                "autoTimeToNext": {
-                                                  "autoType": "MainHand"
-                                                }
-                                              }
+                                            "autoTimeSinceLast": {
+                                              "autoType": "MainHand"
                                             }
                                           },
                                           "rhs": {
@@ -813,18 +773,8 @@
                                         "math": {
                                           "op": "OpAdd",
                                           "lhs": {
-                                            "math": {
-                                              "op": "OpSub",
-                                              "lhs": {
-                                                "autoSwingTime": {
-                                                  "autoType": "MainHand"
-                                                }
-                                              },
-                                              "rhs": {
-                                                "autoTimeToNext": {
-                                                  "autoType": "MainHand"
-                                                }
-                                              }
+                                            "autoTimeSinceLast": {
+                                              "autoType": "MainHand"
                                             }
                                           },
                                           "rhs": {
@@ -980,18 +930,8 @@
                     "cmp": {
                       "op": "OpLe",
                       "lhs": {
-                        "math": {
-                          "op": "OpSub",
-                          "lhs": {
-                            "autoSwingTime": {
-                              "autoType": "MainHand"
-                            }
-                          },
-                          "rhs": {
-                            "autoTimeToNext": {
-                              "autoType": "MainHand"
-                            }
-                          }
+                        "autoTimeSinceLast": {
+                          "autoType": "MainHand"
                         }
                       },
                       "rhs": {
@@ -1029,18 +969,8 @@
                                         "math": {
                                           "op": "OpAdd",
                                           "lhs": {
-                                            "math": {
-                                              "op": "OpSub",
-                                              "lhs": {
-                                                "autoSwingTime": {
-                                                  "autoType": "MainHand"
-                                                }
-                                              },
-                                              "rhs": {
-                                                "autoTimeToNext": {
-                                                  "autoType": "MainHand"
-                                                }
-                                              }
+                                            "autoTimeSinceLast": {
+                                              "autoType": "MainHand"
                                             }
                                           },
                                           "rhs": {
@@ -1077,18 +1007,8 @@
                                         "math": {
                                           "op": "OpAdd",
                                           "lhs": {
-                                            "math": {
-                                              "op": "OpSub",
-                                              "lhs": {
-                                                "autoSwingTime": {
-                                                  "autoType": "MainHand"
-                                                }
-                                              },
-                                              "rhs": {
-                                                "autoTimeToNext": {
-                                                  "autoType": "MainHand"
-                                                }
-                                              }
+                                            "autoTimeSinceLast": {
+                                              "autoType": "MainHand"
                                             }
                                           },
                                           "rhs": {
@@ -1124,18 +1044,8 @@
                                         "math": {
                                           "op": "OpAdd",
                                           "lhs": {
-                                            "math": {
-                                              "op": "OpSub",
-                                              "lhs": {
-                                                "autoSwingTime": {
-                                                  "autoType": "MainHand"
-                                                }
-                                              },
-                                              "rhs": {
-                                                "autoTimeToNext": {
-                                                  "autoType": "MainHand"
-                                                }
-                                              }
+                                            "autoTimeSinceLast": {
+                                              "autoType": "MainHand"
                                             }
                                           },
                                           "rhs": {

@@ -69,3 +69,40 @@ func (value *APLValueAutoSwingTime) GetDuration(sim *Simulation) time.Duration {
 func (value *APLValueAutoSwingTime) String() string {
 	return "Auto Swing Time"
 }
+
+// APLValueAutoTimeSinceLast: time since the weapon last swung (or the Auto Shot fired). Swing time minus time to the
+// next swing reads short while a swing retry or the windup holds the next one, which made a trip look swung before it.
+type APLValueAutoTimeSinceLast struct {
+	DefaultAPLValueImpl
+	unit     *Unit
+	autoType proto.APLValueAutoSwingTime_SwingType
+}
+
+func (rot *APLRotation) newValueAutoTimeSinceLast(config *proto.APLValueAutoTimeSinceLast) APLValue {
+	return &APLValueAutoTimeSinceLast{
+		unit:     rot.unit,
+		autoType: config.AutoType,
+	}
+}
+func (value *APLValueAutoTimeSinceLast) Type() proto.APLValueType {
+	return proto.APLValueType_ValueTypeDuration
+}
+func (value *APLValueAutoTimeSinceLast) GetDuration(sim *Simulation) time.Duration {
+	return value.unit.AutoAttacks.TimeSinceLastAttack(sim, value.autoType)
+}
+
+// TimeSinceLastAttack: time since that weapon last swung, or the Auto Shot last fired.
+func (aa *AutoAttacks) TimeSinceLastAttack(sim *Simulation, which proto.APLValueAutoSwingTime_SwingType) time.Duration {
+	switch which {
+	case proto.APLValueAutoSwingTime_MainHand:
+		return max(0, sim.CurrentTime-aa.mh.lastAttackAt)
+	case proto.APLValueAutoSwingTime_OffHand:
+		return max(0, sim.CurrentTime-aa.oh.lastAttackAt)
+	case proto.APLValueAutoSwingTime_Ranged:
+		return max(0, sim.CurrentTime-aa.ranged.lastAttackAt)
+	}
+	return 0
+}
+func (value *APLValueAutoTimeSinceLast) String() string {
+	return "Auto Time Since Last"
+}

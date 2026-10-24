@@ -23,7 +23,7 @@ func (hunter *Hunter) getAimedShotConfig(rank int, timer *core.Timer) core.Spell
 		CastType:      proto.CastType_CastTypeRanged,
 		Rank:          rank,
 		RequiredLevel: level,
-		MissileSpeed:  24,
+		MissileSpeed:  40,
 
 		ManaCost: core.ManaCostOptions{
 			FlatCost: manaCost,
@@ -38,15 +38,10 @@ func (hunter *Hunter) getAimedShotConfig(rank int, timer *core.Timer) core.Spell
 				Duration: time.Second * 6,
 			},
 			IgnoreHaste: true,
+			// all ranged haste speeds the cast, the quiver's too (beta logs: 1.81 s Aimed Shots and 0.45 s Multi-Shots with
+			// an 11% quiver, 0.32 s Multi-Shots under Rapid Fire as well)
 			ModifyCast: func(sim *core.Simulation, spell *core.Spell, cast *core.Cast) {
-				mult := hunter.PseudoStats.RangedSpeedMultiplier
-				if hunter.quiverBonus > 1 {
-					mult /= hunter.quiverBonus
-				}
-				if mult < 0.01 {
-					mult = 1
-				}
-				cast.CastTime = time.Duration(float64(time.Millisecond*2000) / mult)
+				cast.CastTime = hunter.rangedHastedCast(time.Millisecond * 2000)
 			},
 		},
 		ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {
