@@ -147,7 +147,7 @@ func NewCharacter(party *Party, partyIndex int, player *proto.Player) Character 
 
 	character.Consumes = &proto.Consumes{}
 	if player.Consumes != nil {
-		character.Consumes = player.Consumes
+		character.Consumes = migrateElixirSlots(player.Consumes)
 	}
 
 	character.createIsbConfig(player)

@@ -48,6 +48,8 @@ type patchTestSetup struct {
 	meleeResets bool                     // the beta bug: melee swings reset Auto Shot
 	shotsDelay  bool                     // the beta bug: a shot in an Auto Shot cycle pushes it back
 	quiver      proto.Hunter_Options_QuiverBonus
+	mobType     proto.MobType    // the target's creature type
+	profession  proto.Profession // a second profession
 }
 
 func newPatchTestHunter(t *testing.T, setup patchTestSetup) (*core.Simulation, *Hunter) {
@@ -131,8 +133,10 @@ func newPatchTestHunter(t *testing.T, setup patchTestSetup) (*core.Simulation, *
 	if setup.engineer {
 		player.Profession1 = proto.Profession_Engineering
 	}
+	player.Profession2 = setup.profession
 	encounter := core.MakeSingleTargetEncounter(0)
 	encounter.OutsideHyjal = setup.outside
+	encounter.Targets[0].MobType = setup.mobType
 	sim := core.NewSim(&proto.RaidSimRequest{
 		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, setup.buffs, setup.debuffs),
 		Encounter:  encounter,
@@ -804,7 +808,7 @@ func TestCurseOfRecklessnessSharesFaerieFireGroup(t *testing.T) {
 }
 
 // Shadow Oil's bolt is spell 350026 in Forever (the Classic 1382 is not in its data, so the site cannot name it):
-// 52 +-15% (44 to 60) plus 0.56 of spell power.
+// 52 +-7.7% (48 to 56; the client's variance field is the whole spread) plus 0.56 of spell power.
 func TestShadowOilForeverData(t *testing.T) {
 	sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, mhImbue: proto.WeaponImbue_ShadowOil})
 	if hunter.GetSpell(core.ActionID{SpellID: 1382}) != nil {
@@ -829,13 +833,13 @@ func TestShadowOilForeverData(t *testing.T) {
 			lo, hi = math.Min(lo, d), math.Max(hi, d)
 		}
 	}
-	if lo < 44-1e-6 || hi > 60+1e-6 || lo > 46 || hi < 58 {
-		t.Errorf("Shadow Oil bolt hits %.1f to %.1f, want 44 to 60", lo, hi)
+	if lo < 48-1e-6 || hi > 56+1e-6 || lo > 49 || hi < 55 {
+		t.Errorf("Shadow Oil bolt hits %.1f to %.1f, want 48 to 56", lo, hi)
 	}
 }
 
 // Frost Oil's bolt is spell 350025 in Forever (the Classic 1191 is not in its data, so the site showed a nameless row):
-// 33 +-12% (29 to 37) plus 0.269 of spell power.
+// 33 +-6% (31 to 35; the client's variance field is the whole spread) plus 0.269 of spell power.
 func TestFrostOilForeverData(t *testing.T) {
 	sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, mhImbue: proto.WeaponImbue_FrostOil})
 	if hunter.GetSpell(core.ActionID{SpellID: 1191}) != nil {
@@ -859,8 +863,8 @@ func TestFrostOilForeverData(t *testing.T) {
 			lo, hi = math.Min(lo, d), math.Max(hi, d)
 		}
 	}
-	if lo < 29-1e-6 || hi > 37+1e-6 || lo > 30.5 || hi < 35.5 {
-		t.Errorf("Frost Oil bolt hits %.1f to %.1f, want 29 to 37", lo, hi)
+	if lo < 31-1e-6 || hi > 35+1e-6 || lo > 31.5 || hi < 34.5 {
+		t.Errorf("Frost Oil bolt hits %.1f to %.1f, want 31 to 35", lo, hi)
 	}
 }
 
@@ -1119,10 +1123,12 @@ func TestRunSpeedSetting(t *testing.T) {
 }
 
 // Forever's own food and elixir values, from its client data (build 1.60.1.70450): Grilled Squid gives crit instead of
-// Agility, the wolf foods give Agility, and the new foods and elixirs give what their buffs say.
+// Agility, the wolf foods give Agility, and the new foods and elixirs give what their buffs say. Spirit is the elixir's
+// 25 times the Human 5%.
 func TestForeverFoodAndElixirValues(t *testing.T) {
 	_, base := newPatchTestHunter(t, patchTestSetup{})
-	type want struct{ agi, str, intel, crit float64 }
+	type want struct{ agi, str, intel, spi, mp5, crit float64 }
+	const spirit = 25 * 1.05
 	cases := map[string]struct {
 		consumes *proto.Consumes
 		want     want
@@ -1132,14 +1138,28 @@ func TestForeverFoodAndElixirValues(t *testing.T) {
 		"Tender Wolf Steak":     {&proto.Consumes{Food: proto.Food_FoodTenderWolfSteak}, want{agi: 15}},
 		"Flank au Poivre":       {&proto.Consumes{Food: proto.Food_FoodFlankAuPoivre}, want{agi: 20}},
 		"Elixir of Cunning":     {&proto.Consumes{AgilityElixir: proto.AgilityElixir_ElixirOfCunning}, want{agi: 25, intel: 25}},
-		"Elixir of Ferocity":    {&proto.Consumes{AgilityElixir: proto.AgilityElixir_ElixirOfFerocity}, want{agi: 18, str: 18}},
+		"Elixir of Ferocity":    {&proto.Consumes{StrengthBuff: proto.StrengthBuff_FerocityElixir}, want{agi: 18, str: 18}},
 		"Elixir of the Grizzly": {&proto.Consumes{StrengthBuff: proto.StrengthBuff_ElixirOfTheGrizzly}, want{str: 25, crit: 2}},
-		"Elixir of the Owl":     {&proto.Consumes{ManaRegenElixir: proto.ManaRegenElixir_ElixirOfTheOwl}, want{intel: 25, crit: 2}},
+		"Elixir of the Owl":     {&proto.Consumes{IntellectElixir: proto.ManaRegenElixir_ElixirOfTheOwl}, want{intel: 25, crit: 2}},
+		"Soaring Pamplona":      {&proto.Consumes{Food: proto.Food_FoodSoaringPamplona}, want{intel: 20}},
+		"Greater Mageblood":     {&proto.Consumes{ManaRegenElixir: proto.ManaRegenElixir_GreaterMagebloodElixir}, want{mp5: 20}},
+		"Elixir of Sages":       {&proto.Consumes{SpiritElixir: proto.ManaRegenElixir_ElixirOfSages}, want{spi: spirit, crit: 2}},
+		"Elixir of the Whale":   {&proto.Consumes{SpiritElixir: proto.ManaRegenElixir_ElixirOfTheWhale}, want{spi: spirit, crit: 2}},
 		// the three elixirs' +2% crit is one effect and never stacks
-		"Mongoose + Owl":     {&proto.Consumes{AgilityElixir: proto.AgilityElixir_ElixirOfTheMongoose, ManaRegenElixir: proto.ManaRegenElixir_ElixirOfTheOwl}, want{agi: 25, intel: 25, crit: 2}},
+		"Mongoose + Owl":     {&proto.Consumes{AgilityElixir: proto.AgilityElixir_ElixirOfTheMongoose, IntellectElixir: proto.ManaRegenElixir_ElixirOfTheOwl}, want{agi: 25, intel: 25, crit: 2}},
 		"Mongoose + Grizzly": {&proto.Consumes{AgilityElixir: proto.AgilityElixir_ElixirOfTheMongoose, StrengthBuff: proto.StrengthBuff_ElixirOfTheGrizzly}, want{agi: 25, str: 25, crit: 2}},
-		"Grizzly + Owl":      {&proto.Consumes{StrengthBuff: proto.StrengthBuff_ElixirOfTheGrizzly, ManaRegenElixir: proto.ManaRegenElixir_ElixirOfTheOwl}, want{str: 25, intel: 25, crit: 2}},
-		"Cunning + Owl":      {&proto.Consumes{AgilityElixir: proto.AgilityElixir_ElixirOfCunning, ManaRegenElixir: proto.ManaRegenElixir_ElixirOfTheOwl}, want{agi: 25, intel: 50, crit: 2}},
+		"Grizzly + Owl":      {&proto.Consumes{StrengthBuff: proto.StrengthBuff_ElixirOfTheGrizzly, IntellectElixir: proto.ManaRegenElixir_ElixirOfTheOwl}, want{str: 25, intel: 25, crit: 2}},
+		"Cunning + Owl":      {&proto.Consumes{AgilityElixir: proto.AgilityElixir_ElixirOfCunning, IntellectElixir: proto.ManaRegenElixir_ElixirOfTheOwl}, want{agi: 25, intel: 50, crit: 2}},
+		"Mongoose + Sages":   {&proto.Consumes{AgilityElixir: proto.AgilityElixir_ElixirOfTheMongoose, SpiritElixir: proto.ManaRegenElixir_ElixirOfSages}, want{agi: 25, spi: spirit, crit: 2}},
+		"Grizzly + Whale":    {&proto.Consumes{StrengthBuff: proto.StrengthBuff_ElixirOfTheGrizzly, SpiritElixir: proto.ManaRegenElixir_ElixirOfTheWhale}, want{str: 25, spi: spirit, crit: 2}},
+		// one elixir per stat: the Owl, a Spirit elixir and a Mageblood all apply, the crit still once
+		"Owl + Whale + Greater Mageblood": {&proto.Consumes{IntellectElixir: proto.ManaRegenElixir_ElixirOfTheOwl, SpiritElixir: proto.ManaRegenElixir_ElixirOfTheWhale, ManaRegenElixir: proto.ManaRegenElixir_GreaterMagebloodElixir}, want{intel: 25, spi: spirit, mp5: 20, crit: 2}},
+		"Mongoose + Ferocity":             {&proto.Consumes{AgilityElixir: proto.AgilityElixir_ElixirOfTheMongoose, StrengthBuff: proto.StrengthBuff_FerocityElixir}, want{agi: 43, str: 18, crit: 2}},
+		// settings saved before the slot per stat: each elixir moves to its stat's slot, or drops out if that is taken
+		"old: Owl in the mana slot":     {&proto.Consumes{ManaRegenElixir: proto.ManaRegenElixir_ElixirOfTheOwl}, want{intel: 25, crit: 2}},
+		"old: Whale in the mana slot":   {&proto.Consumes{ManaRegenElixir: proto.ManaRegenElixir_ElixirOfTheWhale, IntellectElixir: proto.ManaRegenElixir_ElixirOfTheOwl}, want{intel: 25, spi: spirit, crit: 2}},
+		"old: Ferocity in Agility":      {&proto.Consumes{AgilityElixir: proto.AgilityElixir_ElixirOfFerocity}, want{agi: 18, str: 18}},
+		"old: Ferocity with Juju Power": {&proto.Consumes{AgilityElixir: proto.AgilityElixir_ElixirOfFerocity, StrengthBuff: proto.StrengthBuff_JujuPower}, want{str: 30}},
 	}
 	critPerAgi := core.CritPerAgiAtLevel[proto.Class_ClassHunter] * core.CritRatingPerCritChance
 	for name, tc := range cases {
@@ -1149,17 +1169,21 @@ func TestForeverFoodAndElixirValues(t *testing.T) {
 			agi:   agi,
 			str:   hunter.GetStat(stats.Strength) - base.GetStat(stats.Strength),
 			intel: hunter.GetStat(stats.Intellect) - base.GetStat(stats.Intellect),
+			spi:   hunter.GetStat(stats.Spirit) - base.GetStat(stats.Spirit),
+			mp5:   hunter.GetStat(stats.MP5) - base.GetStat(stats.MP5),
 			crit:  (hunter.GetStat(stats.MeleeCrit) - base.GetStat(stats.MeleeCrit) - agi*critPerAgi) / core.CritRatingPerCritChance,
 		}
-		if math.Abs(got.agi-tc.want.agi) > 1e-6 || math.Abs(got.str-tc.want.str) > 1e-6 || math.Abs(got.intel-tc.want.intel) > 1e-6 || math.Abs(got.crit-tc.want.crit) > 1e-6 {
+		if math.Abs(got.agi-tc.want.agi) > 1e-6 || math.Abs(got.str-tc.want.str) > 1e-6 || math.Abs(got.intel-tc.want.intel) > 1e-6 ||
+			math.Abs(got.spi-tc.want.spi) > 1e-6 || math.Abs(got.mp5-tc.want.mp5) > 1e-6 || math.Abs(got.crit-tc.want.crit) > 1e-6 {
 			t.Errorf("%s: %+v, want %+v", name, got, tc.want)
 		}
 	}
 	// the elixir crit is crit of every kind (aura 290), so spell crit too, and once
 	for name, c := range map[string]*proto.Consumes{
-		"Elixir of the Owl": {ManaRegenElixir: proto.ManaRegenElixir_ElixirOfTheOwl},
-		"Mongoose + Owl":    {AgilityElixir: proto.AgilityElixir_ElixirOfTheMongoose, ManaRegenElixir: proto.ManaRegenElixir_ElixirOfTheOwl},
-		"Grizzly + Owl":     {StrengthBuff: proto.StrengthBuff_ElixirOfTheGrizzly, ManaRegenElixir: proto.ManaRegenElixir_ElixirOfTheOwl},
+		"Elixir of the Owl": {IntellectElixir: proto.ManaRegenElixir_ElixirOfTheOwl},
+		"Mongoose + Owl":    {AgilityElixir: proto.AgilityElixir_ElixirOfTheMongoose, IntellectElixir: proto.ManaRegenElixir_ElixirOfTheOwl},
+		"Grizzly + Owl":     {StrengthBuff: proto.StrengthBuff_ElixirOfTheGrizzly, IntellectElixir: proto.ManaRegenElixir_ElixirOfTheOwl},
+		"Owl + Sages":       {IntellectElixir: proto.ManaRegenElixir_ElixirOfTheOwl, SpiritElixir: proto.ManaRegenElixir_ElixirOfSages},
 	} {
 		_, hunter := newPatchTestHunter(t, patchTestSetup{consumes: c})
 		intel := hunter.GetStat(stats.Intellect) - base.GetStat(stats.Intellect)
@@ -1419,6 +1443,193 @@ func TestForeverExplosives(t *testing.T) {
 	}
 	if s := spell(proto.Explosive_ExplosiveCrystalCharge, false, 11566); s == nil || s.SpellSchool != core.SpellSchoolFire {
 		t.Error("Crystal Charge: wanted Fire damage")
+	}
+	// a Mage item: a Hunter who picks it throws nothing (the Mage side is in sim/forever_racials_test.go)
+	if s := spell(proto.Explosive_ExplosiveScrollOfGreaterCryoblast, true, 277499); s != nil {
+		t.Error("a Hunter has the Scroll of Greater Cryoblast, a Mage item")
+	}
+}
+
+// Forever's damage potions from the client data, on the shared 2 min potion cooldown. Dragonfire (12 yd cone): 280 Fire
+// at once, then 35 every 2 sec for 8 sec, always hits, never crits. Caustic Smog (thrown at 10 yd/s from up to 20 yd):
+// a cloud that deals 33 Nature +-5% every sec for 12 sec from where it lands. Both always hit and add no spell power.
+func TestForeverDamagePotions(t *testing.T) {
+	type tick struct {
+		at     time.Duration
+		damage float64
+	}
+	// drinks the potion at 5 s from the given distance and records each periodic tick until the fight is 20 s in
+	drink := func(potion proto.Potions, item int32, distance float64) (bool, time.Duration, []tick, *core.Simulation, *Hunter) {
+		sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, distance: distance, consumes: &proto.Consumes{DefaultPotion: potion}})
+		mcd := hunter.GetMajorCooldown(core.ActionID{ItemID: item})
+		if mcd == nil {
+			t.Fatalf("no potion cooldown for item %d", item)
+		}
+		sim.PrePull()
+		for i := 0; i < 100000 && sim.CurrentTime < 5*time.Second; i++ {
+			sim.Step()
+		}
+		drunkAt := sim.CurrentTime
+		if !mcd.TryActivate(sim, hunter.GetCharacter()) {
+			return false, 0, nil, sim, hunter
+		}
+		cd := mcd.TimeToReady(sim)
+		m := &mcd.Spell.SpellMetrics[hunter.CurrentTarget.UnitIndex]
+		var ticks []tick
+		for i := 0; i < 100000 && sim.CurrentTime < 20*time.Second; i++ {
+			n, d := m.Ticks, m.TotalTickDamage
+			sim.Step()
+			if m.Ticks > n {
+				ticks = append(ticks, tick{sim.CurrentTime - drunkAt, (m.TotalTickDamage - d) / hunter.PseudoStats.DamageDealtMultiplier})
+			}
+		}
+		return true, cd, ticks, sim, hunter
+	}
+
+	if used, _, _, _, _ := drink(proto.Potions_DragonfirePotion, 250953, 12.5); used {
+		t.Error("Dragonfire Potion used from 12.5 yd, past its 12 yd cone")
+	}
+	used, cd, ticks, sim, hunter := drink(proto.Potions_DragonfirePotion, 250953, 11)
+	if !used {
+		t.Fatal("Dragonfire Potion not used from 11 yd")
+	}
+	if cd != 2*time.Minute {
+		t.Errorf("Dragonfire Potion cooldown %v, want 2m", cd)
+	}
+	if len(ticks) != 4 {
+		t.Errorf("Dragonfire Potion ticked %d times, want 4", len(ticks))
+	}
+	for i, tk := range ticks {
+		if want := time.Duration(i+1) * 2 * time.Second; tk.at != want || math.Abs(tk.damage-35) > 1e-6 {
+			t.Errorf("Dragonfire Potion tick %d: %.2f at %v, want 35 at %v", i+1, tk.damage, tk.at, want)
+		}
+	}
+	// the cone at once: every one lands for exactly 280, even at 100% spell crit
+	potion := hunter.GetSpell(core.ActionID{ItemID: 250953})
+	m := &potion.SpellMetrics[hunter.CurrentTarget.UnitIndex]
+	hunter.AddStatDynamic(sim, stats.SpellCrit, 100*core.SpellCritRatingPerCritChance)
+	for i := 0; i < 500; i++ {
+		hits, damage := m.Hits, m.TotalDamage
+		potion.CD.Reset()
+		potion.Cast(sim, hunter.CurrentTarget)
+		if d := (m.TotalDamage - damage) / hunter.PseudoStats.DamageDealtMultiplier; m.Hits != hits+1 || math.Abs(d-280) > 1e-6 {
+			t.Fatalf("Dragonfire Potion cast %d: %.2f damage, %d hits, %d misses, %d crits; want 280 every time", i+1, d, m.Hits-hits, m.Misses, m.Crits)
+		}
+	}
+	if m.Crits != 0 || m.Misses != 0 {
+		t.Errorf("Dragonfire Potion: %d crits and %d misses, want none", m.Crits, m.Misses)
+	}
+
+	if used, _, _, _, _ := drink(proto.Potions_CausticSmogPotion, 250951, 21); used {
+		t.Error("Caustic Smog Potion thrown from 21 yd, past its 20 yd range")
+	}
+	used, cd, ticks, _, _ = drink(proto.Potions_CausticSmogPotion, 250951, 11)
+	if !used {
+		t.Fatal("Caustic Smog Potion not thrown from 11 yd")
+	}
+	if cd != 2*time.Minute {
+		t.Errorf("Caustic Smog Potion cooldown %v, want 2m", cd)
+	}
+	if len(ticks) != 12 {
+		t.Errorf("Caustic Smog Potion ticked %d times, want 12", len(ticks))
+	}
+	lands := 1100 * time.Millisecond // 11 yd at 10 yd/s
+	allSame := true
+	for i, tk := range ticks {
+		if want := lands + time.Duration(i+1)*time.Second; tk.at != want || tk.damage < 33*0.95-1e-6 || tk.damage > 33*1.05+1e-6 {
+			t.Errorf("Caustic Smog Potion tick %d: %.2f at %v, want 31.35 to 34.65 at %v", i+1, tk.damage, tk.at, want)
+		}
+		allSame = allSame && math.Abs(tk.damage-ticks[0].damage) < 1e-6
+	}
+	if allSame {
+		t.Error("Caustic Smog Potion ticks all the same, want +-5% each")
+	}
+}
+
+// Potion of Beast Slaying (spell 1252559): +180 attack power against Beasts for 5 min, on the shared 2 min potion cooldown.
+// Its client aura has no ranged twin, so only melee attack power rises; another creature type gains nothing, and a fight
+// with no Beast never drinks it. No second drink while the first lasts.
+func TestPotionOfBeastSlaying(t *testing.T) {
+	setup := func(mob proto.MobType) (*core.Simulation, *Hunter, *core.MajorCooldown, func() (float64, float64)) {
+		sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, mobType: mob, consumes: &proto.Consumes{DefaultPotion: proto.Potions_PotionOfBeastSlaying}})
+		mcd := hunter.GetMajorCooldown(core.ActionID{ItemID: 250955})
+		if mcd == nil {
+			t.Fatal("no Potion of Beast Slaying cooldown")
+		}
+		sim.PrePull()
+		for i := 0; i < 100000 && sim.CurrentTime < time.Second; i++ {
+			sim.Step()
+		}
+		target := hunter.CurrentTarget
+		attackPower := func() (float64, float64) {
+			return hunter.AutoAttacks.MHAuto().MeleeAttackPower(target), hunter.AutoAttacks.RangedAuto().RangedAttackPower(target, false)
+		}
+		return sim, hunter, mcd, attackPower
+	}
+
+	sim, hunter, mcd, attackPower := setup(proto.MobType_MobTypeBeast)
+	melee, ranged := attackPower()
+	if !mcd.TryActivate(sim, hunter.GetCharacter()) {
+		t.Fatal("Potion of Beast Slaying not drunk against a Beast")
+	}
+	if m, r := attackPower(); m-melee != 180 || r != ranged {
+		t.Errorf("against a Beast: melee attack power +%.0f, ranged +%.0f; want +180 and +0", m-melee, r-ranged)
+	}
+	aura := hunter.GetAura("Potion of Beast Slaying")
+	if aura == nil || aura.Duration != 5*time.Minute {
+		t.Fatal("no 5 min Potion of Beast Slaying aura")
+	}
+	if cd := mcd.TimeToReady(sim); cd != 2*time.Minute {
+		t.Errorf("Potion of Beast Slaying cooldown %v, want 2m", cd)
+	}
+	mcd.Spell.CD.Reset()
+	if mcd.TryActivate(sim, hunter.GetCharacter()) {
+		t.Error("Potion of Beast Slaying drunk again while it lasts")
+	}
+	aura.Deactivate(sim)
+	if m, _ := attackPower(); m != melee {
+		t.Errorf("melee attack power %.0f after the potion ends, want %.0f", m, melee)
+	}
+
+	sim, hunter, mcd, attackPower = setup(proto.MobType_MobTypeHumanoid)
+	if mcd.TryActivate(sim, hunter.GetCharacter()) {
+		t.Error("Potion of Beast Slaying drunk with no Beast to fight")
+	}
+	melee, _ = attackPower()
+	mcd.Spell.Cast(sim, hunter.CurrentTarget)
+	if m, _ := attackPower(); m != melee {
+		t.Errorf("against a Humanoid: melee attack power +%.0f, want +0", m-melee)
+	}
+}
+
+// Forever lets anyone wear the Zul'Gurub crafted pieces, but their set bonuses still need the crafting profession at 300
+// (ItemSet RequiredSkill): Primal Batskin's 3-piece (8% run speed, not stacking with other speed bonuses) and Blood Tiger's
+// 2-piece (1% crit) need Leatherworking, The Darksoul's 2-piece (20 Defense) Blacksmithing.
+func TestCraftedSetBonusesNeedTheirProfession(t *testing.T) {
+	batskin := map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotChest: 19685, proto.ItemSlot_ItemSlotWrist: 19687, proto.ItemSlot_ItemSlotHands: 19686}
+	for _, prof := range []proto.Profession{proto.Profession_ProfessionUnknown, proto.Profession_Leatherworking} {
+		_, hunter := newPatchTestHunter(t, patchTestSetup{pieces: batskin, profession: prof})
+		want := 7.0
+		if prof == proto.Profession_Leatherworking {
+			want = 7 * 1.08
+		}
+		if got := hunter.MovementHandler.MoveSpeed; math.Abs(got-want) > 1e-9 {
+			t.Errorf("Primal Batskin, profession %v: run speed %.3f, want %.3f", prof, got, want)
+		}
+	}
+
+	bonus := func(pieces map[proto.ItemSlot]int32, prof proto.Profession, stat stats.Stat) float64 {
+		_, without := newPatchTestHunter(t, patchTestSetup{pieces: pieces})
+		_, with := newPatchTestHunter(t, patchTestSetup{pieces: pieces, profession: prof})
+		return with.GetStat(stat) - without.GetStat(stat)
+	}
+	tiger := map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotChest: 19688, proto.ItemSlot_ItemSlotShoulder: 19689}
+	if got := bonus(tiger, proto.Profession_Leatherworking, stats.MeleeCrit); math.Abs(got-core.CritRatingPerCritChance) > 1e-9 {
+		t.Errorf("Blood Tiger Harness: Leatherworking adds %.2f crit, want 1%% (only a leatherworker gets the bonus)", got)
+	}
+	darksoul := map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotChest: 19693, proto.ItemSlot_ItemSlotLegs: 19694}
+	if got := bonus(darksoul, proto.Profession_Blacksmithing, stats.Defense); got != 20 {
+		t.Errorf("The Darksoul: Blacksmithing adds %.0f Defense, want 20 (only a blacksmith gets the bonus)", got)
 	}
 }
 
@@ -1742,16 +1953,15 @@ func TestExposePreyMarkers(t *testing.T) {
 
 // The shipped weaves are tuned for melee swings leaving the Auto Shot timer alone (the beta's reset is off by default):
 // the hard weave stays for a swing landing up to 0.6 s after it would have to head back (it beats leaving a quarter
-// second early, the reset-era setting), and Arc Tight Weave reads the MH swing timer.
+// second early, the reset-era setting), and Arc Tight Weave reads the MH swing timer and the weapon's speed.
 func TestWeavesTunedWithoutTheMeleeReset(t *testing.T) {
-	dps := func(apl []byte, gear string) float64 {
+	dps := func(apl []byte, gear string, moveMs int32) float64 {
 		rot := &proto.APLRotation{}
 		if err := protojson.Unmarshal(apl, rot); err != nil {
 			t.Fatalf("rotation: %v", err)
 		}
 		opts := &proto.Player_Hunter{Hunter: googleProto.Clone(abOptions.Hunter).(*proto.Hunter)}
-		// the site's move reaction: the 5 yd edge wins with it, not with a 10 ms one
-		opts.Hunter.Options.MoveDelayMs = 100
+		opts.Hunter.Options.MoveDelayMs = moveMs
 		opts.Hunter.Options.MeleeResetsAutoShot = false
 		player := core.WithSpec(&proto.Player{
 			Race:               proto.Race_RaceHuman,
@@ -1788,7 +1998,8 @@ func TestWeavesTunedWithoutTheMeleeReset(t *testing.T) {
 	}
 	// the 2H gain is small since Auto Shot waits 0.6 s after a move, so there it only must not lose
 	for gear, gain := range map[string]float64{"2h_weave": 0, "surv_dw": 10} {
-		with, early := dps(hard, gear), dps(late.ReplaceAll(hard, []byte(`"val": "0.25s"`)), gear)
+		// the site's move reaction: the 5 yd edge wins with it, not with a 10 ms one
+		with, early := dps(hard, gear, 100), dps(late.ReplaceAll(hard, []byte(`"val": "0.25s"`)), gear, 100)
 		t.Logf("hard weave, %s: %.1f DPS staying for a late swing, %.1f leaving a quarter second early", gear, with, early)
 		if with < early+gain {
 			t.Errorf("hard weave, %s: %.1f DPS with the late swing hold, %.1f without; want at least %.0f more", gear, with, early, gain)
@@ -1801,26 +2012,58 @@ func TestWeavesTunedWithoutTheMeleeReset(t *testing.T) {
 			t.Fatalf("%s %d times in the shipped Tight Weave, want once", what, n)
 		}
 	}
-	const entry, spot, ohHold = `"val": "1.5s"`, `"val": "4"`, `"val": "0.5s"`
+	// the exit sits on Move out and on Wing Clip's copy of its condition; both of its branches read the speed test
+	times := func(what string, want int) {
+		if n := strings.Count(string(light), what); n != want {
+			t.Fatalf("%s %d times in the shipped Tight Weave, want %d", what, n, want)
+		}
+	}
+	const entry, slowAt, freeAt = `"val": "1.5s"`, `"val": "500ms"`, `"val": "0.7s"`
 	one(entry)
-	one(spot)
+	times(slowAt, 4)
+	times(freeAt, 2)
+	spot := regexp.MustCompile(`("rangeFromTarget":\s*\{\s*"const":\s*\{\s*"val":\s*")5(")`)
+	if n := len(spot.FindAll(light, -1)); n != 1 {
+		t.Fatalf("a move to 5 yd %d times in the shipped Tight Weave, want once", n)
+	}
+	// the off-hand hold alone: the strike rule's half second of slack reads the same value
+	ohHold := regexp.MustCompile(`("autoType":\s*"OffHand"\s*\}\s*\},\s*"rhs":\s*\{\s*"const":\s*\{\s*"val":\s*")0\.5s(")`)
+	if n := len(ohHold.FindAll(light, -1)); n != 2 {
+		t.Fatalf("the off-hand hold %d times in the shipped Tight Weave, want twice", n)
+	}
 	swap := func(from, to string) []byte { return []byte(strings.ReplaceAll(string(light), from, to)) }
-	// with the swing retry and the rotation looked at through the GCD (shipped: 2H in at 1.5 s vs every shot +5, vs 1 s
-	// +80; DW off-hand hold +45, 4 yd vs 3 yd +9)
+	spot4 := spot.ReplaceAll(light, []byte("${1}4${2}"))
+	oldExit := []byte(strings.NewReplacer(slowAt, `"val": "9s"`, freeAt, `"val": "9s"`).Replace(string(light)))
+	// with the swing retry and the rotation looked at through the GCD (shipped: 2H in at 1.5 s vs every shot +9, vs 1 s
+	// +94; DW off-hand hold +71). The 5 yd spot keeps a dual-wield trip inside one swing for a slower player: at a 300 ms
+	// move reaction DW +28 over 4 yd, 2H -1. The exit by weapon speed: a main hand half a second slower than the Auto Shot
+	// waits for one strike, a faster one uses a ready strike while the next shot is not due
 	for _, c := range []struct {
 		gear, what string
 		other      []byte
 		gain       float64
+		moveMs     int32
 	}{
-		{"2h_weave", "in after every Auto Shot", swap(entry, `"val": "9s"`), 0},
-		{"2h_weave", "in at 1 s left on the MH timer", swap(entry, `"val": "1s"`), 30},
-		{"surv_dw", "no off-hand hold", swap(ohHold, `"val": "0s"`), 20},
-		{"surv_dw", "a 3 yd melee spot", swap(spot, `"val": "3"`), 3},
+		{"2h_weave", "in after every Auto Shot", swap(entry, `"val": "9s"`), 0, 100},
+		{"2h_weave", "in at 1 s left on the MH timer", swap(entry, `"val": "1s"`), 30, 100},
+		{"surv_dw", "no off-hand hold", ohHold.ReplaceAll(light, []byte("${1}0s${2}")), 20, 100},
+		{"surv_dw", "a 4 yd melee spot, 300 ms move reaction", spot4, 15, 300},
+		{"2h_weave", "a 4 yd melee spot, 300 ms move reaction", spot4, -5, 300},
+		{"2h_weave", "the strike wait on every weapon", swap(slowAt, `"val": "-9s"`), 5, 100},
+		{"2h_weave", "out as soon as the swing lands", oldExit, 3, 100},
+		{"2h_weave_reaper", "out as soon as the swing lands", oldExit, 5, 100},
+		{"2h_weave_reaper", "no strike wait", swap(slowAt, `"val": "9s"`), 0, 100},
 	} {
-		shipped, other := dps(light, c.gear), dps(c.other, c.gear)
+		shipped, other := dps(light, c.gear, c.moveMs), dps(c.other, c.gear, c.moveMs)
 		t.Logf("Tight Weave, %s: %.1f DPS shipped, %.1f with %s", c.gear, shipped, other, c.what)
 		if shipped < other+c.gain {
-			t.Errorf("Tight Weave, %s: %.1f DPS shipped, %.1f with %s; want at least %.0f more", c.gear, shipped, other, c.what, c.gain)
+			t.Errorf("Tight Weave, %s: %.1f DPS shipped, %.1f with %s; want %+.0f or more", c.gear, shipped, other, c.what, c.gain)
+		}
+	}
+	// dual wield never waits for an ability on the way out: it plays the exit as it was before the weapon speed rules
+	for _, gear := range []string{"surv_dw", "surv_dw_no_teebu"} {
+		if shipped, old := dps(light, gear, 100), dps(oldExit, gear, 100); shipped != old {
+			t.Errorf("Tight Weave, %s: %.2f DPS shipped, %.2f out as soon as the swing lands; dual wield should play the same", gear, shipped, old)
 		}
 	}
 }
@@ -2669,5 +2912,58 @@ func TestManaPerFiveRowsBySource(t *testing.T) {
 	extra := run(10)
 	if got, want := extra["unnamed"]/extra["wisdom"], 10.0/48; math.Abs(got-want) > 1e-6 {
 		t.Errorf("unnamed / Blessing of Wisdom mana %.4f, want %.4f for 10 unnamed mana per 5", got, want)
+	}
+}
+
+// A run speed change during a walk changes the rest of it: the yard under way keeps the share already walked and the
+// yards after it go at the new speed (Strider Kick's +30% landing just after a walk out began; the same buff running
+// out during a walk). A walk with no change steps every 142 ms as before. 6 yd from 11 yd at 7 yd/s.
+func TestRunSpeedChangeMidWalk(t *testing.T) {
+	speedID := core.ActionID{SpellID: 1317257}.WithTag(1)
+	yard := func(speed float64) time.Duration { return time.Millisecond * time.Duration(1000/speed) }
+	walk := func(t *testing.T, startFast bool, changeAt time.Duration) time.Duration {
+		sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, distance: 11})
+		hunter.MoveDelay = 0
+		sim.PrePull()
+		for i := 0; i < 100000 && sim.CurrentTime < 2*time.Second; i++ {
+			sim.Step()
+		}
+		if startFast {
+			hunter.AddMoveSpeedModifier(&speedID, 1.3)
+		}
+		start := sim.CurrentTime
+		hunter.MoveTo(5, sim)
+		if changeAt > 0 {
+			sim.AddPendingAction(&core.PendingAction{NextActionAt: start + changeAt, OnAction: func(*core.Simulation) {
+				if startFast {
+					hunter.RemoveMoveSpeedModifier(&speedID)
+				} else {
+					hunter.AddMoveSpeedModifier(&speedID, 1.3)
+				}
+			}})
+		}
+		for i := 0; i < 100000 && hunter.MovementHandler.Moving; i++ {
+			sim.Step()
+		}
+		return sim.CurrentTime - start
+	}
+	slow, fast := yard(7), yard(7*1.3)
+	changeAt := 110 * time.Millisecond
+	for _, c := range []struct {
+		name      string
+		startFast bool
+		changeAt  time.Duration
+		want      time.Duration
+	}{
+		{"no change", false, 0, 6 * slow},
+		{"+30% from 110 ms in", false, changeAt, changeAt + time.Duration((1-float64(changeAt)/float64(slow))*float64(fast)) + 5*fast},
+		// the first yard ended at 109 ms, so the second is under way
+		{"+30% running out 110 ms in", true, changeAt, changeAt + time.Duration((1-float64(changeAt-fast)/float64(fast))*float64(slow)) + 4*slow},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			if got := walk(t, c.startFast, c.changeAt); got < c.want-time.Millisecond || got > c.want+time.Millisecond {
+				t.Errorf("the walk took %v, want %v", got, c.want)
+			}
+		})
 	}
 }

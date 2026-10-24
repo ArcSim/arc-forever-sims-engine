@@ -6,7 +6,33 @@ import (
 
 	"github.com/wowsims/classic/sim/core/proto"
 	"github.com/wowsims/classic/sim/core/stats"
+	googleProto "google.golang.org/protobuf/proto"
 )
+
+// Settings from before the elixirs had a slot per stat put the Owl, Sages and the Whale in the mana regeneration slot
+// and the Elixir of Ferocity in the Agility one: each moves to its own stat's slot, or drops out if that is taken.
+func migrateElixirSlots(consumes *proto.Consumes) *proto.Consumes {
+	c := googleProto.Clone(consumes).(*proto.Consumes)
+	switch c.ManaRegenElixir {
+	case proto.ManaRegenElixir_ElixirOfTheOwl:
+		if c.IntellectElixir == proto.ManaRegenElixir_ManaRegenElixirUnknown {
+			c.IntellectElixir = c.ManaRegenElixir
+		}
+		c.ManaRegenElixir = proto.ManaRegenElixir_ManaRegenElixirUnknown
+	case proto.ManaRegenElixir_ElixirOfSages, proto.ManaRegenElixir_ElixirOfTheWhale:
+		if c.SpiritElixir == proto.ManaRegenElixir_ManaRegenElixirUnknown {
+			c.SpiritElixir = c.ManaRegenElixir
+		}
+		c.ManaRegenElixir = proto.ManaRegenElixir_ManaRegenElixirUnknown
+	}
+	if c.AgilityElixir == proto.AgilityElixir_ElixirOfFerocity {
+		if c.StrengthBuff == proto.StrengthBuff_StrengthBuffUnknown {
+			c.StrengthBuff = proto.StrengthBuff_FerocityElixir
+		}
+		c.AgilityElixir = proto.AgilityElixir_AgilityElixirUnknown
+	}
+	return c
+}
 
 // Registers all consume-related effects to the Agent.
 // TODO: Classic Consumes
@@ -273,7 +299,8 @@ func addImbueStats(character *Character, imbue proto.WeaponImbue, isMh bool, sha
 func registerShadowOil(character *Character, isMh bool, icd Cooldown) {
 	procChance := 0.15
 
-	// Forever client data: the oil's bolt is spell 350026 (the Classic 1382 is not in Forever), 52 +-15%
+	// Forever client data: the oil's bolt is spell 350026 (the Classic 1382 is not in Forever), 52 +-7.7%: its variance field
+	// (0.154) is the whole spread, so 48 to 56 as on the Classic Shadow Bolt it copies
 	procSpell := character.GetOrRegisterSpell(SpellConfig{
 		ActionID:    ActionID{SpellID: 350026},
 		SpellSchool: SpellSchoolShadow,
@@ -286,7 +313,7 @@ func registerShadowOil(character *Character, isMh bool, icd Cooldown) {
 		BonusCoefficient: 0.56,
 
 		ApplyEffects: func(sim *Simulation, target *Unit, spell *Spell) {
-			damage := sim.Roll(44, 60)
+			damage := sim.Roll(48, 56)
 			spell.CalcAndDealDamage(sim, target, damage, spell.OutcomeMagicHitAndCrit)
 		},
 	})
@@ -324,7 +351,8 @@ func registerShadowOil(character *Character, isMh bool, icd Cooldown) {
 func registerFrostOil(character *Character, isMh bool) {
 	procChance := 0.10
 
-	// Forever client data: the oil's bolt is spell 350025 (the Classic 1191 is not in Forever), 33 +-12%
+	// Forever client data: the oil's bolt is spell 350025 (the Classic 1191 is not in Forever), 33 +-6%: its variance field
+	// (0.121) is the whole spread, so 31 to 35 as on the Classic Frostbolt it copies
 	procSpell := character.GetOrRegisterSpell(SpellConfig{
 		ActionID:    ActionID{SpellID: 350025},
 		SpellSchool: SpellSchoolFrost,
@@ -337,7 +365,7 @@ func registerFrostOil(character *Character, isMh bool) {
 		BonusCoefficient: 0.269,
 
 		ApplyEffects: func(sim *Simulation, target *Unit, spell *Spell) {
-			damage := sim.Roll(29, 37)
+			damage := sim.Roll(31, 35)
 			spell.CalcAndDealDamage(sim, target, damage, spell.OutcomeMagicHitAndCrit)
 		},
 	})
@@ -402,6 +430,11 @@ func applyFoodConsumes(character *Character, consumes *proto.Consumes) {
 		case proto.Food_FoodSavoryTurtleStew:
 			character.AddStats(stats.Stats{
 				stats.Stamina: 20,
+			})
+		case proto.Food_FoodSoaringPamplona:
+			// well fed 1248421, shared by Soaring Pamplona, Bat Hachee and Prehistoric Pulled Raptor
+			character.AddStats(stats.Stats{
+				stats.Intellect: 20,
 			})
 		case proto.Food_FoodBrinySeafoodStew:
 			character.AddStats(stats.Stats{
@@ -598,11 +631,6 @@ func applyPhysicalBuffConsumes(character *Character, consumes *proto.Consumes) {
 				stats.Agility:   25,
 				stats.Intellect: 25,
 			})
-		case proto.AgilityElixir_ElixirOfFerocity:
-			character.AddStats(stats.Stats{
-				stats.Agility:  18,
-				stats.Strength: 18,
-			})
 		}
 	}
 
@@ -625,8 +653,13 @@ func applyPhysicalBuffConsumes(character *Character, consumes *proto.Consumes) {
 		case proto.StrengthBuff_ElixirOfTheGrizzly:
 			character.AddStats(stats.Stats{
 				stats.Strength:  25,
-				stats.MeleeCrit: elixirCrit(consumes, false) * CritRatingPerCritChance,
-				stats.SpellCrit: elixirCrit(consumes, false) * SpellCritRatingPerCritChance,
+				stats.MeleeCrit: elixirCrit(consumes, critFromGrizzly) * CritRatingPerCritChance,
+				stats.SpellCrit: elixirCrit(consumes, critFromGrizzly) * SpellCritRatingPerCritChance,
+			})
+		case proto.StrengthBuff_FerocityElixir:
+			character.AddStats(stats.Stats{
+				stats.Agility:  18,
+				stats.Strength: 18,
 			})
 		}
 	}
@@ -681,19 +714,31 @@ func applySpellBuffConsumes(character *Character, consumes *proto.Consumes) {
 		}
 	}
 
-	if consumes.ManaRegenElixir != proto.ManaRegenElixir_ManaRegenElixirUnknown {
-		switch consumes.ManaRegenElixir {
-		case proto.ManaRegenElixir_ElixirOfTheOwl:
-			character.AddStats(stats.Stats{
-				stats.Intellect: 25,
-				stats.MeleeCrit: elixirCrit(consumes, true) * CritRatingPerCritChance,
-				stats.SpellCrit: elixirCrit(consumes, true) * SpellCritRatingPerCritChance,
-			})
-		case proto.ManaRegenElixir_MagebloodPotion:
-			character.AddStatsNamed(ActionID{ItemID: 20007}, stats.Stats{
-				stats.MP5: 12,
-			})
-		}
+	// the Intellect, Spirit and mana regeneration slots, each one elixir (the Owl was the only one before, here)
+	if consumes.IntellectElixir == proto.ManaRegenElixir_ElixirOfTheOwl {
+		character.AddStats(stats.Stats{
+			stats.Intellect: 25,
+			stats.MeleeCrit: elixirCrit(consumes, critFromOwl) * CritRatingPerCritChance,
+			stats.SpellCrit: elixirCrit(consumes, critFromOwl) * SpellCritRatingPerCritChance,
+		})
+	}
+	switch consumes.SpiritElixir {
+	case proto.ManaRegenElixir_ElixirOfSages, proto.ManaRegenElixir_ElixirOfTheWhale:
+		character.AddStats(stats.Stats{
+			stats.Spirit:    25,
+			stats.MeleeCrit: elixirCrit(consumes, critFromSpirit) * CritRatingPerCritChance,
+			stats.SpellCrit: elixirCrit(consumes, critFromSpirit) * SpellCritRatingPerCritChance,
+		})
+	}
+	switch consumes.ManaRegenElixir {
+	case proto.ManaRegenElixir_MagebloodPotion:
+		character.AddStatsNamed(ActionID{ItemID: 20007}, stats.Stats{
+			stats.MP5: 12,
+		})
+	case proto.ManaRegenElixir_GreaterMagebloodElixir:
+		character.AddStatsNamed(ActionID{ItemID: 250341}, stats.Stats{
+			stats.MP5: 20,
+		})
 	}
 }
 
@@ -882,6 +927,7 @@ var EzThroThoriumGrenadeActionID = ActionID{ItemID: 260816}
 var SafTCleverDynamiteActionID = ActionID{ItemID: 260814}
 var CrystalChargeActionID = ActionID{ItemID: 11566}
 var HolyHandGrenadeActionID = ActionID{ItemID: 284868}
+var ScrollOfGreaterCryoblastActionID = ActionID{ItemID: 277499}
 
 func registerExplosivesCD(agent Agent, consumes *proto.Consumes) {
 	character := agent.GetCharacter()
@@ -914,8 +960,12 @@ func registerExplosivesCD(agent Agent, consumes *proto.Consumes) {
 
 	if hasFiller {
 		engineerOnly := !slices.Contains([]proto.Explosive{proto.Explosive_ExplosiveEzThroDarkBomb, proto.Explosive_ExplosiveEzThroThoriumGrenade,
-			proto.Explosive_ExplosiveSafTCleverDynamite, proto.Explosive_ExplosiveCrystalCharge, proto.Explosive_ExplosiveHolyHandGrenade}, consumes.FillerExplosive)
+			proto.Explosive_ExplosiveSafTCleverDynamite, proto.Explosive_ExplosiveCrystalCharge, proto.Explosive_ExplosiveHolyHandGrenade, proto.Explosive_ExplosiveScrollOfGreaterCryoblast}, consumes.FillerExplosive)
 		if engineerOnly && !character.HasProfession(proto.Profession_Engineering) {
+			return
+		}
+		// the Scroll of Greater Cryoblast is a Mage item (its AllowableClass)
+		if consumes.FillerExplosive == proto.Explosive_ExplosiveScrollOfGreaterCryoblast && character.Class != proto.Class_ClassMage {
 			return
 		}
 
@@ -941,6 +991,10 @@ func registerExplosivesCD(agent Agent, consumes *proto.Consumes) {
 			filler = character.newForeverExplosiveSpell(sharedTimer, CrystalChargeActionID, SpellSchoolFire, 383, 517)
 		case proto.Explosive_ExplosiveHolyHandGrenade:
 			filler = character.newForeverExplosiveSpell(sharedTimer, HolyHandGrenadeActionID, SpellSchoolHoly, 300, 500)
+		case proto.Explosive_ExplosiveScrollOfGreaterCryoblast:
+			// spell 1302309: 400 Frost +-14.9% plus 12 a level from 46 to its cap of 55, so 448 to 568 at 55 and up, in an
+			// 8 yd radius, a 0.5 sec cast
+			filler = character.newForeverExplosiveSpell(sharedTimer, ScrollOfGreaterCryoblastActionID, SpellSchoolFrost, 448, 568)
 		}
 
 		character.AddMajorCooldown(MajorCooldown{
@@ -960,8 +1014,12 @@ func (character *Character) newBasicExplosiveSpellConfig(sharedTimer *Timer, act
 	isSapper := actionID.SameAction(SapperActionID)
 
 	var defaultCast Cast
-	// the sapper and Crystal Charge are instant; the rest take 1 s
-	if !isSapper && !actionID.SameAction(CrystalChargeActionID) {
+	// the sapper and Crystal Charge are instant, the Scroll of Greater Cryoblast takes 0.5 s, the rest 1 s
+	if actionID.SameAction(ScrollOfGreaterCryoblastActionID) {
+		defaultCast = Cast{
+			CastTime: time.Millisecond * 500,
+		}
+	} else if !isSapper && !actionID.SameAction(CrystalChargeActionID) {
 		defaultCast = Cast{
 			CastTime: time.Second,
 		}
@@ -1062,6 +1120,140 @@ func makeMajorFrenzyPotionMCD(_ int32, character *Character, cdTimer *Timer) Maj
 	)
 	return MajorCooldown{
 		Type: CooldownTypeDPS,
+		Spell: character.GetOrRegisterSpell(SpellConfig{
+			ActionID: actionID,
+			Flags:    SpellFlagNoOnCastComplete,
+			Cast: CastConfig{
+				CD: Cooldown{
+					Timer:    cdTimer,
+					Duration: time.Minute * 2,
+				},
+			},
+			ApplyEffects: func(sim *Simulation, _ *Unit, _ *Spell) {
+				aura.Activate(sim)
+			},
+		}),
+	}
+}
+
+// Dragonfire Potion (spell 1252554): 280 Fire at once and 35 every 2 sec for 8 sec, in a 12 yd cone in front of the
+// drinker. The client data makes it always hit and never crit, with no spell power share.
+func makeDragonfirePotionMCD(character *Character, cdTimer *Timer) MajorCooldown {
+	return MajorCooldown{
+		Type: CooldownTypeDPS,
+		ShouldActivate: func(_ *Simulation, character *Character) bool {
+			return character.DistanceFromTarget <= 12
+		},
+		Spell: character.GetOrRegisterSpell(SpellConfig{
+			ActionID:    ActionID{ItemID: 250953},
+			SpellSchool: SpellSchoolFire,
+			DefenseType: DefenseTypeMagic,
+			ProcMask:    ProcMaskEmpty,
+			Flags:       SpellFlagNoOnCastComplete,
+			Cast: CastConfig{
+				CD: Cooldown{
+					Timer:    cdTimer,
+					Duration: time.Minute * 2,
+				},
+			},
+			DamageMultiplier: 1,
+			ThreatMultiplier: 1,
+			Dot: DotConfig{
+				Aura: Aura{
+					Label: "Dragonfire Potion",
+				},
+				NumberOfTicks: 4,
+				TickLength:    time.Second * 2,
+				OnTick: func(sim *Simulation, target *Unit, dot *Dot) {
+					dot.Spell.CalcAndDealPeriodicDamage(sim, target, 35, dot.OutcomeTick)
+				},
+			},
+			ApplyEffects: func(sim *Simulation, _ *Unit, spell *Spell) {
+				for _, aoeTarget := range sim.Encounter.TargetUnits {
+					spell.CalcAndDealDamage(sim, aoeTarget, 280, spell.OutcomeAlwaysHit)
+					spell.Dot(aoeTarget).Apply(sim)
+				}
+			},
+		}),
+	}
+}
+
+// Caustic Smog Potion (spell 1252525): thrown at 10 yd/s from up to 20 yd, it leaves a 12 sec cloud whose enemies take
+// 33 Nature +-5% every sec (1252543, always hits; its 0.1 variance is the whole spread, "31 to 35" on the tooltip). Every
+// target stands in the cloud for all twelve ticks.
+func makeCausticSmogPotionMCD(character *Character, cdTimer *Timer) MajorCooldown {
+	return MajorCooldown{
+		Type: CooldownTypeDPS,
+		ShouldActivate: func(_ *Simulation, character *Character) bool {
+			return character.DistanceFromTarget <= 20
+		},
+		Spell: character.GetOrRegisterSpell(SpellConfig{
+			ActionID:     ActionID{ItemID: 250951},
+			SpellSchool:  SpellSchoolNature,
+			DefenseType:  DefenseTypeMagic,
+			ProcMask:     ProcMaskEmpty,
+			Flags:        SpellFlagNoOnCastComplete,
+			MissileSpeed: 10,
+			Cast: CastConfig{
+				CD: Cooldown{
+					Timer:    cdTimer,
+					Duration: time.Minute * 2,
+				},
+			},
+			DamageMultiplier: 1,
+			ThreatMultiplier: 1,
+			Dot: DotConfig{
+				Aura: Aura{
+					Label: "Caustic Smog Potion",
+				},
+				NumberOfTicks: 12,
+				TickLength:    time.Second,
+				OnTick: func(sim *Simulation, target *Unit, dot *Dot) {
+					dot.Spell.CalcAndDealPeriodicDamage(sim, target, sim.Roll(33*0.95, 33*1.05), dot.OutcomeTick)
+				},
+			},
+			ApplyEffects: func(sim *Simulation, _ *Unit, spell *Spell) {
+				spell.WaitTravelTime(sim, func(sim *Simulation) {
+					for _, aoeTarget := range sim.Encounter.TargetUnits {
+						spell.Dot(aoeTarget).Apply(sim)
+					}
+				})
+			},
+		}),
+	}
+}
+
+// Potion of Beast Slaying (spell 1252559): +180 attack power against Beasts for 5 min. Its client aura (102) is melee
+// attack power only, with no ranged twin.
+func makePotionOfBeastSlayingMCD(character *Character, cdTimer *Timer) MajorCooldown {
+	actionID := ActionID{ItemID: 250955}
+	beasts := func() []*Unit {
+		return FilterSlice(character.Env.Encounter.TargetUnits, func(unit *Unit) bool { return unit.MobType == proto.MobType_MobTypeBeast })
+	}
+	addBonus := func(bonus float64) {
+		for _, target := range beasts() {
+			for _, at := range character.AttackTables[target.UnitIndex] {
+				at.BonusMeleeAttackPowerTaken += bonus
+			}
+		}
+	}
+	aura := character.GetOrRegisterAura(Aura{
+		Label:    "Potion of Beast Slaying",
+		ActionID: actionID,
+		Duration: time.Minute * 5,
+		OnGain: func(_ *Aura, _ *Simulation) {
+			addBonus(180)
+		},
+		OnExpire: func(_ *Aura, _ *Simulation) {
+			addBonus(-180)
+		},
+	})
+	return MajorCooldown{
+		Type: CooldownTypeDPS,
+		// nothing to gain without a Beast to fight, and no second drink while it lasts
+		ShouldActivate: func(_ *Simulation, _ *Character) bool {
+			return len(beasts()) > 0 && !aura.IsActive()
+		},
 		Spell: character.GetOrRegisterSpell(SpellConfig{
 			ActionID: actionID,
 			Flags:    SpellFlagNoOnCastComplete,
@@ -1347,6 +1539,12 @@ func makePotionActivationInternal(potionType proto.Potions, character *Character
 		return makeManaConsumableMCD(13444, character, potionCD)
 	case proto.Potions_MajorFrenzyPotion:
 		return makeMajorFrenzyPotionMCD(250943, character, potionCD)
+	case proto.Potions_DragonfirePotion:
+		return makeDragonfirePotionMCD(character, potionCD)
+	case proto.Potions_CausticSmogPotion:
+		return makeCausticSmogPotionMCD(character, potionCD)
+	case proto.Potions_PotionOfBeastSlaying:
+		return makePotionOfBeastSlayingMCD(character, potionCD)
 	case proto.Potions_RagePotion:
 		return makeRageConsumableMCD(5631, character, potionCD)
 	case proto.Potions_GreatRagePotion:
@@ -1410,11 +1608,26 @@ func registerConjuredCD(agent Agent, consumes *proto.Consumes) {
 	character.AddMajorCooldown(mcd)
 }
 
-// The Elixirs of the Mongoose, the Grizzly and the Owl share one +2% crit effect (aura 290, melee, ranged and spell), and
-// the same effect never stacks (Forever testers): the Grizzly adds none with the Mongoose up, the Owl none with either.
-// Returns the crit chance in percent.
-func elixirCrit(consumes *proto.Consumes, owl bool) float64 {
-	if consumes.AgilityElixir == proto.AgilityElixir_ElixirOfTheMongoose || (owl && consumes.StrengthBuff == proto.StrengthBuff_ElixirOfTheGrizzly) {
+// The Elixirs of the Mongoose, the Grizzly, the Owl, Sages and the Whale share one +2% crit effect (aura 290, melee, ranged
+// and spell), and the same effect never stacks (Forever testers): it counts once, for the first of them in slot order
+// (Agility, Strength, Intellect, Spirit). Returns the crit chance in percent the asking elixir adds.
+type elixirCritSource int
+
+const (
+	critFromGrizzly elixirCritSource = iota
+	critFromOwl
+	critFromSpirit
+)
+
+func elixirCrit(consumes *proto.Consumes, from elixirCritSource) float64 {
+	before := consumes.AgilityElixir == proto.AgilityElixir_ElixirOfTheMongoose
+	if from > critFromGrizzly {
+		before = before || consumes.StrengthBuff == proto.StrengthBuff_ElixirOfTheGrizzly
+	}
+	if from > critFromOwl {
+		before = before || consumes.IntellectElixir == proto.ManaRegenElixir_ElixirOfTheOwl
+	}
+	if before {
 		return 0
 	}
 	return 2

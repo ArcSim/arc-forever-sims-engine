@@ -81,10 +81,13 @@ var ItemSetBloodTigerHarness = core.NewItemSet(core.ItemSet{
 	Bonuses: map[int32]core.ApplyEffect{
 		// Improves your chance to get a critical strike by 1%.
 		// Improves your chance to get a critical strike with spells by 1%.
+		// Forever: anyone can wear the pieces, the bonus needs Leatherworking 300 (ItemSet RequiredSkill).
 		2: func(agent core.Agent) {
 			character := agent.GetCharacter()
-			character.AddStat(stats.MeleeCrit, 1*core.CritRatingPerCritChance)
-			character.AddStat(stats.SpellCrit, 1*core.SpellCritRatingPerCritChance)
+			if character.HasProfession(proto.Profession_Leatherworking) {
+				character.AddStat(stats.MeleeCrit, 1*core.CritRatingPerCritChance)
+				character.AddStat(stats.SpellCrit, 1*core.SpellCritRatingPerCritChance)
+			}
 		},
 	},
 })
@@ -152,6 +155,34 @@ var ItemSetIronfeatherArmor = core.NewItemSet(core.ItemSet{
 		2: func(agent core.Agent) {
 			character := agent.GetCharacter()
 			character.AddStat(stats.SpellPower, 20)
+		},
+	},
+})
+
+// https://www.wowhead.com/classic/item-set=441/primal-batskin
+var ItemSetPrimalBatskin = core.NewItemSet(core.ItemSet{
+	Name: "Primal Batskin",
+	ID:   441,
+	Bonuses: map[int32]core.ApplyEffect{
+		// Forever (spell 24090): a minor increase to running and swimming speed, 8%, that does not stack with similar
+		// effects. Anyone can wear the pieces, the bonus needs Leatherworking 300 (ItemSet RequiredSkill).
+		3: func(agent core.Agent) {
+			character := agent.GetCharacter()
+			if !character.HasProfession(proto.Profession_Leatherworking) {
+				return
+			}
+			// an aura, as the run speed only exists once the character is built
+			actionID := core.ActionID{SpellID: 24090}
+			core.MakePermanent(character.RegisterAura(core.Aura{
+				Label:    "Primal Batskin",
+				ActionID: actionID,
+				OnGain: func(aura *core.Aura, _ *core.Simulation) {
+					aura.Unit.AddMoveSpeedModifier(&actionID, 1.08)
+				},
+				OnExpire: func(aura *core.Aura, _ *core.Simulation) {
+					aura.Unit.RemoveMoveSpeedModifier(&actionID)
+				},
+			}))
 		},
 	},
 })
@@ -238,9 +269,12 @@ var ItemSetTheDarksoul = core.NewItemSet(core.ItemSet{
 	Name: "The Darksoul",
 	Bonuses: map[int32]core.ApplyEffect{
 		// Increased Defense +20.
+		// Forever: anyone can wear the pieces, the bonus needs Blacksmithing 300 (ItemSet RequiredSkill).
 		2: func(agent core.Agent) {
 			character := agent.GetCharacter()
-			character.AddStat(stats.Defense, 20)
+			if character.HasProfession(proto.Profession_Blacksmithing) {
+				character.AddStat(stats.Defense, 20)
+			}
 		},
 	},
 })

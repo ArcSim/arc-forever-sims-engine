@@ -110,6 +110,15 @@ func (db *WowDatabase) MergeExistingItems(arr []*proto.UIItem) {
 	}
 }
 
+// ClearRequiredProfessions lets anyone wear the given items: a merge cannot set a field back to its zero value.
+func (db *WowDatabase) ClearRequiredProfessions(ids []int32) {
+	for _, id := range ids {
+		if item, ok := db.Items[id]; ok {
+			item.RequiredProfession = proto.Profession_ProfessionUnknown
+		}
+	}
+}
+
 func (db *WowDatabase) MergeEnchants(arr []*proto.UIEnchant) {
 	for _, enchant := range arr {
 		db.MergeEnchant(enchant)
@@ -240,11 +249,22 @@ func (db *WowDatabase) ToUIProto() *proto.UIDatabase {
 	for _, v := range db.Enchants {
 		enchants = append(enchants, v)
 	}
+	// enchants come out of a map: without a full tie-break, ones sharing an effect id and slot (a weapon and a two-hand
+	// enchant) land in a different order on every run
 	slices.SortFunc(enchants, func(v1, v2 *proto.UIEnchant) int {
 		if v1.EffectId != v2.EffectId {
 			return int(v1.EffectId - v2.EffectId)
 		}
-		return int(v1.Type - v2.Type)
+		if v1.Type != v2.Type {
+			return int(v1.Type - v2.Type)
+		}
+		if v1.EnchantType != v2.EnchantType {
+			return int(v1.EnchantType - v2.EnchantType)
+		}
+		if v1.ItemId != v2.ItemId {
+			return int(v1.ItemId - v2.ItemId)
+		}
+		return int(v1.SpellId - v2.SpellId)
 	})
 
 	return &proto.UIDatabase{

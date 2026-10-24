@@ -104,7 +104,7 @@
     "consumes": {
       "food": "FoodFlankAuPoivre",
       "agilityElixir": "ElixirOfCunning",
-      "manaRegenElixir": "ElixirOfTheOwl",
+      "intellectElixir": "ElixirOfTheOwl",
       "strengthBuff": "JujuPower",
       "attackPowerBuff": "JujuMight",
       "spellPowerBuff": "GreaterArcaneElixir",

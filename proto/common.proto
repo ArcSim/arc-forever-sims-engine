@@ -328,6 +328,7 @@ enum Explosive {
 	ExplosiveSafTCleverDynamite = 8;
 	ExplosiveCrystalCharge = 9;
 	ExplosiveHolyHandGrenade = 10;
+	ExplosiveScrollOfGreaterCryoblast = 11;
 }
 
 // NextIndex: 28
@@ -366,6 +367,10 @@ enum Potions {
 	GreaterNatureProtectionPotion = 22;
 	GreaterShadowProtectionPotion = 23;
 
+	// Forever damage pots
+	DragonfirePotion = 24;
+	CausticSmogPotion = 25;
+	PotionOfBeastSlaying = 26;
 
 
 	LesserManaPotion = 1 [deprecated = true];
@@ -411,7 +416,8 @@ enum AgilityElixir {
 	ScrollOfAgility = 4;
 	ElixirOfAgility = 5;
 	ElixirOfCunning = 6;
-	ElixirOfFerocity = 7;
+	// Ferocity raises Strength first, so it is in the Strength slot (StrengthBuff.FerocityElixir); kept so older settings load
+	ElixirOfFerocity = 7 [deprecated = true];
 }
 
 enum ArmorElixir {
@@ -434,6 +440,9 @@ enum ManaRegenElixir {
 	ManaRegenElixirUnknown = 0;
 	MagebloodPotion = 1;
 	ElixirOfTheOwl = 2;
+	GreaterMagebloodElixir = 3;
+	ElixirOfSages = 4;
+	ElixirOfTheWhale = 5;
 }
 
 enum StrengthBuff {
@@ -443,6 +452,7 @@ enum StrengthBuff {
 	ElixirOfOgresStrength = 3;
 	ScrollOfStrength = 4;
 	ElixirOfTheGrizzly = 5;
+	FerocityElixir = 6;
 }
 
 enum AttackPowerBuff {
@@ -568,6 +578,7 @@ enum Food {
 	FoodFlankAuPoivre = 12;
 	FoodSavoryTurtleStew = 13;
 	FoodBrinySeafoodStew = 14;
+	FoodSoaringPamplona = 15;
 }
 
 enum SaygesFortune {
@@ -718,6 +729,10 @@ message Consumes {
 	PetMiscConsumes pet_misc_consumes = 27;
 	SapperExplosive sapper_explosive = 28;
 	HitConsumable hit_consumable = 29;
+	// one elixir per stat, as an elixir of one stat never stacks with another of it: the Owl here, Sages and the Whale in
+	// spirit_elixir, the Magebloods in mana_regen_elixir (older settings had all of them in mana_regen_elixir)
+	ManaRegenElixir intellect_elixir = 30;
+	ManaRegenElixir spirit_elixir = 31;
 }
 
 // NextIndex: 26

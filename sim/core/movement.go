@@ -67,6 +67,9 @@ func (move *MovementHandler) removeMoveSpeedModifier(moveHeap *MoveHeap, actionI
 
 func (move *MovementHandler) updateMoveSpeed() {
 	move.MoveSpeed = move.baseSpeed * move.stackingBonus * move.getActveModifier(move.moveSpeedBonuses) * (1 - move.getActveModifier(move.moveSpeedPenalties))
+	if move.repace != nil {
+		move.repace()
+	}
 }
 
 func (move *MovementHandler) getActveModifier(moveHeap *MoveHeap) float64 {
@@ -91,6 +94,13 @@ type MovementHandler struct {
 	offHandWait   time.Duration
 	// how far from the target the walk began (the timeline names a ready Auto Shot's wait from it)
 	moveStartDistance float64
+	// the walk's yard steps: the action, its time per yard, when the last yard ended and how many are left, so a run
+	// speed change during the walk re-paces the rest of it (repace, set for the walk under way)
+	walkSteps  *PendingAction
+	walkPeriod time.Duration
+	walkStepAt time.Duration
+	walkLeft   int
+	repace     func()
 
 	baseSpeed float64
 	// speed bonuses that stack with the rest instead of competing for the highest
@@ -143,6 +153,7 @@ func (unit *Unit) initMovement() {
 		},
 		OnExpire: func(aura *Aura, sim *Simulation) {
 			unit.MovementHandler.Moving = false
+			unit.MovementHandler.repace, unit.MovementHandler.walkSteps = nil, nil
 			startedMidWalk := unit.AutoAttacks.MeleeStartedMidMove()
 			mhReady, ohReady := unit.AutoAttacks.MeleeTimers()
 			unit.AutoAttacks.EnableAutoSwing(sim)
@@ -312,52 +323,80 @@ func (unit *Unit) moveToNow(moveRange float64, sim *Simulation) {
 	moveTicks := math.Abs(moveDistance)
 	moveInterval := moveDistance / float64(moveTicks)
 
-	speed := unit.MovementHandler.MoveSpeed
-	if out := envFloat("AB_MOVE_OUT_SPEED"); out > 0 && moveDistance > 0 {
-		speed = out * unit.MovementHandler.MoveSpeed / unit.MovementHandler.baseSpeed
+	mh := unit.MovementHandler
+	// the time per yard at the run speed of the moment
+	yardTime := func() time.Duration {
+		speed := mh.MoveSpeed
+		if out := envFloat("AB_MOVE_OUT_SPEED"); out > 0 && moveDistance > 0 {
+			speed = out * mh.MoveSpeed / mh.baseSpeed
+		}
+		return time.Millisecond * time.Duration(1000/speed)
 	}
 
 	// a walk into melee turns the melee attack on now: the timeline draws the off hand's wait from here
 	if sim.Log != nil && unit.DistanceFromTarget > MaxMeleeAttackDistance && moveRange <= MaxMeleeAttackDistance {
 		unit.AutoAttacks.logOffHandWait(sim)
 	}
-	unit.MovementHandler.moveSpell.Cast(sim, unit.CurrentTarget)
+	mh.moveSpell.Cast(sim, unit.CurrentTarget)
 
-	sim.AddPendingAction(NewPeriodicAction(sim, PeriodicActionOptions{
-		Period:          time.Millisecond * time.Duration(1000/speed),
-		NumTicks:        int(moveTicks),
-		TickImmediately: false,
+	var step func(sim *Simulation)
+	// the next yard ends at first, the ones after it one yard time apart
+	startSteps := func(first time.Duration, yards int) {
+		mh.walkPeriod = yardTime()
+		mh.walkSteps = NewPeriodicAction(sim, PeriodicActionOptions{
+			Period:   mh.walkPeriod,
+			NumTicks: yards,
+			OnAction: step,
+		})
+		mh.walkSteps.NextActionAt = first
+		sim.AddPendingAction(mh.walkSteps)
+	}
+	// a run speed change during the walk (a speed buff gained or running out): the yard under way keeps the share
+	// already walked, the rest go at the new speed
+	mh.repace = func() {
+		if !mh.Moving || mh.walkSteps == nil || mh.walkLeft <= 0 {
+			return
+		}
+		period := yardTime()
+		if period == mh.walkPeriod {
+			return
+		}
+		left := 1 - float64(sim.CurrentTime-mh.walkStepAt)/float64(mh.walkPeriod)
+		mh.walkSteps.Cancel(sim)
+		startSteps(sim.CurrentTime+time.Duration(left*float64(period)), mh.walkLeft)
+	}
+	mh.walkStepAt, mh.walkLeft = sim.CurrentTime, int(moveTicks)
+	step = func(sim *Simulation) {
+		mh.walkStepAt, mh.walkLeft = sim.CurrentTime, mh.walkLeft-1
+		wasInMelee := unit.DistanceFromTarget <= 5
+		unit.DistanceFromTarget += moveInterval
+		unit.MovementHandler.moveAura.SetStacks(sim, int32(unit.DistanceFromTarget))
 
-		OnAction: func(sim *Simulation) {
-			wasInMelee := unit.DistanceFromTarget <= 5
-			unit.DistanceFromTarget += moveInterval
-			unit.MovementHandler.moveAura.SetStacks(sim, int32(unit.DistanceFromTarget))
-
-			if !wasInMelee && unit.DistanceFromTarget <= 5 {
-				unit.AutoAttacks.ForceMeleeSwing(sim)
-				// swinging starts here, mid-walk, if the walk goes on into melee
-				if unit.DistanceFromTarget != moveRange {
-					unit.AutoAttacks.StartMeleeMidMove(sim, unit.MovementHandler.moveStartedAt, unit.MovementHandler.offHandWait)
-				}
+		if !wasInMelee && unit.DistanceFromTarget <= 5 {
+			unit.AutoAttacks.ForceMeleeSwing(sim)
+			// swinging starts here, mid-walk, if the walk goes on into melee
+			if unit.DistanceFromTarget != moveRange {
+				unit.AutoAttacks.StartMeleeMidMove(sim, unit.MovementHandler.moveStartedAt, unit.MovementHandler.offHandWait)
 			}
+		}
 
-			if unit.DistanceFromTarget == moveRange {
-				swung := unit.MovementHandler.swungWhileMoving
-				unit.MovementHandler.moveAura.Deactivate(sim)
-				if mh := unit.MovementHandler; mh.queuedMove {
-					mh.queuedMove = false
-					unit.moveToNow(mh.queuedRange, sim)
-					return
-				}
-				// a swing that landed mid-walk (melee starts at 5 yd) could not start the walk back then: its decision runs
-				// on arrival instead of waiting out a busy GCD. Only then: a walk that ends before its swing keeps waiting
-				// for the swing as before. Here and not in the aura's expiry, which also runs when a fight ends mid-walk.
-				if swung && !sim.Options.Interactive && unit.Rotation != nil {
-					unit.Rotation.DoNextAction(sim)
-				}
+		if unit.DistanceFromTarget == moveRange {
+			swung := unit.MovementHandler.swungWhileMoving
+			unit.MovementHandler.moveAura.Deactivate(sim)
+			if mh := unit.MovementHandler; mh.queuedMove {
+				mh.queuedMove = false
+				unit.moveToNow(mh.queuedRange, sim)
+				return
 			}
-		},
-	}))
+			// a swing that landed mid-walk (melee starts at 5 yd) could not start the walk back then: its decision runs
+			// on arrival instead of waiting out a busy GCD. Only then: a walk that ends before its swing keeps waiting
+			// for the swing as before. Here and not in the aura's expiry, which also runs when a fight ends mid-walk.
+			if swung && !sim.Options.Interactive && unit.Rotation != nil {
+				unit.Rotation.DoNextAction(sim)
+			}
+		}
+	}
+	startSteps(sim.CurrentTime+yardTime(), int(moveTicks))
 }
 
 // A move speed increase of 30% should be represented as 1.30 and a move speed slow of 70% should be respresented as 0.70

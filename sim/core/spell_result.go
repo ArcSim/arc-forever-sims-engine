@@ -100,8 +100,8 @@ func (spell *Spell) ThreatFromDamage(outcome HitOutcome, damage float64) float64
 }
 
 func (spell *Spell) MeleeAttackPower(target *Unit) float64 {
-	return spell.Unit.stats[stats.AttackPower] +
-		spell.Unit.AttackTables[target.Index][spell.CastType].BonusAttackPowerTaken
+	at := spell.Unit.AttackTables[target.Index][spell.CastType]
+	return spell.Unit.stats[stats.AttackPower] + at.BonusAttackPowerTaken + at.BonusMeleeAttackPowerTaken
 }
 
 func (spell *Spell) RangedAttackPower(target *Unit, ignoreTargetModifiers bool) float64 {

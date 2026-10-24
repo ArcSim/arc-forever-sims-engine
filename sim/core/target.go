@@ -285,7 +285,9 @@ type AttackTable struct {
 	HealingDealtMultiplier float64
 
 	BonusAttackPowerTaken float64 // For effects like mob type attack power bonuses.
-	BonusSpellDamageTaken float64 // For effects like mob type spell damage bonuses.
+	// melee attack power only: a mob type bonus whose client aura (102) has no ranged twin (131)
+	BonusMeleeAttackPowerTaken float64
+	BonusSpellDamageTaken      float64 // For effects like mob type spell damage bonuses.
 
 	// This is for "Apply Aura: Mod Damage Done By Caster" effects.
 	// If set, the damage taken multiplier is multiplied by the callbacks result.

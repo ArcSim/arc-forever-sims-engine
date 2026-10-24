@@ -15,12 +15,17 @@ import (
 
 func newForeverCharacter(t *testing.T, race proto.Race, class proto.Class, debuffs *proto.Debuffs) (*core.Simulation, *core.Character) {
 	t.Helper()
+	return newForeverCharacterWithConsumes(t, race, class, debuffs, &proto.Consumes{})
+}
+
+func newForeverCharacterWithConsumes(t *testing.T, race proto.Race, class proto.Class, debuffs *proto.Debuffs, consumes *proto.Consumes) (*core.Simulation, *core.Character) {
+	t.Helper()
 	player := &proto.Player{
 		Name:      "Player",
 		Race:      race,
 		Class:     class,
 		Equipment: &proto.EquipmentSpec{},
-		Consumes:  &proto.Consumes{},
+		Consumes:  consumes,
 		Buffs:     &proto.IndividualBuffs{},
 	}
 	switch class {
@@ -176,5 +181,33 @@ func TestCasterOnlyDebuffsFromOthers(t *testing.T) {
 		if warrior.CurrentTarget.GetAura(label) != nil {
 			t.Errorf("%s from another player is on the target", label)
 		}
+	}
+}
+
+// The Scroll of Greater Cryoblast (item 277499) is a Mage item: a 0.5 sec throw of 400 Frost +-14.9% plus 12 a level from
+// 46 to its cap of 55 (spell 1302309), so 448 to 568 for a level 60 Mage, with no spell power share. A Hunter gets none
+// (sim/hunter/forever_patch_test.go).
+func TestScrollOfGreaterCryoblastIsAMageItem(t *testing.T) {
+	sim, mage := newForeverCharacterWithConsumes(t, proto.Race_RaceHuman, proto.Class_ClassMage, nil, &proto.Consumes{FillerExplosive: proto.Explosive_ExplosiveScrollOfGreaterCryoblast})
+	cryo := mage.GetSpell(core.ActionID{ItemID: 277499})
+	if cryo == nil {
+		t.Fatal("a Mage has no Scroll of Greater Cryoblast")
+	}
+	if cryo.DefaultCast.CastTime.Seconds() != 0.5 || cryo.SpellSchool != core.SpellSchoolFrost {
+		t.Errorf("Scroll of Greater Cryoblast: %v cast, school %v; want a 0.5 s Frost throw", cryo.DefaultCast.CastTime, cryo.SpellSchool)
+	}
+	target := sim.Encounter.TargetUnits[0]
+	m := &cryo.SpellMetrics[target.UnitIndex]
+	lo, hi := math.Inf(1), 0.0
+	for i := 0; i < 2000; i++ {
+		hits, crits, damage := m.Hits, m.Crits, m.TotalDamage
+		cryo.ApplyEffects(sim, target, cryo)
+		if m.Hits == hits+1 && m.Crits == crits {
+			d := (m.TotalDamage - damage) / mage.PseudoStats.DamageDealtMultiplier
+			lo, hi = math.Min(lo, d), math.Max(hi, d)
+		}
+	}
+	if lo < 448-1e-6 || hi > 568+1e-6 || lo > 453 || hi < 563 {
+		t.Errorf("Scroll of Greater Cryoblast hits %.1f to %.1f, want 448 to 568", lo, hi)
 	}
 }

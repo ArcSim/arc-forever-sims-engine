@@ -163,6 +163,7 @@ func main() {
 	// FOREVER_OVERRIDES=off builds the Classic baseline that scripts/gen_forever_overrides.js diffs against.
 	if os.Getenv("FOREVER_OVERRIDES") != "off" {
 		db.MergeExistingItems(database.ForeverItemOverrides)
+		db.ClearRequiredProfessions(database.ForeverProfessionFreeItems)
 		// items Forever added: the Classic sources above have none of them
 		db.MergeItems(database.ForeverNewItems)
 	}

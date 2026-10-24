@@ -527,6 +527,7 @@ func (unit *Unit) reset(sim *Simulation, _ Agent) {
 	unit.DistanceFromTarget = unit.StartDistanceFromTarget
 	unit.MovementHandler.PendingMove = false
 	unit.MovementHandler.queuedMove = false
+	unit.MovementHandler.repace, unit.MovementHandler.walkSteps = nil, nil
 
 	unit.manaBar.reset()
 	unit.focusBar.reset(sim)

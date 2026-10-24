@@ -218,7 +218,14 @@ var ExtraItemIcons = []int32{
 	250337, // Elixir of the Owl
 	250350, // Elixir of Ferocity
 	250351, // Elixir of the Grizzly
+	250341, // Greater Mageblood Elixir
+	250338, // Elixir of Sages
+	250348, // Elixir of the Whale
+	250066, // Soaring Pamplona
 	250943, // Major Frenzy Potion
+	250953, // Dragonfire Potion
+	250951, // Caustic Smog Potion
+	250955, // Potion of Beast Slaying
 	274273, // Flask of Natural Accuracy
 	274274, // Flask of Natural Aggression
 	274275, // Flask of Natural Precision
@@ -227,6 +234,7 @@ var ExtraItemIcons = []int32{
 	260816, // EZ-Thro Thorium Grenade
 	260814, // SAF-T Clever Dynamite
 	284868, // Holy Hand Grenade of Alterac
+	277499, // Scroll of Greater Cryoblast
 	16005,  // Dark Iron Bomb
 
 	// Strength
@@ -455,4 +463,21 @@ var DenyListNameRegexes = []*regexp.Regexp{
 	regexp.MustCompile(`TEST`),
 	regexp.MustCompile(`Test`),
 	regexp.MustCompile(`zOLD`),
+}
+
+// Zul'Gurub crafted pieces anyone can wear in Forever (ItemSparse RequiredSkill 0, client build 1.60.1.70450), where
+// Classic asked for the crafting profession; their set bonuses still need it (ItemSet RequiredSkill, checked in
+// sim/common/item_sets/crafted.go).
+var ForeverProfessionFreeItems = []int32{
+	19682, // Bloodvine Vest
+	19683, // Bloodvine Leggings
+	19684, // Bloodvine Boots
+	19685, // Primal Batskin Jerkin
+	19686, // Primal Batskin Gloves
+	19687, // Primal Batskin Bracers
+	19688, // Blood Tiger Breastplate
+	19689, // Blood Tiger Shoulders
+	19693, // Darksoul Breastplate
+	19694, // Darksoul Leggings
+	19695, // Darksoul Shoulders
 }

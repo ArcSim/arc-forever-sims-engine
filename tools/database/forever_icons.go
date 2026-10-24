@@ -9,13 +9,20 @@ type ForeverIcon struct {
 
 // Forever-only items and spells the Wowhead tooltip caches lack
 var ForeverItemIcons = map[int32]ForeverIcon{
+	250066: {Name: "Soaring Pamplona", Icon: "inv_misc_food_meat_cooked_05"},
 	250068: {Name: "Savory Turtle Stew", Icon: "inv_misc_food_cooked_braisedturtle"},
 	250069: {Name: "Flank au Poivre", Icon: "inv_misc_food_meat_cooked_06"},
 	250328: {Name: "Elixir of Cunning", Icon: "inv_potion_166"},
 	250337: {Name: "Elixir of the Owl", Icon: "inv_potion_164"},
+	250338: {Name: "Elixir of Sages", Icon: "inv_potion_165"},
+	250341: {Name: "Greater Mageblood Elixir", Icon: "inv_potion_168"},
+	250348: {Name: "Elixir of the Whale", Icon: "inv_potion_163"},
 	250350: {Name: "Elixir of Ferocity", Icon: "inv_potion_161"},
 	250351: {Name: "Elixir of the Grizzly", Icon: "inv_potion_160"},
 	250943: {Name: "Major Frenzy Potion", Icon: "inv_potione_6"},
+	250951: {Name: "Caustic Smog Potion", Icon: "trade_alchemy_dpotion_c26"},
+	250953: {Name: "Dragonfire Potion", Icon: "inv_potion_33"},
+	250955: {Name: "Potion of Beast Slaying", Icon: "inv_alchemy_80_potion02yellow"},
 	252436: {Name: "Mystic Medium Armor Kit", Icon: "inv_misc_armorkit_15"},
 	252437: {Name: "Forceful Medium Armor Kit", Icon: "inv_misc_armorkit_15"},
 	252452: {Name: "Mystic Heavy Armor Kit", Icon: "inv_misc_armorkit_16"},
@@ -32,6 +39,7 @@ var ForeverItemIcons = map[int32]ForeverIcon{
 	274275: {Name: "Flask of Natural Precision", Icon: "inv_potionc_3"},
 	274276: {Name: "Flask of Natural Swiftness", Icon: "inv_potionc_4"},
 	274971: {Name: "Briny Seafood Stew", Icon: "inv_misc_food_154_fish_77green"},
+	277499: {Name: "Scroll of Greater Cryoblast", Icon: "inv_10_inscription2_repcontracts_scroll_02_uprez"},
 	279258: {Name: "Wild Leather Armor Kit", Icon: "inv_10_inscription_runedwrithebark_color1"},
 	284868: {Name: "Holy Hand Grenade of Alterac", Icon: "spell_shadow_mindbomb"},
 }

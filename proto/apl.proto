@@ -54,6 +54,13 @@ message APLSimpleView {
     string title = 3; // Shown before the row of boxes.
     repeated APLSimpleBox boxes = 4;
     repeated APLSimpleValue values = 5;
+    repeated APLSimpleText texts = 6; // Other wordings: the first whose condition holds replaces text.
+}
+
+// A wording for one case, picked by a condition on the boxes, values and gear ("Main hand swing - Auto Shot swing >= 0.5").
+message APLSimpleText {
+    string when = 1;
+    string text = 2;
 }
 
 message APLSimpleBox {
