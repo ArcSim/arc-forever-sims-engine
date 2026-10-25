@@ -26,6 +26,10 @@ message APLRotation {
 	// No longer read: the engine now always looks at the rotation again right after each Auto Shot. Kept so rotations
 	// saved with it still load.
 	bool recheck_after_auto_shot = 5;
+
+	// The walk into melee does not turn the melee attack on: only the Start Attack action does, or reaching melee
+	// when it has not run since the last Auto Shot (a melee ability pressed on arrival).
+	bool manual_start_attack = 6;
 }
 
 message SimpleRotation {
@@ -105,6 +109,7 @@ message APLAction {
         APLActionTriggerICD trigger_icd = 11;
         APLActionItemSwap item_swap = 17;
         APLActionMove move = 18;
+        APLActionStartAttack start_attack = 31;
         APLActionAddComboPoints add_combo_points = 23;
 
         // Class or Spec-specific actions
@@ -329,6 +334,11 @@ message APLActionCastPaladinPrimarySeal {
 
 message APLActionMove {
     APLValue range_from_target = 1;
+}
+
+// Turns the melee attack on, like the game's Start Attack or a melee ability pressed before reaching melee. An Auto
+// Shot turns it off again.
+message APLActionStartAttack {
 }
 
 message APLActionCustomRotation {

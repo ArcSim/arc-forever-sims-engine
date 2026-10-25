@@ -292,6 +292,25 @@ func (action *APLActionMove) String() string {
 	return fmt.Sprintf("Move(%s)", action.moveRange)
 }
 
+// APLActionStartAttack turns the melee attack on (AutoAttacks.StartAttack); it is ready while the attack is off.
+type APLActionStartAttack struct {
+	defaultAPLActionImpl
+	aa *AutoAttacks
+}
+
+func (rot *APLRotation) newActionStartAttack(_ *proto.APLActionStartAttack) APLActionImpl {
+	return &APLActionStartAttack{aa: &rot.unit.AutoAttacks}
+}
+func (action *APLActionStartAttack) IsReady(_ *Simulation) bool {
+	return action.aa.AutoSwingMelee && action.aa.MeleeAttackOff()
+}
+func (action *APLActionStartAttack) Execute(sim *Simulation) {
+	action.aa.StartAttack(sim)
+}
+func (action *APLActionStartAttack) String() string {
+	return "Start Attack"
+}
+
 type APLActionCustomRotation struct {
 	defaultAPLActionImpl
 	unit  *Unit

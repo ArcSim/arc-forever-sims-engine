@@ -383,6 +383,7 @@ func (wa *WeaponAttack) swing(sim *Simulation) time.Duration {
 		wa.lastAttackAt = sim.CurrentTime
 		wa.startTimer(sim, wa.swingAt)
 		wa.unit.AutoAttacks.shotSinceMelee = true
+		wa.unit.AutoAttacks.startAttackOn = false
 		// the shot is a decision point like a melee swing: off-GCD actions (a move into melee) can start right after it
 		// instead of waiting out the GCD (AB_NO_SHOT_RECHECK=1 turns it off, AB_SHOT_RECHECK_MS delays it, for engine
 		// comparisons)
@@ -507,6 +508,9 @@ type AutoAttacks struct {
 	MeleeResetsAutoShot bool
 	// an Auto Shot since the last melee swing: Auto Shot turning on is what turns the melee attack off
 	shotSinceMelee bool
+	// the rotation's Start Attack turned the melee attack on at startAttackAt, after the last Auto Shot
+	startAttackOn bool
+	startAttackAt time.Duration
 	// melee swings started on a walk in at 5 yd, before the walk ended
 	meleeWhileMoving bool
 
@@ -740,6 +744,7 @@ func (aa *AutoAttacks) reset(sim *Simulation) {
 
 	// the melee attack is not on before the pull
 	aa.shotSinceMelee = true
+	aa.startAttackOn = false
 	aa.meleeWhileMoving = false
 	aa.ranged.swingAt = NeverExpires
 
@@ -1270,12 +1275,23 @@ func retrySwingAt(now, ready, attackOn time.Duration) time.Duration {
 
 // swingOnArrival sets each hand's next swing for a unit that just got in melee range after a walk that turned the melee
 // attack on at attackOn (the off hand also waits ohWait from then), from the timers each hand had at range.
-func (aa *AutoAttacks) swingOnArrival(sim *Simulation, mhReady, ohReady, attackOn, ohWait time.Duration) {
+func (aa *AutoAttacks) swingOnArrival(sim *Simulation, mhReady, ohReady, walkStart, ohWait time.Duration) {
+	attackOn, startsNow := aa.attackOnForWalkIn(sim, walkStart)
 	// no Auto Shot since the last swing: the attack stayed on and only the timers count
 	if !aa.shotSinceMelee {
-		attackOn = 0
+		attackOn, startsNow = 0, false
 	}
-	aa.mh.swingAt = retrySwingAt(sim.CurrentTime, mhReady, attackOn)
+	// an attack turned on in melee range swings as soon as the server sees it there, with no retry
+	swingAt := func(ready time.Duration) time.Duration {
+		if startsNow {
+			return max(ready, sim.CurrentTime+attackStartDelay)
+		}
+		return retrySwingAt(sim.CurrentTime, ready, attackOn)
+	}
+	if startsNow {
+		aa.startAttackAt, aa.startAttackOn = attackOn, true
+	}
+	aa.mh.swingAt = swingAt(mhReady)
 	sim.rescheduleWeaponAttack(aa.mh.swingAt)
 	aa.mh.logSwingWaits(sim, mhReady, max(mhReady, attackOn))
 	if aa.IsDualWielding {
@@ -1283,10 +1299,40 @@ func (aa *AutoAttacks) swingOnArrival(sim *Simulation, mhReady, ohReady, attackO
 		if ForeverOffHandWaitsOnAttackStart && aa.shotSinceMelee {
 			ohReady = max(ohReady, attackOn+ohWait)
 		}
-		aa.oh.swingAt = retrySwingAt(sim.CurrentTime, ohReady, attackOn)
+		aa.oh.swingAt = swingAt(ohReady)
 		sim.rescheduleWeaponAttack(aa.oh.swingAt)
 		aa.oh.logSwingWaits(sim, timerEnd, max(ohReady, attackOn))
 	}
+	if startsNow {
+		aa.mh.retryPending, aa.oh.retryPending = false, false
+	}
+}
+
+// attackOnForWalkIn: when the melee attack turned on for a walk into melee that began at walkStart: at the rotation's
+// Start Attack since the last Auto Shot, else as the walk began. A rotation that starts the attack itself
+// (manualStartAttack) and has not done so turns it on now, on reaching melee (startsNow).
+func (aa *AutoAttacks) attackOnForWalkIn(sim *Simulation, walkStart time.Duration) (time.Duration, bool) {
+	manual := aa.mh.unit.Rotation != nil && aa.mh.unit.Rotation.manualStartAttack
+	switch {
+	case aa.startAttackOn && (manual || aa.startAttackAt < walkStart):
+		return aa.startAttackAt, false
+	case manual:
+		return sim.CurrentTime, true
+	}
+	return walkStart, false
+}
+
+// StartAttack turns the melee attack on now (the rotation's Start Attack action), until the next Auto Shot.
+func (aa *AutoAttacks) StartAttack(sim *Simulation) {
+	aa.startAttackAt, aa.startAttackOn = sim.CurrentTime, true
+	if sim.Log != nil && aa.mh.spell != nil {
+		aa.mh.unit.Log(sim, "Melee attack on (Start Attack)")
+	}
+}
+
+// MeleeAttackOff: no melee swing and no Start Attack since the last Auto Shot, or since the pull.
+func (aa *AutoAttacks) MeleeAttackOff() bool {
+	return aa.shotSinceMelee && !aa.startAttackOn
 }
 
 // logSwingWaits tells the timeline why a weapon that got in range now waits for its swing: out of melee range since its

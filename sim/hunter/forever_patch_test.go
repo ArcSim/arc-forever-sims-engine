@@ -50,6 +50,7 @@ type patchTestSetup struct {
 	quiver      proto.Hunter_Options_QuiverBonus
 	mobType     proto.MobType    // the target's creature type
 	profession  proto.Profession // a second profession
+	manualStart bool             // the rotation starts the melee attack itself (manual_start_attack)
 }
 
 func newPatchTestHunter(t *testing.T, setup patchTestSetup) (*core.Simulation, *Hunter) {
@@ -112,7 +113,7 @@ func newPatchTestHunter(t *testing.T, setup patchTestSetup) (*core.Simulation, *
 		TalentsString:      setup.talents,
 		DistanceFromTarget: setup.distance,
 		// an empty rotation: a main-hand swing asks it for the next action (Raptor Strike)
-		Rotation: &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
+		Rotation: &proto.APLRotation{Type: proto.APLRotation_TypeAPL, ManualStartAttack: setup.manualStart},
 		Buffs:    setup.ibuffs,
 		Spec: &proto.Player_Hunter{Hunter: &proto.Hunter{Options: &proto.Hunter_Options{
 			PetType:                  setup.petType,
@@ -1054,6 +1055,115 @@ func TestOffHandWaitsHalfItsSwingOnStepIn(t *testing.T) {
 	walkUntilMeleeRange(sim, hunter)
 	if got, want := hunter.AutoAttacks.OffhandSwingAt(), swingRetry(ohReady, sim.CurrentTime+50*time.Millisecond); got != want {
 		t.Errorf("no shot between: off hand swings at %v, want %v (the retry from its timer's end)", got, want)
+	}
+}
+
+// The Start Attack action and the walk-in switch (manualStartAttack). Off, the walk in turns the melee attack on as it
+// starts (or at an earlier Start Attack); on, only Start Attack does, else reaching melee turns it on and the main hand
+// swings as soon as the server sees it there, the off hand half its swing time later.
+func TestStartAttack(t *testing.T) {
+	type run struct{ press, walkStart, seen, mh, oh, ohSpeed time.Duration }
+	step := func(t *testing.T, manual, press bool) run {
+		sim, hunter := newPatchTestHunter(t, patchTestSetup{gearSet: "surv_dw", distance: 9, manualStart: manual})
+		if !hunter.AutoAttacks.IsDualWielding {
+			t.Fatal("not dual wielding")
+		}
+		sim.PrePull()
+		for i := 0; i < 100000 && sim.CurrentTime < 5*time.Second; i++ {
+			sim.Step()
+		}
+		// no swing since the pull: the attack is off, as after an Auto Shot
+		if !hunter.AutoAttacks.MeleeAttackOff() {
+			t.Fatal("test setup: the melee attack is on")
+		}
+		var r run
+		if press {
+			r.press = sim.CurrentTime
+			hunter.AutoAttacks.StartAttack(sim)
+			if hunter.AutoAttacks.MeleeAttackOff() {
+				t.Fatal("Start Attack left the melee attack off")
+			}
+		}
+		for i := 0; i < 100000 && sim.CurrentTime < r.press+400*time.Millisecond; i++ {
+			sim.Step()
+		}
+		r.walkStart = sim.CurrentTime
+		hunter.MoveTo(3, sim)
+		walkUntilMeleeRange(sim, hunter)
+		r.seen = sim.CurrentTime + 50*time.Millisecond
+		r.mh, r.oh, r.ohSpeed = hunter.AutoAttacks.MainhandSwingAt(), hunter.AutoAttacks.OffhandSwingAt(), hunter.AutoAttacks.OffhandSwingSpeed()
+		return r
+	}
+	for _, c := range []struct {
+		name          string
+		manual, press bool
+		mh, oh        func(r run) time.Duration
+	}{
+		{"walk-in switch off, no Start Attack: on from the walk's start", false, false,
+			func(r run) time.Duration { return swingRetry(r.walkStart, r.seen) },
+			func(r run) time.Duration { return swingRetry(r.walkStart+r.ohSpeed/2, r.seen) }},
+		{"walk-in switch off, Start Attack before the walk: on from the press", false, true,
+			func(r run) time.Duration { return swingRetry(r.press, r.seen) },
+			func(r run) time.Duration { return swingRetry(r.press+r.ohSpeed/2, r.seen) }},
+		{"walk-in switch on, no Start Attack: on at arrival, no retry", true, false,
+			func(r run) time.Duration { return r.seen },
+			func(r run) time.Duration { return r.seen - 50*time.Millisecond + r.ohSpeed/2 }},
+		{"walk-in switch on, Start Attack before the walk: on from the press", true, true,
+			func(r run) time.Duration { return swingRetry(r.press, r.seen) },
+			func(r run) time.Duration { return swingRetry(r.press+r.ohSpeed/2, r.seen) }},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			r := step(t, c.manual, c.press)
+			if want := c.mh(r); r.mh != want {
+				t.Errorf("main hand swings at %v, want %v (walk %v, seen in range %v)", r.mh, want, r.walkStart, r.seen)
+			}
+			if want := c.oh(r); r.oh != want {
+				t.Errorf("off hand swings at %v, want %v (walk %v, seen in range %v)", r.oh, want, r.walkStart, r.seen)
+			}
+		})
+	}
+}
+
+// The Start Attack action in a rotation: pressed while the melee attack is off, never again until an Auto Shot turns
+// the attack off.
+func TestStartAttackActionOncePerAutoShot(t *testing.T) {
+	const aplJSON = `{"type":"TypeAPL","recheckAfterAutoShot":true,"manualStartAttack":true,"priorityList":[{"action":{"startAttack":{}}}]}`
+	rot := &proto.APLRotation{}
+	if err := protojson.Unmarshal([]byte(aplJSON), rot); err != nil {
+		t.Fatalf("rotation: %v", err)
+	}
+	player := core.WithSpec(&proto.Player{
+		Race:               proto.Race_RaceHuman,
+		Class:              proto.Class_ClassHunter,
+		Equipment:          core.GetGearSet("../../ui/hunter/gear_sets", "2h_weave").GearSet,
+		TalentsString:      patchTestTalents,
+		Consumes:           abConsumes,
+		Buffs:              abIndividualBuffs,
+		Rotation:           rot,
+		DistanceFromTarget: 12,
+	}, abOptions)
+	res := core.RunRaidSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, abRaidBuffs, abDebuffs),
+		Encounter:  abEncounter(),
+		SimOptions: &proto.SimOptions{Iterations: 1, RandomSeed: 20261024, DebugFirstIteration: true},
+	})
+	if res.Error != nil {
+		t.Fatalf("sim error: %s", res.Error.Message)
+	}
+	presses, shots, pressedSinceShot := 0, 0, false
+	for _, line := range strings.Split(res.Logs, "\n") {
+		switch {
+		case strings.Contains(line, "Melee attack on (Start Attack)"):
+			if pressedSinceShot {
+				t.Fatalf("Start Attack pressed twice without an Auto Shot between: %s", line)
+			}
+			presses, pressedSinceShot = presses+1, true
+		case strings.Contains(line, "Completed cast {OtherID: 8}"):
+			shots, pressedSinceShot = shots+1, false
+		}
+	}
+	if shots < 10 || presses < shots {
+		t.Errorf("%d Start Attack presses for %d Auto Shots, want one after each", presses, shots)
 	}
 }
 
@@ -2031,6 +2141,12 @@ func TestWeavesTunedWithoutTheMeleeReset(t *testing.T) {
 	if n := len(ohHold.FindAll(light, -1)); n != 2 {
 		t.Fatalf("the off-hand hold %d times in the shipped Tight Weave, want twice", n)
 	}
+	// dual wield skips the walk-out Wing Clip while Arcane Shot or Multi-Shot is ready; never ready brings the clip back
+	shotReady := regexp.MustCompile(`("spellTimeToReady":\s*\{\s*"spellId":\s*\{\s*"spellId":\s*(?:14287|2643),\s*"rank":\s*\d+\s*\}\s*\}\s*\},\s*"rhs":\s*\{\s*"const":\s*\{\s*"val":\s*")0s(")`)
+	if n := len(shotReady.FindAll(light, -1)); n != 2 {
+		t.Fatalf("the shot-ready test %d times in the shipped Tight Weave, want twice (Arcane Shot, Multi-Shot)", n)
+	}
+	clipAlways := shotReady.ReplaceAll(light, []byte("${1}-9s${2}"))
 	swap := func(from, to string) []byte { return []byte(strings.ReplaceAll(string(light), from, to)) }
 	spot4 := spot.ReplaceAll(light, []byte("${1}4${2}"))
 	oldExit := []byte(strings.NewReplacer(slowAt, `"val": "9s"`, freeAt, `"val": "9s"`).Replace(string(light)))
@@ -2053,6 +2169,8 @@ func TestWeavesTunedWithoutTheMeleeReset(t *testing.T) {
 		{"2h_weave", "out as soon as the swing lands", oldExit, 3, 100},
 		{"2h_weave_reaper", "out as soon as the swing lands", oldExit, 5, 100},
 		{"2h_weave_reaper", "no strike wait", swap(slowAt, `"val": "9s"`), 0, 100},
+		{"surv_dw", "Wing Clip while a shot is ready", clipAlways, 3, 100},
+		{"surv_dw_no_teebu", "Wing Clip while a shot is ready", clipAlways, 3, 100},
 	} {
 		shipped, other := dps(light, c.gear, c.moveMs), dps(c.other, c.gear, c.moveMs)
 		t.Logf("Tight Weave, %s: %.1f DPS shipped, %.1f with %s", c.gear, shipped, other, c.what)
@@ -2064,6 +2182,12 @@ func TestWeavesTunedWithoutTheMeleeReset(t *testing.T) {
 	for _, gear := range []string{"surv_dw", "surv_dw_no_teebu"} {
 		if shipped, old := dps(light, gear, 100), dps(oldExit, gear, 100); shipped != old {
 			t.Errorf("Tight Weave, %s: %.2f DPS shipped, %.2f out as soon as the swing lands; dual wield should play the same", gear, shipped, old)
+		}
+	}
+	// a two-hander keeps its Wing Clip
+	for _, gear := range []string{"2h_weave", "2h_weave_reaper"} {
+		if shipped, clip := dps(light, gear, 100), dps(clipAlways, gear, 100); shipped != clip {
+			t.Errorf("Tight Weave, %s: %.2f DPS shipped, %.2f with Wing Clip while a shot is ready; a two-hander should play the same", gear, shipped, clip)
 		}
 	}
 }

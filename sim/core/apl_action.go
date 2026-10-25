@@ -181,6 +181,8 @@ func (rot *APLRotation) newAPLActionImpl(config *proto.APLAction) APLActionImpl 
 		return rot.newActionItemSwap(config.GetItemSwap())
 	case *proto.APLAction_Move:
 		return rot.newActionMove(config.GetMove())
+	case *proto.APLAction_StartAttack:
+		return rot.newActionStartAttack(config.GetStartAttack())
 	case *proto.APLAction_CustomRotation:
 		return rot.newActionCustomRotation(config.GetCustomRotation())
 	case *proto.APLAction_AddComboPoints:

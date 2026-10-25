@@ -37,6 +37,10 @@ type APLRotation struct {
 	hasMoves bool
 	gcdPoll  *PendingAction
 
+	// The walk into melee leaves the melee attack off (APLRotation.manual_start_attack): Start Attack or the arrival
+	// turns it on.
+	manualStartAttack bool
+
 	// Validation warnings that occur during proto parsing.
 	// We return these back to the user for display in the UI.
 	curWarnings          []string
@@ -83,6 +87,7 @@ func (unit *Unit) newAPLRotation(config *proto.APLRotation) *APLRotation {
 		unit:                 unit,
 		prepullWarnings:      make([][]string, len(config.PrepullActions)),
 		priorityListWarnings: make([][]string, len(config.PriorityList)),
+		manualStartAttack:    config.ManualStartAttack,
 	}
 
 	// Parse prepull actions
