@@ -97,6 +97,8 @@ func (rot *APLRotation) newAPLValue(config *proto.APLValue) APLValue {
 		return rot.newValueDistanceToTarget(config.GetDistanceToTarget())
 	case *proto.APLValue_WalkTime:
 		return rot.newValueWalkTime(config.GetWalkTime())
+	case *proto.APLValue_WeavePlay:
+		return rot.newValueWeavePlay(config.GetWeavePlay())
 
 	// Resources
 	case *proto.APLValue_CurrentHealth:

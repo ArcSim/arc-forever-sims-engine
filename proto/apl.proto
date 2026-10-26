@@ -143,6 +143,7 @@ message APLValue {
         APLValueNumberTargets number_targets = 28;
         APLValueDistanceToTarget distance_to_target = 78;
         APLValueWalkTime walk_time = 79;
+        APLValueWeavePlay weave_play = 81;
 
         // Resource values
         APLValueCurrentHealth current_health = 26;
@@ -415,6 +416,8 @@ message APLValueDistanceToTarget {}
 message APLValueWalkTime {
     APLValue to_distance = 1;
 }
+// The Weaving setting: 0 God Mode, 1 Pro Player, 2 Regular Player.
+message APLValueWeavePlay {}
 message APLValueIsExecutePhase {
     enum ExecutePhaseThreshold {
         Unknown = 0;

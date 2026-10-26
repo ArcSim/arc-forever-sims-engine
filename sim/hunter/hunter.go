@@ -271,6 +271,14 @@ func NewHunter(character *core.Character, options *proto.Player) *Hunter {
 	hunter.EnableManaBar()
 	hunter.PseudoStats.CanParry = true
 	hunter.MoveDelay = time.Duration(hunter.Options.MoveDelayMs) * time.Millisecond
+	// Pro Player and Regular Player: a weave of 2.5-2.6 s or 2.8-3.0 s with a 6.67 yd dead zone, from players' measured weaves
+	hunter.WeavePlay = int32(hunter.Options.WeavePlay)
+	switch hunter.Options.WeavePlay {
+	case proto.Hunter_Options_WeavePerfectPlay:
+		hunter.WeaveReactionMin, hunter.WeaveReactionSpan, hunter.WeaveOvershoot = 100*time.Millisecond, 100*time.Millisecond, 2.0/3
+	case proto.Hunter_Options_WeaveNormalPlay:
+		hunter.WeaveReactionMin, hunter.WeaveReactionSpan, hunter.WeaveOvershoot = 200*time.Millisecond, 100*time.Millisecond, 2.0/3
+	}
 	hunter.BaseRunSpeed = hunter.Options.RunSpeed
 	hunter.SkyborneConvergence = hunter.Options.SkyborneConvergence
 

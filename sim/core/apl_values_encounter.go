@@ -175,3 +175,23 @@ func (value *APLValueWalkTime) GetDuration(sim *Simulation) time.Duration {
 func (value *APLValueWalkTime) String() string {
 	return fmt.Sprintf("Walk Time(%s)", value.to)
 }
+
+// APLValueWeavePlay: the Weaving setting (0 God Mode, 1 Pro Player, 2 Regular Player), so a rotation can play
+// differently at a human reaction speed.
+type APLValueWeavePlay struct {
+	DefaultAPLValueImpl
+	unit *Unit
+}
+
+func (rot *APLRotation) newValueWeavePlay(_ *proto.APLValueWeavePlay) APLValue {
+	return &APLValueWeavePlay{unit: rot.unit}
+}
+func (value *APLValueWeavePlay) Type() proto.APLValueType {
+	return proto.APLValueType_ValueTypeInt
+}
+func (value *APLValueWeavePlay) GetInt(_ *Simulation) int32 {
+	return value.unit.WeavePlay
+}
+func (value *APLValueWeavePlay) String() string {
+	return "Weave Play"
+}

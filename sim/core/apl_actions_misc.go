@@ -270,8 +270,8 @@ func (action *APLActionMove) IsReady(sim *Simulation) bool {
 	if mh.PendingMove || mh.queuedMove || action.unit.IsCasting(sim) {
 		return false
 	}
-	// rounded here too, or a 4.6 yd spot standing at 5 would look ready forever and never move
-	moveRange := WholeYards(action.moveRange.GetFloat(sim))
+	// the same stop as the walk takes (to the hundredth of a yard, past the overshoot), or the move would look ready forever
+	moveRange := action.unit.SpotYards(action.moveRange.GetFloat(sim))
 	// during a walk only the walk back out from melee, once inside 5 yd on the way in: decided now and started on arrival
 	// (MoveTo). A walk out still decides at the end, where the next Auto Shot needs standing still anyway.
 	if action.unit.IsMoving() {
@@ -281,7 +281,7 @@ func (action *APLActionMove) IsReady(sim *Simulation) bool {
 	return moveRange != action.unit.DistanceFromTarget || isPrepull
 }
 func (action *APLActionMove) Execute(sim *Simulation) {
-	moveRange := WholeYards(action.moveRange.GetFloat(sim))
+	moveRange := action.unit.SpotYards(action.moveRange.GetFloat(sim))
 	if sim.Log != nil {
 		action.unit.Log(sim, "Moving to %s", moveRange)
 	}

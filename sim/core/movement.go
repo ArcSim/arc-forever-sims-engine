@@ -94,11 +94,13 @@ type MovementHandler struct {
 	offHandWait   time.Duration
 	// how far from the target the walk began (the timeline names a ready Auto Shot's wait from it)
 	moveStartDistance float64
-	// the walk's yard steps: the action, its time per yard, when the last yard ended and how many are left, so a run
-	// speed change during the walk re-paces the rest of it (repace, set for the walk under way)
+	// the walk's steps: the action, its time per yard, when the last step ended, where the walk began, its stops and how
+	// many are left, so a run speed change during the walk re-paces the rest of it (repace, set for the walk under way)
 	walkSteps  *PendingAction
 	walkPeriod time.Duration
 	walkStepAt time.Duration
+	walkStart  float64
+	walkPoints []float64
 	walkLeft   int
 	// +1 walking away from the target, -1 walking towards it
 	walkDir float64
@@ -248,8 +250,9 @@ func (unit *Unit) DistanceNow(sim *Simulation) float64 {
 	if mh == nil || !mh.Moving || mh.walkSteps == nil || mh.walkPeriod <= 0 || mh.walkLeft <= 0 {
 		return unit.DistanceFromTarget
 	}
+	step := mh.stepYards()
 	left := float64(mh.walkSteps.NextActionAt-sim.CurrentTime) / float64(mh.walkPeriod)
-	return unit.DistanceFromTarget + mh.walkDir*(1-max(0, min(1, left)))
+	return unit.DistanceFromTarget + mh.walkDir*(step-max(0, min(step, left)))
 }
 
 // A spell with a cast time cannot start while walking, nor with a walk decided and in its move reaction: the walk
@@ -268,14 +271,63 @@ func envFloat(name string) float64 {
 	return v
 }
 
-// WholeYards: distances are whole yards (a walk steps a yard at a time, so a 4.5 yd spot was never reached and froze the
-// rotation for the rest of the fight)
+// WholeYards: a fight's starting distance in whole yards.
 func WholeYards(distance float64) float64 {
 	return math.Round(distance)
 }
 
+// SpotYards: where a move stops, to the hundredth of a yard. With realistic weaving a walk out to shot range ends
+// WeaveOvershoot past the minimum range: nobody stops exactly on its edge.
+func (unit *Unit) SpotYards(distance float64) float64 {
+	spot := math.Round(distance*100) / 100
+	if edge := MinRangedAttackDistance + unit.WeaveOvershoot; unit.WeaveOvershoot > 0 && spot >= MinRangedAttackDistance && spot < edge {
+		spot = math.Round(edge*100) / 100
+	}
+	return spot
+}
+
+func (unit *Unit) realisticWeave() bool {
+	return unit.WeaveReactionMin > 0
+}
+
+// weaveReaction: a human reaction on a weave step, drawn evenly from its range (measured weaves come out 2.5-2.6 s at
+// best and 2.8-3.0 s for most players, the reactions spread over the four steps)
+func (unit *Unit) weaveReaction(sim *Simulation) time.Duration {
+	return unit.WeaveReactionMin + time.Duration(sim.RandomFloat("Weave Reaction")*float64(unit.WeaveReactionSpan))
+}
+
+// moveReaction: the wait between deciding to move and the first step.
+func (unit *Unit) moveReaction(sim *Simulation) time.Duration {
+	if unit.realisticWeave() {
+		return unit.weaveReaction(sim)
+	}
+	return unit.MoveDelay
+}
+
+// PressReady: with realistic weaving, a button press waits out the reaction to arriving.
+func (unit *Unit) PressReady(sim *Simulation) bool {
+	return unit.pressReactionUntil == 0 || sim.CurrentTime >= unit.pressReactionUntil
+}
+
+// reactToArrival: realistic weaving holds button presses for a reaction after a walk ends, then looks at the rotation
+// again right as it is over.
+func (unit *Unit) reactToArrival(sim *Simulation) {
+	if !unit.realisticWeave() || sim.CurrentTime < 0 {
+		return
+	}
+	unit.pressReactionUntil = sim.CurrentTime + unit.weaveReaction(sim)
+	if unit.Rotation == nil || sim.Options.Interactive {
+		return
+	}
+	StartDelayedAction(sim, DelayedActionOptions{
+		DoAt:     unit.pressReactionUntil,
+		Priority: ActionPriorityLow,
+		OnAction: unit.Rotation.DoNextAction,
+	})
+}
+
 func (unit *Unit) MoveTo(moveRange float64, sim *Simulation) {
-	moveRange = WholeYards(moveRange)
+	moveRange = unit.SpotYards(moveRange)
 	mh := unit.MovementHandler
 	// decided during a walk: the reaction runs while the walk goes on, and the new walk starts on arrival (or once the
 	// reaction is over, if that is later), the way a player turns around at the spot they were heading for
@@ -291,17 +343,18 @@ func (unit *Unit) MoveTo(moveRange float64, sim *Simulation) {
 				unit.moveToNow(moveRange, sim)
 			}
 		}
-		if unit.MoveDelay <= 0 || sim.CurrentTime < 0 {
+		delay := unit.moveReaction(sim)
+		if delay <= 0 || sim.CurrentTime < 0 {
 			queue(sim)
 			return
 		}
 		mh.PendingMove = true
 		waitID := ActionID{OtherID: proto.OtherAction_OtherActionMove, Tag: 1}
 		if sim.Log != nil {
-			unit.Log(sim, "Casting %s (Cost = 0.000, Cast Time = %s, Effective Time = 0s)", waitID, unit.MoveDelay)
+			unit.Log(sim, "Casting %s (Cost = 0.000, Cast Time = %s, Effective Time = 0s)", waitID, delay)
 		}
 		StartDelayedAction(sim, DelayedActionOptions{
-			DoAt: sim.CurrentTime + unit.MoveDelay,
+			DoAt: sim.CurrentTime + delay,
 			OnAction: func(sim *Simulation) {
 				if sim.Log != nil {
 					unit.Log(sim, "Completed cast %s", waitID)
@@ -318,16 +371,16 @@ func (unit *Unit) MoveTo(moveRange float64, sim *Simulation) {
 	if !unit.MovementHandler.PendingMove {
 		unit.countPress(sim)
 	}
-	// the unit's MoveDelay passes between the decision to move and the first step
-	if unit.MoveDelay > 0 && sim.CurrentTime >= 0 && !unit.MovementHandler.PendingMove {
+	// the move reaction passes between the decision to move and the first step
+	if delay := unit.moveReaction(sim); delay > 0 && sim.CurrentTime >= 0 && !unit.MovementHandler.PendingMove {
 		unit.MovementHandler.PendingMove = true
 		// log-only markers so the timeline can draw the wait in front of the move (no cast, no effects)
 		waitID := ActionID{OtherID: proto.OtherAction_OtherActionMove, Tag: 1}
 		if sim.Log != nil {
-			unit.Log(sim, "Casting %s (Cost = 0.000, Cast Time = %s, Effective Time = 0s)", waitID, unit.MoveDelay)
+			unit.Log(sim, "Casting %s (Cost = 0.000, Cast Time = %s, Effective Time = 0s)", waitID, delay)
 		}
 		StartDelayedAction(sim, DelayedActionOptions{
-			DoAt: sim.CurrentTime + unit.MoveDelay,
+			DoAt: sim.CurrentTime + delay,
 			OnAction: func(sim *Simulation) {
 				if sim.Log != nil {
 					unit.Log(sim, "Completed cast %s", waitID)
@@ -348,8 +401,18 @@ func (unit *Unit) moveToNow(moveRange float64, sim *Simulation) {
 
 	unit.MovementHandler.moveTarget = moveRange
 	moveDistance := moveRange - unit.DistanceFromTarget
-	moveTicks := math.Abs(moveDistance)
-	moveInterval := moveDistance / float64(moveTicks)
+	moveInterval := math.Copysign(1, moveDistance)
+	// the stops on the way: every whole yard between here and the spot, then the spot, so a fractional start or spot
+	// makes a step of less than a yard at that end
+	points := []float64{}
+	next := math.Floor(unit.DistanceFromTarget+1e-9) + 1
+	if moveInterval < 0 {
+		next = math.Ceil(unit.DistanceFromTarget-1e-9) - 1
+	}
+	for ; moveInterval*(moveRange-next) > 1e-9; next += moveInterval {
+		points = append(points, next)
+	}
+	points = append(points, moveRange)
 
 	mh := unit.MovementHandler
 	// the time per yard at the run speed of the moment
@@ -368,18 +431,24 @@ func (unit *Unit) moveToNow(moveRange float64, sim *Simulation) {
 	mh.moveSpell.Cast(sim, unit.CurrentTarget)
 
 	var step func(sim *Simulation)
-	// the next yard ends at first, the ones after it one yard time apart
-	startSteps := func(first time.Duration, yards int) {
+	// the next stop is reached at first, each one after it its share of a yard time later (re-added after the step, as a
+	// periodic action is)
+	startSteps := func(first time.Duration) {
 		mh.walkPeriod = yardTime()
-		mh.walkSteps = NewPeriodicAction(sim, PeriodicActionOptions{
-			Period:   mh.walkPeriod,
-			NumTicks: yards,
-			OnAction: step,
-		})
-		mh.walkSteps.NextActionAt = first
-		sim.AddPendingAction(mh.walkSteps)
+		pa := &PendingAction{NextActionAt: first}
+		pa.OnAction = func(sim *Simulation) {
+			step(sim)
+			if mh.walkSteps == pa && mh.walkLeft > 0 {
+				pa.NextActionAt = sim.CurrentTime + time.Duration(mh.stepYards()*float64(mh.walkPeriod))
+				sim.AddPendingAction(pa)
+			} else {
+				pa.Cancel(sim)
+			}
+		}
+		mh.walkSteps = pa
+		sim.AddPendingAction(pa)
 	}
-	// a run speed change during the walk (a speed buff gained or running out): the yard under way keeps the share
+	// a run speed change during the walk (a speed buff gained or running out): the step under way keeps the share
 	// already walked, the rest go at the new speed
 	mh.repace = func() {
 		if !mh.Moving || mh.walkSteps == nil || mh.walkLeft <= 0 {
@@ -389,15 +458,15 @@ func (unit *Unit) moveToNow(moveRange float64, sim *Simulation) {
 		if period == mh.walkPeriod {
 			return
 		}
-		left := 1 - float64(sim.CurrentTime-mh.walkStepAt)/float64(mh.walkPeriod)
+		left := mh.stepYards() - float64(sim.CurrentTime-mh.walkStepAt)/float64(mh.walkPeriod)
 		mh.walkSteps.Cancel(sim)
-		startSteps(sim.CurrentTime+time.Duration(left*float64(period)), mh.walkLeft)
+		startSteps(sim.CurrentTime + time.Duration(left*float64(period)))
 	}
-	mh.walkStepAt, mh.walkLeft, mh.walkDir = sim.CurrentTime, int(moveTicks), moveInterval
+	mh.walkStepAt, mh.walkStart, mh.walkPoints, mh.walkLeft, mh.walkDir = sim.CurrentTime, unit.DistanceFromTarget, points, len(points), moveInterval
 	step = func(sim *Simulation) {
-		mh.walkStepAt, mh.walkLeft = sim.CurrentTime, mh.walkLeft-1
 		wasInMelee := unit.DistanceFromTarget <= 5
-		unit.DistanceFromTarget += moveInterval
+		unit.DistanceFromTarget = mh.walkPoints[len(mh.walkPoints)-mh.walkLeft]
+		mh.walkStepAt, mh.walkLeft = sim.CurrentTime, mh.walkLeft-1
 		unit.MovementHandler.moveAura.SetStacks(sim, int32(unit.DistanceFromTarget))
 
 		// a walk out that kept swinging stops at the step onto 5 yd: walking on, it is past melee range the moment after
@@ -409,12 +478,12 @@ func (unit *Unit) moveToNow(moveRange float64, sim *Simulation) {
 		if !wasInMelee && unit.DistanceFromTarget <= 5 {
 			unit.AutoAttacks.ForceMeleeSwing(sim)
 			// swinging starts here, mid-walk, if the walk goes on into melee
-			if unit.DistanceFromTarget != moveRange {
+			if mh.walkLeft > 0 {
 				unit.AutoAttacks.StartMeleeMidMove(sim, unit.MovementHandler.moveStartedAt, unit.MovementHandler.offHandWait)
 			}
 		}
 
-		if unit.DistanceFromTarget == moveRange {
+		if mh.walkLeft == 0 {
 			swung := unit.MovementHandler.swungWhileMoving
 			unit.MovementHandler.moveAura.Deactivate(sim)
 			if mh := unit.MovementHandler; mh.queuedMove {
@@ -422,6 +491,7 @@ func (unit *Unit) moveToNow(moveRange float64, sim *Simulation) {
 				unit.moveToNow(mh.queuedRange, sim)
 				return
 			}
+			unit.reactToArrival(sim)
 			// a swing that landed mid-walk (melee starts at 5 yd) could not start the walk back then: its decision runs
 			// on arrival instead of waiting out a busy GCD. Only then: a walk that ends before its swing keeps waiting
 			// for the swing as before. Here and not in the aura's expiry, which also runs when a fight ends mid-walk.
@@ -430,7 +500,20 @@ func (unit *Unit) moveToNow(moveRange float64, sim *Simulation) {
 			}
 		}
 	}
-	startSteps(sim.CurrentTime+yardTime(), int(moveTicks))
+	startSteps(sim.CurrentTime + time.Duration(mh.stepYards()*float64(yardTime())))
+}
+
+// stepYards: the length of the walk's next step, a yard or the fraction left to a whole yard or to the spot.
+func (mh *MovementHandler) stepYards() float64 {
+	if mh.walkLeft <= 0 {
+		return 0
+	}
+	i := len(mh.walkPoints) - mh.walkLeft
+	from := mh.walkStart
+	if i > 0 {
+		from = mh.walkPoints[i-1]
+	}
+	return math.Abs(mh.walkPoints[i] - from)
 }
 
 // A move speed increase of 30% should be represented as 1.30 and a move speed slow of 70% should be respresented as 0.70

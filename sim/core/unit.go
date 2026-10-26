@@ -62,6 +62,16 @@ type Unit struct {
 	DistanceFromTarget      float64
 	// wait before each step toward or away from the target (turning, reaction)
 	MoveDelay time.Duration
+	// realistic weaving: a reaction drawn from WeaveReactionMin to WeaveReactionMin+WeaveReactionSpan before each move
+	// (in place of MoveDelay) and before the first press after arriving; a walk out to shot range stops WeaveOvershoot yd
+	// past the minimum range
+	WeaveReactionMin  time.Duration
+	WeaveReactionSpan time.Duration
+	WeaveOvershoot    float64
+	// the Weaving setting itself (0 God Mode, 1 Pro Player, 2 Regular Player), for rotations that read it
+	WeavePlay int32
+	// realistic weave: no button press before this, the reaction to arriving
+	pressReactionUntil time.Duration
 	// run speed in yd/s before any speed effect; 0 is the game's 7
 	BaseRunSpeed float64
 	// Skyborne's Skysight / Read Leyline from a convergence or leyline: up the whole fight (cast before the pull)
@@ -511,6 +521,7 @@ func (unit *Unit) finalize() {
 
 func (unit *Unit) reset(sim *Simulation, _ Agent) {
 	unit.enabled = true
+	unit.pressReactionUntil = 0
 	unit.resetCDs(sim)
 	unit.Hardcast.Expires = startingCDTime
 	unit.ChanneledDot = nil

@@ -159,6 +159,16 @@ message Hunter {
 		bool pet_flametongue_totem = 12;
 		// Extra time before every step into or out of melee (turning, reaction), on top of the walk itself.
 		int32 move_delay_ms = 13;
+		// How humanly the weave is played. God Mode: no reactions beyond move_delay_ms, stops exactly on 11 yd. Pro Player
+		// (2.5-2.6 s weaves) and Regular Player (2.8-3.0 s): a reaction before each move (in place of move_delay_ms) and before
+		// the first button press after arriving, 100-200 ms or 200-300 ms, and a walk out stops 2/3 yd past the minimum
+		// range. Auto attacks and a Raptor Strike queued on the way in stay instant.
+		enum WeavePlay {
+			WeaveGodMode = 0;
+			WeavePerfectPlay = 1;
+			WeaveNormalPlay = 2;
+		}
+		WeavePlay weave_play = 24;
 		// Abilities the pet does not use; every ability of its family is on by default.
 		enum PetAbility {
 			PetAbilityUnknown = 0;
