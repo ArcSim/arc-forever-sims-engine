@@ -65,7 +65,7 @@ func (hunter *Hunter) getImmolationTrapConfig(rank int, timer *core.Timer) core.
 		MissileSpeed:  24,
 		// a trap at your feet only catches a target within its reach (it does nothing from further out)
 		ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {
-			return hunter.DistanceFromTarget <= hunter.trapReach()
+			return hunter.DistanceNow(sim) <= hunter.trapReach()
 		},
 
 		ManaCost: core.ManaCostOptions{
@@ -104,7 +104,7 @@ func (hunter *Hunter) getImmolationTrapConfig(rank int, timer *core.Timer) core.
 		},
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			if hunter.DistanceFromTarget > hunter.trapReach() {
+			if hunter.DistanceNow(sim) > hunter.trapReach() {
 				return
 			}
 			// Traps gain no benefit from hit bonuses except for the Trap Mastery talent, since this is a unique interaction this is my workaround

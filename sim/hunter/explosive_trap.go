@@ -78,7 +78,7 @@ func (hunter *Hunter) getExplosiveTrapConfig(rank int, timer *core.Timer) core.S
 		},
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			if hunter.DistanceFromTarget > hunter.trapReach() {
+			if hunter.DistanceNow(sim) > hunter.trapReach() {
 				return
 			}
 

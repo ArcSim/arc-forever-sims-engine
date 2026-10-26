@@ -326,6 +326,10 @@ message UnitMetrics {
 	// Chance (0-1) representing probability of death. Used for tank sims.
 	double chance_of_death = 12;
 
+	// Actions per minute, averaged over iterations: abilities pressed (rotation spells, potions, explosives, racials)
+	// and walks and Start Attacks the rotation started, from the pull on. Auto attacks and procs are not presses.
+	double apm = 18;
+
 	repeated ActionMetrics actions = 5;
 	repeated AuraMetrics auras = 6;
 	repeated ResourceMetrics resources = 10;

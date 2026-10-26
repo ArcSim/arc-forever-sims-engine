@@ -55,7 +55,7 @@ func (hunter *Hunter) registerSniperShotSpell() {
 			},
 		},
 		ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {
-			return hunter.DistanceFromTarget >= core.MinRangedAttackDistance
+			return hunter.DistanceNow(sim) >= core.MinRangedAttackDistance
 		},
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,

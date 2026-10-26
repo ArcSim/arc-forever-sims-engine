@@ -119,6 +119,56 @@ func TestHawkSwingOutcomes(t *testing.T) {
 	t.Fatal("no hawk attacks in the results")
 }
 
+// A hawk's swing is the hawk's attack, not the hunter's: it sets off none of the hunter's on-hit effects. Judgement of
+// Wisdom gives its mana to the attacker, so only the hunter's own attacks (Auto Shot, the dive) can return mana: half
+// of them at its 50%, where the hawks' swings, about twice as many, had doubled it.
+func TestHawkSwingsGiveNoHunterMana(t *testing.T) {
+	rotation := &proto.APLRotation{}
+	if err := protojson.Unmarshal([]byte(`{"type":"TypeAPL","priorityList":[{"action":{"castSpell":{"spellId":{"spellId":1293241}}}}]}`), rotation); err != nil {
+		t.Fatal(err)
+	}
+	player := core.WithSpec(&proto.Player{
+		Race:               proto.Race_RaceHuman,
+		Class:              proto.Class_ClassHunter,
+		Equipment:          core.GetGearSet("../../ui/hunter/gear_sets", "2h_weave").GearSet,
+		TalentsString:      hawkTestTalents,
+		Rotation:           rotation,
+		DistanceFromTarget: 20,
+	}, abOptions)
+	res := core.RunRaidSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{JudgementOfWisdom: true}),
+		Encounter:  abEncounter(),
+		SimOptions: &proto.SimOptions{Iterations: 50, RandomSeed: 20261025},
+	})
+	if res.Error != nil {
+		t.Fatalf("sim error: %s", res.Error.Message)
+	}
+	pm := res.RaidMetrics.Parties[0].Players[0]
+	var ownAttacks, hawkSwings float64
+	for _, a := range pm.Actions {
+		for _, tm := range a.Targets {
+			switch {
+			case a.Id.GetSpellId() == 1293241 && a.Id.Tag == 1:
+				hawkSwings += float64(tm.Hits + tm.Crits + tm.Glances + tm.Dodges + tm.Misses)
+			case a.Id.GetSpellId() == 1293241 && a.Id.Tag == 0, a.Id.GetOtherId() == proto.OtherAction_OtherActionShoot:
+				ownAttacks += float64(tm.Casts)
+			}
+		}
+	}
+	var jowProcs float64
+	for _, r := range pm.Resources {
+		if r.Id.GetSpellId() == 20355 {
+			jowProcs += float64(r.Events)
+		}
+	}
+	if hawkSwings < ownAttacks {
+		t.Fatalf("only %.0f hawk swings to %.0f of the hunter's own attacks", hawkSwings, ownAttacks)
+	}
+	if ownAttacks == 0 || jowProcs > 0.65*ownAttacks {
+		t.Errorf("Judgement of Wisdom returned mana %.0f times for %.0f of the hunter's own attacks (and %.0f hawk swings), want about half of the hunter's", jowProcs, ownAttacks, hawkSwings)
+	}
+}
+
 // A hawk crits for half the hunter's crit plus 2% a point of Ferocity (an owner's pet critting 22.2% and hawk 16.2% in
 // the logs solve to 12% owner crit and 10% Ferocity), and Unleashed Fury raises its swings 3% a point.
 func TestHawkCritAndUnleashedFury(t *testing.T) {

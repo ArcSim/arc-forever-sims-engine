@@ -289,6 +289,7 @@ func (rsrc *raidSimResultCombiner) combineUnitMetrics(base *proto.UnitMetrics, a
 
 	base.SecondsOomAvg += add.SecondsOomAvg * weight
 	base.ChanceOfDeath += add.ChanceOfDeath * weight
+	base.Apm += add.Apm * weight
 
 	for _, addAction := range add.Actions {
 		rsrc.addActionMetrics(base, addAction)

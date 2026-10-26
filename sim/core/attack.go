@@ -235,14 +235,6 @@ func (aa *AutoAttacks) RegisterExtraMHSwing(actionID ActionID, register func(*Sp
 	aa.extraMHSwings = append(aa.extraMHSwings, extraMHSwing{actionID: actionID, register: register})
 }
 
-// MaybeReplaceMHSwing gives a queued next-melee ability (Raptor Strike) the swing, as a main-hand auto attack would.
-func (aa *AutoAttacks) MaybeReplaceMHSwing(sim *Simulation, mhSwingSpell *Spell) *Spell {
-	if aa.mh.replaceSwing == nil {
-		return mhSwingSpell
-	}
-	return aa.mh.replaceSwing(sim, mhSwingSpell)
-}
-
 func (aa *AutoAttacks) OHConfig() *SpellConfig {
 	return &aa.oh.config
 }
@@ -859,6 +851,10 @@ func (aa *AutoAttacks) OffhandSwingSpeed() time.Duration {
 
 // The amount of time between two Ranged swings.
 func (aa *AutoAttacks) RangedSwingSpeed() time.Duration {
+	// no Auto Shot (no ranged weapon): no cycle, as an empty off hand reads
+	if aa.ranged.spell == nil {
+		return 0
+	}
 	return aa.ranged.curSwingDuration - aa.RangedAuto().CastTime()
 }
 
@@ -1429,6 +1425,22 @@ func (aa *AutoAttacks) StartMeleeMidMove(sim *Simulation, attackOn time.Duration
 }
 
 // MeleeStartedMidMove: the walk that just ended already started the melee swings at 5 yd.
+// KeepMeleeWhileWalkingOut: a walk out of melee keeps both hands swinging, on their running timers, until it passes 5 yd.
+func (aa *AutoAttacks) KeepMeleeWhileWalkingOut(sim *Simulation) {
+	if !ForeverMeleeWhileWalkingOut || !aa.AutoSwingMelee || aa.meleeWhileMoving || aa.mh.spell == nil {
+		return
+	}
+	aa.meleeWhileMoving = true
+	aa.mh.addWeaponAttack(sim, aa.mh.unit.SwingSpeed())
+	if aa.IsDualWielding {
+		aa.oh.addWeaponAttack(sim, aa.mh.unit.SwingSpeed())
+	}
+}
+
+// ForeverMeleeWhileWalkingOut: a melee swing needs the target within 5 yd, not standing still, so a walk out swings
+// until it passes 5 yd. False only for comparisons.
+var ForeverMeleeWhileWalkingOut = true
+
 func (aa *AutoAttacks) MeleeStartedMidMove() bool {
 	return aa.meleeWhileMoving
 }

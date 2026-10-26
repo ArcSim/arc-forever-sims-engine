@@ -44,7 +44,7 @@ func (hunter *Hunter) registerMultiShotSpell(timer *core.Timer) {
 			},
 		},
 		ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {
-			return hunter.DistanceFromTarget >= core.MinRangedAttackDistance
+			return hunter.DistanceNow(sim) >= core.MinRangedAttackDistance
 		},
 
 		CritDamageBonus:  hunter.mortalShots(),

@@ -424,6 +424,8 @@ type PseudoStats struct {
 	BonusOHDps     float64
 	BonusRangedDps float64
 
+	BonusRangedHitRating float64 // ranged-only hit (scopes), already on every ranged spell; hunter pets inherit it
+
 	IncreasedMissChance float64 // Insect Swarm and Scorpid Sting
 	DodgeReduction      float64 // Target dodge reduction effects e.g. "reduces its target's chance to Dodge by X%"
 

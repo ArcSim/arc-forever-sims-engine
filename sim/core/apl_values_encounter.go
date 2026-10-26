@@ -138,7 +138,7 @@ func (value *APLValueDistanceToTarget) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeFloat
 }
 func (value *APLValueDistanceToTarget) GetFloat(sim *Simulation) float64 {
-	return value.unit.DistanceFromTarget
+	return value.unit.DistanceNow(sim)
 }
 func (value *APLValueDistanceToTarget) String() string {
 	return "Distance to Target"
@@ -170,7 +170,7 @@ func (value *APLValueWalkTime) GetDuration(sim *Simulation) time.Duration {
 	if speed <= 0 {
 		return 0
 	}
-	return DurationFromSeconds(math.Abs(value.unit.DistanceFromTarget-value.to.GetFloat(sim)) / speed)
+	return DurationFromSeconds(math.Abs(value.unit.DistanceNow(sim)-value.to.GetFloat(sim)) / speed)
 }
 func (value *APLValueWalkTime) String() string {
 	return fmt.Sprintf("Walk Time(%s)", value.to)

@@ -409,18 +409,65 @@
     {
       "action": {
         "condition": {
-          "cmp": {
-            "op": "OpLe",
-            "lhs": {
-              "autoTimeSinceLast": {
-                "autoType": "Ranged"
+          "and": {
+            "vals": [
+              {
+                "cmp": {
+                  "op": "OpLe",
+                  "lhs": {
+                    "autoTimeSinceLast": {
+                      "autoType": "Ranged"
+                    }
+                  },
+                  "rhs": {
+                    "const": {
+                      "val": "0.75s"
+                    }
+                  }
+                }
+              },
+              {
+                "not": {
+                  "val": {
+                    "and": {
+                      "vals": [
+                        {
+                          "cmp": {
+                            "op": "OpLe",
+                            "lhs": {
+                              "spellTimeToReady": {
+                                "spellId": {
+                                  "spellId": 2643,
+                                  "rank": 1
+                                }
+                              }
+                            },
+                            "rhs": {
+                              "const": {
+                                "val": "0.3s"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "cmp": {
+                            "op": "OpLe",
+                            "lhs": {
+                              "gcdTimeToReady": {}
+                            },
+                            "rhs": {
+                              "const": {
+                                "val": "0.3s"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
               }
-            },
-            "rhs": {
-              "const": {
-                "val": "0.75s"
-              }
-            }
+            ]
           }
         },
         "move": {
@@ -432,7 +479,7 @@
         }
       },
       "simple": {
-        "text": "**Move in** to {Melee spot} yd right after your Auto Shot.",
+        "text": "**Move in** to {Melee spot} yd right after your Auto Shot, unless Multi-Shot is ready within 0.3 s (shoot it first).",
         "shown": true,
         "boxes": [
           {

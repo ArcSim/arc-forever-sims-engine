@@ -29,6 +29,12 @@ func (hunter *Hunter) ApplyTalents() {
 
 		hunter.pet.PseudoStats.DamageDealtMultiplier *= 1 + 0.03*float64(hunter.Talents.UnleashedFury)
 
+		// a pet's hit is its owner's ranged hit (forever-bugs #394), so ranged-only hit (a scope) reaches it too; it is
+		// gear, set before talents, and never changes in a fight, so it is added once rather than through the inheritance
+		rangedOnlyHit := hunter.PseudoStats.BonusRangedHitRating
+		hunter.pet.AddStat(stats.MeleeHit, rangedOnlyHit)
+		hunter.pet.AddStat(stats.SpellHit, rangedOnlyHit*17/8)
+
 		if hunter.Talents.EnduranceTraining > 0 {
 			mult := 1 + 0.03*float64(hunter.Talents.EnduranceTraining)
 			hunter.pet.MultiplyStat(stats.Health, mult)

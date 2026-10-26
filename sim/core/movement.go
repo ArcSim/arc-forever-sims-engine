@@ -100,7 +100,9 @@ type MovementHandler struct {
 	walkPeriod time.Duration
 	walkStepAt time.Duration
 	walkLeft   int
-	repace     func()
+	// +1 walking away from the target, -1 walking towards it
+	walkDir float64
+	repace  func()
 
 	baseSpeed float64
 	// speed bonuses that stack with the rest instead of competing for the highest
@@ -138,12 +140,16 @@ func (unit *Unit) initMovement() {
 			if unit.IsChanneling(sim) {
 				unit.ChanneledDot.Cancel(sim)
 			}
+			walkingOut := unit.MovementHandler.moveTarget > MaxMeleeAttackDistance && unit.DistanceFromTarget <= MaxMeleeAttackDistance
 			// walking out of melee before a swing retry landed: the timeline shows that wait as left
-			if unit.MovementHandler.moveTarget > MaxMeleeAttackDistance {
+			if unit.MovementHandler.moveTarget > MaxMeleeAttackDistance && !(walkingOut && ForeverMeleeWhileWalkingOut) {
 				unit.AutoAttacks.mh.endRetryWait(sim, "left")
 				unit.AutoAttacks.oh.endRetryWait(sim, "left")
 			}
 			unit.AutoAttacks.CancelAutoSwing(sim)
+			if walkingOut {
+				unit.AutoAttacks.KeepMeleeWhileWalkingOut(sim)
+			}
 			unit.MovementHandler.Moving = true
 			unit.MovementHandler.swungWhileMoving = false
 			unit.MovementHandler.startedInMelee = unit.DistanceFromTarget <= MaxMeleeAttackDistance
@@ -234,6 +240,24 @@ func (unit *Unit) IsMoving() bool {
 	return unit.MovementHandler.Moving
 }
 
+// DistanceNow is where the unit is right now: DistanceFromTarget only changes as each yard of a walk ends, so mid-yard
+// it counts the share already walked. Range checks read this, so a walk off the 5 yd edge leaves melee as it starts
+// (not a yard later) and a walk in from 11 yd is no longer in shot range once it starts.
+func (unit *Unit) DistanceNow(sim *Simulation) float64 {
+	mh := unit.MovementHandler
+	if mh == nil || !mh.Moving || mh.walkSteps == nil || mh.walkPeriod <= 0 || mh.walkLeft <= 0 {
+		return unit.DistanceFromTarget
+	}
+	left := float64(mh.walkSteps.NextActionAt-sim.CurrentTime) / float64(mh.walkPeriod)
+	return unit.DistanceFromTarget + mh.walkDir*(1-max(0, min(1, left)))
+}
+
+// A spell with a cast time cannot start while walking, nor with a walk decided and in its move reaction: the walk
+// would cancel it.
+func (unit *Unit) castBlockedByMove() bool {
+	return unit.MovementHandler.Moving || unit.MovementHandler.PendingMove
+}
+
 // Footwork experiment (local knob, off by default): AB_MOVE_OUT_SPEED sets the speed in yd/s for
 // moves away from the target (4.5 = backpedal).
 func envFloat(name string) float64 {
@@ -259,6 +283,7 @@ func (unit *Unit) MoveTo(moveRange float64, sim *Simulation) {
 		if moveRange == mh.moveTarget || mh.PendingMove || mh.queuedMove {
 			return
 		}
+		unit.countPress(sim)
 		queue := func(sim *Simulation) {
 			if mh.Moving {
 				mh.queuedMove, mh.queuedRange = true, moveRange
@@ -289,6 +314,9 @@ func (unit *Unit) MoveTo(moveRange float64, sim *Simulation) {
 	}
 	if moveRange == unit.DistanceFromTarget {
 		return
+	}
+	if !unit.MovementHandler.PendingMove {
+		unit.countPress(sim)
 	}
 	// the unit's MoveDelay passes between the decision to move and the first step
 	if unit.MoveDelay > 0 && sim.CurrentTime >= 0 && !unit.MovementHandler.PendingMove {
@@ -365,13 +393,19 @@ func (unit *Unit) moveToNow(moveRange float64, sim *Simulation) {
 		mh.walkSteps.Cancel(sim)
 		startSteps(sim.CurrentTime+time.Duration(left*float64(period)), mh.walkLeft)
 	}
-	mh.walkStepAt, mh.walkLeft = sim.CurrentTime, int(moveTicks)
+	mh.walkStepAt, mh.walkLeft, mh.walkDir = sim.CurrentTime, int(moveTicks), moveInterval
 	step = func(sim *Simulation) {
 		mh.walkStepAt, mh.walkLeft = sim.CurrentTime, mh.walkLeft-1
 		wasInMelee := unit.DistanceFromTarget <= 5
 		unit.DistanceFromTarget += moveInterval
 		unit.MovementHandler.moveAura.SetStacks(sim, int32(unit.DistanceFromTarget))
 
+		// a walk out that kept swinging stops at the step onto 5 yd: walking on, it is past melee range the moment after
+		if moveInterval > 0 && unit.DistanceFromTarget >= 5 && unit.AutoAttacks.MeleeStartedMidMove() {
+			unit.AutoAttacks.mh.endRetryWait(sim, "left")
+			unit.AutoAttacks.oh.endRetryWait(sim, "left")
+			unit.AutoAttacks.stopMeleeMidMove(sim)
+		}
 		if !wasInMelee && unit.DistanceFromTarget <= 5 {
 			unit.AutoAttacks.ForceMeleeSwing(sim)
 			// swinging starts here, mid-walk, if the walk goes on into melee

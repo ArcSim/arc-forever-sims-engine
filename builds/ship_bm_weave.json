@@ -11,12 +11,12 @@
     }
   },
   "raidBuffs": {
-    "giftOfTheWild": "TristateEffectImproved",
-    "strengthOfEarthTotem": "TristateEffectImproved",
-    "graceOfAirTotem": "TristateEffectImproved",
+    "giftOfTheWild": "TristateEffectRegular",
+    "strengthOfEarthTotem": "TristateEffectRegular",
+    "graceOfAirTotem": "TristateEffectRegular",
     "arcaneBrilliance": true,
     "divineSpirit": true,
-    "battleShout": "TristateEffectImproved",
+    "battleShout": "TristateEffectRegular",
     "trueshotAura": true,
     "leaderOfThePack": true,
     "manaSpringTotem": "TristateEffectImproved",
@@ -123,8 +123,8 @@
     },
     "buffs": {
       "blessingOfKings": true,
-      "blessingOfWisdom": "TristateEffectImproved",
-      "blessingOfMight": "TristateEffectImproved"
+      "blessingOfWisdom": "TristateEffectRegular",
+      "blessingOfMight": "TristateEffectRegular"
     },
     "talentsString": "5023000505111251-005003-50023002",
     "profession1": "Blacksmithing",
@@ -558,18 +558,65 @@
         {
           "action": {
             "condition": {
-              "cmp": {
-                "op": "OpLe",
-                "lhs": {
-                  "autoTimeSinceLast": {
-                    "autoType": "Ranged"
+              "and": {
+                "vals": [
+                  {
+                    "cmp": {
+                      "op": "OpLe",
+                      "lhs": {
+                        "autoTimeSinceLast": {
+                          "autoType": "Ranged"
+                        }
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "0.75s"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "not": {
+                      "val": {
+                        "and": {
+                          "vals": [
+                            {
+                              "cmp": {
+                                "op": "OpLe",
+                                "lhs": {
+                                  "spellTimeToReady": {
+                                    "spellId": {
+                                      "spellId": 2643,
+                                      "rank": 1
+                                    }
+                                  }
+                                },
+                                "rhs": {
+                                  "const": {
+                                    "val": "0.3s"
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "cmp": {
+                                "op": "OpLe",
+                                "lhs": {
+                                  "gcdTimeToReady": {}
+                                },
+                                "rhs": {
+                                  "const": {
+                                    "val": "0.3s"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
                   }
-                },
-                "rhs": {
-                  "const": {
-                    "val": "0.75s"
-                  }
-                }
+                ]
               }
             },
             "move": {
@@ -581,7 +628,7 @@
             }
           },
           "simple": {
-            "text": "**Move in** to {Melee spot} yd right after your Auto Shot.",
+            "text": "**Move in** to {Melee spot} yd right after your Auto Shot, unless Multi-Shot is ready within 0.3 s (shoot it first).",
             "shown": true,
             "boxes": [
               {

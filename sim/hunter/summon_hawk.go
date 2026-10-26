@@ -114,7 +114,9 @@ func (hunter *Hunter) registerSummonHawkSpell(sharedTimer *core.Timer) {
 		ActionID:    core.ActionID{SpellID: 1293241}.WithTag(1),
 		SpellSchool: core.SpellSchoolPhysical,
 		DefenseType: core.DefenseTypeMelee,
-		ProcMask:    core.ProcMaskRangedSpecial,
+		// a guardian's attack sets off none of the hunter's on-hit effects (Judgement of Wisdom's mana goes to the
+		// attacker, the hawk)
+		ProcMask: core.ProcMaskEmpty,
 		// a guardian's attack: the hunter's own damage talents (Lone Wolf, Improved Tracking) do not apply
 		Flags:    core.SpellFlagMeleeMetrics | core.SpellFlagPassiveSpell | core.SpellFlagIgnoreAttackerModifiers,
 		CastType: proto.CastType_CastTypeMainHand,

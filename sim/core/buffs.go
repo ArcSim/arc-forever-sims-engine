@@ -234,12 +234,12 @@ func applyBuffEffects(agent Agent, playerFaction proto.Faction, raidBuffs *proto
 		character.AddStats(BuffSpellValues[ScrollOfIntellect])
 	}
 
+	// Forever has no talents that improve raid buffs: the client values already hold Classic's improved share (Gift of
+	// the Wild 21850 is 16 stats, Classic's 12 x1.35; Grace of Air 25360 is 89, Classic's 77 x1.15), and no talent tree
+	// carries Improved Mark of the Wild, Enhancing Totems, Improved Blessing of Might or Wisdom, or Improved Battle
+	// Shout, so an old "Improved" setting gives the plain buff
 	if raidBuffs.GiftOfTheWild > 0 {
 		updateStats := BuffSpellValues[MarkOfTheWild]
-		// Forever Improved Mark of the Wild: +35%
-		if raidBuffs.GiftOfTheWild == proto.TristateEffect_TristateEffectImproved {
-			updateStats = updateStats.Multiply(1.35).Floor()
-		}
 		character.AddStats(updateStats)
 		bonusResist = updateStats[stats.NatureResistance]
 	}
@@ -361,28 +361,25 @@ func applyBuffEffects(agent Agent, playerFaction proto.Faction, raidBuffs *proto
 	}
 
 	if raidBuffs.BattleShout != proto.TristateEffect_TristateEffectMissing {
-		// Forever Improved Battle Shout: 5 ranks, +25%
-		MakePermanent(BattleShoutAura(&character.Unit, GetTristateValueInt32(raidBuffs.BattleShout, 0, 5), 0, false))
+		MakePermanent(BattleShoutAura(&character.Unit, 0, 0, false))
 	}
 
 	if individualBuffs.BlessingOfMight != proto.TristateEffect_TristateEffectMissing {
-		// Forever Improved Blessing of Might: 5 ranks, +20%
-		MakePermanent(BlessingOfMightAura(&character.Unit, GetTristateValueInt32(individualBuffs.BlessingOfMight, 0, 5)))
+		MakePermanent(BlessingOfMightAura(&character.Unit, 0))
 	}
 
 	if raidBuffs.StrengthOfEarthTotem != proto.TristateEffect_TristateEffectMissing {
-		// Forever Enhancing Totems: +15%
-		MakePermanent(StrengthOfEarthTotemAura(&character.Unit, TernaryFloat64(raidBuffs.StrengthOfEarthTotem == proto.TristateEffect_TristateEffectImproved, 1.15, 1)))
+		MakePermanent(StrengthOfEarthTotemAura(&character.Unit, 1))
 	}
 
 	if raidBuffs.GraceOfAirTotem > 0 {
-		MakePermanent(GraceOfAirTotemAura(&character.Unit, TernaryFloat64(raidBuffs.GraceOfAirTotem == proto.TristateEffect_TristateEffectImproved, 1.15, 1)))
+		MakePermanent(GraceOfAirTotemAura(&character.Unit, 1))
 	}
 
 	// separate auras in Forever, so they stack
-	// Forever Improved Blessing of Wisdom +20%, Restorative Totems (one rank) +5%
+	// Restorative Totems (one rank) is in the Forever shaman tree: +5% Mana Spring
 	if individualBuffs.BlessingOfWisdom > 0 {
-		character.AddStatsNamed(ActionID{SpellID: 25290}, BuffSpellValues[BlessingOfWisdom].Multiply(TernaryFloat64(individualBuffs.BlessingOfWisdom == proto.TristateEffect_TristateEffectImproved, 1.2, 1)))
+		character.AddStatsNamed(ActionID{SpellID: 25290}, BuffSpellValues[BlessingOfWisdom])
 	}
 	if raidBuffs.ManaSpringTotem > 0 {
 		character.AddStatsNamed(ActionID{SpellID: 10497}, BuffSpellValues[ManaSpring].Multiply(TernaryFloat64(raidBuffs.ManaSpringTotem == proto.TristateEffect_TristateEffectImproved, 1.05, 1)))
@@ -1584,7 +1581,8 @@ func CreateExtraAttackAuraCommon(character *Character, buffActionID ActionID, au
 				StartDelayedAction(sim, DelayedActionOptions{
 					DoAt: sim.CurrentTime,
 					OnAction: func(sim *Simulation) {
-						character.AutoAttacks.MaybeReplaceMHSwing(sim, wfHit).Cast(sim, target)
+						// the extra swing is not a normal main-hand swing: a queued Raptor Strike waits for the next one
+						wfHit.Cast(sim, target)
 					},
 				})
 			}

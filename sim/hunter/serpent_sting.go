@@ -13,9 +13,9 @@ func (hunter *Hunter) improvedStingsMultiplier() float64 {
 }
 
 // The client data gives Serpent Sting no attack power or spell power share, but the ticks grow with ranged attack
-// power: tested in game (rank 4, no Improved Stings), 27 at 174 and 33 at 361, so 0.032 a tick; 20 spell power
-// left them unchanged.
-const serpentStingAPPerTick = 0.032
+// power: tested in game (rank 4, no Improved Stings), 27 at 174 and 32 at 361 before rounding, so 0.030 a tick; 20
+// spell power left them unchanged.
+const serpentStingAPPerTick = 0.030
 
 // tick damage per rank from the Forever client data
 var serpentStingBaseTick = [10]float64{0, 2, 6, 12, 22, 34, 48, 64, 83, 111}
@@ -51,10 +51,12 @@ func (hunter *Hunter) getSerpentStingConfig(rank int) core.SpellConfig {
 			IgnoreHaste: true,
 		},
 		ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {
-			return hunter.DistanceFromTarget >= core.MinRangedAttackDistance
+			return hunter.DistanceNow(sim) >= core.MinRangedAttackDistance
 		},
 
 		DamageMultiplier: 1 + hunter.improvedStingsMultiplier(),
+		// Mortal Shots' crit damage modifier covers the sting in the client data, so its crit ticks get it
+		CritDamageBonus: hunter.mortalShots(),
 		ThreatMultiplier: 1,
 
 		Dot: core.DotConfig{

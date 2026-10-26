@@ -100,6 +100,7 @@ type UnitMetrics struct {
 	// Aggregate values. These are updated after each iteration.
 	numItersDead int32
 	oomTimeSum   float64
+	apmSum       float64
 	actions      map[ActionID]*ActionMetrics
 	resources    []*ResourceMetrics
 }
@@ -115,7 +116,17 @@ type CharacterIterationMetrics struct {
 
 	OOMTime time.Duration // time spent not casting and waiting for regen.
 
+	Presses int // abilities pressed and walks started this iteration, for the APM (countPress)
+
 	FirstOOMTimestamp time.Duration // Timestamp at which unit first went OOM.
+}
+
+// Counts one action for the APM: a rotation spell, potion, explosive or racial the player used, or a walk or Start
+// Attack the rotation started. Pre-pull presses stay out, as the APM is per fight minute.
+func (unit *Unit) countPress(sim *Simulation) {
+	if unit.Type == PlayerUnit && sim.CurrentTime >= 0 {
+		unit.Metrics.Presses++
+	}
 }
 
 type ActionMetrics struct {
@@ -516,6 +527,9 @@ func (unitMetrics *UnitMetrics) doneIteration(unit *Unit, sim *Simulation) {
 	unitMetrics.tto.doneIteration(sim)
 
 	unitMetrics.oomTimeSum += unitMetrics.OOMTime.Seconds()
+	if minutes := sim.Duration.Minutes(); minutes > 0 {
+		unitMetrics.apmSum += float64(unitMetrics.Presses) / minutes
+	}
 	if unitMetrics.Died {
 		unitMetrics.numItersDead++
 	}
@@ -605,6 +619,7 @@ func (unitMetrics *UnitMetrics) ToProto() *proto.UnitMetrics {
 		Tto:           unitMetrics.tto.ToProto(),
 		SecondsOomAvg: unitMetrics.oomTimeSum / n,
 		ChanceOfDeath: float64(unitMetrics.numItersDead) / n,
+		Apm:           unitMetrics.apmSum / n,
 	}
 
 	protoMetrics.Actions = make([]*proto.ActionMetrics, 0, len(unitMetrics.actions))

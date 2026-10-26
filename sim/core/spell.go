@@ -513,7 +513,7 @@ func (spell *Spell) CanCast(sim *Simulation, target *Unit) bool {
 	}
 
 	// While moving only instant casts are possible
-	if spell.DefaultCast.CastTime > 0 && spell.Unit.IsMoving() {
+	if spell.DefaultCast.CastTime > 0 && spell.Unit.castBlockedByMove() {
 		//if sim.Log != nil {
 		//	sim.Log("Cant cast because moving")
 		//}
@@ -568,7 +568,14 @@ func (spell *Spell) Cast(sim *Simulation, target *Unit) bool {
 	if target == nil {
 		target = spell.Unit.CurrentTarget
 	}
-	return spell.castFn(sim, target)
+	if !spell.castFn(sim, target) {
+		return false
+	}
+	// spells a rotation can use are the ones a player presses; procs and auto attacks are not
+	if spell.Flags.Matches(SpellFlagAPL) {
+		spell.Unit.countPress(sim)
+	}
+	return true
 }
 
 func (spell *Spell) applyEffects(sim *Simulation, target *Unit) {

@@ -13,6 +13,13 @@ import (
 
 var TalentTreeSizes = [3]int{16, 16, 18}
 
+// rank count of each talent in the Forever trees, as on the site's talent tree (TestTalentRanksMatchSiteTree)
+var TalentMaxRanks = [3][]int{
+	{5, 5, 2, 3, 2, 2, 1, 5, 2, 5, 1, 2, 1, 2, 5, 1},
+	{3, 5, 5, 3, 5, 5, 2, 5, 1, 1, 5, 2, 3, 1, 5, 1},
+	{5, 5, 5, 2, 5, 3, 2, 3, 1, 2, 5, 1, 2, 2, 2, 1, 5, 1},
+}
+
 const (
 	SpellFlagShot   = core.SpellFlagAgentReserved1
 	SpellFlagStrike = core.SpellFlagAgentReserved2
@@ -164,6 +171,14 @@ func (hunter *Hunter) Initialize() {
 			hunter.MeleeSpells = append(hunter.MeleeSpells, spell)
 		}
 	})
+	noRanged, noMelee := !hunter.HasRangedWeapon(), !hunter.HasMHWeapon()
+	if noRanged || noMelee {
+		hunter.OnSpellRegistered(func(spell *core.Spell) {
+			if noRanged && needsRangedWeapon(spell) || noMelee && needsMeleeWeapon(spell) {
+				spell.ExtraCastCondition = func(_ *core.Simulation, _ *core.Unit) bool { return false }
+			}
+		})
+	}
 
 	multiShotTimer := hunter.NewTimer()
 	arcaneShotTimer := hunter.NewTimer()
@@ -187,6 +202,22 @@ func (hunter *Hunter) Initialize() {
 	hunter.registerRapidFire()
 	hunter.registerRaptorStrikeSpell()
 	hunter.applyShotsDelayAutoShot()
+}
+
+// needsRangedWeapon: the spells the client ties to a bow, gun or crossbow (SpellEquippedItems), as it does Auto Shot.
+// Summon Hawk, Rapid Fire, Hunter's Mark and the traps need none.
+func needsRangedWeapon(spell *core.Spell) bool {
+	switch spell.SpellCode {
+	case SpellCode_HunterArcaneShot, SpellCode_HunterAimedShot, SpellCode_HunterMultiShot, SpellCode_HunterSerpentSting, SpellCode_HunterVolley:
+		return true
+	}
+	return isSniperShot(spell)
+}
+
+// needsMeleeWeapon: the strikes the client ties to a melee weapon in the main hand (Mongoose Bite and Strider Kick carry
+// SpellFlagStrike). Raptor Strike's queue is what gets refused; unqueued, its hit never takes a swing.
+func needsMeleeWeapon(spell *core.Spell) bool {
+	return spell.Flags.Matches(SpellFlagStrike) || spell.SpellCode == SpellCode_HunterRaptorStrike || spell.SpellCode == SpellCode_HunterWingClip
 }
 
 // rangedHastedCast: a shot's cast time under the hunter's ranged haste (quiver, Rapid Fire and the rest).
@@ -236,7 +267,7 @@ func NewHunter(character *core.Character, options *proto.Player) *Hunter {
 		Options:     hunterOptions.Options,
 		quiverBonus: 1.0,
 	}
-	core.FillTalentsProto(hunter.Talents.ProtoReflect(), options.TalentsString, TalentTreeSizes)
+	core.FillTalentsProto(hunter.Talents.ProtoReflect(), core.CapTalentsString(options.TalentsString, TalentMaxRanks), TalentTreeSizes)
 	hunter.EnableManaBar()
 	hunter.PseudoStats.CanParry = true
 	hunter.MoveDelay = time.Duration(hunter.Options.MoveDelayMs) * time.Millisecond
@@ -271,11 +302,11 @@ func NewHunter(character *core.Character, options *proto.Player) *Hunter {
 			hunter.AmmoDPS = 20
 		case proto.Hunter_Options_MiniatureCannonBalls:
 			hunter.AmmoDPS = 20.5
-		// Forever Engineering ammo
+		// Forever Engineering ammo: "Adds 24.5 damage per second" on both tooltips (274387, 274388)
 		case proto.Hunter_Options_SwiftfeatherArrow:
-			hunter.AmmoDPS = 24.62
+			hunter.AmmoDPS = 24.5
 		case proto.Hunter_Options_SwiftstrikeShot:
-			hunter.AmmoDPS = 24.62
+			hunter.AmmoDPS = 24.5
 		}
 		hunter.AmmoDamageBonus = hunter.AmmoDPS * rangedWeapon.SwingSpeed
 		hunter.NormalizedAmmoDamageBonus = hunter.AmmoDPS * 2.8
@@ -317,12 +348,13 @@ func NewHunter(character *core.Character, options *proto.Player) *Hunter {
 		mainHand.SwingSpeed = v
 	}
 
+	// no ranged weapon, no Auto Shot: its cycle would be 0 s and fire forever at the same instant
 	hunter.EnableAutoAttacks(hunter, core.AutoAttackOptions{
 		MainHand:        mainHand,
 		OffHand:         offHand,
 		Ranged:          rangedWeapon,
 		ReplaceMHSwing:  hunter.TryRaptorStrike,
-		AutoSwingRanged: true,
+		AutoSwingRanged: hunter.HasRangedWeapon(),
 		AutoSwingMelee:  true,
 	})
 

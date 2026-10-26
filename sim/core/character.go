@@ -740,16 +740,23 @@ func GetPrimaryTalentTreeIndex(talentStr string) uint8 {
 // WarriorTalents) based on a talentsStr. treeSizes should contain the number
 // of talents in each tree, usually around 30. This is needed because talent
 // strings truncate 0's at the end of each tree, so we can't infer the start index
-// of the tree from the string.
+// of the tree from the string. Trees past the third and digits past the last
+// talent are skipped, so no string can crash it.
 func FillTalentsProto(data protoreflect.Message, talentsStr string, treeSizes [3]int) {
 	treeStrs := strings.Split(talentsStr, "-")
 	fieldDescriptors := data.Descriptor().Fields()
 
 	var offset int
 	for treeIdx, treeStr := range treeStrs {
+		if treeIdx >= len(treeSizes) {
+			break
+		}
 		for talentIdx, talentValStr := range treeStr {
 			talentVal, _ := strconv.Atoi(string(talentValStr))
 			fd := fieldDescriptors.ByNumber(protowire.Number(offset + talentIdx + 1))
+			if fd == nil {
+				break
+			}
 			if fd.Kind() == protoreflect.BoolKind {
 				data.Set(fd, protoreflect.ValueOfBool(talentVal == 1))
 			} else { // Int32Kind
@@ -758,4 +765,24 @@ func FillTalentsProto(data protoreflect.Message, talentsStr string, treeSizes [3
 		}
 		offset += treeSizes[treeIdx]
 	}
+}
+
+// CapTalentsString reads talentsStr the way the site's talent picker shows it: each tree keeps only its own
+// talents, each capped at its rank count (maxRanks per tree, in field order). A string made for another tree
+// layout, such as an imported Classic one, would otherwise give a talent more points than its rank tables hold.
+func CapTalentsString(talentsStr string, maxRanks [3][]int) string {
+	treeStrs := strings.Split(talentsStr, "-")
+	if len(treeStrs) > len(maxRanks) {
+		treeStrs = treeStrs[:len(maxRanks)]
+	}
+	for treeIdx, treeStr := range treeStrs {
+		ranks := maxRanks[treeIdx]
+		capped := make([]byte, 0, len(ranks))
+		for talentIdx := 0; talentIdx < len(treeStr) && talentIdx < len(ranks); talentIdx++ {
+			points, _ := strconv.Atoi(string(treeStr[talentIdx]))
+			capped = append(capped, byte('0'+min(points, ranks[talentIdx])))
+		}
+		treeStrs[treeIdx] = string(capped)
+	}
+	return strings.Join(treeStrs, "-")
 }

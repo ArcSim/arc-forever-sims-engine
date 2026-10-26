@@ -59,3 +59,49 @@ func TestWindfuryTotemSwingsGlance(t *testing.T) {
 		t.Errorf("Windfury swings glance %.1f%% of the time, main-hand swings %.1f%%; want the same rate", wf*100, mh*100)
 	}
 }
+
+// A queued Raptor Strike waits for the next normal main-hand swing: Windfury's extra swing neither uses it nor drops
+// it, so every Windfury proc gives one white Windfury swing, also when Wing Clip procs it with Raptor Strike queued.
+func TestWindfuryExtraSwingLeavesRaptorQueued(t *testing.T) {
+	rotation := &proto.APLRotation{}
+	if err := protojson.Unmarshal([]byte(`{"type":"TypeAPL","priorityList":[{"action":{"castSpell":{"spellId":{"spellId":14266,"tag":1,"rank":8}}}},{"action":{"condition":{"auraIsActive":{"auraId":{"spellId":14266,"tag":2}}},"castSpell":{"spellId":{"spellId":14268,"rank":3}}}}]}`), rotation); err != nil {
+		t.Fatal(err)
+	}
+	player := core.WithSpec(&proto.Player{
+		Race:               proto.Race_RaceHuman,
+		Class:              proto.Class_ClassHunter,
+		Equipment:          core.GetGearSet("../../ui/hunter/gear_sets", "2h_weave").GearSet,
+		TalentsString:      "-00531500113-500230230050122151",
+		Rotation:           rotation,
+		DistanceFromTarget: 3,
+	}, abOptions)
+	const iterations = 50
+	res := core.RunRaidSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{WindfuryTotem: true}, &proto.Debuffs{}),
+		Encounter:  abEncounter(),
+		SimOptions: &proto.SimOptions{Iterations: iterations, RandomSeed: 20261025},
+	})
+	if res.Error != nil {
+		t.Fatalf("sim error: %s", res.Error.Message)
+	}
+	pm := res.RaidMetrics.Parties[0].Players[0]
+	var procs, swings float64
+	for _, a := range pm.Auras {
+		if a.Id.GetSpellId() == 10610 && a.Id.Tag == 0 {
+			procs += a.ProcsAvg * iterations
+		}
+	}
+	for _, a := range pm.Actions {
+		if a.Id.GetSpellId() == 10610 && a.Id.Tag == 1 {
+			for _, tm := range a.Targets {
+				swings += float64(tm.Casts)
+			}
+		}
+	}
+	if procs < 100 {
+		t.Fatalf("only %.0f Windfury procs", procs)
+	}
+	if swings < procs-0.5 {
+		t.Errorf("%.0f Windfury procs gave %.0f white Windfury swings; the rest went to the queued Raptor Strike", procs, swings)
+	}
+}

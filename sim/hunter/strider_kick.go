@@ -48,7 +48,7 @@ func (hunter *Hunter) registerStriderKickSpell() {
 		},
 
 		ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {
-			return hunter.DistanceFromTarget <= 5
+			return hunter.DistanceNow(sim) <= 5
 		},
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,

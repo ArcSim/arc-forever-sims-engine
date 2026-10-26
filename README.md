@@ -16,7 +16,7 @@ It is a fork of Sanctum's Forever version of the wowsims classic engine (MIT, se
 ## Check a number
 
 ```
-AB_SETTINGS=../../builds/ship_dw_weave.json AB_ITERS=50000 go test --tags=with_db ./sim/hunter/ -run TestForeverSettings -v
+AB_SETTINGS=../../builds/ship_dw_auto_weave.json AB_ITERS=50000 go test --tags=with_db ./sim/hunter/ -run TestForeverSettings -v
 ```
 
 prints the DPS for that build (the path is relative to `sim/hunter`). A setup exported from the site (Export, JSON)

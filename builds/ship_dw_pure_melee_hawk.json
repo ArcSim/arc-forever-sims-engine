@@ -11,12 +11,12 @@
     }
   },
   "raidBuffs": {
-    "giftOfTheWild": "TristateEffectImproved",
-    "strengthOfEarthTotem": "TristateEffectImproved",
-    "graceOfAirTotem": "TristateEffectImproved",
+    "giftOfTheWild": "TristateEffectRegular",
+    "strengthOfEarthTotem": "TristateEffectRegular",
+    "graceOfAirTotem": "TristateEffectRegular",
     "arcaneBrilliance": true,
     "divineSpirit": true,
-    "battleShout": "TristateEffectImproved",
+    "battleShout": "TristateEffectRegular",
     "trueshotAura": true,
     "leaderOfThePack": true,
     "manaSpringTotem": "TristateEffectImproved",
@@ -128,8 +128,8 @@
     },
     "buffs": {
       "blessingOfKings": true,
-      "blessingOfWisdom": "TristateEffectImproved",
-      "blessingOfMight": "TristateEffectImproved"
+      "blessingOfWisdom": "TristateEffectRegular",
+      "blessingOfMight": "TristateEffectRegular"
     },
     "talentsString": "50230005001-005005-5002302300500221",
     "profession1": "Blacksmithing",

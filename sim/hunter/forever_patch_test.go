@@ -40,6 +40,7 @@ type patchTestSetup struct {
 	runSpeed    float64
 	consumes    *proto.Consumes          // starting consumables (the stone and imbue fields still apply on top)
 	mhEnchant   int32                    // replaces the gear set's main hand enchant
+	rngEnchant  int32                    // replaces the gear set's ranged enchant
 	skyborne    bool                     // the Skyborne 15 min racial option
 	outside     bool                     // the encounter is outside the Natural flasks' zones
 	pieces      map[proto.ItemSlot]int32 // items put in these slots (on top of any gear set)
@@ -93,6 +94,9 @@ func newPatchTestHunter(t *testing.T, setup patchTestSetup) (*core.Simulation, *
 	}
 	if setup.mhEnchant != 0 {
 		equipment.Items[proto.ItemSlot_ItemSlotMainHand].Enchant = setup.mhEnchant
+	}
+	if setup.rngEnchant != 0 {
+		equipment.Items[proto.ItemSlot_ItemSlotRanged].Enchant = setup.rngEnchant
 	}
 	if setup.stone {
 		consumes.MainHandImbue = proto.WeaponImbue_ElementalSharpeningStone
@@ -179,6 +183,35 @@ func TestWeaponTotems(t *testing.T) {
 		if hunter.pet.HasAura("Flametongue Totem") || hunter.pet.HasAura("Windfury") {
 			t.Errorf("%s: the pet got a weapon totem", tc.name)
 		}
+	}
+}
+
+// Badge of the Swarmguard's armor penetration stacks (Insight of the Qiraji, 26481) have no duration of their own in the
+// client data: they last only while the badge's 30 s buff (26480) is up, as its tooltip's "for 30 sec" says.
+func TestSwarmguardStacksEndWithTheBadge(t *testing.T) {
+	sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, pieces: map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotTrinket1: 21670}})
+	badge, insight := hunter.GetAura("Badge of the Swarmguard"), hunter.GetAura("Insight of the Qiraji")
+	if badge == nil || insight == nil {
+		t.Fatal("Badge of the Swarmguard auras not registered")
+	}
+	sim.PrePull()
+	// past the pull's own use (30 s), with the badge still on its 3 min cooldown
+	for i := 0; i < 1000000 && sim.CurrentTime < 40*time.Second; i++ {
+		sim.Step()
+	}
+	base := hunter.GetStat(stats.ArmorPenetration)
+	badge.Activate(sim)
+	insight.Activate(sim)
+	insight.SetStacks(sim, 6)
+	if got := hunter.GetStat(stats.ArmorPenetration) - base; math.Abs(got-1200) > 1e-9 {
+		t.Fatalf("6 stacks give %.0f armor penetration, want 1200", got)
+	}
+	for i := 0; i < 1000000 && sim.CurrentTime < 75*time.Second; i++ {
+		sim.Step()
+	}
+	if insight.IsActive() || hunter.GetStat(stats.ArmorPenetration) != base {
+		t.Errorf("35 s after the badge's 30 s buff began: stacks active %v, armor penetration %.0f over base, want gone",
+			insight.IsActive(), hunter.GetStat(stats.ArmorPenetration)-base)
 	}
 }
 
@@ -310,6 +343,54 @@ func TestPetInheritance(t *testing.T) {
 	inherited := plain.makeStatInheritance()(stats.Stats{stats.Expertise: 5})
 	if inherited[stats.Expertise] != 5 {
 		t.Errorf("pet inherits %.1f expertise of 5", inherited[stats.Expertise])
+	}
+}
+
+// A walk decided and still in its move reaction rules out a spell with a cast time: the walk would cancel it, and
+// starting one there let it finish mid-walk as if the hunter stood still. Instant shots stay usable.
+func TestNoCastDuringMoveReaction(t *testing.T) {
+	sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, distance: 12})
+	hunter.MoveDelay = 100 * time.Millisecond
+	target := hunter.CurrentTarget
+	if !hunter.MultiShot.CanCast(sim, target) {
+		t.Fatal("Multi-Shot not castable standing at 12 yd")
+	}
+	hunter.MoveTo(4, sim)
+	if !hunter.MovementHandler.PendingMove {
+		t.Fatal("no move reaction pending after deciding to walk in")
+	}
+	if hunter.MultiShot.CanCast(sim, target) {
+		t.Error("Multi-Shot, a cast, can start during the move reaction")
+	}
+	if !hunter.ArcaneShot.CanCast(sim, target) {
+		t.Error("Arcane Shot, an instant, cannot be used during the move reaction")
+	}
+}
+
+// The pet's attack power is 10% of the hunter's higher attack power at every moment: a buff that ends comes off the
+// pet too, whichever of the two it raised, so temporary attack power never piles up on the pet over a fight.
+func TestPetAttackPowerFollowsOwner(t *testing.T) {
+	sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true})
+	share := func() float64 {
+		return max(hunter.GetStat(stats.AttackPower), hunter.GetStat(stats.RangedAttackPower)) * 0.10
+	}
+	start, startShare := hunter.pet.GetStat(stats.AttackPower), share()
+	for _, buff := range []stats.Stats{
+		{stats.AttackPower: 100},
+		{stats.RangedAttackPower: 100},
+		{stats.AttackPower: 3000},
+		{stats.AttackPower: 50, stats.RangedAttackPower: 120},
+	} {
+		for i := 0; i < 3; i++ {
+			hunter.AddStatsDynamic(sim, buff)
+			if got, want := hunter.pet.GetStat(stats.AttackPower)-start, share()-startShare; math.Abs(got-want) > 1e-6 {
+				t.Errorf("%s on the hunter gives the pet %+.1f attack power, want %+.1f", buff.FlatString(), got, want)
+			}
+			hunter.AddStatsDynamic(sim, buff.Invert())
+			if got := hunter.pet.GetStat(stats.AttackPower); math.Abs(got-start) > 1e-6 {
+				t.Errorf("pet attack power %.1f after %s ended, want %.1f", got, buff.FlatString(), start)
+			}
+		}
 	}
 }
 
@@ -478,8 +559,9 @@ func TestNormalizedStrikeSpeed(t *testing.T) {
 	}
 }
 
-// Serpent Sting ticks grow by 0.032 per point of ranged attack power and not with spell power (in game: rank 4 ticked
-// 27 at 174 ranged attack power, 33 at 361, unchanged with 20 spell power); the rank 4 base tick is the client's 22.
+// Serpent Sting ticks grow by 0.030 per point of ranged attack power and not with spell power (in game: rank 4 ticked
+// 27 at 174 ranged attack power, 32 at 361 before rounding, unchanged with 20 spell power); the rank 4 base tick is the
+// client's 22.
 func TestSerpentStingScaling(t *testing.T) {
 	sim, hunter := newPatchTestHunter(t, patchTestSetup{talents: patchTestTalents, gear: true})
 	target := hunter.CurrentTarget
@@ -490,18 +572,18 @@ func TestSerpentStingScaling(t *testing.T) {
 		return dot.SnapshotBaseDamage
 	}
 	rap := sting.RangedAttackPower(target, false)
-	if got, want := tick(), 111+0.032*rap; math.Abs(got-want) > 1e-6 {
-		t.Errorf("rank 9 tick %.3f at %.0f ranged attack power, want %.3f (111 + 0.032 x RAP)", got, rap, want)
+	if got, want := tick(), 111+0.030*rap; math.Abs(got-want) > 1e-6 {
+		t.Errorf("rank 9 tick %.3f at %.0f ranged attack power, want %.3f (111 + 0.030 x RAP)", got, rap, want)
 	}
 	hunter.AddStatsDynamic(sim, stats.Stats{stats.SpellPower: 200, stats.SpellDamage: 200, stats.NaturePower: 200})
-	if got, want := tick(), 111+0.032*rap; math.Abs(got-want) > 1e-6 {
+	if got, want := tick(), 111+0.030*rap; math.Abs(got-want) > 1e-6 {
 		t.Errorf("rank 9 tick %.3f with 200 spell power, want %.3f (no spell power share)", got, want)
 	}
 	if c := sting.Dot(target).BonusCoefficient; c != 0 {
 		t.Errorf("Serpent Sting spell power share %.3f, want 0", c)
 	}
-	if low, high := serpentStingTick(4, 174), serpentStingTick(4, 361); math.Floor(low) != 27 || math.Floor(high) != 33 {
-		t.Errorf("rank 4 ticks %.2f at 174 and %.2f at 361 ranged attack power, the game showed 27 and 33", low, high)
+	if low, high := serpentStingTick(4, 174), serpentStingTick(4, 361); math.Floor(low) != 27 || math.Floor(high) != 32 {
+		t.Errorf("rank 4 ticks %.2f at 174 and %.2f at 361 ranged attack power, the game had 27 and 32 before rounding", low, high)
 	}
 }
 
@@ -1196,10 +1278,84 @@ func TestMeleeSwingsStartAtFiveYards(t *testing.T) {
 	}
 }
 
+// A walk out of melee keeps swinging while still within 5 yd: a main-hand swing due in the first yard lands.
+func TestMeleeSwingsWhileWalkingOut(t *testing.T) {
+	sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, distance: 4})
+	hunter.MoveDelay = 0
+	sim.PrePull()
+	for i := 0; i < 100000; i++ {
+		sim.Step()
+		left := hunter.AutoAttacks.MainhandSwingAt() - sim.CurrentTime
+		if sim.CurrentTime > 3*time.Second && left > 0 && left < 100*time.Millisecond {
+			break
+		}
+	}
+	due := hunter.AutoAttacks.MainhandSwingAt()
+	hunter.MoveTo(11, sim)
+	for i := 0; i < 100000 && hunter.DistanceFromTarget <= core.MaxMeleeAttackDistance; i++ {
+		sim.Step()
+	}
+	if got := hunter.AutoAttacks.MainhandSwingAt(); got <= due {
+		t.Errorf("the main-hand swing due at %v did not land on the walk out (next swing at %v, out of melee at %v)", due, got, sim.CurrentTime)
+	}
+}
+
 // walkUntilMeleeRange steps a walk in until it reaches 5 yd.
 func walkUntilMeleeRange(sim *core.Simulation, hunter *Hunter) {
 	for i := 0; i < 100000 && hunter.DistanceFromTarget > core.MaxMeleeAttackDistance; i++ {
 		sim.Step()
+	}
+}
+
+// A walk moves you a yard at a time, but range checks see where you are mid-yard: walking off the 5 yd edge you are out
+// of melee as you start (no Wing Clip or Mongoose Bite until the first yard ends), and walking in from 11 yd you are
+// out of shot range as you start (no Arcane Shot).
+func TestRangeChecksMidWalk(t *testing.T) {
+	midFirstYard := func(sim *core.Simulation, hunter *Hunter, to float64) {
+		t.Helper()
+		start := sim.CurrentTime
+		hunter.MoveTo(to, sim)
+		reached := false
+		core.StartDelayedAction(sim, core.DelayedActionOptions{DoAt: start + 50*time.Millisecond, OnAction: func(*core.Simulation) { reached = true }})
+		for i := 0; i < 100000 && !reached; i++ {
+			sim.Step()
+		}
+		if !hunter.IsMoving() || sim.CurrentTime != start+50*time.Millisecond {
+			t.Fatalf("walk to %v yd: not 50 ms into its first yard (moving %v, at %v)", to, hunter.IsMoving(), sim.CurrentTime-start)
+		}
+	}
+	settle := func(sim *core.Simulation, hunter *Hunter) {
+		for i := 0; i < 100000 && (hunter.IsMoving() || sim.CurrentTime < 5*time.Second || !hunter.GCD.IsReady(sim)); i++ {
+			sim.Step()
+		}
+	}
+
+	sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, distance: 5})
+	sim.PrePull()
+	settle(sim, hunter)
+	target := hunter.CurrentTarget
+	if !hunter.WingClip.CanCast(sim, target) {
+		t.Fatal("Wing Clip not castable standing at 5 yd")
+	}
+	midFirstYard(sim, hunter, 11)
+	if d := hunter.DistanceNow(sim); d <= 5 || d >= 6 {
+		t.Errorf("50 ms into the walk out from 5 yd, at %.2f yd, want between 5 and 6", d)
+	}
+	if hunter.WingClip.CanCast(sim, target) {
+		t.Error("Wing Clip castable 50 ms into a walk out from 5 yd")
+	}
+	settle(sim, hunter)
+
+	if !hunter.ArcaneShot.CanCast(sim, target) {
+		t.Fatalf("Arcane Shot not castable standing at 11 yd (at %v yd, moving %v, GCD ready %v, cooldown ready %v, mana %.0f, at %v)", hunter.DistanceNow(sim),
+			hunter.IsMoving(), hunter.GCD.IsReady(sim), core.BothTimersReady(hunter.ArcaneShot.CD.Timer, hunter.ArcaneShot.SharedCD.Timer, sim), hunter.CurrentMana(), sim.CurrentTime)
+	}
+	midFirstYard(sim, hunter, 5)
+	if d := hunter.DistanceNow(sim); d >= 11 || d <= 10 {
+		t.Errorf("50 ms into the walk in from 11 yd, at %.2f yd, want between 10 and 11", d)
+	}
+	if hunter.ArcaneShot.CanCast(sim, target) {
+		t.Error("Arcane Shot castable 50 ms into a walk in from 11 yd")
 	}
 }
 
@@ -1386,6 +1542,20 @@ func TestMortalShotsOnAutoShot(t *testing.T) {
 		if got := hunter.ArcaneShot.CritDamageBonus; math.Abs(got-1.24) > 1e-9 {
 			t.Errorf("skip %v: Arcane Shot crit damage bonus %.2f, want 1.24", skip, got)
 		}
+	}
+}
+
+// Mortal Shots' crit damage modifier covers Serpent Sting in the client data (its class mask holds the sting's), so a
+// sting tick that crits gets its bonus too: 4/5 makes the double damage 2.24x.
+func TestMortalShotsOnSerpentStingTicks(t *testing.T) {
+	const talents = "-00531500114-530200230050022151" // Mortal Shots 4/5
+	_, hunter := newPatchTestHunter(t, patchTestSetup{talents: talents, gear: true})
+	if got := hunter.SerpentSting.CritDamageBonus; math.Abs(got-1.24) > 1e-9 {
+		t.Errorf("Serpent Sting crit damage bonus %.2f, want 1.24 (Mortal Shots 4/5)", got)
+	}
+	at := hunter.AttackTables[hunter.CurrentTarget.UnitIndex][proto.CastType_CastTypeRanged]
+	if got := hunter.SerpentSting.CritMultiplier(at); math.Abs(got-2.24) > 1e-9 {
+		t.Errorf("Serpent Sting tick crit multiplier %.3f, want 2.24", got)
 	}
 }
 
@@ -2063,7 +2233,7 @@ func TestExposePreyMarkers(t *testing.T) {
 
 // The shipped weaves are tuned for melee swings leaving the Auto Shot timer alone (the beta's reset is off by default):
 // the hard weave stays for a swing landing up to 0.6 s after it would have to head back (it beats leaving a quarter
-// second early, the reset-era setting), and Arc Tight Weave reads the MH swing timer and the weapon's speed.
+// second early, the reset-era setting), and Arc Auto Weave reads the MH swing timer and the weapon's speed.
 func TestWeavesTunedWithoutTheMeleeReset(t *testing.T) {
 	dps := func(apl []byte, gear string, moveMs int32) float64 {
 		rot := &proto.APLRotation{}
@@ -2106,8 +2276,9 @@ func TestWeavesTunedWithoutTheMeleeReset(t *testing.T) {
 	if len(late.FindAll(hard, -1)) == 0 {
 		t.Fatalf("no late swing hold in the shipped hard weave")
 	}
-	// the 2H gain is small since Auto Shot waits 0.6 s after a move, so there it only must not lose
-	for gear, gain := range map[string]float64{"2h_weave": 0, "surv_dw": 10} {
+	// the 2H gain is small since Auto Shot waits 0.6 s after a move, and dual wield's is about 1 since melee abilities
+	// stop at the 5 yd edge mid-walk, so both only must not lose
+	for gear, gain := range map[string]float64{"2h_weave": 0, "surv_dw": 0} {
 		// the site's move reaction: the 5 yd edge wins with it, not with a 10 ms one
 		with, early := dps(hard, gear, 100), dps(late.ReplaceAll(hard, []byte(`"val": "0.25s"`)), gear, 100)
 		t.Logf("hard weave, %s: %.1f DPS staying for a late swing, %.1f leaving a quarter second early", gear, with, early)
@@ -2119,13 +2290,13 @@ func TestWeavesTunedWithoutTheMeleeReset(t *testing.T) {
 	light := read("arc_light_weave_2h_upd3.apl.json")
 	one := func(what string) {
 		if n := strings.Count(string(light), what); n != 1 {
-			t.Fatalf("%s %d times in the shipped Tight Weave, want once", what, n)
+			t.Fatalf("%s %d times in the shipped Auto Weave, want once", what, n)
 		}
 	}
 	// the exit sits on Move out and on Wing Clip's copy of its condition; both of its branches read the speed test
 	times := func(what string, want int) {
 		if n := strings.Count(string(light), what); n != want {
-			t.Fatalf("%s %d times in the shipped Tight Weave, want %d", what, n, want)
+			t.Fatalf("%s %d times in the shipped Auto Weave, want %d", what, n, want)
 		}
 	}
 	const entry, slowAt, freeAt = `"val": "1.5s"`, `"val": "500ms"`, `"val": "0.7s"`
@@ -2134,17 +2305,17 @@ func TestWeavesTunedWithoutTheMeleeReset(t *testing.T) {
 	times(freeAt, 2)
 	spot := regexp.MustCompile(`("rangeFromTarget":\s*\{\s*"const":\s*\{\s*"val":\s*")5(")`)
 	if n := len(spot.FindAll(light, -1)); n != 1 {
-		t.Fatalf("a move to 5 yd %d times in the shipped Tight Weave, want once", n)
+		t.Fatalf("a move to 5 yd %d times in the shipped Auto Weave, want once", n)
 	}
-	// the off-hand hold alone: the strike rule's half second of slack reads the same value
-	ohHold := regexp.MustCompile(`("autoType":\s*"OffHand"\s*\}\s*\},\s*"rhs":\s*\{\s*"const":\s*\{\s*"val":\s*")0\.5s(")`)
+	// the off-hand hold, in the walk out and in the Wing Clip that shares its condition
+	ohHold := regexp.MustCompile(`("autoType":\s*"OffHand"\s*\}\s*\},\s*"rhs":\s*\{\s*"const":\s*\{\s*"val":\s*")0\.8s(")`)
 	if n := len(ohHold.FindAll(light, -1)); n != 2 {
-		t.Fatalf("the off-hand hold %d times in the shipped Tight Weave, want twice", n)
+		t.Fatalf("the off-hand hold %d times in the shipped Auto Weave, want twice", n)
 	}
 	// dual wield skips the walk-out Wing Clip while Arcane Shot or Multi-Shot is ready; never ready brings the clip back
 	shotReady := regexp.MustCompile(`("spellTimeToReady":\s*\{\s*"spellId":\s*\{\s*"spellId":\s*(?:14287|2643),\s*"rank":\s*\d+\s*\}\s*\}\s*\},\s*"rhs":\s*\{\s*"const":\s*\{\s*"val":\s*")0s(")`)
 	if n := len(shotReady.FindAll(light, -1)); n != 2 {
-		t.Fatalf("the shot-ready test %d times in the shipped Tight Weave, want twice (Arcane Shot, Multi-Shot)", n)
+		t.Fatalf("the shot-ready test %d times in the shipped Auto Weave, want twice (Arcane Shot, Multi-Shot)", n)
 	}
 	clipAlways := shotReady.ReplaceAll(light, []byte("${1}-9s${2}"))
 	swap := func(from, to string) []byte { return []byte(strings.ReplaceAll(string(light), from, to)) }
@@ -2162,7 +2333,8 @@ func TestWeavesTunedWithoutTheMeleeReset(t *testing.T) {
 	}{
 		{"2h_weave", "in after every Auto Shot", swap(entry, `"val": "9s"`), 0, 100},
 		{"2h_weave", "in at 1 s left on the MH timer", swap(entry, `"val": "1s"`), 30, 100},
-		{"surv_dw", "no off-hand hold", ohHold.ReplaceAll(light, []byte("${1}0s${2}")), 20, 100},
+		// worth less since a walk out still swings inside 5 yd
+		{"surv_dw", "no off-hand hold", ohHold.ReplaceAll(light, []byte("${1}0s${2}")), 5, 100},
 		{"surv_dw", "a 4 yd melee spot, 300 ms move reaction", spot4, 15, 300},
 		{"2h_weave", "a 4 yd melee spot, 300 ms move reaction", spot4, -5, 300},
 		{"2h_weave", "the strike wait on every weapon", swap(slowAt, `"val": "-9s"`), 5, 100},
@@ -2173,21 +2345,21 @@ func TestWeavesTunedWithoutTheMeleeReset(t *testing.T) {
 		{"surv_dw_no_teebu", "Wing Clip while a shot is ready", clipAlways, 3, 100},
 	} {
 		shipped, other := dps(light, c.gear, c.moveMs), dps(c.other, c.gear, c.moveMs)
-		t.Logf("Tight Weave, %s: %.1f DPS shipped, %.1f with %s", c.gear, shipped, other, c.what)
+		t.Logf("Auto Weave, %s: %.1f DPS shipped, %.1f with %s", c.gear, shipped, other, c.what)
 		if shipped < other+c.gain {
-			t.Errorf("Tight Weave, %s: %.1f DPS shipped, %.1f with %s; want %+.0f or more", c.gear, shipped, other, c.what, c.gain)
+			t.Errorf("Auto Weave, %s: %.1f DPS shipped, %.1f with %s; want %+.0f or more", c.gear, shipped, other, c.what, c.gain)
 		}
 	}
 	// dual wield never waits for an ability on the way out: it plays the exit as it was before the weapon speed rules
 	for _, gear := range []string{"surv_dw", "surv_dw_no_teebu"} {
 		if shipped, old := dps(light, gear, 100), dps(oldExit, gear, 100); shipped != old {
-			t.Errorf("Tight Weave, %s: %.2f DPS shipped, %.2f out as soon as the swing lands; dual wield should play the same", gear, shipped, old)
+			t.Errorf("Auto Weave, %s: %.2f DPS shipped, %.2f out as soon as the swing lands; dual wield should play the same", gear, shipped, old)
 		}
 	}
 	// a two-hander keeps its Wing Clip
 	for _, gear := range []string{"2h_weave", "2h_weave_reaper"} {
 		if shipped, clip := dps(light, gear, 100), dps(clipAlways, gear, 100); shipped != clip {
-			t.Errorf("Tight Weave, %s: %.2f DPS shipped, %.2f with Wing Clip while a shot is ready; a two-hander should play the same", gear, shipped, clip)
+			t.Errorf("Auto Weave, %s: %.2f DPS shipped, %.2f with Wing Clip while a shot is ready; a two-hander should play the same", gear, shipped, clip)
 		}
 	}
 }
@@ -2793,7 +2965,7 @@ func TestShotMissileSpeeds(t *testing.T) {
 // retry wait ends exactly when the main hand swings (one cut short by a walk out is logged as left), and each windup runs
 // the full 0.6 s from its stop.
 func TestSwingWaitLogs(t *testing.T) {
-	data, err := os.ReadFile("../../../builds/variants/ship_2h_tight_weave.json")
+	data, err := os.ReadFile("../../../builds/variants/ship_2h_auto_weave.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2957,6 +3129,84 @@ func TestPetSwingFromCreatureDps(t *testing.T) {
 	}
 }
 
+// The APM counts what the player does: each Arcane Shot and each walk the rotation starts (one walk in at 10 s, one
+// out at 20 s) over a 60 s fight, and nothing for the Auto Shots and the trinket-free gear's procs.
+func TestAPMCountsPresses(t *testing.T) {
+	// a walk to yd, once, in the second from s while the distance compares (op) to yd
+	walk := func(s int, op string, yd int) string {
+		at := func(v string) string { return `{"const":{"val":"` + v + `"}}` }
+		cmp := func(op, lhs, rhs string) string { return `{"cmp":{"op":"` + op + `","lhs":` + lhs + `,"rhs":` + rhs + `}}` }
+		return `{"action":{"condition":{"and":{"vals":[` +
+			cmp("OpGe", `{"currentTime":{}}`, at(strconv.Itoa(s)+"s")) + `,` +
+			cmp("OpLt", `{"currentTime":{}}`, at(strconv.Itoa(s+1)+"s")) + `,` +
+			cmp(op, `{"distanceToTarget":{}}`, at(strconv.Itoa(yd))) + `]}},` +
+			`"move":{"rangeFromTarget":` + at(strconv.Itoa(yd)) + `}}}`
+	}
+	aplJSON := `{"type":"TypeAPL","priorityList":[` + walk(10, "OpGt", 5) + `,` + walk(20, "OpLt", 12) + `,` +
+		`{"action":{"castSpell":{"spellId":{"spellId":14287,"rank":8}}}}]}`
+	rot := &proto.APLRotation{}
+	if err := protojson.Unmarshal([]byte(aplJSON), rot); err != nil {
+		t.Fatalf("rotation: %v", err)
+	}
+	gear := core.GetGearSet("../../ui/hunter/gear_sets", "2h_weave").GearSet
+	gear.Items[proto.ItemSlot_ItemSlotTrinket1] = &proto.ItemSpec{}
+	gear.Items[proto.ItemSlot_ItemSlotTrinket2] = &proto.ItemSpec{}
+	player := core.WithSpec(&proto.Player{
+		Race:               proto.Race_RaceHuman,
+		Class:              proto.Class_ClassHunter,
+		Equipment:          gear,
+		TalentsString:      patchTestTalents,
+		Rotation:           rot,
+		DistanceFromTarget: 12,
+	}, abOptions)
+	enc := abEncounter()
+	enc.Duration, enc.DurationVariation = 60, 0
+	res := core.RunRaidSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  enc,
+		SimOptions: &proto.SimOptions{Iterations: 1, RandomSeed: 20261024},
+	})
+	if res.Error != nil {
+		t.Fatalf("sim error: %s", res.Error.Message)
+	}
+	um := res.RaidMetrics.Parties[0].Players[0]
+	shots := int32(0)
+	autos := int32(0)
+	for _, a := range um.Actions {
+		for _, tg := range a.Targets {
+			if a.Id.GetSpellId() == 14287 {
+				shots += tg.Casts
+			}
+			if a.Id.GetOtherId() == proto.OtherAction_OtherActionShoot {
+				autos += tg.Casts
+			}
+		}
+	}
+	if shots == 0 || autos == 0 {
+		t.Fatalf("%d Arcane Shots and %d Auto Shots: the fight did not play", shots, autos)
+	}
+	if want := float64(shots + 2); math.Abs(um.Apm-want) > 1e-9 {
+		t.Errorf("APM %.2f, want %.0f (%d Arcane Shots + 2 walks in a 60 s fight; %d Auto Shots not counted)", um.Apm, want, shots, autos)
+	}
+}
+
+// A pet's hit is its owner's ranged hit (forever-bugs #394), so the Biznicks 247x128 Accurascope's ranged-only +3%
+// reaches the pet, 17/8 of it as spell hit, while the hunter's melee stays without it.
+func TestPetInheritsRangedOnlyHit(t *testing.T) {
+	_, plain := newPatchTestHunter(t, patchTestSetup{gear: true})
+	_, scoped := newPatchTestHunter(t, patchTestSetup{gear: true, rngEnchant: 2523})
+	if got := scoped.GetStat(stats.MeleeHit) - plain.GetStat(stats.MeleeHit); math.Abs(got) > 1e-9 {
+		t.Fatalf("the scope added %.2f to the hunter's melee and ranged hit; it is ranged only", got)
+	}
+	scope := 3 * float64(core.MeleeHitRatingPerHitChance)
+	if got := scoped.pet.GetStat(stats.MeleeHit) - plain.pet.GetStat(stats.MeleeHit); math.Abs(got-scope) > 1e-9 {
+		t.Errorf("the scope gave the pet %.2f hit, want %.2f", got, scope)
+	}
+	if got := scoped.pet.GetStat(stats.SpellHit) - plain.pet.GetStat(stats.SpellHit); math.Abs(got-scope*17/8) > 1e-9 {
+		t.Errorf("the scope gave the pet %.2f spell hit, want %.2f", got, scope*17/8)
+	}
+}
+
 // Each family's damage, armor and health scalars are its Tamed Pet Passive in the client data (the Fox carries the
 // Wolf's), and the Bat keeps Sonic Blast (Forever's new ranks sit on the Bat skill line, 653).
 func TestPetFamilyScalars(t *testing.T) {
@@ -3027,14 +3277,14 @@ func TestManaPerFiveRowsBySource(t *testing.T) {
 	if named["wisdom"] <= 0 || named["spring"] <= 0 {
 		t.Fatalf("no Blessing of Wisdom or Mana Spring Totem row: %v", named)
 	}
-	if got, want := named["wisdom"]/named["spring"], 48/26.25; math.Abs(got-want) > 1e-6 {
+	if got, want := named["wisdom"]/named["spring"], 40/26.25; math.Abs(got-want) > 1e-6 {
 		t.Errorf("Blessing of Wisdom / Mana Spring Totem mana %.4f, want %.4f (their mana per 5)", got, want)
 	}
 	if named["unnamed"] > 0 {
 		t.Errorf("%.1f mana per 5 unnamed with only named sources", named["unnamed"])
 	}
 	extra := run(10)
-	if got, want := extra["unnamed"]/extra["wisdom"], 10.0/48; math.Abs(got-want) > 1e-6 {
+	if got, want := extra["unnamed"]/extra["wisdom"], 10.0/40; math.Abs(got-want) > 1e-6 {
 		t.Errorf("unnamed / Blessing of Wisdom mana %.4f, want %.4f for 10 unnamed mana per 5", got, want)
 	}
 }

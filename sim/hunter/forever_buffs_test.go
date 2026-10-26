@@ -21,9 +21,10 @@ func statGain(t *testing.T, stat stats.Stat, a, b patchTestSetup) float64 {
 	return hb.GetStat(stat) - ha.GetStat(stat)
 }
 
-// The "Improved" buff settings follow the Forever talents instead of doing nothing: Improved Battle Shout +25%,
-// Improved Blessing of Might +20%, Enhancing Totems +15% (Strength of Earth, Grace of Air), Improved Mark of
-// the Wild +35%; Power Word: Fortitude is 70 Stamina.
+// Forever has no talents that improve raid buffs (none of Improved Battle Shout, Improved Blessing of Might or Wisdom,
+// Enhancing Totems, Improved Mark of the Wild is in a talent tree, and the client values already hold Classic's
+// improved share), so each buff gives its client value and an old "Improved" setting gives the same; Power Word:
+// Fortitude is 70 Stamina.
 func TestImprovedBuffs(t *testing.T) {
 	for _, tc := range []struct {
 		name string
@@ -31,11 +32,12 @@ func TestImprovedBuffs(t *testing.T) {
 		a, b patchTestSetup
 		want float64
 	}{
-		{"Battle Shout", stats.AttackPower, patchTestSetup{buffs: &proto.RaidBuffs{BattleShout: regular}}, patchTestSetup{buffs: &proto.RaidBuffs{BattleShout: improved}}, 173 - 139},
-		{"Blessing of Might", stats.AttackPower, patchTestSetup{ibuffs: &proto.IndividualBuffs{BlessingOfMight: regular}}, patchTestSetup{ibuffs: &proto.IndividualBuffs{BlessingOfMight: improved}}, 159 - 133},
-		{"Strength of Earth", stats.Strength, patchTestSetup{buffs: &proto.RaidBuffs{StrengthOfEarthTotem: regular}}, patchTestSetup{buffs: &proto.RaidBuffs{StrengthOfEarthTotem: improved}}, 60 - 53},
-		{"Grace of Air", stats.Agility, patchTestSetup{buffs: &proto.RaidBuffs{GraceOfAirTotem: regular}}, patchTestSetup{buffs: &proto.RaidBuffs{GraceOfAirTotem: improved}}, 102 - 89},
-		{"Mark of the Wild", stats.Agility, patchTestSetup{buffs: &proto.RaidBuffs{GiftOfTheWild: regular}}, patchTestSetup{buffs: &proto.RaidBuffs{GiftOfTheWild: improved}}, 21 - 16},
+		{"Battle Shout", stats.AttackPower, patchTestSetup{}, patchTestSetup{buffs: &proto.RaidBuffs{BattleShout: improved}}, 139},
+		{"Blessing of Might", stats.AttackPower, patchTestSetup{}, patchTestSetup{ibuffs: &proto.IndividualBuffs{BlessingOfMight: improved}}, 133},
+		{"Strength of Earth", stats.Strength, patchTestSetup{}, patchTestSetup{buffs: &proto.RaidBuffs{StrengthOfEarthTotem: improved}}, 53},
+		{"Grace of Air", stats.Agility, patchTestSetup{}, patchTestSetup{buffs: &proto.RaidBuffs{GraceOfAirTotem: improved}}, 89},
+		{"Mark of the Wild", stats.Agility, patchTestSetup{}, patchTestSetup{buffs: &proto.RaidBuffs{GiftOfTheWild: improved}}, 16},
+		{"Blessing of Wisdom", stats.MP5, patchTestSetup{ibuffs: &proto.IndividualBuffs{BlessingOfWisdom: regular}}, patchTestSetup{ibuffs: &proto.IndividualBuffs{BlessingOfWisdom: improved}}, 0},
 		{"Power Word: Fortitude", stats.Stamina, patchTestSetup{}, patchTestSetup{buffs: &proto.RaidBuffs{PowerWordFortitude: regular}}, 70},
 		{"Slip'kik's Savvy", stats.MeleeCrit, patchTestSetup{}, patchTestSetup{ibuffs: &proto.IndividualBuffs{SlipkiksSavvy: true}}, 3},
 	} {

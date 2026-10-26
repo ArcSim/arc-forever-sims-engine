@@ -31,7 +31,7 @@ func (hunter *Hunter) getWingClipConfig(rank int) core.SpellConfig {
 			IgnoreHaste: true,
 		},
 		ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {
-			return hunter.DistanceFromTarget <= core.MaxMeleeAttackDistance
+			return hunter.DistanceNow(sim) <= core.MaxMeleeAttackDistance
 		},
 
 		DamageMultiplier: 1,

@@ -1025,6 +1025,22 @@ func (character *Character) newBasicExplosiveSpellConfig(sharedTimer *Timer, act
 		}
 	}
 
+	// the sapper's hit on its user is not damage done: a spell of its own keeps it out of the results, where it would
+	// land on the first target's row
+	var selfHit *Spell
+	if isSapper {
+		selfHit = character.GetOrRegisterSpell(SpellConfig{
+			ActionID:         actionID.WithTag(1),
+			SpellSchool:      school,
+			DefenseType:      DefenseTypeMagic,
+			ProcMask:         ProcMaskEmpty,
+			Flags:            SpellFlagNoMetrics | SpellFlagNoLogs | SpellFlagPassiveSpell,
+			BonusHitRating:   100 * SpellHitRatingPerHitChance,
+			DamageMultiplier: 1,
+			ThreatMultiplier: 1,
+		})
+	}
+
 	return SpellConfig{
 		ActionID:    actionID,
 		SpellSchool: school,
@@ -1057,9 +1073,9 @@ func (character *Character) newBasicExplosiveSpellConfig(sharedTimer *Timer, act
 				spell.CalcAndDealDamage(sim, aoeTarget, baseDamage, spell.OutcomeMagicHitAndCrit)
 			}
 
-			if isSapper {
+			if selfHit != nil {
 				baseDamage := sim.Roll(selfMinDamage, selfMaxDamage)
-				spell.CalcAndDealDamage(sim, &character.Unit, baseDamage, spell.OutcomeMagicHitAndCrit)
+				selfHit.CalcAndDealDamage(sim, &character.Unit, baseDamage, selfHit.OutcomeMagicHitAndCrit)
 			}
 		},
 	}
@@ -1141,8 +1157,8 @@ func makeMajorFrenzyPotionMCD(_ int32, character *Character, cdTimer *Timer) Maj
 func makeDragonfirePotionMCD(character *Character, cdTimer *Timer) MajorCooldown {
 	return MajorCooldown{
 		Type: CooldownTypeDPS,
-		ShouldActivate: func(_ *Simulation, character *Character) bool {
-			return character.DistanceFromTarget <= 12
+		ShouldActivate: func(sim *Simulation, character *Character) bool {
+			return character.DistanceNow(sim) <= 12
 		},
 		Spell: character.GetOrRegisterSpell(SpellConfig{
 			ActionID:    ActionID{ItemID: 250953},
@@ -1184,8 +1200,8 @@ func makeDragonfirePotionMCD(character *Character, cdTimer *Timer) MajorCooldown
 func makeCausticSmogPotionMCD(character *Character, cdTimer *Timer) MajorCooldown {
 	return MajorCooldown{
 		Type: CooldownTypeDPS,
-		ShouldActivate: func(_ *Simulation, character *Character) bool {
-			return character.DistanceFromTarget <= 20
+		ShouldActivate: func(sim *Simulation, character *Character) bool {
+			return character.DistanceNow(sim) <= 20
 		},
 		Spell: character.GetOrRegisterSpell(SpellConfig{
 			ActionID:     ActionID{ItemID: 250951},

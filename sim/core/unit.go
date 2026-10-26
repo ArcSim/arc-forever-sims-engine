@@ -298,7 +298,7 @@ func (unit *Unit) processDynamicBonus(sim *Simulation, bonus stats.Stats) {
 	}
 
 	for _, pet := range unit.DynamicStatsPets {
-		pet.addOwnerStats(sim, bonus)
+		pet.addOwnerStats(sim)
 	}
 }
 
@@ -441,6 +441,7 @@ func (unit *Unit) MultiplyAttackSpeed(sim *Simulation, amount float64) {
 }
 
 func (unit *Unit) AddBonusRangedHitRating(amount float64) {
+	unit.PseudoStats.BonusRangedHitRating += amount
 	unit.OnSpellRegistered(func(spell *Spell) {
 		if spell.CastType == proto.CastType_CastTypeRanged {
 			spell.BonusHitRating += amount

@@ -11,12 +11,12 @@
     }
   },
   "raidBuffs": {
-    "giftOfTheWild": "TristateEffectImproved",
-    "strengthOfEarthTotem": "TristateEffectImproved",
-    "graceOfAirTotem": "TristateEffectImproved",
+    "giftOfTheWild": "TristateEffectRegular",
+    "strengthOfEarthTotem": "TristateEffectRegular",
+    "graceOfAirTotem": "TristateEffectRegular",
     "arcaneBrilliance": true,
     "divineSpirit": true,
-    "battleShout": "TristateEffectImproved",
+    "battleShout": "TristateEffectRegular",
     "trueshotAura": true,
     "leaderOfThePack": true,
     "manaSpringTotem": "TristateEffectImproved",
@@ -128,8 +128,8 @@
     },
     "buffs": {
       "blessingOfKings": true,
-      "blessingOfWisdom": "TristateEffectImproved",
-      "blessingOfMight": "TristateEffectImproved"
+      "blessingOfWisdom": "TristateEffectRegular",
+      "blessingOfMight": "TristateEffectRegular"
     },
     "talentsString": "-00531500113-500230230050122151",
     "profession1": "Blacksmithing",
@@ -594,6 +594,47 @@
                         }
                       }
                     }
+                  },
+                  {
+                    "not": {
+                      "val": {
+                        "and": {
+                          "vals": [
+                            {
+                              "cmp": {
+                                "op": "OpLe",
+                                "lhs": {
+                                  "spellTimeToReady": {
+                                    "spellId": {
+                                      "spellId": 2643,
+                                      "rank": 1
+                                    }
+                                  }
+                                },
+                                "rhs": {
+                                  "const": {
+                                    "val": "0.2s"
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "cmp": {
+                                "op": "OpLe",
+                                "lhs": {
+                                  "gcdTimeToReady": {}
+                                },
+                                "rhs": {
+                                  "const": {
+                                    "val": "0.2s"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
                   }
                 ]
               }
@@ -607,7 +648,7 @@
             }
           },
           "simple": {
-            "text": "**Move in** to {Melee spot} yd after your Auto Shot once your MH swing timer is at 1.5 s or less.",
+            "text": "**Move in** to {Melee spot} yd after your Auto Shot once your MH swing timer is at 1.5 s or less, unless Multi-Shot is ready within 0.2 s (shoot it first).",
             "shown": true,
             "boxes": [
               {
@@ -724,7 +765,7 @@
                                       },
                                       "rhs": {
                                         "const": {
-                                          "val": "0.5s"
+                                          "val": "0.8s"
                                         }
                                       }
                                     }
@@ -1420,7 +1461,7 @@
                                 },
                                 "rhs": {
                                   "const": {
-                                    "val": "0.5s"
+                                    "val": "0.8s"
                                   }
                                 }
                               }
@@ -1988,7 +2029,7 @@
             "texts": [
               {
                 "when": "Off hand swing > 0",
-                "text": "**Move out** to {Ranged spot} yd as soon as your MH swing lands, unless an OH swing lands within half a second."
+                "text": "**Move out** to {Ranged spot} yd as soon as your MH swing lands, unless an OH swing lands within 0.8 s."
               },
               {
                 "when": "Main hand swing - Auto Shot swing >= 0.5",

@@ -33,7 +33,7 @@ func (hunter *Hunter) getMongooseBiteConfig(rank int) core.SpellConfig {
 			IgnoreHaste: true,
 		},
 		ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {
-			return hunter.DistanceFromTarget <= 5 && (hunter.DefensiveState.IsActive() || hunter.ExposePrey.IsActive())
+			return hunter.DistanceNow(sim) <= 5 && (hunter.DefensiveState.IsActive() || hunter.ExposePrey.IsActive())
 		},
 
 		DamageMultiplier: 1,

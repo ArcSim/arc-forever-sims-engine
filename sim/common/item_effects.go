@@ -3601,6 +3601,10 @@ func init() {
 				procAura.AddStack(sim)
 			},
 		})
+		// the stacks (26481) have no duration of their own: they end with the badge's 30 s buff (26480)
+		trinketAura.ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
+			procAura.Deactivate(sim)
+		})
 
 		spell := character.RegisterSpell(core.SpellConfig{
 			ActionID: actionID,
