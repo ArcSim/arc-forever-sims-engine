@@ -36,7 +36,7 @@
   "partyBuffs": {},
   "player": {
     "name": "Player",
-    "race": "RaceOrc",
+    "race": "RaceNightElf",
     "class": "ClassHunter",
     "equipment": {
       "items": [

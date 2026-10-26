@@ -36,7 +36,7 @@
   "partyBuffs": {},
   "player": {
     "name": "Player",
-    "race": "RaceHuman",
+    "race": "RaceNightElf",
     "class": "ClassHunter",
     "equipment": {
       "items": [
@@ -1117,6 +1117,19 @@
                               }
                             }
                           }
+                        },
+                        {
+                          "cmp": {
+                            "op": "OpGe",
+                            "lhs": {
+                              "weavePlay": {}
+                            },
+                            "rhs": {
+                              "const": {
+                                "val": "2"
+                              }
+                            }
+                          }
                         }
                       ]
                     }
@@ -1483,6 +1496,19 @@
                               }
                             }
                           }
+                        },
+                        {
+                          "cmp": {
+                            "op": "OpGe",
+                            "lhs": {
+                              "weavePlay": {}
+                            },
+                            "rhs": {
+                              "const": {
+                                "val": "2"
+                              }
+                            }
+                          }
                         }
                       ]
                     }
@@ -1527,7 +1553,7 @@
             ],
             "texts": [
               {
-                "when": "Off hand swing > 0",
+                "when": "Off hand swing > 0 and Weave play < 2",
                 "text": "**Move out** to {Ranged spot} yd once your MH and OH swings have landed, you have cast one melee ability (if one is up), and Arcane Shot or Multi-Shot is ready or Serpent Sting is running out."
               }
             ]

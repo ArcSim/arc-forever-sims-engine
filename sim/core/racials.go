@@ -9,17 +9,18 @@ import (
 	"github.com/wowsims/classic/sim/core/stats"
 )
 
-// Racials follow the WoW Forever client data (build 1.60.1.70334): weapon specializations give
-// crit instead of weapon skill, there is no Bow/Gun/Thrown Specialization, Blood Fury and Berserking
-// are flat 10%, Night Elves have Elune's Light and Dwarves Big Game Hunter. Skyborne is a Forever-only race.
+// Racials follow the WoW Forever client data (build 1.60.1.70334) with Blizzard's racial tuning pass of 26 October
+// 2026 on top: there is no weapon or Bow/Gun/Thrown Specialization, Blood Fury and Berserking are flat 10%, Night
+// Elves have Elune's Light and Dwarves Big Game Hunter. Skyborne is a Forever-only race.
 func applyRaceEffects(agent Agent) {
 	character := agent.GetCharacter()
 
 	switch character.Race {
 	case proto.Race_RaceDwarf:
 		character.AddStat(stats.FrostResistance, 10)
-		// Earth Fury: +2% critical damage and healing
-		character.applyCritDamageRacial(1.02)
+		// Artisan's Precision: +1% hit with spells and attacks (replaced Earth Fury's critical damage)
+		character.AddStat(stats.MeleeHit, 1*MeleeHitRatingPerHitChance)
+		character.AddStat(stats.SpellHit, 1*SpellHitRatingPerHitChance)
 		character.applyBeastDamageRacial()
 
 		actionID := ActionID{SpellID: 20594}
@@ -64,9 +65,10 @@ func applyRaceEffects(agent Agent) {
 		}
 		makeEurekaCooldown(character)
 	case proto.Race_RaceHuman:
-		character.MultiplyStat(stats.Spirit, 1.05)
-		// Ruthless: +2% crit with any weapon
-		character.addCritRacial(2)
+		// The Human Spirit: +10% Spirit
+		character.MultiplyStat(stats.Spirit, 1.10)
+		// Ruthless: +1% crit with any weapon
+		character.addCritRacial(1)
 	case proto.Race_RaceNightElf:
 		character.AddStat(stats.NatureResistance, 10)
 		character.AddStat(stats.Dodge, 1)
@@ -113,8 +115,12 @@ func applyRaceEffects(agent Agent) {
 			Type:  CooldownTypeDPS,
 		})
 	case proto.Race_RaceOrc:
-		// Savage: +1% crit with any weapon
-		character.addCritRacial(1)
+		// Command: Hunter and Warlock pets deal 5% more damage (Savage's crit is gone)
+		if character.Class == proto.Class_ClassHunter || character.Class == proto.Class_ClassWarlock {
+			for _, pet := range character.Pets {
+				pet.PseudoStats.DamageDealtMultiplier *= 1.05
+			}
+		}
 
 		actionID := ActionID{SpellID: 20572}
 		// Blood Fury: +10% attack power and spell power (Forever 20572 raises both); single-school power ("+X fire
@@ -160,9 +166,9 @@ func applyRaceEffects(agent Agent) {
 		})
 	case proto.Race_RaceTauren:
 		character.AddStat(stats.NatureResistance, 10)
+		// Endurance: +5% Health and nothing else. Plainsrunning (run speed stacks) is not modelled: how its stacks build
+		// is not known yet
 		character.MultiplyStat(stats.Health, 1.05)
-		// Endurance: +2% critical damage and healing
-		character.applyCritDamageRacial(1.02)
 	case proto.Race_RaceTroll:
 		character.applyBeastDamageRacial()
 		makeBerserkingCooldown(character)
@@ -170,10 +176,10 @@ func applyRaceEffects(agent Agent) {
 		character.AddStat(stats.ShadowResistance, 10)
 		applyTouchOfTheGrave(character)
 	case proto.Race_RaceSkyborneAlliance, proto.Race_RaceSkyborneHorde:
-		// Wind Blessed: +3% melee, ranged and casting speed
-		character.PseudoStats.MeleeSpeedMultiplier *= 1.03
-		character.PseudoStats.RangedSpeedMultiplier *= 1.03
-		character.PseudoStats.CastSpeedMultiplier *= 1.03
+		// Wind Blessed: +2% melee, ranged and casting speed
+		character.PseudoStats.MeleeSpeedMultiplier *= 1.02
+		character.PseudoStats.RangedSpeedMultiplier *= 1.02
+		character.PseudoStats.CastSpeedMultiplier *= 1.02
 		// Elemental Insight
 		character.applyMobTypeDamageRacial(proto.MobType_MobTypeElemental)
 		character.applySkyborneBlessing()
@@ -184,47 +190,45 @@ func applyRaceEffects(agent Agent) {
 // Quickness is known to stack, so by default only the strongest speed bonus counts.
 var SkysightStacks = os.Getenv("AB_SKYSIGHT_STACKS") != ""
 
-// Skysight (Horde Skyborne): +10% run speed (a regular speed bonus: only the strongest counts). Read Leyline (Alliance Skyborne):
-// +100% health and mana regeneration. Each lasts 30 s on a 2 min cooldown (on the GCD), or 15 min when cast at an
-// elemental convergence or a leyline; SkyborneConvergence counts that as up the whole fight. Neither is cast in
-// combat on its own: the GCD costs more than 30 s of either gives back (Skysight on cooldown sims about 10 DPS lower
-// than not casting it), so only a rotation that asks for it casts it.
+// Skysight (Horde Skyborne): +15% run speed for 15 s (a regular speed bonus: only the strongest counts). Read Leyline
+// (Alliance Skyborne): +50% health and mana regeneration for 15 s. Each is on a 2 min cooldown (on the GCD). Cast once at
+// an elemental convergence or a leyline before the fight, they leave Charged or Attuned for an hour
+// (SkyborneConvergence), which raises each later cast to +30% or +100%; the buff itself still lasts 15 s. Neither is cast
+// in combat on its own: only a rotation that asks for it casts it.
 func (character *Character) applySkyborneBlessing() {
 	horde := character.Race == proto.Race_RaceSkyborneHorde
 	spellID, buffID, label := int32(1259705), int32(1270842), "Read Leyline"
 	if horde {
 		spellID, buffID, label = 1259686, 1259688, "Skysight"
 	}
+	// a cast's bonus, raised while Charged / Attuned
+	speed, regen := 1.15, 0.5
+	if character.SkyborneConvergence {
+		speed, regen = 1.30, 1.0
+	}
 
 	buffActionID := ActionID{SpellID: buffID}
 	aura := character.RegisterAura(Aura{
 		Label:    label,
 		ActionID: buffActionID,
-		Duration: time.Second * 30,
-		OnReset: func(aura *Aura, sim *Simulation) {
-			aura.Duration = time.Second * 30
-			if character.SkyborneConvergence {
-				aura.Duration = NeverExpires
-				aura.Activate(sim)
-			}
-		},
+		Duration: time.Second * 15,
 		OnGain: func(aura *Aura, sim *Simulation) {
 			if horde && SkysightStacks {
-				aura.Unit.MultiplyStackingMoveSpeed(1.10)
+				aura.Unit.MultiplyStackingMoveSpeed(speed)
 			} else if horde {
-				aura.Unit.AddMoveSpeedModifier(&buffActionID, 1.10)
+				aura.Unit.AddMoveSpeedModifier(&buffActionID, speed)
 			} else {
-				aura.Unit.PseudoStats.SpiritRegenMultiplier += 1
+				aura.Unit.PseudoStats.SpiritRegenMultiplier += regen
 				aura.Unit.UpdateManaRegenRates()
 			}
 		},
 		OnExpire: func(aura *Aura, sim *Simulation) {
 			if horde && SkysightStacks {
-				aura.Unit.MultiplyStackingMoveSpeed(1 / 1.10)
+				aura.Unit.MultiplyStackingMoveSpeed(1 / speed)
 			} else if horde {
 				aura.Unit.RemoveMoveSpeedModifier(&buffActionID)
 			} else {
-				aura.Unit.PseudoStats.SpiritRegenMultiplier -= 1
+				aura.Unit.PseudoStats.SpiritRegenMultiplier -= regen
 				aura.Unit.UpdateManaRegenRates()
 			}
 		},
@@ -242,20 +246,11 @@ func (character *Character) applySkyborneBlessing() {
 				Duration: time.Minute * 2,
 			},
 		},
-		ExtraCastCondition: func(sim *Simulation, target *Unit) bool {
-			return !character.SkyborneConvergence
-		},
 		ApplyEffects: func(sim *Simulation, _ *Unit, _ *Spell) {
 			aura.Activate(sim)
 		},
 	})
 
-}
-
-// critical damage and healing of attacks and spells times mult
-func (character *Character) applyCritDamageRacial(mult float64) {
-	character.PseudoStats.MeleeCritMultiplier *= mult
-	character.PseudoStats.SpellCritMultiplier *= mult
 }
 
 // +pct% crit with all spells and attacks.

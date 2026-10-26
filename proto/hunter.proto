@@ -201,8 +201,9 @@ message Hunter {
 		bool auto_shot_spam_bug = 17;
 		// Run speed in yards per second before speed effects; 0 is the game's 7.
 		double run_speed = 18;
-		// Skyborne: Skysight / Read Leyline cast at an elemental convergence or leyline lasts 15 minutes, so it is up the
-		// whole fight; off, it is only cast if the rotation asks for it (30 s on a 2 min cooldown).
+		// Skyborne: Charged / Attuned (Skysight / Read Leyline cast at an elemental convergence or leyline) for the fight:
+		// each cast gives +30% run speed / +100% regeneration instead of 15% / 50%, still 15 s on a 2 min cooldown, and is
+		// only cast if the rotation asks for it.
 		bool skyborne_convergence = 19;
 		reserved 20; // trap_reach: traps now always reach 6 yd (tested in game)
 		// Mortal Shots' crit bonus skips Auto Shot (an earlier report; the game applies it); off, Auto Shot gets it.

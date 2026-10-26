@@ -36,7 +36,7 @@
   "partyBuffs": {},
   "player": {
     "name": "Player",
-    "race": "RaceHuman",
+    "race": "RaceNightElf",
     "class": "ClassHunter",
     "equipment": {
       "items": [
@@ -769,6 +769,19 @@
                                         }
                                       }
                                     }
+                                  },
+                                  {
+                                    "cmp": {
+                                      "op": "OpLt",
+                                      "lhs": {
+                                        "weavePlay": {}
+                                      },
+                                      "rhs": {
+                                        "const": {
+                                          "val": "2"
+                                        }
+                                      }
+                                    }
                                   }
                                 ]
                               }
@@ -1465,6 +1478,19 @@
                                   }
                                 }
                               }
+                            },
+                            {
+                              "cmp": {
+                                "op": "OpLt",
+                                "lhs": {
+                                  "weavePlay": {}
+                                },
+                                "rhs": {
+                                  "const": {
+                                    "val": "2"
+                                  }
+                                }
+                              }
                             }
                           ]
                         }
@@ -2027,6 +2053,10 @@
               }
             ],
             "texts": [
+              {
+                "when": "Off hand swing > 0 and Weave play >= 2",
+                "text": "**Move out** to {Ranged spot} yd as soon as your MH swing lands."
+              },
               {
                 "when": "Off hand swing > 0",
                 "text": "**Move out** to {Ranged spot} yd as soon as your MH swing lands, unless an OH swing lands within 0.8 s."

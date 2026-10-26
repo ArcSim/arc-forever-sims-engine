@@ -252,9 +252,9 @@ func TestPetAbilityCooldowns(t *testing.T) {
 	}
 }
 
-// Racials: Ruthless (Human) +2% crit and Savage (Orc) +1% crit with any weapon; Earth Fury (Dwarf) and
-// Endurance (Tauren) +2% critical damage, Endurance gives no hit; Wind Blessed (Skyborne) 3% haste;
-// Blood Fury on a 3 min cooldown.
+// Racials after Blizzard's tuning pass of 26 October 2026: Ruthless (Human) +1% crit; Orc has no crit (Savage is gone)
+// but Command, +5% pet damage; Dwarf has Artisan's Precision, +1% hit, and no critical damage (Earth Fury is gone);
+// Tauren's Endurance gives no critical damage or hit; Wind Blessed (Skyborne) 2% haste; Blood Fury on a 3 min cooldown.
 func TestRacials(t *testing.T) {
 	critPerAgi := core.CritPerAgiAtLevel[proto.Class_ClassHunter] * core.CritRatingPerCritChance
 	racialCrit := func(race proto.Race) float64 {
@@ -262,12 +262,12 @@ func TestRacials(t *testing.T) {
 		return hunter.GetStat(stats.MeleeCrit) - hunter.GetStat(stats.Agility)*critPerAgi
 	}
 	nightElf := racialCrit(proto.Race_RaceNightElf)
-	for race, want := range map[proto.Race]float64{proto.Race_RaceHuman: 2, proto.Race_RaceOrc: 1, proto.Race_RaceDwarf: 0, proto.Race_RaceTauren: 0} {
+	for race, want := range map[proto.Race]float64{proto.Race_RaceHuman: 1, proto.Race_RaceOrc: 0, proto.Race_RaceDwarf: 0, proto.Race_RaceTauren: 0} {
 		if got := racialCrit(race) - nightElf; math.Abs(got-want) > 1e-6 {
 			t.Errorf("%v: +%.3f%% racial crit, want %.0f", race, got, want)
 		}
 	}
-	for race, want := range map[proto.Race]float64{proto.Race_RaceDwarf: 1.02, proto.Race_RaceTauren: 1.02, proto.Race_RaceHuman: 1, proto.Race_RaceOrc: 1} {
+	for race, want := range map[proto.Race]float64{proto.Race_RaceDwarf: 1, proto.Race_RaceTauren: 1, proto.Race_RaceHuman: 1, proto.Race_RaceOrc: 1} {
 		_, hunter := newPatchTestHunter(t, patchTestSetup{race: race})
 		if got := hunter.PseudoStats.MeleeCritMultiplier; math.Abs(got-want) > 1e-9 {
 			t.Errorf("%v: critical damage multiplier %.3f, want %.2f", race, got, want)
@@ -278,11 +278,25 @@ func TestRacials(t *testing.T) {
 	if tauren.GetStat(stats.MeleeHit) != nelf.GetStat(stats.MeleeHit) {
 		t.Errorf("Tauren still gets extra hit: %.2f vs %.2f", tauren.GetStat(stats.MeleeHit), nelf.GetStat(stats.MeleeHit))
 	}
+	_, human := newPatchTestHunter(t, patchTestSetup{race: proto.Race_RaceHuman})
+	baseSpirit := core.ClassBaseStats[proto.Class_ClassHunter][stats.Spirit] + core.RaceOffsets[proto.Race_RaceHuman][stats.Spirit]
+	if got := human.GetStat(stats.Spirit); math.Abs(got-baseSpirit*1.10) > 1e-6 {
+		t.Errorf("Human Spirit %.2f from a base of %.0f, want %.2f (The Human Spirit, +10%%)", got, baseSpirit, baseSpirit*1.10)
+	}
+	_, dwarf := newPatchTestHunter(t, patchTestSetup{race: proto.Race_RaceDwarf})
+	for _, s := range []stats.Stat{stats.MeleeHit, stats.SpellHit} {
+		if got := dwarf.GetStat(s) - nelf.GetStat(s); math.Abs(got-1) > 1e-9 {
+			t.Errorf("Dwarf %v +%.2f over Night Elf, want +1 (Artisan's Precision)", s, got)
+		}
+	}
 	_, skyborne := newPatchTestHunter(t, patchTestSetup{race: proto.Race_RaceSkyborneAlliance})
-	if got := skyborne.PseudoStats.RangedSpeedMultiplier / nelf.PseudoStats.RangedSpeedMultiplier; math.Abs(got-1.03) > 1e-9 {
-		t.Errorf("Skyborne ranged speed x%.4f, want 1.03", got)
+	if got := skyborne.PseudoStats.RangedSpeedMultiplier / nelf.PseudoStats.RangedSpeedMultiplier; math.Abs(got-1.02) > 1e-9 {
+		t.Errorf("Skyborne ranged speed x%.4f, want 1.02", got)
 	}
 	_, orc := newPatchTestHunter(t, patchTestSetup{race: proto.Race_RaceOrc})
+	if got := orc.pet.PseudoStats.DamageDealtMultiplier / nelf.pet.PseudoStats.DamageDealtMultiplier; math.Abs(got-1.05) > 1e-9 {
+		t.Errorf("Orc pet damage x%.4f over Night Elf, want 1.05 (Command)", got)
+	}
 	if bf := orc.GetSpell(core.ActionID{SpellID: 20572}); bf == nil || bf.CD.Duration != time.Minute*3 {
 		t.Errorf("Blood Fury cooldown is not 3 min")
 	}
@@ -1390,11 +1404,11 @@ func TestRunSpeedSetting(t *testing.T) {
 
 // Forever's own food and elixir values, from its client data (build 1.60.1.70450): Grilled Squid gives crit instead of
 // Agility, the wolf foods give Agility, and the new foods and elixirs give what their buffs say. Spirit is the elixir's
-// 25 times the Human 5%.
+// 25 times the Human 10%.
 func TestForeverFoodAndElixirValues(t *testing.T) {
 	_, base := newPatchTestHunter(t, patchTestSetup{})
 	type want struct{ agi, str, intel, spi, mp5, crit float64 }
-	const spirit = 25 * 1.05
+	const spirit = 25 * 1.10
 	cases := map[string]struct {
 		consumes *proto.Consumes
 		want     want
@@ -1581,7 +1595,7 @@ func TestSpellHasteShortensGCD(t *testing.T) {
 		want      time.Duration
 	}{
 		{"Human", proto.Race_RaceHuman, 1, 1500 * time.Millisecond},
-		{"Skyborne", proto.Race_RaceSkyborneAlliance, 1, time.Duration(math.Round(1.5e9 / 1.03))},
+		{"Skyborne", proto.Race_RaceSkyborneAlliance, 1, time.Duration(math.Round(1.5e9 / 1.02))},
 		{"double haste", proto.Race_RaceHuman, 2, time.Second},
 		{"cast speed slow", proto.Race_RaceHuman, 1 / 1.6, 1500 * time.Millisecond},
 	} {
@@ -1596,9 +1610,9 @@ func TestSpellHasteShortensGCD(t *testing.T) {
 	}
 }
 
-// Skysight (Horde Skyborne): +10% run speed, 30 s on a 2 min cooldown on the GCD. It is a regular speed bonus, so under
-// Strider Kick's 30% it adds nothing (AB_SKYSIGHT_STACKS=1 stacks it, for comparing). With the 15 min option it is up
-// from the start and is not cast again.
+// Skysight (Horde Skyborne): +15% run speed, 15 s on a 2 min cooldown on the GCD. It is a regular speed bonus, so under
+// Strider Kick's 30% it adds nothing (AB_SKYSIGHT_STACKS=1 stacks it, for comparing). Charged (cast at an elemental
+// convergence before the fight) makes each cast +30%, still for 15 s: nothing is up until it is cast.
 func TestSkysight(t *testing.T) {
 	sim, hunter := newPatchTestHunter(t, patchTestSetup{race: proto.Race_RaceSkyborneHorde, talents: patchTestTalents})
 	aura, spell := hunter.GetAura("Skysight"), hunter.GetSpell(core.ActionID{SpellID: 1259686})
@@ -1612,43 +1626,60 @@ func TestSkysight(t *testing.T) {
 		t.Errorf("Skysight cooldown %v, GCD %v; want 2 min on the GCD", spell.CD.Duration, spell.DefaultCast.GCD)
 	}
 	spell.Cast(sim, hunter.CurrentTarget)
-	if got := hunter.MovementHandler.MoveSpeed; math.Abs(got-7*1.1) > 1e-9 {
-		t.Errorf("Skysight: %.4f yd/s, want %.4f", got, 7*1.1)
+	if got := hunter.MovementHandler.MoveSpeed; math.Abs(got-7*1.15) > 1e-9 {
+		t.Errorf("Skysight: %.4f yd/s, want %.4f", got, 7*1.15)
 	}
-	if aura.Duration != 30*time.Second {
-		t.Errorf("Skysight lasts %v, want 30s", aura.Duration)
+	if aura.Duration != 15*time.Second {
+		t.Errorf("Skysight lasts %v, want 15s", aura.Duration)
 	}
 	hunter.GetAura("Strider Kick Speed").Activate(sim)
 	want := 7 * 1.3
 	if core.SkysightStacks {
-		want *= 1.1
+		want *= 1.15
 	}
 	if got := hunter.MovementHandler.MoveSpeed; math.Abs(got-want) > 1e-9 {
 		t.Errorf("Skysight under Strider Kick: %.4f yd/s, want %.4f", got, want)
 	}
 
-	sim, long := newPatchTestHunter(t, patchTestSetup{race: proto.Race_RaceSkyborneHorde, skyborne: true})
-	if a := long.GetAura("Skysight"); !a.IsActive() || a.Duration != core.NeverExpires {
-		t.Error("with the 15 min option Skysight is not up the whole fight")
+	sim, charged := newPatchTestHunter(t, patchTestSetup{race: proto.Race_RaceSkyborneHorde, skyborne: true})
+	if a := charged.GetAura("Skysight"); a.IsActive() {
+		t.Error("Charged: Skysight is up before it is cast")
 	}
-	if long.GetSpell(core.ActionID{SpellID: 1259686}).CanCast(sim, long.CurrentTarget) {
-		t.Error("with the 15 min option Skysight can still be cast")
+	if got := charged.MovementHandler.MoveSpeed; math.Abs(got-7) > 1e-9 {
+		t.Errorf("Charged, not cast: %.4f yd/s, want 7", got)
 	}
-	if got := long.MovementHandler.MoveSpeed; math.Abs(got-7*1.1) > 1e-9 {
-		t.Errorf("15 min Skysight: %.4f yd/s, want %.4f", got, 7*1.1)
+	charged.GetSpell(core.ActionID{SpellID: 1259686}).Cast(sim, charged.CurrentTarget)
+	if got := charged.MovementHandler.MoveSpeed; math.Abs(got-7*1.3) > 1e-9 {
+		t.Errorf("Charged Skysight: %.4f yd/s, want %.4f", got, 7*1.3)
+	}
+	if d := charged.GetAura("Skysight").Duration; d != 15*time.Second {
+		t.Errorf("Charged Skysight lasts %v, want 15s", d)
 	}
 }
 
-// Read Leyline (Alliance Skyborne): +100% mana regeneration (double the spirit regen), up the whole fight with the
-// 15 min option; Horde has Skysight instead.
+// Read Leyline (Alliance Skyborne): +50% mana regeneration for 15 s when cast; Attuned (cast at a leyline before the
+// fight) makes each cast +100% (double the spirit regen), still for 15 s; Horde has Skysight instead.
 func TestReadLeyline(t *testing.T) {
-	_, plain := newPatchTestHunter(t, patchTestSetup{race: proto.Race_RaceSkyborneAlliance})
-	_, long := newPatchTestHunter(t, patchTestSetup{race: proto.Race_RaceSkyborneAlliance, skyborne: true})
+	sim, plain := newPatchTestHunter(t, patchTestSetup{race: proto.Race_RaceSkyborneAlliance})
+	asim, attuned := newPatchTestHunter(t, patchTestSetup{race: proto.Race_RaceSkyborneAlliance, skyborne: true})
 	if plain.GetAura("Read Leyline") == nil || plain.GetAura("Skysight") != nil {
 		t.Fatal("Alliance Skyborne should have Read Leyline, not Skysight")
 	}
-	if got := long.PseudoStats.SpiritRegenMultiplier - plain.PseudoStats.SpiritRegenMultiplier; math.Abs(got-1) > 1e-9 {
-		t.Errorf("Read Leyline adds %.2f to the spirit regen multiplier, want 1 (+100%%)", got)
+	if attuned.PseudoStats.SpiritRegenMultiplier != plain.PseudoStats.SpiritRegenMultiplier {
+		t.Error("Attuned: Read Leyline is up before it is cast")
+	}
+	abefore := attuned.PseudoStats.SpiritRegenMultiplier
+	attuned.GetSpell(core.ActionID{SpellID: 1259705}).Cast(asim, attuned.CurrentTarget)
+	if got := attuned.PseudoStats.SpiritRegenMultiplier - abefore; math.Abs(got-1) > 1e-9 {
+		t.Errorf("Attuned Read Leyline adds %.2f to the spirit regen multiplier, want 1 (+100%%)", got)
+	}
+	before := plain.PseudoStats.SpiritRegenMultiplier
+	plain.GetSpell(core.ActionID{SpellID: 1259705}).Cast(sim, plain.CurrentTarget)
+	if got := plain.PseudoStats.SpiritRegenMultiplier - before; math.Abs(got-0.5) > 1e-9 {
+		t.Errorf("cast Read Leyline adds %.2f to the spirit regen multiplier, want 0.5 (+50%%)", got)
+	}
+	if d := plain.GetAura("Read Leyline").Duration; d != 15*time.Second {
+		t.Errorf("Read Leyline lasts %v, want 15s", d)
 	}
 }
 
@@ -2233,9 +2264,10 @@ func TestExposePreyMarkers(t *testing.T) {
 
 // The shipped weaves are tuned for melee swings leaving the Auto Shot timer alone (the beta's reset is off by default):
 // the hard weave stays for a swing landing up to 0.6 s after it would have to head back (it beats leaving a quarter
-// second early, the reset-era setting), and Arc Auto Weave reads the MH swing timer and the weapon's speed.
+// second early, the reset-era setting), and Arc Auto Weave reads the MH swing timer and the weapon's speed. Each on the
+// race its builds ship: the Auto Weave on Night Elf, the hard weave on Human (the Mythic builds).
 func TestWeavesTunedWithoutTheMeleeReset(t *testing.T) {
-	dps := func(apl []byte, gear string, moveMs int32) float64 {
+	dps := func(apl []byte, gear string, moveMs int32, race proto.Race) float64 {
 		rot := &proto.APLRotation{}
 		if err := protojson.Unmarshal(apl, rot); err != nil {
 			t.Fatalf("rotation: %v", err)
@@ -2244,7 +2276,7 @@ func TestWeavesTunedWithoutTheMeleeReset(t *testing.T) {
 		opts.Hunter.Options.MoveDelayMs = moveMs
 		opts.Hunter.Options.MeleeResetsAutoShot = false
 		player := core.WithSpec(&proto.Player{
-			Race:               proto.Race_RaceHuman,
+			Race:               race,
 			Class:              proto.Class_ClassHunter,
 			Equipment:          core.GetGearSet("../../ui/hunter/gear_sets", gear).GearSet,
 			TalentsString:      "-00531500113-500230230050122151",
@@ -2280,7 +2312,7 @@ func TestWeavesTunedWithoutTheMeleeReset(t *testing.T) {
 	// stop at the 5 yd edge mid-walk, so both only must not lose
 	for gear, gain := range map[string]float64{"2h_weave": 0, "surv_dw": 0} {
 		// the site's move reaction: the 5 yd edge wins with it, not with a 10 ms one
-		with, early := dps(hard, gear, 100), dps(late.ReplaceAll(hard, []byte(`"val": "0.25s"`)), gear, 100)
+		with, early := dps(hard, gear, 100, proto.Race_RaceHuman), dps(late.ReplaceAll(hard, []byte(`"val": "0.25s"`)), gear, 100, proto.Race_RaceHuman)
 		t.Logf("hard weave, %s: %.1f DPS staying for a late swing, %.1f leaving a quarter second early", gear, with, early)
 		if with < early+gain {
 			t.Errorf("hard weave, %s: %.1f DPS with the late swing hold, %.1f without; want at least %.0f more", gear, with, early, gain)
@@ -2344,7 +2376,7 @@ func TestWeavesTunedWithoutTheMeleeReset(t *testing.T) {
 		{"surv_dw", "Wing Clip while a shot is ready", clipAlways, 3, 100},
 		{"surv_dw_no_teebu", "Wing Clip while a shot is ready", clipAlways, 3, 100},
 	} {
-		shipped, other := dps(light, c.gear, c.moveMs), dps(c.other, c.gear, c.moveMs)
+		shipped, other := dps(light, c.gear, c.moveMs, proto.Race_RaceNightElf), dps(c.other, c.gear, c.moveMs, proto.Race_RaceNightElf)
 		t.Logf("Auto Weave, %s: %.1f DPS shipped, %.1f with %s", c.gear, shipped, other, c.what)
 		if shipped < other+c.gain {
 			t.Errorf("Auto Weave, %s: %.1f DPS shipped, %.1f with %s; want %+.0f or more", c.gear, shipped, other, c.what, c.gain)
@@ -2352,13 +2384,13 @@ func TestWeavesTunedWithoutTheMeleeReset(t *testing.T) {
 	}
 	// dual wield never waits for an ability on the way out: it plays the exit as it was before the weapon speed rules
 	for _, gear := range []string{"surv_dw", "surv_dw_no_teebu"} {
-		if shipped, old := dps(light, gear, 100), dps(oldExit, gear, 100); shipped != old {
+		if shipped, old := dps(light, gear, 100, proto.Race_RaceNightElf), dps(oldExit, gear, 100, proto.Race_RaceNightElf); shipped != old {
 			t.Errorf("Auto Weave, %s: %.2f DPS shipped, %.2f out as soon as the swing lands; dual wield should play the same", gear, shipped, old)
 		}
 	}
 	// a two-hander keeps its Wing Clip
 	for _, gear := range []string{"2h_weave", "2h_weave_reaper"} {
-		if shipped, clip := dps(light, gear, 100), dps(clipAlways, gear, 100); shipped != clip {
+		if shipped, clip := dps(light, gear, 100, proto.Race_RaceNightElf), dps(clipAlways, gear, 100, proto.Race_RaceNightElf); shipped != clip {
 			t.Errorf("Auto Weave, %s: %.2f DPS shipped, %.2f with Wing Clip while a shot is ready; a two-hander should play the same", gear, shipped, clip)
 		}
 	}

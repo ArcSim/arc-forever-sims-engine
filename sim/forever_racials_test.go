@@ -63,14 +63,15 @@ func classAbility(char *core.Character, periodic bool) *core.Spell {
 	return nil
 }
 
-// Earth Fury (Dwarf) and Endurance (Tauren): +2% critical damage and healing on attacks and spells.
+// No race has a critical damage racial since the tuning pass of 26 October 2026 (Dwarf's Earth Fury and Tauren's
+// Endurance bonus are gone), on attacks or spells.
 func TestForeverCritDamageRacials(t *testing.T) {
 	for _, tc := range []struct {
 		race proto.Race
 		want float64
 	}{
-		{proto.Race_RaceDwarf, 1.02},
-		{proto.Race_RaceTauren, 1.02},
+		{proto.Race_RaceDwarf, 1},
+		{proto.Race_RaceTauren, 1},
 		{proto.Race_RaceHuman, 1},
 	} {
 		_, mage := newForeverCharacter(t, tc.race, proto.Class_ClassMage, nil)
