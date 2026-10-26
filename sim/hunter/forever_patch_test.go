@@ -3277,7 +3277,7 @@ func TestManaPerFiveRowsBySource(t *testing.T) {
 	if named["wisdom"] <= 0 || named["spring"] <= 0 {
 		t.Fatalf("no Blessing of Wisdom or Mana Spring Totem row: %v", named)
 	}
-	if got, want := named["wisdom"]/named["spring"], 40/26.25; math.Abs(got-want) > 1e-6 {
+	if got, want := named["wisdom"]/named["spring"], 40/31.25; math.Abs(got-want) > 1e-6 {
 		t.Errorf("Blessing of Wisdom / Mana Spring Totem mana %.4f, want %.4f (their mana per 5)", got, want)
 	}
 	if named["unnamed"] > 0 {

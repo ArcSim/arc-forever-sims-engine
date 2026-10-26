@@ -1,0 +1,1227 @@
+{
+  "type": "TypeAPL",
+  "prepullActions": [
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 20905
+          }
+        }
+      },
+      "doAtValue": {
+        "const": {
+          "val": "-13s"
+        }
+      },
+      "simple": {
+        "text": "**Trueshot Aura** 13 s before the pull.",
+        "shown": true
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 1299447
+          }
+        }
+      },
+      "doAtValue": {
+        "const": {
+          "val": "-10s"
+        }
+      },
+      "simple": {
+        "text": "**Aspect of the Beast** 10 s before the pull."
+      }
+    },
+    {
+      "action": {
+        "move": {
+          "rangeFromTarget": {
+            "const": {
+              "val": "11"
+            }
+          }
+        }
+      },
+      "doAtValue": {
+        "const": {
+          "val": "-5s"
+        }
+      },
+      "simple": {
+        "text": "**Move to 11 yd** 5 s before the pull."
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 14325
+          }
+        }
+      },
+      "doAtValue": {
+        "const": {
+          "val": "-4s"
+        }
+      },
+      "simple": {
+        "text": "**Hunter's Mark** 4 s before the pull.",
+        "shown": true
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 25295,
+            "rank": 9
+          }
+        }
+      },
+      "doAtValue": {
+        "const": {
+          "val": "-2s"
+        }
+      },
+      "simple": {
+        "text": "**Serpent Sting** 2 s before the pull, from 11 yd.",
+        "shown": true
+      }
+    }
+  ],
+  "priorityList": [
+    {
+      "action": {
+        "condition": {
+          "cmp": {
+            "op": "OpGt",
+            "lhs": {
+              "math": {
+                "op": "OpSub",
+                "lhs": {
+                  "maxMana": {}
+                },
+                "rhs": {
+                  "currentMana": {}
+                }
+              }
+            },
+            "rhs": {
+              "const": {
+                "val": "1300"
+              }
+            }
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "itemId": 12662
+          }
+        }
+      },
+      "simple": {
+        "text": "**Demonic Rune** when {Missing mana} or more mana is missing.",
+        "boxes": [
+          {
+            "label": "Missing mana",
+            "numbers": [
+              "condition/cmp/rhs"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "itemId": 13965
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "cmp": {
+            "op": "OpGt",
+            "lhs": {
+              "math": {
+                "op": "OpSub",
+                "lhs": {
+                  "maxMana": {}
+                },
+                "rhs": {
+                  "currentMana": {}
+                }
+              }
+            },
+            "rhs": {
+              "const": {
+                "val": "1750"
+              }
+            }
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "itemId": 13444
+          }
+        }
+      },
+      "simple": {
+        "text": "**Major Mana Potion** when {Missing mana} or more mana is missing.",
+        "boxes": [
+          {
+            "label": "Missing mana",
+            "numbers": [
+              "condition/cmp/rhs"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 3045
+          }
+        },
+        "condition": {
+          "cmp": {
+            "op": "OpGe",
+            "lhs": {
+              "distanceToTarget": {}
+            },
+            "rhs": {
+              "const": {
+                "val": "11"
+              }
+            }
+          }
+        }
+      },
+      "simple": {
+        "text": "**Rapid Fire** at range, on your first trip out.",
+        "shown": true
+      }
+    },
+    {
+      "action": {
+        "autocastOtherCooldowns": {}
+      },
+      "simple": {
+        "text": "**Any other cooldown** when ready (Bestial Wrath, Intimidation, trinkets)."
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "and": {}
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 20572
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 20554
+          }
+        }
+      },
+      "simple": {
+        "text": "**Berserking**"
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 1259799
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "and": {}
+        },
+        "castSpell": {
+          "spellId": {
+            "itemId": 250943
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "and": {
+            "vals": [
+              {
+                "cmp": {
+                  "op": "OpLe",
+                  "lhs": {
+                    "distanceToTarget": {}
+                  },
+                  "rhs": {
+                    "const": {
+                      "val": "5"
+                    }
+                  }
+                }
+              },
+              {
+                "auraIsActive": {
+                  "auraId": {
+                    "spellId": 1317257,
+                    "tag": 1
+                  }
+                }
+              },
+              {
+                "not": {
+                  "val": {
+                    "cmp": {
+                      "op": "OpLt",
+                      "lhs": {
+                        "autoTimeSinceLast": {
+                          "autoType": "Ranged"
+                        }
+                      },
+                      "rhs": {
+                        "math": {
+                          "op": "OpSub",
+                          "lhs": {
+                            "const": {
+                              "val": "8s"
+                            }
+                          },
+                          "rhs": {
+                            "spellTimeToReady": {
+                              "spellId": {
+                                "spellId": 1317257
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "not": {
+                  "val": {
+                    "and": {
+                      "vals": [
+                        {
+                          "cmp": {
+                            "op": "OpLt",
+                            "lhs": {
+                              "autoTimeSinceLast": {
+                                "autoType": "MainHand"
+                              }
+                            },
+                            "rhs": {
+                              "math": {
+                                "op": "OpSub",
+                                "lhs": {
+                                  "const": {
+                                    "val": "8s"
+                                  }
+                                },
+                                "rhs": {
+                                  "spellTimeToReady": {
+                                    "spellId": {
+                                      "spellId": 1317257
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "or": {
+                            "vals": [
+                              {
+                                "cmp": {
+                                  "op": "OpLe",
+                                  "lhs": {
+                                    "autoSwingTime": {
+                                      "autoType": "OffHand"
+                                    }
+                                  },
+                                  "rhs": {
+                                    "const": {
+                                      "val": "0s"
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "cmp": {
+                                  "op": "OpLt",
+                                  "lhs": {
+                                    "autoTimeSinceLast": {
+                                      "autoType": "OffHand"
+                                    }
+                                  },
+                                  "rhs": {
+                                    "math": {
+                                      "op": "OpSub",
+                                      "lhs": {
+                                        "const": {
+                                          "val": "8s"
+                                        }
+                                      },
+                                      "rhs": {
+                                        "spellTimeToReady": {
+                                          "spellId": {
+                                            "spellId": 1317257
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "move": {
+          "rangeFromTarget": {
+            "const": {
+              "val": "5"
+            }
+          }
+        }
+      },
+      "simple": {
+        "text": "**Stay at 5 yd** after a Strider Kick until your swing has landed.",
+        "shown": true,
+        "texts": [
+          {
+            "when": "Off hand swing > 0",
+            "text": "**Stay at 5 yd** after a Strider Kick until your MH and OH swings have landed."
+          }
+        ]
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "and": {
+            "vals": [
+              {
+                "cmp": {
+                  "op": "OpLe",
+                  "lhs": {
+                    "distanceToTarget": {}
+                  },
+                  "rhs": {
+                    "const": {
+                      "val": "5"
+                    }
+                  }
+                }
+              },
+              {
+                "auraIsActive": {
+                  "auraId": {
+                    "spellId": 1317257,
+                    "tag": 1
+                  }
+                }
+              },
+              {
+                "not": {
+                  "val": {
+                    "cmp": {
+                      "op": "OpLt",
+                      "lhs": {
+                        "autoTimeSinceLast": {
+                          "autoType": "Ranged"
+                        }
+                      },
+                      "rhs": {
+                        "math": {
+                          "op": "OpSub",
+                          "lhs": {
+                            "const": {
+                              "val": "8s"
+                            }
+                          },
+                          "rhs": {
+                            "spellTimeToReady": {
+                              "spellId": {
+                                "spellId": 1317257
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "and": {
+                  "vals": [
+                    {
+                      "cmp": {
+                        "op": "OpLt",
+                        "lhs": {
+                          "autoTimeSinceLast": {
+                            "autoType": "MainHand"
+                          }
+                        },
+                        "rhs": {
+                          "math": {
+                            "op": "OpSub",
+                            "lhs": {
+                              "const": {
+                                "val": "8s"
+                              }
+                            },
+                            "rhs": {
+                              "spellTimeToReady": {
+                                "spellId": {
+                                  "spellId": 1317257
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "or": {
+                        "vals": [
+                          {
+                            "cmp": {
+                              "op": "OpLe",
+                              "lhs": {
+                                "autoSwingTime": {
+                                  "autoType": "OffHand"
+                                }
+                              },
+                              "rhs": {
+                                "const": {
+                                  "val": "0s"
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "cmp": {
+                              "op": "OpLt",
+                              "lhs": {
+                                "autoTimeSinceLast": {
+                                  "autoType": "OffHand"
+                                }
+                              },
+                              "rhs": {
+                                "math": {
+                                  "op": "OpSub",
+                                  "lhs": {
+                                    "const": {
+                                      "val": "8s"
+                                    }
+                                  },
+                                  "rhs": {
+                                    "spellTimeToReady": {
+                                      "spellId": {
+                                        "spellId": 1317257
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "move": {
+          "rangeFromTarget": {
+            "const": {
+              "val": "11"
+            }
+          }
+        }
+      },
+      "simple": {
+        "text": "**Move out** to {Ranged spot} yd after a Strider Kick, while its speed is up.",
+        "shown": true,
+        "boxes": [
+          {
+            "label": "Ranged spot",
+            "numbers": [
+              "move/rangeFromTarget"
+            ],
+            "unit": "yd"
+          }
+        ]
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "and": {
+            "vals": [
+              {
+                "cmp": {
+                  "op": "OpLe",
+                  "lhs": {
+                    "dotRemainingTime": {
+                      "spellId": {
+                        "spellId": 25295,
+                        "rank": 9
+                      }
+                    }
+                  },
+                  "rhs": {
+                    "const": {
+                      "val": "2s"
+                    }
+                  }
+                }
+              },
+              {
+                "not": {
+                  "val": {
+                    "or": {
+                      "vals": [
+                        {
+                          "cmp": {
+                            "op": "OpGt",
+                            "lhs": {
+                              "spellTimeToReady": {
+                                "spellId": {
+                                  "spellId": 2643,
+                                  "rank": 1
+                                }
+                              }
+                            },
+                            "rhs": {
+                              "math": {
+                                "op": "OpSub",
+                                "lhs": {
+                                  "const": {
+                                    "val": "6s"
+                                  }
+                                },
+                                "rhs": {
+                                  "math": {
+                                    "op": "OpSub",
+                                    "lhs": {
+                                      "const": {
+                                        "val": "8s"
+                                      }
+                                    },
+                                    "rhs": {
+                                      "spellTimeToReady": {
+                                        "spellId": {
+                                          "spellId": 1317257
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "cmp": {
+                            "op": "OpGt",
+                            "lhs": {
+                              "dotRemainingTime": {
+                                "spellId": {
+                                  "spellId": 25295,
+                                  "rank": 9
+                                }
+                              }
+                            },
+                            "rhs": {
+                              "math": {
+                                "op": "OpSub",
+                                "lhs": {
+                                  "const": {
+                                    "val": "15s"
+                                  }
+                                },
+                                "rhs": {
+                                  "math": {
+                                    "op": "OpSub",
+                                    "lhs": {
+                                      "const": {
+                                        "val": "8s"
+                                      }
+                                    },
+                                    "rhs": {
+                                      "spellTimeToReady": {
+                                        "spellId": {
+                                          "spellId": 1317257
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 25295,
+            "rank": 9
+          }
+        }
+      },
+      "simple": {
+        "text": "**Serpent Sting** at range when it has 2 s or less left (one shot each trip).",
+        "shown": true
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "not": {
+            "val": {
+              "or": {
+                "vals": [
+                  {
+                    "cmp": {
+                      "op": "OpGt",
+                      "lhs": {
+                        "spellTimeToReady": {
+                          "spellId": {
+                            "spellId": 2643,
+                            "rank": 1
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "math": {
+                          "op": "OpSub",
+                          "lhs": {
+                            "const": {
+                              "val": "6s"
+                            }
+                          },
+                          "rhs": {
+                            "math": {
+                              "op": "OpSub",
+                              "lhs": {
+                                "const": {
+                                  "val": "8s"
+                                }
+                              },
+                              "rhs": {
+                                "spellTimeToReady": {
+                                  "spellId": {
+                                    "spellId": 1317257
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpGt",
+                      "lhs": {
+                        "dotRemainingTime": {
+                          "spellId": {
+                            "spellId": 25295,
+                            "rank": 9
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "math": {
+                          "op": "OpSub",
+                          "lhs": {
+                            "const": {
+                              "val": "15s"
+                            }
+                          },
+                          "rhs": {
+                            "math": {
+                              "op": "OpSub",
+                              "lhs": {
+                                "const": {
+                                  "val": "8s"
+                                }
+                              },
+                              "rhs": {
+                                "spellTimeToReady": {
+                                  "spellId": {
+                                    "spellId": 1317257
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 2643,
+            "rank": 1
+          }
+        }
+      },
+      "simple": {
+        "text": "**Multi-Shot** at range when Serpent Sting has more than 2 s left (one shot each trip).",
+        "shown": true
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "and": {
+            "vals": [
+              {
+                "cmp": {
+                  "op": "OpGe",
+                  "lhs": {
+                    "distanceToTarget": {}
+                  },
+                  "rhs": {
+                    "const": {
+                      "val": "11"
+                    }
+                  }
+                }
+              },
+              {
+                "cmp": {
+                  "op": "OpLt",
+                  "lhs": {
+                    "autoTimeSinceLast": {
+                      "autoType": "Ranged"
+                    }
+                  },
+                  "rhs": {
+                    "math": {
+                      "op": "OpSub",
+                      "lhs": {
+                        "const": {
+                          "val": "8s"
+                        }
+                      },
+                      "rhs": {
+                        "spellTimeToReady": {
+                          "spellId": {
+                            "spellId": 1317257
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "or": {
+                  "vals": [
+                    {
+                      "or": {
+                        "vals": [
+                          {
+                            "cmp": {
+                              "op": "OpGt",
+                              "lhs": {
+                                "spellTimeToReady": {
+                                  "spellId": {
+                                    "spellId": 2643,
+                                    "rank": 1
+                                  }
+                                }
+                              },
+                              "rhs": {
+                                "math": {
+                                  "op": "OpSub",
+                                  "lhs": {
+                                    "const": {
+                                      "val": "6s"
+                                    }
+                                  },
+                                  "rhs": {
+                                    "math": {
+                                      "op": "OpSub",
+                                      "lhs": {
+                                        "const": {
+                                          "val": "8s"
+                                        }
+                                      },
+                                      "rhs": {
+                                        "spellTimeToReady": {
+                                          "spellId": {
+                                            "spellId": 1317257
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "cmp": {
+                              "op": "OpGt",
+                              "lhs": {
+                                "dotRemainingTime": {
+                                  "spellId": {
+                                    "spellId": 25295,
+                                    "rank": 9
+                                  }
+                                }
+                              },
+                              "rhs": {
+                                "math": {
+                                  "op": "OpSub",
+                                  "lhs": {
+                                    "const": {
+                                      "val": "15s"
+                                    }
+                                  },
+                                  "rhs": {
+                                    "math": {
+                                      "op": "OpSub",
+                                      "lhs": {
+                                        "const": {
+                                          "val": "8s"
+                                        }
+                                      },
+                                      "rhs": {
+                                        "spellTimeToReady": {
+                                          "spellId": {
+                                            "spellId": 1317257
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "and": {
+                        "vals": [
+                          {
+                            "not": {
+                              "val": {
+                                "cmp": {
+                                  "op": "OpLe",
+                                  "lhs": {
+                                    "dotRemainingTime": {
+                                      "spellId": {
+                                        "spellId": 25295,
+                                        "rank": 9
+                                      }
+                                    }
+                                  },
+                                  "rhs": {
+                                    "const": {
+                                      "val": "2s"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "cmp": {
+                              "op": "OpGt",
+                              "lhs": {
+                                "spellTimeToReady": {
+                                  "spellId": {
+                                    "spellId": 2643,
+                                    "rank": 1
+                                  }
+                                }
+                              },
+                              "rhs": {
+                                "gcdTimeToReady": {}
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "or": {
+                  "vals": [
+                    {
+                      "cmp": {
+                        "op": "OpGt",
+                        "lhs": {
+                          "spellTimeToReady": {
+                            "spellId": {
+                              "spellId": 1317257
+                            }
+                          }
+                        },
+                        "rhs": {
+                          "const": {
+                            "val": "0s"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "cmp": {
+                        "op": "OpGt",
+                        "lhs": {
+                          "autoTimeToNext": {
+                            "autoType": "Ranged"
+                          }
+                        },
+                        "rhs": {
+                          "const": {
+                            "val": "0.5s"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "move": {
+          "rangeFromTarget": {
+            "const": {
+              "val": "5"
+            }
+          }
+        }
+      },
+      "simple": {
+        "text": "**Move in** to {Melee spot} yd once your Auto Shot has fired and you have cast that shot (if one is up).",
+        "shown": true,
+        "boxes": [
+          {
+            "label": "Melee spot",
+            "numbers": [
+              "move/rangeFromTarget"
+            ],
+            "unit": "yd"
+          }
+        ]
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 14305
+          }
+        },
+        "condition": {
+          "not": {
+            "val": {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "spellTimeToReady": {
+                    "spellId": {
+                      "spellId": 1317257
+                    }
+                  }
+                },
+                "rhs": {
+                  "const": {
+                    "val": "1s"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "simple": {
+        "text": "**Immolation Trap** within 6 yd of the target, unless Strider Kick is ready within 1 s.",
+        "shown": true
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "not": {
+            "val": {
+              "auraIsActive": {
+                "sourceUnit": {
+                  "type": "CurrentTarget"
+                },
+                "auraId": {
+                  "spellId": 14325
+                }
+              }
+            }
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 14325
+          }
+        }
+      },
+      "simple": {
+        "text": "**Hunter's Mark** when it is not on the target (you are the raid's only hunter).",
+        "shown": true
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 14266,
+            "tag": 1,
+            "rank": 8
+          }
+        }
+      },
+      "simple": {
+        "text": "**Queue Raptor Strike** whenever it is ready, so your next swing is a Raptor."
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 14271,
+            "rank": 4
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 1317257
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "cmp": {
+            "op": "OpLt",
+            "lhs": {
+              "auraNumStacks": {
+                "auraId": {
+                  "spellId": 1293241,
+                  "tag": 2
+                }
+              }
+            },
+            "rhs": {
+              "const": {
+                "val": "2"
+              }
+            }
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 1293241
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 14268,
+            "rank": 3
+          }
+        },
+        "condition": {
+          "not": {
+            "val": {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "spellTimeToReady": {
+                    "spellId": {
+                      "spellId": 1317257
+                    }
+                  }
+                },
+                "rhs": {
+                  "const": {
+                    "val": "1s"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "simple": {
+        "text": "**Wing Clip**, unless Strider Kick is ready within 1 s.",
+        "shown": true
+      }
+    }
+  ]
+}

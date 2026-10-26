@@ -377,12 +377,12 @@ func applyBuffEffects(agent Agent, playerFaction proto.Faction, raidBuffs *proto
 	}
 
 	// separate auras in Forever, so they stack
-	// Restorative Totems (one rank) is in the Forever shaman tree: +5% Mana Spring
+	// Restorative Totems is in the Forever shaman tree with 5 ranks (16187: 5% a rank), so a raid shaman's Mana Spring is +25%
 	if individualBuffs.BlessingOfWisdom > 0 {
 		character.AddStatsNamed(ActionID{SpellID: 25290}, BuffSpellValues[BlessingOfWisdom])
 	}
 	if raidBuffs.ManaSpringTotem > 0 {
-		character.AddStatsNamed(ActionID{SpellID: 10497}, BuffSpellValues[ManaSpring].Multiply(TernaryFloat64(raidBuffs.ManaSpringTotem == proto.TristateEffect_TristateEffectImproved, 1.05, 1)))
+		character.AddStatsNamed(ActionID{SpellID: 10497}, BuffSpellValues[ManaSpring].Multiply(TernaryFloat64(raidBuffs.ManaSpringTotem == proto.TristateEffect_TristateEffectImproved, 1.25, 1)))
 	}
 
 	if raidBuffs.BattleSquawk > 0 {
