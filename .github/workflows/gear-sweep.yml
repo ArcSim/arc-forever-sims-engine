@@ -56,6 +56,7 @@ jobs:
         env:
           ENGINE_DIR: ${{ github.workspace }}/engine
           HUNTER_TEST: ${{ github.workspace }}/hunter_test
+          EXCLUDE: ${{ join(matrix.exclude, ',') }}
         run: node sweeps/runner/gear_screen.js ${{ matrix.build }} ${{ matrix.mode }} "results/${{ matrix.build }}_${{ matrix.mode }}.json"
       - uses: actions/upload-artifact@v4
         with:

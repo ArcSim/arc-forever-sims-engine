@@ -3,7 +3,8 @@
 // the promising ones are re-simmed at high iterations, and the confirmed swaps are combined and checked together.
 // Repeats from the new set until a round confirms nothing.
 // usage: node gear_screen.js <build> <God|Pro|Regular> <out.json>
-// env: ENGINE_DIR (engine checkout), HUNTER_TEST (built test binary), SCREEN_ITERS, CONFIRM_ITERS, PER_SLOT, WORKERS, ROUNDS
+// env: ENGINE_DIR (engine checkout), HUNTER_TEST (built test binary), SCREEN_ITERS, CONFIRM_ITERS, PER_SLOT, WORKERS, ROUNDS,
+// EXCLUDE (comma-separated item ids the build may not use, e.g. Teebu's for the No Teebu builds)
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -117,7 +118,14 @@ const ep = (item, w) => {
 	return Object.entries(S).reduce((a, [k, idx]) => a + (st[idx] || 0) * (w[k] || 0), 0);
 };
 const weaponDps = (item) => ((item.weaponDamageMin || 0) + (item.weaponDamageMax || 0)) / 2 / (item.weaponSpeed || 1);
-const legalPool = db.items.filter((i) => PR.preRaid(i, race));
+const EXCLUDE = new Set((process.env.EXCLUDE || '').split(',').filter(Boolean).map(Number));
+const legalPool = db.items.filter((i) => PR.preRaid(i, race) && !EXCLUDE.has(i.id));
+// bosses summoned with the Dungeon Set 2 braziers: their drops are marked in the report
+const SUMMONED = { 16118: 'Kormok', 16042: 'Lord Valthalak', 16080: 'Mor Grayhoof', 16097: 'Isalien', 16101: 'Jarien', 16102: 'Sothos' };
+const summonedBy = (id) => {
+	const s = ((byId.get(id) || {}).sources || []).find((x) => x.drop && SUMMONED[x.drop.npcId]);
+	return s ? SUMMONED[s.drop.npcId] : undefined;
+};
 
 function shortlist(slot, w, s) {
 	const type = SLOT_TYPE[slot];
@@ -179,7 +187,7 @@ function shortlist(slot, w, s) {
 			startDps: confirmBase,
 			screened: tries.length,
 			checked: promising.map((t) => ({ slot: SLOTS[t.slot], from: name((settings.player.equipment.items[t.slot] || {}).id), to: name(t.id), screen: +t.screen.toFixed(1), confirm: +t.confirm.toFixed(1) })),
-			taken: taken.map((t) => ({ slot: SLOTS[t.slot], from: name((settings.player.equipment.items[t.slot] || {}).id), to: name(t.id), confirm: +t.confirm.toFixed(1) })),
+			taken: taken.map((t) => ({ slot: SLOTS[t.slot], from: name((settings.player.equipment.items[t.slot] || {}).id), to: name(t.id), confirm: +t.confirm.toFixed(1), summonedBy: summonedBy(t.id) })),
 			endDps: combinedDps,
 		});
 		if (!taken.length) break;
@@ -190,7 +198,8 @@ function shortlist(slot, w, s) {
 	report.changes = settings.player.equipment.items
 		.map((it, slot) => ({ slot, it, was: shipped.player.equipment.items[slot] || {} }))
 		.filter(({ it, was }) => (it.id || 0) !== (was.id || 0) || (it.enchant || 0) !== (was.enchant || 0))
-		.map(({ slot, it, was }) => `${SLOTS[slot]}: ${name(was.id)} -> ${name(it.id)}`);
+		.map(({ slot, it, was }) => `${SLOTS[slot]}: ${name(was.id)} -> ${name(it.id)}${summonedBy(it.id) ? ` (summoned boss ${summonedBy(it.id)})` : ''}`);
+	report.shippedSummoned = shipped.player.equipment.items.filter((it) => it && summonedBy(it.id)).map((it) => `${name(it.id)} (${summonedBy(it.id)})`);
 	report.finalGear = settings.player.equipment;
 	report.minutes = +((Date.now() - t0) / 60000).toFixed(1);
 	fs.mkdirSync(path.dirname(outPath), { recursive: true });

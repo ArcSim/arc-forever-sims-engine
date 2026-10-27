@@ -1,5 +1,5 @@
 {
- "note": "Shipped builds of site 1.31; Pro and Regular for the visible weave builds.",
+ "note": "Shipped builds of site 1.31; Pro and Regular for the visible weave builds; Teebu's kept out of the No Teebu builds; Highlander's rewards filtered.",
  "jobs": [
   {
    "build": "2h_auto_weave",
@@ -19,7 +19,10 @@
   },
   {
    "build": "dw_auto_weave_no_teebu",
-   "mode": "God"
+   "mode": "God",
+   "exclude": [
+    1728
+   ]
   },
   {
    "build": "hawk_weave",
@@ -35,7 +38,10 @@
   },
   {
    "build": "dw_pure_melee_no_teebu",
-   "mode": "God"
+   "mode": "God",
+   "exclude": [
+    1728
+   ]
   },
   {
    "build": "dw_kick_weave",

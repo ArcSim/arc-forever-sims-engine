@@ -45,6 +45,9 @@ function preRaid(item, race) {
 	const pvpRep = sources.filter(s => s.rep && PVP_FACTIONS.includes(s.rep.repFactionId));
 	if (pvpRep.length && (process.env.GO_NO_PVP || (process.env.GO_PVP !== 'all' && pvpRep.every(s => s.rep.repLevel > 7)))) return false;
 	if (PVP_RANK.test(item.name) && !sources.some(s => s.rep)) return false;
+	// the Alliance Arathi Basin rewards carry no source in the database; their Horde twins (Defiler's) show them as
+	// later-phase reputation rewards up to Exalted, so they follow the twins
+	if (/^Highlander's /.test(item.name) && !sources.length) return false;
 	if (LATER.test(item.name)) return false;
 	if (RAID_QUESTS.test(item.name)) return false;
 	if (item.armorType && item.armorType > 3) return false; // cloth 1, leather 2, mail 3
