@@ -41,7 +41,6 @@ type patchTestSetup struct {
 	consumes    *proto.Consumes          // starting consumables (the stone and imbue fields still apply on top)
 	mhEnchant   int32                    // replaces the gear set's main hand enchant
 	rngEnchant  int32                    // replaces the gear set's ranged enchant
-	skyborne    bool                     // the Skyborne 15 min racial option
 	outside     bool                     // the encounter is outside the Natural flasks' zones
 	pieces      map[proto.ItemSlot]int32 // items put in these slots (on top of any gear set)
 	engineer    bool                     // Engineering as a profession
@@ -128,7 +127,6 @@ func newPatchTestHunter(t *testing.T, setup patchTestSetup) (*core.Simulation, *
 			PetSpeedBug:              setup.petBug,
 			AutoShotSpamBug:          setup.autoSpam,
 			RunSpeed:                 setup.runSpeed,
-			SkyborneConvergence:      setup.skyborne,
 			MortalShotsSkipsAutoShot: setup.msSkipsAuto,
 			MeleeResetsAutoShot:      setup.meleeResets,
 			ShotsDelayAutoShot:       setup.shotsDelay,
@@ -254,7 +252,8 @@ func TestPetAbilityCooldowns(t *testing.T) {
 
 // Racials after Blizzard's tuning pass of 26 October 2026: Ruthless (Human) +1% crit; Orc has no crit (Savage is gone)
 // but Command, +5% pet damage; Dwarf has Artisan's Precision, +1% hit, and no critical damage (Earth Fury is gone);
-// Tauren's Endurance gives no critical damage or hit; Wind Blessed (Skyborne) 2% haste; Blood Fury on a 3 min cooldown.
+// Tauren's Endurance gives no critical damage or hit; Wind Blessed (Skyborne) 2% haste; Blood Fury on a 2 min cooldown
+// (27 October addition, was 3 min).
 func TestRacials(t *testing.T) {
 	critPerAgi := core.CritPerAgiAtLevel[proto.Class_ClassHunter] * core.CritRatingPerCritChance
 	racialCrit := func(race proto.Race) float64 {
@@ -297,8 +296,8 @@ func TestRacials(t *testing.T) {
 	if got := orc.pet.PseudoStats.DamageDealtMultiplier / nelf.pet.PseudoStats.DamageDealtMultiplier; math.Abs(got-1.05) > 1e-9 {
 		t.Errorf("Orc pet damage x%.4f over Night Elf, want 1.05 (Command)", got)
 	}
-	if bf := orc.GetSpell(core.ActionID{SpellID: 20572}); bf == nil || bf.CD.Duration != time.Minute*3 {
-		t.Errorf("Blood Fury cooldown is not 3 min")
+	if bf := orc.GetSpell(core.ActionID{SpellID: 20572}); bf == nil || bf.CD.Duration != time.Minute*2 {
+		t.Errorf("Blood Fury cooldown is not 2 min")
 	}
 }
 
@@ -1610,9 +1609,31 @@ func TestSpellHasteShortensGCD(t *testing.T) {
 	}
 }
 
-// Skysight (Horde Skyborne): +15% run speed, 15 s on a 2 min cooldown on the GCD. It is a regular speed bonus, so under
-// Strider Kick's 30% it adds nothing (AB_SKYSIGHT_STACKS=1 stacks it, for comparing). Charged (cast at an elemental
-// convergence before the fight) makes each cast +30%, still for 15 s: nothing is up until it is cast.
+// castToEnd casts a spell with a cast time and steps the sim until the buff it gives is up; the buff must not be up
+// before the cast ends, and must land exactly when it does.
+func castToEnd(t *testing.T, sim *core.Simulation, unit *core.Unit, spell *core.Spell, aura *core.Aura) {
+	t.Helper()
+	start, castTime := sim.CurrentTime, spell.CastTime()
+	if !spell.Cast(sim, unit.CurrentTarget) {
+		t.Fatalf("%s did not cast", aura.Label)
+	}
+	if aura.IsActive() {
+		t.Errorf("%s is up before its cast ends", aura.Label)
+	}
+	for guard := 0; !aura.IsActive() && guard < 100000 && sim.CurrentTime < start+5*time.Second; guard++ {
+		sim.Step()
+	}
+	if !aura.IsActive() {
+		t.Fatalf("%s never came up", aura.Label)
+	}
+	if took := sim.CurrentTime - start; took != castTime {
+		t.Errorf("%s came up %v after the cast began, want its cast time %v", aura.Label, took, castTime)
+	}
+}
+
+// Skysight (Horde Skyborne): +15% run speed, 15 s on a 2 min cooldown on the GCD, with a 0.5 s cast (client data). It
+// is a regular speed bonus, so under Strider Kick's 30% it adds nothing (AB_SKYSIGHT_STACKS=1 stacks it, for
+// comparing). Nothing is up until it is cast: Charged is removed on entering a raid.
 func TestSkysight(t *testing.T) {
 	sim, hunter := newPatchTestHunter(t, patchTestSetup{race: proto.Race_RaceSkyborneHorde, talents: patchTestTalents})
 	aura, spell := hunter.GetAura("Skysight"), hunter.GetSpell(core.ActionID{SpellID: 1259686})
@@ -1625,7 +1646,10 @@ func TestSkysight(t *testing.T) {
 	if spell.CD.Duration != 2*time.Minute || spell.DefaultCast.GCD == 0 {
 		t.Errorf("Skysight cooldown %v, GCD %v; want 2 min on the GCD", spell.CD.Duration, spell.DefaultCast.GCD)
 	}
-	spell.Cast(sim, hunter.CurrentTarget)
+	if spell.DefaultCast.CastTime != 500*time.Millisecond {
+		t.Errorf("Skysight cast %v, want 0.5s", spell.DefaultCast.CastTime)
+	}
+	castToEnd(t, sim, &hunter.Unit, spell, aura)
 	if got := hunter.MovementHandler.MoveSpeed; math.Abs(got-7*1.15) > 1e-9 {
 		t.Errorf("Skysight: %.4f yd/s, want %.4f", got, 7*1.15)
 	}
@@ -1640,41 +1664,20 @@ func TestSkysight(t *testing.T) {
 	if got := hunter.MovementHandler.MoveSpeed; math.Abs(got-want) > 1e-9 {
 		t.Errorf("Skysight under Strider Kick: %.4f yd/s, want %.4f", got, want)
 	}
-
-	sim, charged := newPatchTestHunter(t, patchTestSetup{race: proto.Race_RaceSkyborneHorde, skyborne: true})
-	if a := charged.GetAura("Skysight"); a.IsActive() {
-		t.Error("Charged: Skysight is up before it is cast")
-	}
-	if got := charged.MovementHandler.MoveSpeed; math.Abs(got-7) > 1e-9 {
-		t.Errorf("Charged, not cast: %.4f yd/s, want 7", got)
-	}
-	charged.GetSpell(core.ActionID{SpellID: 1259686}).Cast(sim, charged.CurrentTarget)
-	if got := charged.MovementHandler.MoveSpeed; math.Abs(got-7*1.3) > 1e-9 {
-		t.Errorf("Charged Skysight: %.4f yd/s, want %.4f", got, 7*1.3)
-	}
-	if d := charged.GetAura("Skysight").Duration; d != 15*time.Second {
-		t.Errorf("Charged Skysight lasts %v, want 15s", d)
-	}
 }
 
-// Read Leyline (Alliance Skyborne): +50% mana regeneration for 15 s when cast; Attuned (cast at a leyline before the
-// fight) makes each cast +100% (double the spirit regen), still for 15 s; Horde has Skysight instead.
+// Read Leyline (Alliance Skyborne): +50% mana regeneration for 15 s when cast, with a 2 s cast (client data); Attuned
+// is removed on entering a raid, so it never doubles it; Horde has Skysight instead.
 func TestReadLeyline(t *testing.T) {
 	sim, plain := newPatchTestHunter(t, patchTestSetup{race: proto.Race_RaceSkyborneAlliance})
-	asim, attuned := newPatchTestHunter(t, patchTestSetup{race: proto.Race_RaceSkyborneAlliance, skyborne: true})
 	if plain.GetAura("Read Leyline") == nil || plain.GetAura("Skysight") != nil {
 		t.Fatal("Alliance Skyborne should have Read Leyline, not Skysight")
 	}
-	if attuned.PseudoStats.SpiritRegenMultiplier != plain.PseudoStats.SpiritRegenMultiplier {
-		t.Error("Attuned: Read Leyline is up before it is cast")
-	}
-	abefore := attuned.PseudoStats.SpiritRegenMultiplier
-	attuned.GetSpell(core.ActionID{SpellID: 1259705}).Cast(asim, attuned.CurrentTarget)
-	if got := attuned.PseudoStats.SpiritRegenMultiplier - abefore; math.Abs(got-1) > 1e-9 {
-		t.Errorf("Attuned Read Leyline adds %.2f to the spirit regen multiplier, want 1 (+100%%)", got)
+	if ct := plain.GetSpell(core.ActionID{SpellID: 1259705}).DefaultCast.CastTime; ct != 2*time.Second {
+		t.Errorf("Read Leyline cast %v, want 2s", ct)
 	}
 	before := plain.PseudoStats.SpiritRegenMultiplier
-	plain.GetSpell(core.ActionID{SpellID: 1259705}).Cast(sim, plain.CurrentTarget)
+	castToEnd(t, sim, &plain.Unit, plain.GetSpell(core.ActionID{SpellID: 1259705}), plain.GetAura("Read Leyline"))
 	if got := plain.PseudoStats.SpiritRegenMultiplier - before; math.Abs(got-0.5) > 1e-9 {
 		t.Errorf("cast Read Leyline adds %.2f to the spirit regen multiplier, want 0.5 (+50%%)", got)
 	}

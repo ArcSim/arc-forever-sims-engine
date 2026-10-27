@@ -10,8 +10,8 @@ import (
 )
 
 // Racials follow the WoW Forever client data (build 1.60.1.70334) with Blizzard's racial tuning pass of 26 October
-// 2026 on top: there is no weapon or Bow/Gun/Thrown Specialization, Blood Fury and Berserking are flat 10%, Night
-// Elves have Elune's Light and Dwarves Big Game Hunter. Skyborne is a Forever-only race.
+// 2026 and its 27 October additions on top: there is no weapon or Bow/Gun/Thrown Specialization, Blood Fury and
+// Berserking are flat 10%, Night Elves have Elune's Light and Dwarves Big Game Hunter. Skyborne is a Forever-only race.
 func applyRaceEffects(agent Agent) {
 	character := agent.GetCharacter()
 
@@ -152,7 +152,7 @@ func applyRaceEffects(agent Agent) {
 				DefaultCast: Cast{GCD: 0},
 				CD: Cooldown{
 					Timer:    character.NewTimer(),
-					Duration: time.Minute * 3,
+					Duration: time.Minute * 2,
 				},
 			},
 			ApplyEffects: func(sim *Simulation, _ *Unit, _ *Spell) {
@@ -191,21 +191,17 @@ func applyRaceEffects(agent Agent) {
 var SkysightStacks = os.Getenv("AB_SKYSIGHT_STACKS") != ""
 
 // Skysight (Horde Skyborne): +15% run speed for 15 s (a regular speed bonus: only the strongest counts). Read Leyline
-// (Alliance Skyborne): +50% health and mana regeneration for 15 s. Each is on a 2 min cooldown (on the GCD). Cast once at
-// an elemental convergence or a leyline before the fight, they leave Charged or Attuned for an hour
-// (SkyborneConvergence), which raises each later cast to +30% or +100%; the buff itself still lasts 15 s. Neither is cast
-// in combat on its own: only a rotation that asks for it casts it.
+// (Alliance Skyborne): +50% health and mana regeneration for 15 s. Each is on a 2 min cooldown and the GCD, with a cast
+// (client data: Skysight 0.5 s, Read Leyline 2 s), so neither goes off while moving. Charged and Attuned, which raise
+// later casts after one at an elemental convergence or a leyline, are removed on entering a raid, so they never count.
+// Neither is cast in combat on its own: only a rotation that asks for it casts it.
 func (character *Character) applySkyborneBlessing() {
 	horde := character.Race == proto.Race_RaceSkyborneHorde
-	spellID, buffID, label := int32(1259705), int32(1270842), "Read Leyline"
+	spellID, buffID, label, castTime := int32(1259705), int32(1270842), "Read Leyline", 2*time.Second
 	if horde {
-		spellID, buffID, label = 1259686, 1259688, "Skysight"
+		spellID, buffID, label, castTime = 1259686, 1259688, "Skysight", 500*time.Millisecond
 	}
-	// a cast's bonus, raised while Charged / Attuned
 	speed, regen := 1.15, 0.5
-	if character.SkyborneConvergence {
-		speed, regen = 1.30, 1.0
-	}
 
 	buffActionID := ActionID{SpellID: buffID}
 	aura := character.RegisterAura(Aura{
@@ -239,7 +235,8 @@ func (character *Character) applySkyborneBlessing() {
 		Flags:    SpellFlagNoOnCastComplete | SpellFlagAPL,
 		Cast: CastConfig{
 			DefaultCast: Cast{
-				GCD: GCDDefault,
+				GCD:      GCDDefault,
+				CastTime: castTime,
 			},
 			CD: Cooldown{
 				Timer:    character.NewTimer(),
@@ -377,7 +374,7 @@ func makeEurekaCooldown(character *Character) {
 }
 
 // Touch of the Grave (Forever): spells and attacks that land have a 30% chance (20% for Paladins, Rogues and
-// Warriors) to drain 5% of your maximum health from the target, 25 s cooldown. The drain ignores damage bonuses on
+// Warriors) to drain 5% of your maximum health from the target, 15 s cooldown. The drain ignores damage bonuses on
 // either side (Forever patch notes); the heal on yourself is not modelled.
 func touchOfTheGraveChance(class proto.Class) float64 {
 	switch class {
@@ -411,7 +408,7 @@ func applyTouchOfTheGrave(character *Character) {
 		ProcMask:   ProcMaskMeleeOrRanged | ProcMaskSpellDamage,
 		Outcome:    OutcomeLanded,
 		ProcChance: chance,
-		ICD:        time.Second * 25,
+		ICD:        time.Second * 15,
 		Handler: func(sim *Simulation, _ *Spell, result *SpellResult) {
 			drain.Cast(sim, result.Target)
 		},

@@ -74,8 +74,6 @@ type Unit struct {
 	pressReactionUntil time.Duration
 	// run speed in yd/s before any speed effect; 0 is the game's 7
 	BaseRunSpeed float64
-	// Skyborne's Skysight / Read Leyline from a convergence or leyline: up the whole fight (cast before the pull)
-	SkyborneConvergence bool
 
 	MovementHandler *MovementHandler
 

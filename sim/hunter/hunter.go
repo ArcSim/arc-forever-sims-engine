@@ -280,7 +280,6 @@ func NewHunter(character *core.Character, options *proto.Player) *Hunter {
 		hunter.WeaveReactionMin, hunter.WeaveReactionSpan, hunter.WeaveOvershoot = 200*time.Millisecond, 100*time.Millisecond, 2.0/3
 	}
 	hunter.BaseRunSpeed = hunter.Options.RunSpeed
-	hunter.SkyborneConvergence = hunter.Options.SkyborneConvergence
 
 	rangedWeapon := hunter.WeaponFromRanged()
 

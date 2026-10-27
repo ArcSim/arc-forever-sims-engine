@@ -3,6 +3,7 @@ package sim
 import (
 	"math"
 	"testing"
+	"time"
 
 	"github.com/wowsims/classic/sim/core"
 	"github.com/wowsims/classic/sim/core/proto"
@@ -153,11 +154,16 @@ func TestEureka(t *testing.T) {
 	}
 }
 
-// Touch of the Grave (Undead): the drain takes 5% of the player's maximum health and ignores damage bonuses.
+// Touch of the Grave (Undead): the drain takes 5% of the player's maximum health and ignores damage bonuses, on a 15 s
+// internal cooldown (27 October addition, was 25 s).
 func TestTouchOfTheGraveDrain(t *testing.T) {
 	sim, lock := newForeverCharacter(t, proto.Race_RaceUndead, proto.Class_ClassWarlock, nil)
-	if lock.GetAura("Touch of the Grave") == nil {
+	totg := lock.GetAura("Touch of the Grave")
+	if totg == nil {
 		t.Fatal("no Touch of the Grave")
+	}
+	if totg.Icd == nil || totg.Icd.Duration != 15*time.Second {
+		t.Errorf("Touch of the Grave internal cooldown is not 15 s")
 	}
 	drain := lock.GetSpell(core.ActionID{SpellID: 1260189})
 	if drain == nil {
