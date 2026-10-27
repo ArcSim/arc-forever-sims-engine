@@ -1,0 +1,64 @@
+name: Gear sweep
+# Runs runner/gear_screen.js for every build and play mode in runner/job.json, on the engine from master.
+on:
+  push:
+    branches: [sweeps]
+    paths: ['runner/job.json']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.read.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: read
+        run: echo "matrix=$(jq -c '.jobs' runner/job.json)" >> "$GITHUB_OUTPUT"
+
+  sweep:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    name: ${{ matrix.build }} (${{ matrix.mode }})
+    steps:
+      - name: Runner files
+        uses: actions/checkout@v4
+        with:
+          path: sweeps
+      - name: Engine
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          path: engine
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: engine/go.mod
+          cache-dependency-path: engine/go.sum
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Build the sim
+        working-directory: engine
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq protobuf-compiler
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@$(go list -m -f '{{.Version}}' google.golang.org/protobuf)
+          protoc -I=./proto --go_out=./sim/core ./proto/*.proto
+          go test -c --tags=with_db -o "$GITHUB_WORKSPACE/hunter_test" ./sim/hunter
+      - name: Sweep
+        env:
+          ENGINE_DIR: ${{ github.workspace }}/engine
+          HUNTER_TEST: ${{ github.workspace }}/hunter_test
+        run: node sweeps/runner/gear_screen.js ${{ matrix.build }} ${{ matrix.mode }} "results/${{ matrix.build }}_${{ matrix.mode }}.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sweep-${{ matrix.build }}-${{ matrix.mode }}
+          path: results/
+          retention-days: 1

@@ -1,0 +1,77 @@
+{
+ "note": "Shipped builds of site 1.31; Pro and Regular for the visible weave builds.",
+ "jobs": [
+  {
+   "build": "2h_auto_weave",
+   "mode": "God"
+  },
+  {
+   "build": "dw_auto_weave",
+   "mode": "God"
+  },
+  {
+   "build": "2h_ability_weave",
+   "mode": "God"
+  },
+  {
+   "build": "dw_ability_weave",
+   "mode": "God"
+  },
+  {
+   "build": "dw_auto_weave_no_teebu",
+   "mode": "God"
+  },
+  {
+   "build": "hawk_weave",
+   "mode": "God"
+  },
+  {
+   "build": "dw_pure_melee_hawk",
+   "mode": "God"
+  },
+  {
+   "build": "dw_pure_melee",
+   "mode": "God"
+  },
+  {
+   "build": "dw_pure_melee_no_teebu",
+   "mode": "God"
+  },
+  {
+   "build": "dw_kick_weave",
+   "mode": "God"
+  },
+  {
+   "build": "bm_weave",
+   "mode": "God"
+  },
+  {
+   "build": "bm_ranged",
+   "mode": "God"
+  },
+  {
+   "build": "2h_auto_weave",
+   "mode": "Pro"
+  },
+  {
+   "build": "2h_auto_weave",
+   "mode": "Regular"
+  },
+  {
+   "build": "dw_auto_weave",
+   "mode": "Pro"
+  },
+  {
+   "build": "dw_auto_weave",
+   "mode": "Regular"
+  },
+  {
+   "build": "dw_kick_weave",
+   "mode": "Pro"
+  },
+  {
+   "build": "dw_kick_weave",
+   "mode": "Regular"
+  }
+ ]
+}
