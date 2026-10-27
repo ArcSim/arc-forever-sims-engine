@@ -47,15 +47,15 @@ func TestImprovedBuffs(t *testing.T) {
 	}
 }
 
-// Forever has no Improved Hunter's Mark talent: an old "Improved" setting gives the plain Mark (110 ranged AP);
+// Forever has no Improved Hunter's Mark talent: an old "Improved" setting gives the plain Mark (143 ranged AP);
 // Expose Armor removes 2250 armor.
 func TestForeverDebuffs(t *testing.T) {
 	_, marked := newPatchTestHunter(t, patchTestSetup{debuffs: &proto.Debuffs{HuntersMark: improved}})
 	if len(marked.CurrentTarget.GetAurasWithTag(core.HuntersMarkAuraTag)) == 0 {
 		t.Fatal("no Hunter's Mark on the target")
 	}
-	if aura := marked.CurrentTarget.GetAura("HuntersMark-110"); aura == nil {
-		t.Errorf("an Improved Hunter's Mark setting is not the plain 110")
+	if aura := marked.CurrentTarget.GetAura("HuntersMark-143"); aura == nil {
+		t.Errorf("an Improved Hunter's Mark setting is not the plain 143")
 	}
 	_, plain := newPatchTestHunter(t, patchTestSetup{})
 	sim, exposed := newPatchTestHunter(t, patchTestSetup{debuffs: &proto.Debuffs{ExposeArmor: regular}})

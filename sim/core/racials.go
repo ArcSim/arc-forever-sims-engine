@@ -273,15 +273,15 @@ func (character *Character) applyMobTypeDamageRacial(mobType proto.MobType) {
 	})
 }
 
-// Berserking: +10% attack and casting speed for 10 s, no cost, off the GCD. Spell 20554 in Forever (the Classic
-// 26297 is not in its client data).
+// Berserking: +10% attack and casting speed for 15 s (27 October additions, was 10 s; client 70634 still says 10), no
+// cost, off the GCD. Spell 20554 in Forever (the Classic 26297 is not in its client data).
 func makeBerserkingCooldown(character *Character) {
 	actionID := ActionID{SpellID: 20554}
 
 	berserkingAura := character.RegisterAura(Aura{
 		Label:    "Berserking",
 		ActionID: actionID,
-		Duration: time.Second * 10,
+		Duration: time.Second * 15,
 		OnGain: func(aura *Aura, sim *Simulation) {
 			character.MultiplyCastSpeed(1.1)
 			character.MultiplyAttackSpeed(sim, 1.1)

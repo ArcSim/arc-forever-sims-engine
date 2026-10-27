@@ -502,7 +502,7 @@ func TestImmolationTrapAttackPower(t *testing.T) {
 	}
 }
 
-// Arcane Shot (rank 8) hits for its base 217 plus 0.10 of ranged attack power, the target's Hunter's Mark (+110)
+// Arcane Shot (rank 8) hits for its base 217 plus 0.10 of ranged attack power, the target's Hunter's Mark (+143)
 // included, read from each hit's logged base damage (the logged attack power leaves the mark out).
 func TestArcaneShotScaling(t *testing.T) {
 	const aplJSON = `{"type":"TypeAPL","priorityList":[{"action":{"castSpell":{"spellId":{"spellId":14287,"rank":8}}}}]}`
@@ -537,8 +537,8 @@ func TestArcaneShotScaling(t *testing.T) {
 		}
 		rap, _ := strconv.ParseFloat(m[1], 64)
 		base, _ := strconv.ParseFloat(m[2], 64)
-		if want := 217 + 0.10*(rap+110); math.Abs(base-want) > 0.11 {
-			t.Fatalf("Arcane Shot base damage %.1f at %.1f ranged attack power + 110 from the mark, want %.1f (217 + 0.10 x RAP)", base, rap, want)
+		if want := 217 + 0.10*(rap+143); math.Abs(base-want) > 0.11 {
+			t.Fatalf("Arcane Shot base damage %.1f at %.1f ranged attack power + 143 from the mark, want %.1f (217 + 0.10 x RAP)", base, rap, want)
 		}
 		n++
 	}
@@ -781,11 +781,14 @@ func TestExplosiveTrapAttackPower(t *testing.T) {
 }
 
 // Berserking is spell 20554 in Forever (26297 is not in its client data, so the site cannot name it or show its
-// icon); a rotation naming 20554 must find it to cast.
+// icon); a rotation naming 20554 must find it to cast. It lasts 15 s (Blizzard's 27 October additions, was 10 s).
 func TestBerserkingForeverSpell(t *testing.T) {
 	_, troll := newPatchTestHunter(t, patchTestSetup{race: proto.Race_RaceTroll})
 	if troll.GetSpell(core.ActionID{SpellID: 20554}) == nil {
 		t.Error("a Troll has no Berserking spell 20554")
+	}
+	if a := troll.GetAura("Berserking"); a == nil || a.Duration != 15*time.Second {
+		t.Error("Berserking does not last 15 s")
 	}
 	if troll.GetSpell(core.ActionID{SpellID: 26297}) != nil {
 		t.Error("Berserking still uses the Classic spell id 26297")

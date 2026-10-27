@@ -767,9 +767,9 @@ func CurseOfWeaknessAura(target *Unit, points int32) *Aura {
 const HuntersMarkAuraTag = "HuntersMark"
 
 func HuntersMarkAura(target *Unit) *Aura {
-	// Forever has no Improved Hunter's Mark talent, so an "Improved" setting is the plain Mark (rank 4 is +110: the client
-	// data's 71 is below rank 3's 98); AB_MARK sets it for engine comparisons
-	bonus := 110.0
+	// Forever has no Improved Hunter's Mark talent, so an "Improved" setting is the plain Mark. Rank 4 is +143 (client
+	// 1.60.1.70630 on; the ranks are Classic's x1.3: 26 / 59 / 98 / 143); AB_MARK sets it for engine comparisons
+	bonus := 143.0
 	if v, err := strconv.ParseFloat(os.Getenv("AB_MARK"), 64); err == nil {
 		bonus = v
 	}
