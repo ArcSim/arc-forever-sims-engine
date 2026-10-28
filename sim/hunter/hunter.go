@@ -214,11 +214,17 @@ func needsRangedWeapon(spell *core.Spell) bool {
 	return isSniperShot(spell)
 }
 
-// needsMeleeWeapon: the strikes the client ties to a melee weapon in the main hand (Mongoose Bite and Strider Kick carry
-// SpellFlagStrike). Raptor Strike's queue is what gets refused; unqueued, its hit never takes a swing.
+// needsMeleeWeapon: the strikes tied to a melee weapon in the main hand (Mongoose Bite carries SpellFlagStrike). Strider
+// Kick needs none: the launch realms' data has no weapon requirement for it. Raptor Strike's queue is what gets refused;
+// unqueued, its hit never takes a swing.
 func needsMeleeWeapon(spell *core.Spell) bool {
+	if spell.ActionID.SpellID == striderKickSpellID {
+		return false
+	}
 	return spell.Flags.Matches(SpellFlagStrike) || spell.SpellCode == SpellCode_HunterRaptorStrike || spell.SpellCode == SpellCode_HunterWingClip
 }
+
+const striderKickSpellID = 1317257
 
 // rangedHastedCast: a shot's cast time under the hunter's ranged haste (quiver, Rapid Fire and the rest).
 func (hunter *Hunter) rangedHastedCast(base time.Duration) time.Duration {
@@ -268,6 +274,7 @@ func NewHunter(character *core.Character, options *proto.Player) *Hunter {
 		quiverBonus: 1.0,
 	}
 	core.FillTalentsProto(hunter.Talents.ProtoReflect(), core.CapTalentsString(options.TalentsString, TalentMaxRanks), TalentTreeSizes)
+	migrateBookRanks(options.Rotation)
 	hunter.EnableManaBar()
 	hunter.PseudoStats.CanParry = true
 	hunter.MoveDelay = time.Duration(hunter.Options.MoveDelayMs) * time.Millisecond

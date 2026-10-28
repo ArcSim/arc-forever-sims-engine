@@ -159,7 +159,7 @@
           "action": {
             "castSpell": {
               "spellId": {
-                "spellId": 20905
+                "spellId": 20906
               }
             }
           },
@@ -481,8 +481,8 @@
                       "lhs": {
                         "dotRemainingTime": {
                           "spellId": {
-                            "spellId": 25295,
-                            "rank": 9
+                            "spellId": 13555,
+                            "rank": 8
                           }
                         }
                       },
@@ -498,8 +498,8 @@
             },
             "castSpell": {
               "spellId": {
-                "spellId": 25295,
-                "rank": 9
+                "spellId": 13555,
+                "rank": 8
               }
             }
           },

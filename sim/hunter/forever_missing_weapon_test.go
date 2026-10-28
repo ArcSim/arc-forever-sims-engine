@@ -161,14 +161,18 @@ func TestNoMeleeWeaponBlocksEveryStrike(t *testing.T) {
 		}
 		if spell.ExtraCastCondition != nil && !spell.ExtraCastCondition(sim, hunter.CurrentTarget) {
 			blocked[name] = true
-		} else {
+		} else if name != "Strider Kick" {
 			t.Errorf("%s (%s) can be cast with no main-hand weapon", name, spell.ActionID)
 		}
 	}
-	for _, name := range []string{"Raptor Strike", "Mongoose Bite", "Wing Clip", "Strider Kick"} {
+	for _, name := range []string{"Raptor Strike", "Mongoose Bite", "Wing Clip"} {
 		if !blocked[name] {
 			t.Errorf("%s is not blocked (or not registered)", name)
 		}
+	}
+	// the launch realms' data gives Strider Kick no weapon requirement
+	if blocked["Strider Kick"] {
+		t.Error("Strider Kick is blocked with no main-hand weapon; it needs none")
 	}
 
 	gear := core.GetGearSet("../../ui/hunter/gear_sets", "2h_weave").GearSet
@@ -204,6 +208,8 @@ func TestNoMeleeWeaponBlocksEveryStrike(t *testing.T) {
 		for _, a := range res.RaidMetrics.Parties[0].Players[0].Actions {
 			for _, tg := range a.Targets {
 				switch {
+				case a.Id.GetSpellId() == striderKickSpellID:
+					// needs no weapon
 				case meleeWeaponSpellIDs[a.Id.GetSpellId()] != "":
 					strikes += tg.Casts
 				case a.Id.GetOtherId() == proto.OtherAction_OtherActionAttack && a.Id.Tag == 1:

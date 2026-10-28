@@ -139,7 +139,8 @@ func (hunter *Hunter) createImprovedHawkAura(auraLabel string, actionID core.Act
 
 // Function to get the maximum attack power for Aspect of the Hawk based on rank
 func (hunter *Hunter) getMaxAspectOfTheHawkAttackPower(rank int) float64 {
-	attackPower := [8]float64{0, 20, 35, 50, 70, 90, 110, 120}
+	// Forever's ranks (launch realms' data); rank 7 is Classic's 120
+	attackPower := [8]float64{0, 15, 22, 30, 38, 47, 55, 120}
 
 	if rank < 1 || rank > 7 {
 		return 0.0
@@ -149,7 +150,8 @@ func (hunter *Hunter) getMaxAspectOfTheHawkAttackPower(rank int) float64 {
 }
 
 func (hunter *Hunter) getMaxHawkRank() int {
-	maxRank := core.TernaryInt(core.IncludeAQ, 7, 6)
+	// rank 7 is taught only by a Ruins of Ahn'Qiraj book; the trainer stops at rank 6
+	maxRank := topTrainerRankHawk
 
 	for i := maxRank; i > 0; i-- {
 		config := hunter.getAspectOfTheHawkSpellConfig(i)
