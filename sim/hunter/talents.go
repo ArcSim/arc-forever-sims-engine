@@ -146,7 +146,7 @@ func (hunter *Hunter) applyTrueshotAura() {
 	// so it costs nothing here. Every hunter knows the spell so a rotation shared with untalented builds raises no
 	// unknown-spell warning; it only goes out with the talent.
 	hunter.RegisterSpell(core.SpellConfig{
-		ActionID:           core.ActionID{SpellID: 20905},
+		ActionID:           core.ActionID{SpellID: trueshotAuraSpellID},
 		Flags:              core.SpellFlagAPL,
 		Cast:               core.CastConfig{DefaultCast: core.Cast{GCD: core.GCDDefault}},
 		ExtraCastCondition: func(_ *core.Simulation, _ *core.Unit) bool { return aura != nil },
@@ -436,7 +436,7 @@ func (hunter *Hunter) applySurvivalTactics() {
 
 func (hunter *Hunter) applyEfficiency() {
 	hunter.OnSpellRegistered(func(spell *core.Spell) {
-		if spell.Cost == nil || spell.ActionID.SpellID == StriderKickSpellID || isSniperShot(spell) {
+		if spell.Cost == nil || isSniperShot(spell) {
 			return
 		}
 		if spell.Flags.Matches(SpellFlagSting|SpellFlagShot|SpellFlagStrike) || spell.SpellCode == SpellCode_HunterVolley || spell.SpellCode == SpellCode_HunterRaptorStrikeHit || spell.SpellCode == SpellCode_HunterWingClip {
@@ -532,9 +532,7 @@ func (hunter *Hunter) applyRapidRecuperation() {
 	})
 }
 
-// Strider Kick and Sniper Shot are outside the Efficiency spell list.
-const StriderKickSpellID = 1317257
-
+// Sniper Shot is outside the Efficiency spell list.
 func isSniperShot(spell *core.Spell) bool {
 	id := spell.ActionID.SpellID
 	return id == 1310687 || id == 1310785 || id == 1310786

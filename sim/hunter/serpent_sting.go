@@ -91,7 +91,8 @@ func (hunter *Hunter) getSerpentStingConfig(rank int) core.SpellConfig {
 }
 
 func (hunter *Hunter) registerSerpentStingSpell() {
-	maxRank := core.TernaryInt(core.IncludeAQ, 9, 8)
+	// rank 9 is taught only by a Ruins of Ahn'Qiraj book; the trainer stops at rank 8
+	maxRank := topTrainerRankSerpentSting
 	for rank := maxRank; rank >= 0; rank-- {
 		config := hunter.getSerpentStingConfig(rank)
 

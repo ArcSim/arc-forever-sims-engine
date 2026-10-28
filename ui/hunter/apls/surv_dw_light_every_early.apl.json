@@ -134,8 +134,8 @@
       "lhs": {
        "dotRemainingTime": {
         "spellId": {
-         "spellId": 25295,
-         "rank": 9
+         "spellId": 13555,
+         "rank": 8
         }
        }
       },
@@ -148,8 +148,8 @@
     },
     "castSpell": {
      "spellId": {
-      "spellId": 25295,
-      "rank": 9
+      "spellId": 13555,
+      "rank": 8
      }
     }
    }
@@ -178,8 +178,8 @@
             "lhs": {
              "dotRemainingTime": {
               "spellId": {
-               "spellId": 25295,
-               "rank": 9
+               "spellId": 13555,
+               "rank": 8
               }
              }
             },
@@ -355,8 +355,8 @@
          "lhs": {
           "dotRemainingTime": {
            "spellId": {
-            "spellId": 25295,
-            "rank": 9
+            "spellId": 13555,
+            "rank": 8
            }
           }
          },

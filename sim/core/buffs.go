@@ -1422,7 +1422,7 @@ func BattleShoutAura(unit *Unit, impBattleShout int32, boomingVoicePts int32, ha
 func TrueshotAura(unit *Unit) *Aura {
 	aura := MakePermanent(unit.RegisterAura(Aura{
 		Label:    "Trueshot Aura",
-		ActionID: ActionID{SpellID: 20905},
+		ActionID: ActionID{SpellID: 20906},
 	}))
 
 	makeExclusiveBuff(aura, BuffConfig{
@@ -1435,12 +1435,13 @@ func TrueshotAura(unit *Unit) *Aura {
 	return aura
 }
 
-// Trueshot Aura's rank 3 is +100 (the client data's 50 is below rank 2's 75); AB_TRUESHOT sets it for engine comparisons
+// Trueshot Aura's top rank (rank 5, level 60) is +50 ranged attack power; the ranks below are 15 / 22 / 30 / 40.
+// AB_TRUESHOT sets it for engine comparisons
 var trueshotValue = func() float64 {
 	if v, err := strconv.ParseFloat(os.Getenv("AB_TRUESHOT"), 64); err == nil {
 		return v
 	}
-	return 100
+	return 50
 }()
 
 func BlessingOfMightAura(unit *Unit, impBomPts int32) *Aura {

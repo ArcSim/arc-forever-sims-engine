@@ -585,12 +585,12 @@ func TestSerpentStingScaling(t *testing.T) {
 		return dot.SnapshotBaseDamage
 	}
 	rap := sting.RangedAttackPower(target, false)
-	if got, want := tick(), 111+0.030*rap; math.Abs(got-want) > 1e-6 {
-		t.Errorf("rank 9 tick %.3f at %.0f ranged attack power, want %.3f (111 + 0.030 x RAP)", got, rap, want)
+	if got, want := tick(), 83+0.030*rap; math.Abs(got-want) > 1e-6 {
+		t.Errorf("rank 8 tick %.3f at %.0f ranged attack power, want %.3f (83 + 0.030 x RAP; rank 9 is a raid book)", got, rap, want)
 	}
 	hunter.AddStatsDynamic(sim, stats.Stats{stats.SpellPower: 200, stats.SpellDamage: 200, stats.NaturePower: 200})
-	if got, want := tick(), 111+0.030*rap; math.Abs(got-want) > 1e-6 {
-		t.Errorf("rank 9 tick %.3f with 200 spell power, want %.3f (no spell power share)", got, want)
+	if got, want := tick(), 83+0.030*rap; math.Abs(got-want) > 1e-6 {
+		t.Errorf("rank 8 tick %.3f with 200 spell power, want %.3f (no spell power share)", got, want)
 	}
 	if c := sting.Dot(target).BonusCoefficient; c != 0 {
 		t.Errorf("Serpent Sting spell power share %.3f, want 0", c)
@@ -600,7 +600,7 @@ func TestSerpentStingScaling(t *testing.T) {
 	}
 }
 
-// A hunter with the Trueshot Aura talent has the aura (+100 ranged attack power) without the raid buff, and the raid buff
+// A hunter with the Trueshot Aura talent has the aura (+50 ranged attack power, its rank 5) without the raid buff, and the raid buff
 // on top does not add a second one.
 func TestTrueshotAuraFromTalent(t *testing.T) {
 	rap := func(talents string, raid bool) float64 {
@@ -608,14 +608,14 @@ func TestTrueshotAuraFromTalent(t *testing.T) {
 		return hunter.GetStat(stats.RangedAttackPower)
 	}
 	with, without := "-0053150011-500230230250222151", "-0053150010-500230230250222151"
-	if d := rap(with, false) - rap(without, false); math.Abs(d-100) > 1e-6 {
-		t.Errorf("talented Trueshot Aura without the raid buff adds %.1f ranged attack power, want 100", d)
+	if d := rap(with, false) - rap(without, false); math.Abs(d-50) > 1e-6 {
+		t.Errorf("talented Trueshot Aura without the raid buff adds %.1f ranged attack power, want 50", d)
 	}
-	if d := rap(with, true) - rap(without, false); math.Abs(d-100) > 1e-6 {
-		t.Errorf("talented Trueshot Aura with the raid buff adds %.1f ranged attack power, want 100 (one aura)", d)
+	if d := rap(with, true) - rap(without, false); math.Abs(d-50) > 1e-6 {
+		t.Errorf("talented Trueshot Aura with the raid buff adds %.1f ranged attack power, want 50 (one aura)", d)
 	}
-	if d := rap(without, true) - rap(without, false); math.Abs(d-100) > 1e-6 {
-		t.Errorf("the raid buff alone adds %.1f ranged attack power, want 100", d)
+	if d := rap(without, true) - rap(without, false); math.Abs(d-50) > 1e-6 {
+		t.Errorf("the raid buff alone adds %.1f ranged attack power, want 50", d)
 	}
 }
 
@@ -2146,7 +2146,7 @@ func TestPrepullTrueshotAndMark(t *testing.T) {
 	run := func(talents string, cast bool, debuffs *proto.Debuffs) (casts map[int32]int32, markUptime, fight, dps float64, warnings []string) {
 		prepull := ""
 		if cast {
-			prepull = `{"action":{"castSpell":{"spellId":{"spellId":20905}}},"doAtValue":{"const":{"val":"-13s"}}},` +
+			prepull = `{"action":{"castSpell":{"spellId":{"spellId":20906}}},"doAtValue":{"const":{"val":"-13s"}}},` +
 				`{"action":{"castSpell":{"spellId":{"spellId":14325}}},"doAtValue":{"const":{"val":"-4s"}}}`
 		}
 		rot := &proto.APLRotation{}
@@ -2195,16 +2195,16 @@ func TestPrepullTrueshotAndMark(t *testing.T) {
 	if len(warnings) > 0 {
 		t.Errorf("pull casts warn: %v", warnings)
 	}
-	if casts[20905] != 50 || casts[14325] != 50 {
-		t.Errorf("Trueshot Aura cast %d times in 50 fights, Hunter's Mark %d; want each once a fight, before the pull", casts[20905], casts[14325])
+	if casts[20906] != 50 || casts[14325] != 50 {
+		t.Errorf("Trueshot Aura cast %d times in 50 fights, Hunter's Mark %d; want each once a fight, before the pull", casts[20906], casts[14325])
 	}
 	if markUptime < 60 {
 		t.Errorf("Hunter's Mark up %.1f s on the target; want it from the pull on", markUptime)
 	}
 
 	casts, _, _, _, warnings = run(untalented, true, &proto.Debuffs{})
-	if casts[20905] != 0 || casts[14325] != 50 || len(warnings) > 0 {
-		t.Errorf("without the talent: Trueshot Aura cast %d times, Hunter's Mark %d, warnings %v; want 0, 50, none", casts[20905], casts[14325], warnings)
+	if casts[20906] != 0 || casts[14325] != 50 || len(warnings) > 0 {
+		t.Errorf("without the talent: Trueshot Aura cast %d times, Hunter's Mark %d, warnings %v; want 0, 50, none", casts[20906], casts[14325], warnings)
 	}
 
 	_, raidUptime, fight, raidDps, _ := run(talented, false, abDebuffs)

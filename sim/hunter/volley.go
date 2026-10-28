@@ -20,9 +20,12 @@ func (hunter *Hunter) registerVolleySpell() {
 	}
 }
 
+// Forever's damage per wave by rank (triggered 1279721 / 1279719 / 1279715); the channel has no cooldown, only the GCD
+var volleyWaveDamage = [4]float64{0, 70, 91, 112}
+
 func (hunter *Hunter) getVolleyConfig(rank int) core.SpellConfig {
 	spellId := [4]int32{0, 1510, 14294, 14295}[rank]
-	baseDamage := [4]float64{0, 50, 65, 80}[rank]
+	baseDamage := volleyWaveDamage[rank]
 	manaCost := [4]float64{0, 350, 420, 490}[rank]
 	level := [4]int{0, 40, 50, 58}[rank]
 
@@ -45,10 +48,6 @@ func (hunter *Hunter) getVolleyConfig(rank int) core.SpellConfig {
 		Cast: core.CastConfig{
 			DefaultCast: core.Cast{
 				GCD: core.GCDDefault,
-			},
-			CD: core.Cooldown{
-				Timer:    hunter.NewTimer(),
-				Duration: time.Second * 60,
 			},
 		},
 
