@@ -1,165 +1,53 @@
 {
- "note": "Data pass of 28 October, part 2: stat weights (EP) for every shipped build on branch data-pass-oct28, and the four Mythic builds before (master) and after (the branch), 20k.",
+ "note": "Data pass of 28 October, part 3: the three ranged Mythic builds as they ship (Human), before (master) and after (data-pass-oct28), 20k.",
  "jobs": [
   {
-   "build": "2h_auto_weave",
+   "build": "mythic_2h_weave",
    "mode": "God",
-   "tag": "ep",
-   "engine": "data-pass-oct28",
+   "tag": "human-before",
+   "engine": "master",
    "script": "dps_refresh.js",
-   "ep": true
-  },
-  {
-   "build": "dw_auto_weave",
-   "mode": "God",
-   "tag": "ep",
-   "engine": "data-pass-oct28",
-   "script": "dps_refresh.js",
-   "ep": true
-  },
-  {
-   "build": "2h_ability_weave",
-   "mode": "God",
-   "tag": "ep",
-   "engine": "data-pass-oct28",
-   "script": "dps_refresh.js",
-   "ep": true
-  },
-  {
-   "build": "dw_ability_weave",
-   "mode": "God",
-   "tag": "ep",
-   "engine": "data-pass-oct28",
-   "script": "dps_refresh.js",
-   "ep": true
-  },
-  {
-   "build": "dw_auto_weave_no_teebu",
-   "mode": "God",
-   "tag": "ep",
-   "engine": "data-pass-oct28",
-   "script": "dps_refresh.js",
-   "ep": true
-  },
-  {
-   "build": "hawk_weave",
-   "mode": "God",
-   "tag": "ep",
-   "engine": "data-pass-oct28",
-   "script": "dps_refresh.js",
-   "ep": true
-  },
-  {
-   "build": "dw_pure_melee_hawk",
-   "mode": "God",
-   "tag": "ep",
-   "engine": "data-pass-oct28",
-   "script": "dps_refresh.js",
-   "ep": true
-  },
-  {
-   "build": "dw_pure_melee",
-   "mode": "God",
-   "tag": "ep",
-   "engine": "data-pass-oct28",
-   "script": "dps_refresh.js",
-   "ep": true
-  },
-  {
-   "build": "dw_pure_melee_no_teebu",
-   "mode": "God",
-   "tag": "ep",
-   "engine": "data-pass-oct28",
-   "script": "dps_refresh.js",
-   "ep": true
-  },
-  {
-   "build": "dw_kick_weave",
-   "mode": "God",
-   "tag": "ep",
-   "engine": "data-pass-oct28",
-   "script": "dps_refresh.js",
-   "ep": true
-  },
-  {
-   "build": "bm_weave",
-   "mode": "God",
-   "tag": "ep",
-   "engine": "data-pass-oct28",
-   "script": "dps_refresh.js",
-   "ep": true
-  },
-  {
-   "build": "bm_ranged",
-   "mode": "God",
-   "tag": "ep",
-   "engine": "data-pass-oct28",
-   "script": "dps_refresh.js",
-   "ep": true
+   "settings": "mythic_2h_weave_human_before.json"
   },
   {
    "build": "mythic_2h_weave",
    "mode": "God",
-   "tag": "before",
-   "engine": "master",
-   "script": "dps_refresh.js",
-   "settings": "mythic_2h_weave_before.json"
-  },
-  {
-   "build": "mythic_2h_weave",
-   "mode": "God",
-   "tag": "after",
+   "tag": "human-after",
    "engine": "data-pass-oct28",
    "script": "dps_refresh.js",
-   "settings": "mythic_2h_weave_after.json"
+   "settings": "mythic_2h_weave_human_after.json"
   },
   {
    "build": "mythic_2h_light",
    "mode": "God",
-   "tag": "before",
+   "tag": "human-before",
    "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "mythic_2h_light_before.json"
+   "settings": "mythic_2h_light_human_before.json"
   },
   {
    "build": "mythic_2h_light",
    "mode": "God",
-   "tag": "after",
+   "tag": "human-after",
    "engine": "data-pass-oct28",
    "script": "dps_refresh.js",
-   "settings": "mythic_2h_light_after.json"
+   "settings": "mythic_2h_light_human_after.json"
   },
   {
    "build": "mythic_survival",
    "mode": "God",
-   "tag": "before",
+   "tag": "human-before",
    "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "mythic_survival_before.json"
+   "settings": "mythic_survival_human_before.json"
   },
   {
    "build": "mythic_survival",
    "mode": "God",
-   "tag": "after",
+   "tag": "human-after",
    "engine": "data-pass-oct28",
    "script": "dps_refresh.js",
-   "settings": "mythic_survival_after.json"
-  },
-  {
-   "build": "mythic_dw_melee",
-   "mode": "God",
-   "tag": "before",
-   "engine": "master",
-   "script": "dps_refresh.js",
-   "settings": "mythic_dw_melee_before.json"
-  },
-  {
-   "build": "mythic_dw_melee",
-   "mode": "God",
-   "tag": "after",
-   "engine": "data-pass-oct28",
-   "script": "dps_refresh.js",
-   "settings": "mythic_dw_melee_after.json"
+   "settings": "mythic_survival_human_after.json"
   }
  ]
 }
