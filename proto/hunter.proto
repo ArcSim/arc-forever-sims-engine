@@ -204,7 +204,7 @@ message Hunter {
 		// Unused: Charged / Attuned are removed on entering a raid. Kept so saved settings that still carry it load.
 		bool skyborne_convergence = 19;
 		reserved 20; // trap_reach: traps now always reach 6 yd (tested in game)
-		// Mortal Shots' crit bonus skips Auto Shot (an earlier report; the game applies it); off, Auto Shot gets it.
+		// Unused: Mortal Shots covers Auto Shot (tested in game). Kept so saved settings that still carry it load.
 		bool mortal_shots_skips_auto_shot = 21;
 		// Melee swings restart the Auto Shot timer: a live beta bug Blizzard confirmed (forever-bugs #14), off by default
 		// as it is expected to be fixed.

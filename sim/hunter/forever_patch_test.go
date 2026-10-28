@@ -44,7 +44,7 @@ type patchTestSetup struct {
 	outside     bool                     // the encounter is outside the Natural flasks' zones
 	pieces      map[proto.ItemSlot]int32 // items put in these slots (on top of any gear set)
 	engineer    bool                     // Engineering as a profession
-	msSkipsAuto bool                     // the Mortal Shots skips Auto Shot option
+	msSkipsAuto bool                     // the retired Mortal Shots skips Auto Shot option, as an old saved setting carries it
 	meleeResets bool                     // the beta bug: melee swings reset Auto Shot
 	shotsDelay  bool                     // the beta bug: a shot in an Auto Shot cycle pushes it back
 	quiver      proto.Hunter_Options_QuiverBonus
@@ -1542,18 +1542,14 @@ func TestForeverNaturalFlasks(t *testing.T) {
 }
 
 // Mortal Shots covers Auto Shot (client mask; Arc's log 2026-10-21: 5/5 Auto Shot crits at 2.30-2.32x, as Arcane Shot's),
-// so Auto Shot crits get its bonus (4/5: +24% on the base +100%) like Arcane Shot; the option for the earlier "it skips
-// Auto Shot" report takes it off Auto Shot only.
+// so Auto Shot crits get its bonus (4/5: +24% on the base +100%) like Arcane Shot, also for a saved setting that still
+// carries the retired "Mortal Shots skips Auto Shot" option.
 func TestMortalShotsOnAutoShot(t *testing.T) {
 	const talents = "-00531500114-530200230050022151" // Mortal Shots 4/5
 	for _, skip := range []bool{false, true} {
 		_, hunter := newPatchTestHunter(t, patchTestSetup{talents: talents, gear: true, msSkipsAuto: skip})
-		want := 1.24
-		if skip {
-			want = 1
-		}
-		if got := hunter.AutoAttacks.RangedAuto().CritDamageBonus; math.Abs(got-want) > 1e-9 {
-			t.Errorf("skip %v: Auto Shot crit damage bonus %.2f, want %.2f", skip, got, want)
+		if got := hunter.AutoAttacks.RangedAuto().CritDamageBonus; math.Abs(got-1.24) > 1e-9 {
+			t.Errorf("skip %v: Auto Shot crit damage bonus %.2f, want 1.24", skip, got)
 		}
 		if got := hunter.ArcaneShot.CritDamageBonus; math.Abs(got-1.24) > 1e-9 {
 			t.Errorf("skip %v: Arcane Shot crit damage bonus %.2f, want 1.24", skip, got)

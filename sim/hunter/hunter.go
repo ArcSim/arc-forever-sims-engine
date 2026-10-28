@@ -379,11 +379,8 @@ func NewHunter(character *core.Character, options *proto.Player) *Hunter {
 	hunter.AutoAttacks.RangedConfig().Flags |= core.SpellFlagCastTimeNoGCD
 	hunter.AutoAttacks.RangedConfig().Flags |= core.SpellFlagMeleeMetrics
 	// Mortal Shots covers Auto Shot: the client data mask, and Arc's log (2026-10-21, 5/5: Auto Shot crits 2.30-2.32x a
-	// normal hit, as Arcane Shot's). The option keeps the earlier report that it does not, for comparisons.
+	// normal hit, as Arcane Shot's). A saved mortal_shots_skips_auto_shot is ignored.
 	hunter.AutoAttacks.RangedConfig().CritDamageBonus = hunter.mortalShots()
-	if hunter.Options.MortalShotsSkipsAutoShot {
-		hunter.AutoAttacks.RangedConfig().CritDamageBonus = 0
-	}
 	hunter.AutoAttacks.RangedConfig().BonusCoefficient = 1
 	// Auto Shot's projectile flies at 40 yd/s (client SpellMisc, spell 75), as Arcane Shot's, Serpent Sting's and Aimed
 	// Shot's; Multi-Shot's at 30
