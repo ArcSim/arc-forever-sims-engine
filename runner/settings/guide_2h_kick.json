@@ -1,0 +1,2640 @@
+{
+  "settings": {
+    "iterations": 3000,
+    "phase": 6,
+    "showDamageMetrics": true,
+    "language": "en",
+    "faction": "Alliance",
+    "filters": {
+      "oneHandedWeapons": true,
+      "twoHandedWeapons": true
+    }
+  },
+  "raidBuffs": {
+    "giftOfTheWild": "TristateEffectRegular",
+    "strengthOfEarthTotem": "TristateEffectRegular",
+    "graceOfAirTotem": "TristateEffectRegular",
+    "arcaneBrilliance": true,
+    "divineSpirit": true,
+    "battleShout": "TristateEffectRegular",
+    "trueshotAura": true,
+    "leaderOfThePack": true,
+    "manaSpringTotem": "TristateEffectImproved",
+    "fireResistanceTotem": true,
+    "fireResistanceAura": true,
+    "windfuryTotem": true
+  },
+  "debuffs": {
+    "curseOfElements": true,
+    "curseOfRecklessness": true,
+    "exposeArmor": "TristateEffectRegular",
+    "faerieFire": true,
+    "judgementOfWisdom": true,
+    "sunderArmor": true,
+    "giftOfArthas": true
+  },
+  "partyBuffs": {},
+  "player": {
+    "name": "Player",
+    "race": "RaceHuman",
+    "class": "ClassHunter",
+    "equipment": {
+      "items": [
+        {
+          "id": 252605,
+          "enchant": 1508
+        },
+        {
+          "id": 15411,
+          "enchant": 904
+        },
+        {
+          "id": 18686
+        },
+        {
+          "id": 13340,
+          "enchant": 7667
+        },
+        {
+          "id": 252483,
+          "enchant": 1891
+        },
+        {
+          "id": 18375,
+          "enchant": 7656
+        },
+        {
+          "id": 15063,
+          "enchant": 8206
+        },
+        {
+          "id": 272397
+        },
+        {
+          "id": 15062,
+          "enchant": 1508
+        },
+        {
+          "id": 13402,
+          "enchant": 1887
+        },
+        {
+          "id": 13098
+        },
+        {
+          "id": 18500
+        },
+        {
+          "id": 13965
+        },
+        {
+          "id": 272437
+        },
+        {
+          "id": 250619,
+          "enchant": 2646
+        },
+        {},
+        {
+          "id": 19107,
+          "enchant": 664
+        }
+      ]
+    },
+    "consumes": {
+      "food": "FoodFlankAuPoivre",
+      "agilityElixir": "ElixirOfCunning",
+      "intellectElixir": "ElixirOfTheOwl",
+      "strengthBuff": "JujuPower",
+      "attackPowerBuff": "JujuMight",
+      "spellPowerBuff": "GreaterArcaneElixir",
+      "mainHandImbue": "DenseSharpeningStone",
+      "defaultPotion": "MajorFrenzyPotion",
+      "dragonBreathChili": true,
+      "miscConsumes": {
+        "raptorPunch": true,
+        "boglingRoot": true
+      },
+      "zanzaBuff": "GroundScorpokAssay",
+      "healthElixir": "ElixirOfFortitude",
+      "alcohol": "AlcoholRumseyRumBlackLabel",
+      "sapperExplosive": "SapperGoblinSapper",
+      "fillerExplosive": "ExplosiveCrystalCharge"
+    },
+    "buffs": {
+      "blessingOfKings": true,
+      "blessingOfWisdom": "TristateEffectRegular",
+      "blessingOfMight": "TristateEffectRegular"
+    },
+    "talentsString": "502-005005-500230230250122151",
+    "profession1": "Blacksmithing",
+    "profession2": "Engineering",
+    "cooldowns": {},
+    "reactionTimeMs": 200,
+    "distanceFromTarget": 3,
+    "healingModel": {},
+    "hunter": {
+      "options": {
+        "ammo": "SwiftfeatherArrow",
+        "quiverBonus": "Speed15",
+        "petType": "Cat",
+        "petUptime": 1,
+        "petSpeedBug": false,
+        "petWindfuryTotem": false,
+        "petFlametongueTotem": false,
+        "petDisabledAbilities": [],
+        "moveDelayMs": 100,
+        "laceratingMode": "LaceratingRolling"
+      }
+    },
+    "rotation": {
+      "type": "TypeAPL",
+      "prepullActions": [
+        {
+          "action": {
+            "castSpell": {
+              "spellId": {
+                "spellId": 20906
+              }
+            }
+          },
+          "doAtValue": {
+            "const": {
+              "val": "-13s"
+            }
+          },
+          "simple": {
+            "text": "**Trueshot Aura** 13 s before the pull.",
+            "shown": true
+          }
+        },
+        {
+          "action": {
+            "castSpell": {
+              "spellId": {
+                "spellId": 1299447
+              }
+            }
+          },
+          "doAtValue": {
+            "const": {
+              "val": "-10s"
+            }
+          },
+          "simple": {
+            "text": "**Aspect of the Beast** 10 s before the pull."
+          }
+        },
+        {
+          "action": {
+            "move": {
+              "rangeFromTarget": {
+                "const": {
+                  "val": "11"
+                }
+              }
+            }
+          },
+          "doAtValue": {
+            "const": {
+              "val": "-5s"
+            }
+          },
+          "simple": {
+            "text": "**Move to 11 yd** 5 s before the pull."
+          }
+        },
+        {
+          "action": {
+            "castSpell": {
+              "spellId": {
+                "spellId": 14325
+              }
+            }
+          },
+          "doAtValue": {
+            "const": {
+              "val": "-4s"
+            }
+          },
+          "simple": {
+            "text": "**Hunter's Mark** 4 s before the pull.",
+            "shown": true
+          }
+        },
+        {
+          "action": {
+            "castSpell": {
+              "spellId": {
+                "spellId": 13555,
+                "rank": 8
+              }
+            }
+          },
+          "doAtValue": {
+            "const": {
+              "val": "-2s"
+            }
+          },
+          "simple": {
+            "text": "**Serpent Sting** 2 s before the pull, from 11 yd.",
+            "shown": true
+          }
+        }
+      ],
+      "priorityList": [
+        {
+          "action": {
+            "condition": {
+              "cmp": {
+                "op": "OpGt",
+                "lhs": {
+                  "math": {
+                    "op": "OpSub",
+                    "lhs": {
+                      "maxMana": {}
+                    },
+                    "rhs": {
+                      "currentMana": {}
+                    }
+                  }
+                },
+                "rhs": {
+                  "const": {
+                    "val": "1300"
+                  }
+                }
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "itemId": 12662
+              }
+            }
+          },
+          "simple": {
+            "text": "**Demonic Rune** when {Missing mana} or more mana is missing.",
+            "boxes": [
+              {
+                "label": "Missing mana",
+                "numbers": [
+                  "condition/cmp/rhs"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "action": {
+            "castSpell": {
+              "spellId": {
+                "itemId": 13965
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "cmp": {
+                "op": "OpGt",
+                "lhs": {
+                  "math": {
+                    "op": "OpSub",
+                    "lhs": {
+                      "maxMana": {}
+                    },
+                    "rhs": {
+                      "currentMana": {}
+                    }
+                  }
+                },
+                "rhs": {
+                  "const": {
+                    "val": "1750"
+                  }
+                }
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "itemId": 13444
+              }
+            }
+          },
+          "simple": {
+            "text": "**Major Mana Potion** when {Missing mana} or more mana is missing.",
+            "boxes": [
+              {
+                "label": "Missing mana",
+                "numbers": [
+                  "condition/cmp/rhs"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "action": {
+            "castSpell": {
+              "spellId": {
+                "spellId": 3045
+              }
+            },
+            "condition": {
+              "cmp": {
+                "op": "OpGe",
+                "lhs": {
+                  "distanceToTarget": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "11"
+                  }
+                }
+              }
+            }
+          },
+          "simple": {
+            "text": "**Rapid Fire** at range, on your first trip out.",
+            "shown": true
+          }
+        },
+        {
+          "action": {
+            "autocastOtherCooldowns": {}
+          },
+          "simple": {
+            "text": "**Any other cooldown** when ready (Bestial Wrath, Intimidation, trinkets)."
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "and": {}
+            },
+            "castSpell": {
+              "spellId": {
+                "spellId": 20572
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "castSpell": {
+              "spellId": {
+                "spellId": 20554
+              }
+            }
+          },
+          "simple": {
+            "text": "**Berserking**"
+          }
+        },
+        {
+          "action": {
+            "castSpell": {
+              "spellId": {
+                "spellId": 1259799
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "and": {}
+            },
+            "castSpell": {
+              "spellId": {
+                "itemId": 250943
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "and": {
+                "vals": [
+                  {
+                    "cmp": {
+                      "op": "OpLe",
+                      "lhs": {
+                        "distanceToTarget": {}
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "5"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "auraIsActive": {
+                      "auraId": {
+                        "spellId": 1317257,
+                        "tag": 1
+                      }
+                    }
+                  },
+                  {
+                    "not": {
+                      "val": {
+                        "cmp": {
+                          "op": "OpLt",
+                          "lhs": {
+                            "autoTimeSinceLast": {
+                              "autoType": "Ranged"
+                            }
+                          },
+                          "rhs": {
+                            "math": {
+                              "op": "OpSub",
+                              "lhs": {
+                                "const": {
+                                  "val": "8s"
+                                }
+                              },
+                              "rhs": {
+                                "spellTimeToReady": {
+                                  "spellId": {
+                                    "spellId": 1317257
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "not": {
+                      "val": {
+                        "and": {
+                          "vals": [
+                            {
+                              "or": {
+                                "vals": [
+                                  {
+                                    "cmp": {
+                                      "op": "OpLt",
+                                      "lhs": {
+                                        "autoTimeSinceLast": {
+                                          "autoType": "MainHand"
+                                        }
+                                      },
+                                      "rhs": {
+                                        "math": {
+                                          "op": "OpSub",
+                                          "lhs": {
+                                            "const": {
+                                              "val": "8s"
+                                            }
+                                          },
+                                          "rhs": {
+                                            "spellTimeToReady": {
+                                              "spellId": {
+                                                "spellId": 1317257
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "or": {
+                                      "vals": [
+                                        {
+                                          "and": {
+                                            "vals": [
+                                              {
+                                                "cmp": {
+                                                  "op": "OpEq",
+                                                  "lhs": {
+                                                    "weavePlay": {}
+                                                  },
+                                                  "rhs": {
+                                                    "const": {
+                                                      "val": "1"
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "and": {
+                                                  "vals": [
+                                                    {
+                                                      "cmp": {
+                                                        "op": "OpGt",
+                                                        "lhs": {
+                                                          "autoTimeToNext": {
+                                                            "autoType": "MainHand"
+                                                          }
+                                                        },
+                                                        "rhs": {
+                                                          "const": {
+                                                            "val": "0s"
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    {
+                                                      "cmp": {
+                                                        "op": "OpLe",
+                                                        "lhs": {
+                                                          "autoTimeToNext": {
+                                                            "autoType": "MainHand"
+                                                          }
+                                                        },
+                                                        "rhs": {
+                                                          "const": {
+                                                            "val": "0.09s"
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "and": {
+                                            "vals": [
+                                              {
+                                                "cmp": {
+                                                  "op": "OpGe",
+                                                  "lhs": {
+                                                    "weavePlay": {}
+                                                  },
+                                                  "rhs": {
+                                                    "const": {
+                                                      "val": "2"
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "and": {
+                                                  "vals": [
+                                                    {
+                                                      "cmp": {
+                                                        "op": "OpGt",
+                                                        "lhs": {
+                                                          "autoTimeToNext": {
+                                                            "autoType": "MainHand"
+                                                          }
+                                                        },
+                                                        "rhs": {
+                                                          "const": {
+                                                            "val": "0s"
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    {
+                                                      "cmp": {
+                                                        "op": "OpLe",
+                                                        "lhs": {
+                                                          "autoTimeToNext": {
+                                                            "autoType": "MainHand"
+                                                          }
+                                                        },
+                                                        "rhs": {
+                                                          "const": {
+                                                            "val": "0.19s"
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "or": {
+                                "vals": [
+                                  {
+                                    "cmp": {
+                                      "op": "OpLe",
+                                      "lhs": {
+                                        "autoSwingTime": {
+                                          "autoType": "OffHand"
+                                        }
+                                      },
+                                      "rhs": {
+                                        "const": {
+                                          "val": "0s"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "or": {
+                                      "vals": [
+                                        {
+                                          "cmp": {
+                                            "op": "OpLt",
+                                            "lhs": {
+                                              "autoTimeSinceLast": {
+                                                "autoType": "OffHand"
+                                              }
+                                            },
+                                            "rhs": {
+                                              "math": {
+                                                "op": "OpSub",
+                                                "lhs": {
+                                                  "const": {
+                                                    "val": "8s"
+                                                  }
+                                                },
+                                                "rhs": {
+                                                  "spellTimeToReady": {
+                                                    "spellId": {
+                                                      "spellId": 1317257
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "or": {
+                                            "vals": [
+                                              {
+                                                "and": {
+                                                  "vals": [
+                                                    {
+                                                      "cmp": {
+                                                        "op": "OpEq",
+                                                        "lhs": {
+                                                          "weavePlay": {}
+                                                        },
+                                                        "rhs": {
+                                                          "const": {
+                                                            "val": "1"
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    {
+                                                      "and": {
+                                                        "vals": [
+                                                          {
+                                                            "cmp": {
+                                                              "op": "OpGt",
+                                                              "lhs": {
+                                                                "autoTimeToNext": {
+                                                                  "autoType": "OffHand"
+                                                                }
+                                                              },
+                                                              "rhs": {
+                                                                "const": {
+                                                                  "val": "0s"
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          {
+                                                            "cmp": {
+                                                              "op": "OpLe",
+                                                              "lhs": {
+                                                                "autoTimeToNext": {
+                                                                  "autoType": "OffHand"
+                                                                }
+                                                              },
+                                                              "rhs": {
+                                                                "const": {
+                                                                  "val": "0.09s"
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        ]
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              },
+                                              {
+                                                "and": {
+                                                  "vals": [
+                                                    {
+                                                      "cmp": {
+                                                        "op": "OpGe",
+                                                        "lhs": {
+                                                          "weavePlay": {}
+                                                        },
+                                                        "rhs": {
+                                                          "const": {
+                                                            "val": "2"
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    {
+                                                      "and": {
+                                                        "vals": [
+                                                          {
+                                                            "cmp": {
+                                                              "op": "OpGt",
+                                                              "lhs": {
+                                                                "autoTimeToNext": {
+                                                                  "autoType": "OffHand"
+                                                                }
+                                                              },
+                                                              "rhs": {
+                                                                "const": {
+                                                                  "val": "0s"
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          {
+                                                            "cmp": {
+                                                              "op": "OpLe",
+                                                              "lhs": {
+                                                                "autoTimeToNext": {
+                                                                  "autoType": "OffHand"
+                                                                }
+                                                              },
+                                                              "rhs": {
+                                                                "const": {
+                                                                  "val": "0.19s"
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        ]
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "move": {
+              "rangeFromTarget": {
+                "const": {
+                  "val": "5"
+                }
+              }
+            }
+          },
+          "simple": {
+            "text": "**Stay at 5 yd** after a Strider Kick until your swing has landed.",
+            "shown": true,
+            "texts": [
+              {
+                "when": "Off hand swing > 0 and Weave play >= 2",
+                "text": "**Stay at 5 yd** after a Strider Kick until your MH and OH swings have landed or land within 0.2 s."
+              },
+              {
+                "when": "Off hand swing > 0 and Weave play >= 1",
+                "text": "**Stay at 5 yd** after a Strider Kick until your MH and OH swings have landed or land within 0.1 s."
+              },
+              {
+                "when": "Weave play >= 2",
+                "text": "**Stay at 5 yd** after a Strider Kick until your swing has landed or lands within 0.2 s."
+              },
+              {
+                "when": "Weave play >= 1",
+                "text": "**Stay at 5 yd** after a Strider Kick until your swing has landed or lands within 0.1 s."
+              },
+              {
+                "when": "Off hand swing > 0",
+                "text": "**Stay at 5 yd** after a Strider Kick until your MH and OH swings have landed."
+              }
+            ]
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "and": {
+                "vals": [
+                  {
+                    "cmp": {
+                      "op": "OpLe",
+                      "lhs": {
+                        "distanceToTarget": {}
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "5"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "auraIsActive": {
+                      "auraId": {
+                        "spellId": 1317257,
+                        "tag": 1
+                      }
+                    }
+                  },
+                  {
+                    "not": {
+                      "val": {
+                        "cmp": {
+                          "op": "OpLt",
+                          "lhs": {
+                            "autoTimeSinceLast": {
+                              "autoType": "Ranged"
+                            }
+                          },
+                          "rhs": {
+                            "math": {
+                              "op": "OpSub",
+                              "lhs": {
+                                "const": {
+                                  "val": "8s"
+                                }
+                              },
+                              "rhs": {
+                                "spellTimeToReady": {
+                                  "spellId": {
+                                    "spellId": 1317257
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "and": {
+                      "vals": [
+                        {
+                          "or": {
+                            "vals": [
+                              {
+                                "cmp": {
+                                  "op": "OpLt",
+                                  "lhs": {
+                                    "autoTimeSinceLast": {
+                                      "autoType": "MainHand"
+                                    }
+                                  },
+                                  "rhs": {
+                                    "math": {
+                                      "op": "OpSub",
+                                      "lhs": {
+                                        "const": {
+                                          "val": "8s"
+                                        }
+                                      },
+                                      "rhs": {
+                                        "spellTimeToReady": {
+                                          "spellId": {
+                                            "spellId": 1317257
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "or": {
+                                  "vals": [
+                                    {
+                                      "and": {
+                                        "vals": [
+                                          {
+                                            "cmp": {
+                                              "op": "OpEq",
+                                              "lhs": {
+                                                "weavePlay": {}
+                                              },
+                                              "rhs": {
+                                                "const": {
+                                                  "val": "1"
+                                                }
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "and": {
+                                              "vals": [
+                                                {
+                                                  "cmp": {
+                                                    "op": "OpGt",
+                                                    "lhs": {
+                                                      "autoTimeToNext": {
+                                                        "autoType": "MainHand"
+                                                      }
+                                                    },
+                                                    "rhs": {
+                                                      "const": {
+                                                        "val": "0s"
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                {
+                                                  "cmp": {
+                                                    "op": "OpLe",
+                                                    "lhs": {
+                                                      "autoTimeToNext": {
+                                                        "autoType": "MainHand"
+                                                      }
+                                                    },
+                                                    "rhs": {
+                                                      "const": {
+                                                        "val": "0.09s"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "and": {
+                                        "vals": [
+                                          {
+                                            "cmp": {
+                                              "op": "OpGe",
+                                              "lhs": {
+                                                "weavePlay": {}
+                                              },
+                                              "rhs": {
+                                                "const": {
+                                                  "val": "2"
+                                                }
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "and": {
+                                              "vals": [
+                                                {
+                                                  "cmp": {
+                                                    "op": "OpGt",
+                                                    "lhs": {
+                                                      "autoTimeToNext": {
+                                                        "autoType": "MainHand"
+                                                      }
+                                                    },
+                                                    "rhs": {
+                                                      "const": {
+                                                        "val": "0s"
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                {
+                                                  "cmp": {
+                                                    "op": "OpLe",
+                                                    "lhs": {
+                                                      "autoTimeToNext": {
+                                                        "autoType": "MainHand"
+                                                      }
+                                                    },
+                                                    "rhs": {
+                                                      "const": {
+                                                        "val": "0.19s"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "or": {
+                            "vals": [
+                              {
+                                "cmp": {
+                                  "op": "OpLe",
+                                  "lhs": {
+                                    "autoSwingTime": {
+                                      "autoType": "OffHand"
+                                    }
+                                  },
+                                  "rhs": {
+                                    "const": {
+                                      "val": "0s"
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "or": {
+                                  "vals": [
+                                    {
+                                      "cmp": {
+                                        "op": "OpLt",
+                                        "lhs": {
+                                          "autoTimeSinceLast": {
+                                            "autoType": "OffHand"
+                                          }
+                                        },
+                                        "rhs": {
+                                          "math": {
+                                            "op": "OpSub",
+                                            "lhs": {
+                                              "const": {
+                                                "val": "8s"
+                                              }
+                                            },
+                                            "rhs": {
+                                              "spellTimeToReady": {
+                                                "spellId": {
+                                                  "spellId": 1317257
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "or": {
+                                        "vals": [
+                                          {
+                                            "and": {
+                                              "vals": [
+                                                {
+                                                  "cmp": {
+                                                    "op": "OpEq",
+                                                    "lhs": {
+                                                      "weavePlay": {}
+                                                    },
+                                                    "rhs": {
+                                                      "const": {
+                                                        "val": "1"
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                {
+                                                  "and": {
+                                                    "vals": [
+                                                      {
+                                                        "cmp": {
+                                                          "op": "OpGt",
+                                                          "lhs": {
+                                                            "autoTimeToNext": {
+                                                              "autoType": "OffHand"
+                                                            }
+                                                          },
+                                                          "rhs": {
+                                                            "const": {
+                                                              "val": "0s"
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      {
+                                                        "cmp": {
+                                                          "op": "OpLe",
+                                                          "lhs": {
+                                                            "autoTimeToNext": {
+                                                              "autoType": "OffHand"
+                                                            }
+                                                          },
+                                                          "rhs": {
+                                                            "const": {
+                                                              "val": "0.09s"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          {
+                                            "and": {
+                                              "vals": [
+                                                {
+                                                  "cmp": {
+                                                    "op": "OpGe",
+                                                    "lhs": {
+                                                      "weavePlay": {}
+                                                    },
+                                                    "rhs": {
+                                                      "const": {
+                                                        "val": "2"
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                {
+                                                  "and": {
+                                                    "vals": [
+                                                      {
+                                                        "cmp": {
+                                                          "op": "OpGt",
+                                                          "lhs": {
+                                                            "autoTimeToNext": {
+                                                              "autoType": "OffHand"
+                                                            }
+                                                          },
+                                                          "rhs": {
+                                                            "const": {
+                                                              "val": "0s"
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      {
+                                                        "cmp": {
+                                                          "op": "OpLe",
+                                                          "lhs": {
+                                                            "autoTimeToNext": {
+                                                              "autoType": "OffHand"
+                                                            }
+                                                          },
+                                                          "rhs": {
+                                                            "const": {
+                                                              "val": "0.19s"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "move": {
+              "rangeFromTarget": {
+                "const": {
+                  "val": "11"
+                }
+              }
+            }
+          },
+          "simple": {
+            "text": "**Move out** to {Ranged spot} yd after a Strider Kick, while its speed is up.",
+            "shown": true,
+            "boxes": [
+              {
+                "label": "Ranged spot",
+                "numbers": [
+                  "move/rangeFromTarget"
+                ],
+                "unit": "yd"
+              }
+            ]
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "and": {
+                "vals": [
+                  {
+                    "cmp": {
+                      "op": "OpLe",
+                      "lhs": {
+                        "dotRemainingTime": {
+                          "spellId": {
+                            "spellId": 13555,
+                            "rank": 8
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "2s"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "not": {
+                      "val": {
+                        "or": {
+                          "vals": [
+                            {
+                              "or": {
+                                "vals": [
+                                  {
+                                    "and": {
+                                      "vals": [
+                                        {
+                                          "cmp": {
+                                            "op": "OpEq",
+                                            "lhs": {
+                                              "weavePlay": {}
+                                            },
+                                            "rhs": {
+                                              "const": {
+                                                "val": "0"
+                                              }
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "cmp": {
+                                            "op": "OpGt",
+                                            "lhs": {
+                                              "spellTimeToReady": {
+                                                "spellId": {
+                                                  "spellId": 2643,
+                                                  "rank": 1
+                                                }
+                                              }
+                                            },
+                                            "rhs": {
+                                              "math": {
+                                                "op": "OpSub",
+                                                "lhs": {
+                                                  "const": {
+                                                    "val": "6s"
+                                                  }
+                                                },
+                                                "rhs": {
+                                                  "math": {
+                                                    "op": "OpSub",
+                                                    "lhs": {
+                                                      "const": {
+                                                        "val": "8s"
+                                                      }
+                                                    },
+                                                    "rhs": {
+                                                      "spellTimeToReady": {
+                                                        "spellId": {
+                                                          "spellId": 1317257
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "and": {
+                                      "vals": [
+                                        {
+                                          "not": {
+                                            "val": {
+                                              "cmp": {
+                                                "op": "OpEq",
+                                                "lhs": {
+                                                  "weavePlay": {}
+                                                },
+                                                "rhs": {
+                                                  "const": {
+                                                    "val": "0"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "cmp": {
+                                            "op": "OpGt",
+                                            "lhs": {
+                                              "spellTimeToReady": {
+                                                "spellId": {
+                                                  "spellId": 14287,
+                                                  "rank": 8
+                                                }
+                                              }
+                                            },
+                                            "rhs": {
+                                              "math": {
+                                                "op": "OpSub",
+                                                "lhs": {
+                                                  "const": {
+                                                    "val": "6s"
+                                                  }
+                                                },
+                                                "rhs": {
+                                                  "math": {
+                                                    "op": "OpSub",
+                                                    "lhs": {
+                                                      "const": {
+                                                        "val": "8s"
+                                                      }
+                                                    },
+                                                    "rhs": {
+                                                      "spellTimeToReady": {
+                                                        "spellId": {
+                                                          "spellId": 1317257
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "cmp": {
+                                "op": "OpGt",
+                                "lhs": {
+                                  "dotRemainingTime": {
+                                    "spellId": {
+                                      "spellId": 13555,
+                                      "rank": 8
+                                    }
+                                  }
+                                },
+                                "rhs": {
+                                  "math": {
+                                    "op": "OpSub",
+                                    "lhs": {
+                                      "const": {
+                                        "val": "15s"
+                                      }
+                                    },
+                                    "rhs": {
+                                      "math": {
+                                        "op": "OpSub",
+                                        "lhs": {
+                                          "const": {
+                                            "val": "8s"
+                                          }
+                                        },
+                                        "rhs": {
+                                          "spellTimeToReady": {
+                                            "spellId": {
+                                              "spellId": 1317257
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "spellId": 13555,
+                "rank": 8
+              }
+            }
+          },
+          "simple": {
+            "text": "**Serpent Sting** at range when it has 2 s or less left (one shot each trip).",
+            "shown": true
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "and": {
+                "vals": [
+                  {
+                    "cmp": {
+                      "op": "OpEq",
+                      "lhs": {
+                        "weavePlay": {}
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "0"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "not": {
+                      "val": {
+                        "or": {
+                          "vals": [
+                            {
+                              "or": {
+                                "vals": [
+                                  {
+                                    "and": {
+                                      "vals": [
+                                        {
+                                          "cmp": {
+                                            "op": "OpEq",
+                                            "lhs": {
+                                              "weavePlay": {}
+                                            },
+                                            "rhs": {
+                                              "const": {
+                                                "val": "0"
+                                              }
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "cmp": {
+                                            "op": "OpGt",
+                                            "lhs": {
+                                              "spellTimeToReady": {
+                                                "spellId": {
+                                                  "spellId": 2643,
+                                                  "rank": 1
+                                                }
+                                              }
+                                            },
+                                            "rhs": {
+                                              "math": {
+                                                "op": "OpSub",
+                                                "lhs": {
+                                                  "const": {
+                                                    "val": "6s"
+                                                  }
+                                                },
+                                                "rhs": {
+                                                  "math": {
+                                                    "op": "OpSub",
+                                                    "lhs": {
+                                                      "const": {
+                                                        "val": "8s"
+                                                      }
+                                                    },
+                                                    "rhs": {
+                                                      "spellTimeToReady": {
+                                                        "spellId": {
+                                                          "spellId": 1317257
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "and": {
+                                      "vals": [
+                                        {
+                                          "not": {
+                                            "val": {
+                                              "cmp": {
+                                                "op": "OpEq",
+                                                "lhs": {
+                                                  "weavePlay": {}
+                                                },
+                                                "rhs": {
+                                                  "const": {
+                                                    "val": "0"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "cmp": {
+                                            "op": "OpGt",
+                                            "lhs": {
+                                              "spellTimeToReady": {
+                                                "spellId": {
+                                                  "spellId": 14287,
+                                                  "rank": 8
+                                                }
+                                              }
+                                            },
+                                            "rhs": {
+                                              "math": {
+                                                "op": "OpSub",
+                                                "lhs": {
+                                                  "const": {
+                                                    "val": "6s"
+                                                  }
+                                                },
+                                                "rhs": {
+                                                  "math": {
+                                                    "op": "OpSub",
+                                                    "lhs": {
+                                                      "const": {
+                                                        "val": "8s"
+                                                      }
+                                                    },
+                                                    "rhs": {
+                                                      "spellTimeToReady": {
+                                                        "spellId": {
+                                                          "spellId": 1317257
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "cmp": {
+                                "op": "OpGt",
+                                "lhs": {
+                                  "dotRemainingTime": {
+                                    "spellId": {
+                                      "spellId": 13555,
+                                      "rank": 8
+                                    }
+                                  }
+                                },
+                                "rhs": {
+                                  "math": {
+                                    "op": "OpSub",
+                                    "lhs": {
+                                      "const": {
+                                        "val": "15s"
+                                      }
+                                    },
+                                    "rhs": {
+                                      "math": {
+                                        "op": "OpSub",
+                                        "lhs": {
+                                          "const": {
+                                            "val": "8s"
+                                          }
+                                        },
+                                        "rhs": {
+                                          "spellTimeToReady": {
+                                            "spellId": {
+                                              "spellId": 1317257
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "spellId": 2643,
+                "rank": 1
+              }
+            }
+          },
+          "simple": {
+            "text": "**Multi-Shot** at range when Serpent Sting has more than 2 s left (one shot each trip; God Mode).",
+            "shown": true
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "and": {
+                "vals": [
+                  {
+                    "not": {
+                      "val": {
+                        "cmp": {
+                          "op": "OpEq",
+                          "lhs": {
+                            "weavePlay": {}
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "0"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "not": {
+                      "val": {
+                        "or": {
+                          "vals": [
+                            {
+                              "or": {
+                                "vals": [
+                                  {
+                                    "and": {
+                                      "vals": [
+                                        {
+                                          "cmp": {
+                                            "op": "OpEq",
+                                            "lhs": {
+                                              "weavePlay": {}
+                                            },
+                                            "rhs": {
+                                              "const": {
+                                                "val": "0"
+                                              }
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "cmp": {
+                                            "op": "OpGt",
+                                            "lhs": {
+                                              "spellTimeToReady": {
+                                                "spellId": {
+                                                  "spellId": 2643,
+                                                  "rank": 1
+                                                }
+                                              }
+                                            },
+                                            "rhs": {
+                                              "math": {
+                                                "op": "OpSub",
+                                                "lhs": {
+                                                  "const": {
+                                                    "val": "6s"
+                                                  }
+                                                },
+                                                "rhs": {
+                                                  "math": {
+                                                    "op": "OpSub",
+                                                    "lhs": {
+                                                      "const": {
+                                                        "val": "8s"
+                                                      }
+                                                    },
+                                                    "rhs": {
+                                                      "spellTimeToReady": {
+                                                        "spellId": {
+                                                          "spellId": 1317257
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "and": {
+                                      "vals": [
+                                        {
+                                          "not": {
+                                            "val": {
+                                              "cmp": {
+                                                "op": "OpEq",
+                                                "lhs": {
+                                                  "weavePlay": {}
+                                                },
+                                                "rhs": {
+                                                  "const": {
+                                                    "val": "0"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "cmp": {
+                                            "op": "OpGt",
+                                            "lhs": {
+                                              "spellTimeToReady": {
+                                                "spellId": {
+                                                  "spellId": 14287,
+                                                  "rank": 8
+                                                }
+                                              }
+                                            },
+                                            "rhs": {
+                                              "math": {
+                                                "op": "OpSub",
+                                                "lhs": {
+                                                  "const": {
+                                                    "val": "6s"
+                                                  }
+                                                },
+                                                "rhs": {
+                                                  "math": {
+                                                    "op": "OpSub",
+                                                    "lhs": {
+                                                      "const": {
+                                                        "val": "8s"
+                                                      }
+                                                    },
+                                                    "rhs": {
+                                                      "spellTimeToReady": {
+                                                        "spellId": {
+                                                          "spellId": 1317257
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "cmp": {
+                                "op": "OpGt",
+                                "lhs": {
+                                  "dotRemainingTime": {
+                                    "spellId": {
+                                      "spellId": 13555,
+                                      "rank": 8
+                                    }
+                                  }
+                                },
+                                "rhs": {
+                                  "math": {
+                                    "op": "OpSub",
+                                    "lhs": {
+                                      "const": {
+                                        "val": "15s"
+                                      }
+                                    },
+                                    "rhs": {
+                                      "math": {
+                                        "op": "OpSub",
+                                        "lhs": {
+                                          "const": {
+                                            "val": "8s"
+                                          }
+                                        },
+                                        "rhs": {
+                                          "spellTimeToReady": {
+                                            "spellId": {
+                                              "spellId": 1317257
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "spellId": 14287,
+                "rank": 8
+              }
+            }
+          },
+          "simple": {
+            "text": "**Arcane Shot** at range when Serpent Sting has more than 2 s left (one shot each trip; Pro and Regular Player).",
+            "shown": true
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "and": {
+                "vals": [
+                  {
+                    "cmp": {
+                      "op": "OpGe",
+                      "lhs": {
+                        "distanceToTarget": {}
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "11"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "or": {
+                      "vals": [
+                        {
+                          "cmp": {
+                            "op": "OpLt",
+                            "lhs": {
+                              "autoTimeSinceLast": {
+                                "autoType": "Ranged"
+                              }
+                            },
+                            "rhs": {
+                              "math": {
+                                "op": "OpSub",
+                                "lhs": {
+                                  "const": {
+                                    "val": "8s"
+                                  }
+                                },
+                                "rhs": {
+                                  "spellTimeToReady": {
+                                    "spellId": {
+                                      "spellId": 1317257
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "or": {
+                            "vals": [
+                              {
+                                "and": {
+                                  "vals": [
+                                    {
+                                      "cmp": {
+                                        "op": "OpEq",
+                                        "lhs": {
+                                          "weavePlay": {}
+                                        },
+                                        "rhs": {
+                                          "const": {
+                                            "val": "1"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "and": {
+                                        "vals": [
+                                          {
+                                            "cmp": {
+                                              "op": "OpGt",
+                                              "lhs": {
+                                                "autoTimeToNext": {
+                                                  "autoType": "Ranged"
+                                                }
+                                              },
+                                              "rhs": {
+                                                "const": {
+                                                  "val": "0s"
+                                                }
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "cmp": {
+                                              "op": "OpLe",
+                                              "lhs": {
+                                                "autoTimeToNext": {
+                                                  "autoType": "Ranged"
+                                                }
+                                              },
+                                              "rhs": {
+                                                "const": {
+                                                  "val": "0.09s"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "and": {
+                                  "vals": [
+                                    {
+                                      "cmp": {
+                                        "op": "OpGe",
+                                        "lhs": {
+                                          "weavePlay": {}
+                                        },
+                                        "rhs": {
+                                          "const": {
+                                            "val": "2"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "and": {
+                                        "vals": [
+                                          {
+                                            "cmp": {
+                                              "op": "OpGt",
+                                              "lhs": {
+                                                "autoTimeToNext": {
+                                                  "autoType": "Ranged"
+                                                }
+                                              },
+                                              "rhs": {
+                                                "const": {
+                                                  "val": "0s"
+                                                }
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "cmp": {
+                                              "op": "OpLe",
+                                              "lhs": {
+                                                "autoTimeToNext": {
+                                                  "autoType": "Ranged"
+                                                }
+                                              },
+                                              "rhs": {
+                                                "const": {
+                                                  "val": "0.19s"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "or": {
+                      "vals": [
+                        {
+                          "or": {
+                            "vals": [
+                              {
+                                "or": {
+                                  "vals": [
+                                    {
+                                      "and": {
+                                        "vals": [
+                                          {
+                                            "cmp": {
+                                              "op": "OpEq",
+                                              "lhs": {
+                                                "weavePlay": {}
+                                              },
+                                              "rhs": {
+                                                "const": {
+                                                  "val": "0"
+                                                }
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "cmp": {
+                                              "op": "OpGt",
+                                              "lhs": {
+                                                "spellTimeToReady": {
+                                                  "spellId": {
+                                                    "spellId": 2643,
+                                                    "rank": 1
+                                                  }
+                                                }
+                                              },
+                                              "rhs": {
+                                                "math": {
+                                                  "op": "OpSub",
+                                                  "lhs": {
+                                                    "const": {
+                                                      "val": "6s"
+                                                    }
+                                                  },
+                                                  "rhs": {
+                                                    "math": {
+                                                      "op": "OpSub",
+                                                      "lhs": {
+                                                        "const": {
+                                                          "val": "8s"
+                                                        }
+                                                      },
+                                                      "rhs": {
+                                                        "spellTimeToReady": {
+                                                          "spellId": {
+                                                            "spellId": 1317257
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "and": {
+                                        "vals": [
+                                          {
+                                            "not": {
+                                              "val": {
+                                                "cmp": {
+                                                  "op": "OpEq",
+                                                  "lhs": {
+                                                    "weavePlay": {}
+                                                  },
+                                                  "rhs": {
+                                                    "const": {
+                                                      "val": "0"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "cmp": {
+                                              "op": "OpGt",
+                                              "lhs": {
+                                                "spellTimeToReady": {
+                                                  "spellId": {
+                                                    "spellId": 14287,
+                                                    "rank": 8
+                                                  }
+                                                }
+                                              },
+                                              "rhs": {
+                                                "math": {
+                                                  "op": "OpSub",
+                                                  "lhs": {
+                                                    "const": {
+                                                      "val": "6s"
+                                                    }
+                                                  },
+                                                  "rhs": {
+                                                    "math": {
+                                                      "op": "OpSub",
+                                                      "lhs": {
+                                                        "const": {
+                                                          "val": "8s"
+                                                        }
+                                                      },
+                                                      "rhs": {
+                                                        "spellTimeToReady": {
+                                                          "spellId": {
+                                                            "spellId": 1317257
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "cmp": {
+                                  "op": "OpGt",
+                                  "lhs": {
+                                    "dotRemainingTime": {
+                                      "spellId": {
+                                        "spellId": 13555,
+                                        "rank": 8
+                                      }
+                                    }
+                                  },
+                                  "rhs": {
+                                    "math": {
+                                      "op": "OpSub",
+                                      "lhs": {
+                                        "const": {
+                                          "val": "15s"
+                                        }
+                                      },
+                                      "rhs": {
+                                        "math": {
+                                          "op": "OpSub",
+                                          "lhs": {
+                                            "const": {
+                                              "val": "8s"
+                                            }
+                                          },
+                                          "rhs": {
+                                            "spellTimeToReady": {
+                                              "spellId": {
+                                                "spellId": 1317257
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "and": {
+                            "vals": [
+                              {
+                                "not": {
+                                  "val": {
+                                    "cmp": {
+                                      "op": "OpLe",
+                                      "lhs": {
+                                        "dotRemainingTime": {
+                                          "spellId": {
+                                            "spellId": 13555,
+                                            "rank": 8
+                                          }
+                                        }
+                                      },
+                                      "rhs": {
+                                        "const": {
+                                          "val": "2s"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "or": {
+                                  "vals": [
+                                    {
+                                      "and": {
+                                        "vals": [
+                                          {
+                                            "cmp": {
+                                              "op": "OpEq",
+                                              "lhs": {
+                                                "weavePlay": {}
+                                              },
+                                              "rhs": {
+                                                "const": {
+                                                  "val": "0"
+                                                }
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "cmp": {
+                                              "op": "OpGt",
+                                              "lhs": {
+                                                "spellTimeToReady": {
+                                                  "spellId": {
+                                                    "spellId": 2643,
+                                                    "rank": 1
+                                                  }
+                                                }
+                                              },
+                                              "rhs": {
+                                                "gcdTimeToReady": {}
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "and": {
+                                        "vals": [
+                                          {
+                                            "not": {
+                                              "val": {
+                                                "cmp": {
+                                                  "op": "OpEq",
+                                                  "lhs": {
+                                                    "weavePlay": {}
+                                                  },
+                                                  "rhs": {
+                                                    "const": {
+                                                      "val": "0"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "cmp": {
+                                              "op": "OpGt",
+                                              "lhs": {
+                                                "spellTimeToReady": {
+                                                  "spellId": {
+                                                    "spellId": 14287,
+                                                    "rank": 8
+                                                  }
+                                                }
+                                              },
+                                              "rhs": {
+                                                "gcdTimeToReady": {}
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "or": {
+                      "vals": [
+                        {
+                          "cmp": {
+                            "op": "OpGt",
+                            "lhs": {
+                              "spellTimeToReady": {
+                                "spellId": {
+                                  "spellId": 1317257
+                                }
+                              }
+                            },
+                            "rhs": {
+                              "const": {
+                                "val": "0s"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "cmp": {
+                            "op": "OpGt",
+                            "lhs": {
+                              "autoTimeToNext": {
+                                "autoType": "Ranged"
+                              }
+                            },
+                            "rhs": {
+                              "const": {
+                                "val": "0.5s"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "move": {
+              "rangeFromTarget": {
+                "const": {
+                  "val": "5"
+                }
+              }
+            }
+          },
+          "simple": {
+            "text": "**Move in** to {Melee spot} yd once your Auto Shot has fired and you have cast that shot (if one is up).",
+            "shown": true,
+            "boxes": [
+              {
+                "label": "Melee spot",
+                "numbers": [
+                  "move/rangeFromTarget"
+                ],
+                "unit": "yd"
+              }
+            ],
+            "texts": [
+              {
+                "when": "Weave play >= 2",
+                "text": "**Move in** to {Melee spot} yd once your Auto Shot has fired or fires within 0.2 s, and you have cast that shot (if one is up)."
+              },
+              {
+                "when": "Weave play >= 1",
+                "text": "**Move in** to {Melee spot} yd once your Auto Shot has fired or fires within 0.1 s, and you have cast that shot (if one is up)."
+              }
+            ]
+          }
+        },
+        {
+          "action": {
+            "castSpell": {
+              "spellId": {
+                "spellId": 14305
+              }
+            },
+            "condition": {
+              "not": {
+                "val": {
+                  "cmp": {
+                    "op": "OpLe",
+                    "lhs": {
+                      "spellTimeToReady": {
+                        "spellId": {
+                          "spellId": 1317257
+                        }
+                      }
+                    },
+                    "rhs": {
+                      "const": {
+                        "val": "1s"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "simple": {
+            "text": "**Immolation Trap** within 6 yd of the target, unless Strider Kick is ready within 1 s.",
+            "shown": true
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "not": {
+                "val": {
+                  "auraIsActive": {
+                    "sourceUnit": {
+                      "type": "CurrentTarget"
+                    },
+                    "auraId": {
+                      "spellId": 14325
+                    }
+                  }
+                }
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "spellId": 14325
+              }
+            }
+          },
+          "simple": {
+            "text": "**Hunter's Mark** when it is not on the target (you are the raid's only hunter).",
+            "shown": true
+          }
+        },
+        {
+          "action": {
+            "castSpell": {
+              "spellId": {
+                "spellId": 14266,
+                "tag": 1,
+                "rank": 8
+              }
+            }
+          },
+          "simple": {
+            "text": "**Queue Raptor Strike** whenever it is ready, so your next swing is a Raptor."
+          }
+        },
+        {
+          "action": {
+            "castSpell": {
+              "spellId": {
+                "spellId": 14271,
+                "rank": 4
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "castSpell": {
+              "spellId": {
+                "spellId": 1317257
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "cmp": {
+                "op": "OpLt",
+                "lhs": {
+                  "auraNumStacks": {
+                    "auraId": {
+                      "spellId": 1293241,
+                      "tag": 2
+                    }
+                  }
+                },
+                "rhs": {
+                  "const": {
+                    "val": "2"
+                  }
+                }
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "spellId": 1293241
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "castSpell": {
+              "spellId": {
+                "spellId": 14268,
+                "rank": 3
+              }
+            },
+            "condition": {
+              "not": {
+                "val": {
+                  "cmp": {
+                    "op": "OpLe",
+                    "lhs": {
+                      "spellTimeToReady": {
+                        "spellId": {
+                          "spellId": 1317257
+                        }
+                      }
+                    },
+                    "rhs": {
+                      "const": {
+                        "val": "1s"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "simple": {
+            "text": "**Wing Clip**, unless Strider Kick is ready within 1 s.",
+            "shown": true
+          }
+        }
+      ]
+    }
+  },
+  "encounter": {
+    "duration": 120,
+    "durationVariation": 15,
+    "executeProportion20": 0.2,
+    "executeProportion25": 0.25,
+    "executeProportion35": 0.35,
+    "targets": [
+      {
+        "id": 213336,
+        "name": "Level 60",
+        "level": 63,
+        "stats": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          805,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          3731,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          127393,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "minBaseDamage": 3000,
+        "damageSpread": 0.3333,
+        "swingSpeed": 2,
+        "parryHaste": true
+      }
+    ]
+  }
+}

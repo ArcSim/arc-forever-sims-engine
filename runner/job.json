@@ -1,165 +1,416 @@
 {
- "note": "1.33: the Reset builds without Elixir of Greater Firepower, every play mode the site lists, 20k on master; canary 2H Auto Weave Reset with the earlier file (1219.3).",
+ "note": "1.34 hotfix (walk time exactly 1/7 s a yard, fork branch release-1.34): every shipped build and play mode, both sets, the Mythic builds and the guide Kick lines, 20k; Mythic and guide setups also on master; canary 2H Auto Weave on master (1324.8).",
  "jobs": [
   {
+   "build": "2h_auto_weave",
+   "mode": "God",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "2h_auto_weave",
+   "mode": "Pro",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "2h_auto_weave",
+   "mode": "Regular",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
    "build": "2h_auto_weave_reset",
    "mode": "God",
-   "tag": "no-firepower",
-   "engine": "master",
-   "script": "dps_refresh.js",
-   "settings": "no_firepower_reset_2h_auto_weave.json"
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
   },
   {
    "build": "2h_auto_weave_reset",
    "mode": "Pro",
-   "tag": "no-firepower",
-   "engine": "master",
-   "script": "dps_refresh.js",
-   "settings": "no_firepower_reset_2h_auto_weave.json"
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
   },
   {
    "build": "2h_auto_weave_reset",
    "mode": "Regular",
-   "tag": "no-firepower",
-   "engine": "master",
-   "script": "dps_refresh.js",
-   "settings": "no_firepower_reset_2h_auto_weave.json"
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_auto_weave",
+   "mode": "God",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_auto_weave",
+   "mode": "Pro",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_auto_weave",
+   "mode": "Regular",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
   },
   {
    "build": "dw_auto_weave_reset",
    "mode": "God",
-   "tag": "no-firepower",
-   "engine": "master",
-   "script": "dps_refresh.js",
-   "settings": "no_firepower_reset_dw_auto_weave.json"
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
   },
   {
    "build": "dw_auto_weave_reset",
    "mode": "Pro",
-   "tag": "no-firepower",
-   "engine": "master",
-   "script": "dps_refresh.js",
-   "settings": "no_firepower_reset_dw_auto_weave.json"
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
   },
   {
    "build": "dw_auto_weave_reset",
    "mode": "Regular",
-   "tag": "no-firepower",
-   "engine": "master",
-   "script": "dps_refresh.js",
-   "settings": "no_firepower_reset_dw_auto_weave.json"
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "2h_ability_weave",
+   "mode": "God",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "2h_ability_weave",
+   "mode": "Pro",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "2h_ability_weave",
+   "mode": "Regular",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
   },
   {
    "build": "2h_ability_weave_reset",
    "mode": "God",
-   "tag": "no-firepower",
-   "engine": "master",
-   "script": "dps_refresh.js",
-   "settings": "no_firepower_reset_2h_ability_weave.json"
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
   },
   {
    "build": "2h_ability_weave_reset",
    "mode": "Pro",
-   "tag": "no-firepower",
-   "engine": "master",
-   "script": "dps_refresh.js",
-   "settings": "no_firepower_reset_2h_ability_weave.json"
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
   },
   {
    "build": "2h_ability_weave_reset",
    "mode": "Regular",
-   "tag": "no-firepower",
-   "engine": "master",
-   "script": "dps_refresh.js",
-   "settings": "no_firepower_reset_2h_ability_weave.json"
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_ability_weave",
+   "mode": "God",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_ability_weave",
+   "mode": "Pro",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_ability_weave",
+   "mode": "Regular",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
   },
   {
    "build": "dw_ability_weave_reset",
    "mode": "God",
-   "tag": "no-firepower",
-   "engine": "master",
-   "script": "dps_refresh.js",
-   "settings": "no_firepower_reset_dw_ability_weave.json"
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
   },
   {
    "build": "dw_ability_weave_reset",
    "mode": "Pro",
-   "tag": "no-firepower",
-   "engine": "master",
-   "script": "dps_refresh.js",
-   "settings": "no_firepower_reset_dw_ability_weave.json"
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
   },
   {
    "build": "dw_ability_weave_reset",
    "mode": "Regular",
-   "tag": "no-firepower",
-   "engine": "master",
-   "script": "dps_refresh.js",
-   "settings": "no_firepower_reset_dw_ability_weave.json"
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_auto_weave_no_teebu",
+   "mode": "God",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
   },
   {
    "build": "dw_auto_weave_no_teebu_reset",
    "mode": "God",
-   "tag": "no-firepower",
-   "engine": "master",
-   "script": "dps_refresh.js",
-   "settings": "no_firepower_reset_dw_auto_weave_no_teebu.json"
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
   },
   {
-   "build": "dw_pure_melee_hawk_reset",
+   "build": "hawk_weave",
    "mode": "God",
-   "tag": "no-firepower",
-   "engine": "master",
-   "script": "dps_refresh.js",
-   "settings": "no_firepower_reset_dw_pure_melee_hawk.json"
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "hawk_weave_reset",
+   "mode": "God",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_pure_melee",
+   "mode": "God",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
   },
   {
    "build": "dw_pure_melee_reset",
    "mode": "God",
-   "tag": "no-firepower",
-   "engine": "master",
-   "script": "dps_refresh.js",
-   "settings": "no_firepower_reset_dw_pure_melee.json"
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_pure_melee_hawk",
+   "mode": "God",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_pure_melee_hawk_reset",
+   "mode": "God",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_pure_melee_no_teebu",
+   "mode": "God",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
   },
   {
    "build": "dw_pure_melee_no_teebu_reset",
    "mode": "God",
-   "tag": "no-firepower",
-   "engine": "master",
-   "script": "dps_refresh.js",
-   "settings": "no_firepower_reset_dw_pure_melee_no_teebu.json"
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_kick_weave",
+   "mode": "God",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_kick_weave",
+   "mode": "Pro",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_kick_weave",
+   "mode": "Regular",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
   },
   {
    "build": "dw_kick_weave_reset",
    "mode": "God",
-   "tag": "no-firepower",
-   "engine": "master",
-   "script": "dps_refresh.js",
-   "settings": "no_firepower_reset_dw_kick_weave.json"
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
   },
   {
    "build": "dw_kick_weave_reset",
    "mode": "Pro",
-   "tag": "no-firepower",
-   "engine": "master",
-   "script": "dps_refresh.js",
-   "settings": "no_firepower_reset_dw_kick_weave.json"
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
   },
   {
    "build": "dw_kick_weave_reset",
    "mode": "Regular",
-   "tag": "no-firepower",
-   "engine": "master",
-   "script": "dps_refresh.js",
-   "settings": "no_firepower_reset_dw_kick_weave.json"
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
   },
   {
-   "build": "2h_auto_weave_reset",
+   "build": "bm_weave",
+   "mode": "God",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "bm_weave_reset",
+   "mode": "God",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "bm_ranged",
+   "mode": "God",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "bm_ranged_reset",
+   "mode": "God",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "mythic_2h_weave",
+   "mode": "God",
+   "tag": "v133",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "mythic_2h_weave_human_after.json"
+  },
+  {
+   "build": "mythic_2h_weave",
+   "mode": "God",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js",
+   "settings": "mythic_2h_weave_human_after.json"
+  },
+  {
+   "build": "mythic_2h_light",
+   "mode": "God",
+   "tag": "v133",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "mythic_2h_light_human_after.json"
+  },
+  {
+   "build": "mythic_2h_light",
+   "mode": "God",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js",
+   "settings": "mythic_2h_light_human_after.json"
+  },
+  {
+   "build": "mythic_survival",
+   "mode": "God",
+   "tag": "v133",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "mythic_survival_human_after.json"
+  },
+  {
+   "build": "mythic_survival",
+   "mode": "God",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js",
+   "settings": "mythic_survival_human_after.json"
+  },
+  {
+   "build": "mythic_dw_melee",
+   "mode": "God",
+   "tag": "v133",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "mythic_dw_melee_after.json"
+  },
+  {
+   "build": "mythic_dw_melee",
+   "mode": "God",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js",
+   "settings": "mythic_dw_melee_after.json"
+  },
+  {
+   "build": "guide_kick_react500",
+   "mode": "God",
+   "tag": "v133",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "guide_kick_react500.json"
+  },
+  {
+   "build": "guide_kick_react500",
+   "mode": "God",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js",
+   "settings": "guide_kick_react500.json"
+  },
+  {
+   "build": "guide_2h_kick",
+   "mode": "God",
+   "tag": "v133",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "guide_2h_kick.json"
+  },
+  {
+   "build": "guide_2h_kick",
+   "mode": "God",
+   "tag": "v134",
+   "engine": "release-1.34",
+   "script": "dps_refresh.js",
+   "settings": "guide_2h_kick.json"
+  },
+  {
+   "build": "2h_auto_weave",
    "mode": "God",
    "tag": "canary",
    "engine": "master",
-   "script": "dps_refresh.js",
-   "settings": "reset_2h_auto_weave.json"
+   "script": "dps_refresh.js"
   }
  ]
 }
