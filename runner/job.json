@@ -1,164 +1,165 @@
 {
- "note": "1.33: the builds without Elixir of Greater Firepower (Forever made it Elixir of Holy Power, +40 Holy damage), every play mode the site lists, 20k on master; canary 2H Auto Weave with the 1.32 file (1326.1).",
+ "note": "1.33: the Reset builds without Elixir of Greater Firepower, every play mode the site lists, 20k on master; canary 2H Auto Weave Reset with the earlier file (1219.3).",
  "jobs": [
   {
-   "build": "2h_auto_weave",
+   "build": "2h_auto_weave_reset",
    "mode": "God",
    "tag": "no-firepower",
    "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "no_firepower_2h_auto_weave.json"
+   "settings": "no_firepower_reset_2h_auto_weave.json"
   },
   {
-   "build": "2h_auto_weave",
+   "build": "2h_auto_weave_reset",
    "mode": "Pro",
    "tag": "no-firepower",
    "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "no_firepower_2h_auto_weave.json"
+   "settings": "no_firepower_reset_2h_auto_weave.json"
   },
   {
-   "build": "2h_auto_weave",
+   "build": "2h_auto_weave_reset",
    "mode": "Regular",
    "tag": "no-firepower",
    "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "no_firepower_2h_auto_weave.json"
+   "settings": "no_firepower_reset_2h_auto_weave.json"
   },
   {
-   "build": "dw_auto_weave",
+   "build": "dw_auto_weave_reset",
    "mode": "God",
    "tag": "no-firepower",
    "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "no_firepower_dw_auto_weave.json"
+   "settings": "no_firepower_reset_dw_auto_weave.json"
   },
   {
-   "build": "dw_auto_weave",
+   "build": "dw_auto_weave_reset",
    "mode": "Pro",
    "tag": "no-firepower",
    "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "no_firepower_dw_auto_weave.json"
+   "settings": "no_firepower_reset_dw_auto_weave.json"
   },
   {
-   "build": "dw_auto_weave",
+   "build": "dw_auto_weave_reset",
    "mode": "Regular",
    "tag": "no-firepower",
    "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "no_firepower_dw_auto_weave.json"
+   "settings": "no_firepower_reset_dw_auto_weave.json"
   },
   {
-   "build": "2h_ability_weave",
+   "build": "2h_ability_weave_reset",
    "mode": "God",
    "tag": "no-firepower",
    "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "no_firepower_2h_ability_weave.json"
+   "settings": "no_firepower_reset_2h_ability_weave.json"
   },
   {
-   "build": "2h_ability_weave",
+   "build": "2h_ability_weave_reset",
    "mode": "Pro",
    "tag": "no-firepower",
    "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "no_firepower_2h_ability_weave.json"
+   "settings": "no_firepower_reset_2h_ability_weave.json"
   },
   {
-   "build": "2h_ability_weave",
+   "build": "2h_ability_weave_reset",
    "mode": "Regular",
    "tag": "no-firepower",
    "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "no_firepower_2h_ability_weave.json"
+   "settings": "no_firepower_reset_2h_ability_weave.json"
   },
   {
-   "build": "dw_ability_weave",
+   "build": "dw_ability_weave_reset",
    "mode": "God",
    "tag": "no-firepower",
    "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "no_firepower_dw_ability_weave.json"
+   "settings": "no_firepower_reset_dw_ability_weave.json"
   },
   {
-   "build": "dw_ability_weave",
+   "build": "dw_ability_weave_reset",
    "mode": "Pro",
    "tag": "no-firepower",
    "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "no_firepower_dw_ability_weave.json"
+   "settings": "no_firepower_reset_dw_ability_weave.json"
   },
   {
-   "build": "dw_ability_weave",
+   "build": "dw_ability_weave_reset",
    "mode": "Regular",
    "tag": "no-firepower",
    "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "no_firepower_dw_ability_weave.json"
+   "settings": "no_firepower_reset_dw_ability_weave.json"
   },
   {
-   "build": "dw_auto_weave_no_teebu",
+   "build": "dw_auto_weave_no_teebu_reset",
    "mode": "God",
    "tag": "no-firepower",
    "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "no_firepower_dw_auto_weave_no_teebu.json"
+   "settings": "no_firepower_reset_dw_auto_weave_no_teebu.json"
   },
   {
-   "build": "dw_pure_melee",
+   "build": "dw_pure_melee_hawk_reset",
    "mode": "God",
    "tag": "no-firepower",
    "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "no_firepower_dw_pure_melee.json"
+   "settings": "no_firepower_reset_dw_pure_melee_hawk.json"
   },
   {
-   "build": "dw_pure_melee_hawk",
+   "build": "dw_pure_melee_reset",
    "mode": "God",
    "tag": "no-firepower",
    "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "no_firepower_dw_pure_melee_hawk.json"
+   "settings": "no_firepower_reset_dw_pure_melee.json"
   },
   {
-   "build": "dw_pure_melee_no_teebu",
+   "build": "dw_pure_melee_no_teebu_reset",
    "mode": "God",
    "tag": "no-firepower",
    "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "no_firepower_dw_pure_melee_no_teebu.json"
+   "settings": "no_firepower_reset_dw_pure_melee_no_teebu.json"
   },
   {
-   "build": "dw_kick_weave",
+   "build": "dw_kick_weave_reset",
    "mode": "God",
    "tag": "no-firepower",
    "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "no_firepower_dw_kick_weave.json"
+   "settings": "no_firepower_reset_dw_kick_weave.json"
   },
   {
-   "build": "dw_kick_weave",
+   "build": "dw_kick_weave_reset",
    "mode": "Pro",
    "tag": "no-firepower",
    "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "no_firepower_dw_kick_weave.json"
+   "settings": "no_firepower_reset_dw_kick_weave.json"
   },
   {
-   "build": "dw_kick_weave",
+   "build": "dw_kick_weave_reset",
    "mode": "Regular",
    "tag": "no-firepower",
    "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "no_firepower_dw_kick_weave.json"
+   "settings": "no_firepower_reset_dw_kick_weave.json"
   },
   {
-   "build": "2h_auto_weave",
+   "build": "2h_auto_weave_reset",
    "mode": "God",
    "tag": "canary",
    "engine": "master",
-   "script": "dps_refresh.js"
+   "script": "dps_refresh.js",
+   "settings": "reset_2h_auto_weave.json"
   }
  ]
 }
