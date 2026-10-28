@@ -3325,10 +3325,11 @@ func TestManaPerFiveRowsBySource(t *testing.T) {
 
 // A run speed change during a walk changes the rest of it: the yard under way keeps the share already walked and the
 // yards after it go at the new speed (Strider Kick's +30% landing just after a walk out began; the same buff running
-// out during a walk). A walk with no change steps every 142 ms as before. 6 yd from 11 yd at 7 yd/s.
+// out during a walk). A walk with no change steps every 1/7 s, not a whole millisecond short of it. 6 yd from 11 yd at
+// 7 yd/s.
 func TestRunSpeedChangeMidWalk(t *testing.T) {
 	speedID := core.ActionID{SpellID: 1317257}.WithTag(1)
-	yard := func(speed float64) time.Duration { return time.Millisecond * time.Duration(1000/speed) }
+	yard := func(speed float64) time.Duration { return time.Duration(float64(time.Second) / speed) }
 	walk := func(t *testing.T, startFast bool, changeAt time.Duration) time.Duration {
 		sim, hunter := newPatchTestHunter(t, patchTestSetup{gear: true, distance: 11})
 		hunter.MoveDelay = 0
