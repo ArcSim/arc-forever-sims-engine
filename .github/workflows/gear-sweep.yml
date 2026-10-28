@@ -1,6 +1,6 @@
 name: Gear sweep
-# Runs runner/gear_screen.js (or the job's own script, e.g. rotation_check.js) for every build and play mode in
-# runner/job.json, on the engine from master.
+# Runs runner/gear_screen.js (or the job's own script, e.g. rotation_check.js or dps_refresh.js) for every build and
+# play mode in runner/job.json, on the engine from master or the job's "engine" branch.
 on:
   push:
     branches: [sweeps]
@@ -37,7 +37,7 @@ jobs:
       - name: Engine
         uses: actions/checkout@v4
         with:
-          ref: master
+          ref: ${{ matrix.engine || 'master' }}
           path: engine
       - uses: actions/setup-go@v5
         with:
@@ -62,6 +62,7 @@ jobs:
           RESET: ${{ matrix.reset && '1' || '' }}
           ROTATION: ${{ matrix.rotation }}
           GEAR: ${{ matrix.gear }}
+          ENGINE_REF: ${{ matrix.engine || 'master' }}
         run: node sweeps/runner/${{ matrix.script || 'gear_screen.js' }} ${{ matrix.build }} ${{ matrix.mode }} "results/${{ matrix.build }}_${{ matrix.mode }}_${{ matrix.tag }}.json"
       - uses: actions/upload-artifact@v4
         with:

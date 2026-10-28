@@ -1,280 +1,313 @@
 {
- "note": "Site 1.31 builds. no-helm-chest: without Black Dragonscale Helm and Dawn Armor (their patterns may not be pre-raid). reset-gear: melee swings resetting Auto Shot, from the reset rotations and Arcanite Reaper gear. reset-rotations: those rotations as Pro and Regular Player.",
+ "note": "Data pass of 28 October: every shipped build and play mode, 20k fights, on master (before) and branch data-pass-oct28 (after: Trueshot Aura 50, Efficiency on Strider Kick, Volley, Strider Kick with no weapon, trainer ranks Hawk 6 and Serpent Sting 8).",
  "jobs": [
   {
    "build": "2h_auto_weave",
    "mode": "God",
-   "tag": "no-helm-chest",
-   "exclude": [
-    252605,
-    252483
-   ]
+   "tag": "before",
+   "engine": "master",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "2h_auto_weave",
+   "mode": "Pro",
+   "tag": "before",
+   "engine": "master",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "2h_auto_weave",
+   "mode": "Regular",
+   "tag": "before",
+   "engine": "master",
+   "script": "dps_refresh.js"
   },
   {
    "build": "dw_auto_weave",
    "mode": "God",
-   "tag": "no-helm-chest",
-   "exclude": [
-    252605,
-    252483
-   ]
+   "tag": "before",
+   "engine": "master",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_auto_weave",
+   "mode": "Pro",
+   "tag": "before",
+   "engine": "master",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_auto_weave",
+   "mode": "Regular",
+   "tag": "before",
+   "engine": "master",
+   "script": "dps_refresh.js"
   },
   {
    "build": "2h_ability_weave",
    "mode": "God",
-   "tag": "no-helm-chest",
-   "exclude": [
-    252605,
-    252483
-   ]
+   "tag": "before",
+   "engine": "master",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "2h_ability_weave",
+   "mode": "Pro",
+   "tag": "before",
+   "engine": "master",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "2h_ability_weave",
+   "mode": "Regular",
+   "tag": "before",
+   "engine": "master",
+   "script": "dps_refresh.js"
   },
   {
    "build": "dw_ability_weave",
    "mode": "God",
-   "tag": "no-helm-chest",
-   "exclude": [
-    252605,
-    252483
-   ]
+   "tag": "before",
+   "engine": "master",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_ability_weave",
+   "mode": "Pro",
+   "tag": "before",
+   "engine": "master",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_ability_weave",
+   "mode": "Regular",
+   "tag": "before",
+   "engine": "master",
+   "script": "dps_refresh.js"
   },
   {
    "build": "dw_auto_weave_no_teebu",
    "mode": "God",
-   "tag": "no-helm-chest",
-   "exclude": [
-    252605,
-    252483,
-    1728
-   ]
+   "tag": "before",
+   "engine": "master",
+   "script": "dps_refresh.js"
   },
   {
    "build": "hawk_weave",
    "mode": "God",
-   "tag": "no-helm-chest",
-   "exclude": [
-    252605,
-    252483
-   ]
+   "tag": "before",
+   "engine": "master",
+   "script": "dps_refresh.js"
   },
   {
    "build": "dw_pure_melee_hawk",
    "mode": "God",
-   "tag": "no-helm-chest",
-   "exclude": [
-    252605,
-    252483
-   ]
+   "tag": "before",
+   "engine": "master",
+   "script": "dps_refresh.js"
   },
   {
    "build": "dw_pure_melee",
    "mode": "God",
-   "tag": "no-helm-chest",
-   "exclude": [
-    252605,
-    252483
-   ]
+   "tag": "before",
+   "engine": "master",
+   "script": "dps_refresh.js"
   },
   {
    "build": "dw_pure_melee_no_teebu",
    "mode": "God",
-   "tag": "no-helm-chest",
-   "exclude": [
-    252605,
-    252483,
-    1728
-   ]
+   "tag": "before",
+   "engine": "master",
+   "script": "dps_refresh.js"
   },
   {
    "build": "dw_kick_weave",
    "mode": "God",
-   "tag": "no-helm-chest",
-   "exclude": [
-    252605,
-    252483
-   ]
+   "tag": "before",
+   "engine": "master",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_kick_weave",
+   "mode": "Pro",
+   "tag": "before",
+   "engine": "master",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_kick_weave",
+   "mode": "Regular",
+   "tag": "before",
+   "engine": "master",
+   "script": "dps_refresh.js"
   },
   {
    "build": "bm_weave",
    "mode": "God",
-   "tag": "no-helm-chest",
-   "exclude": [
-    252605,
-    252483
-   ]
+   "tag": "before",
+   "engine": "master",
+   "script": "dps_refresh.js"
   },
   {
    "build": "bm_ranged",
    "mode": "God",
-   "tag": "no-helm-chest",
-   "exclude": [
-    252605,
-    252483
-   ]
-  },
-  {
-   "build": "2h_auto_weave",
-   "mode": "Pro",
-   "tag": "no-helm-chest",
-   "exclude": [
-    252605,
-    252483
-   ]
-  },
-  {
-   "build": "2h_auto_weave",
-   "mode": "Regular",
-   "tag": "no-helm-chest",
-   "exclude": [
-    252605,
-    252483
-   ]
-  },
-  {
-   "build": "dw_auto_weave",
-   "mode": "Pro",
-   "tag": "no-helm-chest",
-   "exclude": [
-    252605,
-    252483
-   ]
-  },
-  {
-   "build": "dw_auto_weave",
-   "mode": "Regular",
-   "tag": "no-helm-chest",
-   "exclude": [
-    252605,
-    252483
-   ]
-  },
-  {
-   "build": "dw_kick_weave",
-   "mode": "Pro",
-   "tag": "no-helm-chest",
-   "exclude": [
-    252605,
-    252483
-   ]
-  },
-  {
-   "build": "dw_kick_weave",
-   "mode": "Regular",
-   "tag": "no-helm-chest",
-   "exclude": [
-    252605,
-    252483
-   ]
+   "tag": "before",
+   "engine": "master",
+   "script": "dps_refresh.js"
   },
   {
    "build": "2h_auto_weave",
    "mode": "God",
-   "tag": "reset-gear",
-   "reset": true,
-   "gear": "2h_weave_reaper_reset.gear.json"
+   "tag": "after",
+   "engine": "data-pass-oct28",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "2h_auto_weave",
+   "mode": "Pro",
+   "tag": "after",
+   "engine": "data-pass-oct28",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "2h_auto_weave",
+   "mode": "Regular",
+   "tag": "after",
+   "engine": "data-pass-oct28",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_auto_weave",
+   "mode": "God",
+   "tag": "after",
+   "engine": "data-pass-oct28",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_auto_weave",
+   "mode": "Pro",
+   "tag": "after",
+   "engine": "data-pass-oct28",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_auto_weave",
+   "mode": "Regular",
+   "tag": "after",
+   "engine": "data-pass-oct28",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "2h_ability_weave",
+   "mode": "God",
+   "tag": "after",
+   "engine": "data-pass-oct28",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "2h_ability_weave",
+   "mode": "Pro",
+   "tag": "after",
+   "engine": "data-pass-oct28",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "2h_ability_weave",
+   "mode": "Regular",
+   "tag": "after",
+   "engine": "data-pass-oct28",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_ability_weave",
+   "mode": "God",
+   "tag": "after",
+   "engine": "data-pass-oct28",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_ability_weave",
+   "mode": "Pro",
+   "tag": "after",
+   "engine": "data-pass-oct28",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_ability_weave",
+   "mode": "Regular",
+   "tag": "after",
+   "engine": "data-pass-oct28",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_auto_weave_no_teebu",
+   "mode": "God",
+   "tag": "after",
+   "engine": "data-pass-oct28",
+   "script": "dps_refresh.js"
   },
   {
    "build": "hawk_weave",
    "mode": "God",
-   "tag": "reset-gear",
-   "reset": true,
-   "rotation": "arc_reset_weave.apl.json",
-   "gear": "2h_weave_reaper_reset.gear.json"
+   "tag": "after",
+   "engine": "data-pass-oct28",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_pure_melee_hawk",
+   "mode": "God",
+   "tag": "after",
+   "engine": "data-pass-oct28",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_pure_melee",
+   "mode": "God",
+   "tag": "after",
+   "engine": "data-pass-oct28",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_pure_melee_no_teebu",
+   "mode": "God",
+   "tag": "after",
+   "engine": "data-pass-oct28",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_kick_weave",
+   "mode": "God",
+   "tag": "after",
+   "engine": "data-pass-oct28",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_kick_weave",
+   "mode": "Pro",
+   "tag": "after",
+   "engine": "data-pass-oct28",
+   "script": "dps_refresh.js"
+  },
+  {
+   "build": "dw_kick_weave",
+   "mode": "Regular",
+   "tag": "after",
+   "engine": "data-pass-oct28",
+   "script": "dps_refresh.js"
   },
   {
    "build": "bm_weave",
    "mode": "God",
-   "tag": "reset-gear",
-   "reset": true,
-   "rotation": "arc_reset_weave.apl.json",
-   "gear": "bm_weave_reaper_reset.gear.json"
+   "tag": "after",
+   "engine": "data-pass-oct28",
+   "script": "dps_refresh.js"
   },
   {
-   "build": "dw_auto_weave",
+   "build": "bm_ranged",
    "mode": "God",
-   "tag": "reset-gear",
-   "reset": true,
-   "rotation": "arc_reset_weave.apl.json"
-  },
-  {
-   "build": "dw_auto_weave_no_teebu",
-   "mode": "God",
-   "tag": "reset-gear",
-   "reset": true,
-   "rotation": "arc_reset_weave.apl.json",
-   "exclude": [
-    1728
-   ]
-  },
-  {
-   "build": "dw_kick_weave",
-   "mode": "God",
-   "tag": "reset-gear",
-   "reset": true,
-   "rotation": "arc_kick_weave_reset.apl.json"
-  },
-  {
-   "build": "2h_auto_weave",
-   "mode": "Pro",
-   "tag": "reset-rotations",
-   "script": "rotation_check.js",
-   "gear": "2h_weave_reaper_reset.gear.json"
-  },
-  {
-   "build": "2h_auto_weave",
-   "mode": "Regular",
-   "tag": "reset-rotations",
-   "script": "rotation_check.js",
-   "gear": "2h_weave_reaper_reset.gear.json"
-  },
-  {
-   "build": "hawk_weave",
-   "mode": "Pro",
-   "tag": "reset-rotations",
-   "script": "rotation_check.js",
-   "gear": "2h_weave_reaper_reset.gear.json"
-  },
-  {
-   "build": "hawk_weave",
-   "mode": "Regular",
-   "tag": "reset-rotations",
-   "script": "rotation_check.js",
-   "gear": "2h_weave_reaper_reset.gear.json"
-  },
-  {
-   "build": "dw_auto_weave",
-   "mode": "Pro",
-   "tag": "reset-rotations",
-   "script": "rotation_check.js"
-  },
-  {
-   "build": "dw_auto_weave",
-   "mode": "Regular",
-   "tag": "reset-rotations",
-   "script": "rotation_check.js"
-  },
-  {
-   "build": "dw_auto_weave_no_teebu",
-   "mode": "Pro",
-   "tag": "reset-rotations",
-   "script": "rotation_check.js"
-  },
-  {
-   "build": "dw_auto_weave_no_teebu",
-   "mode": "Regular",
-   "tag": "reset-rotations",
-   "script": "rotation_check.js"
-  },
-  {
-   "build": "dw_kick_weave",
-   "mode": "Pro",
-   "tag": "reset-rotations",
-   "script": "rotation_check.js"
-  },
-  {
-   "build": "dw_kick_weave",
-   "mode": "Regular",
-   "tag": "reset-rotations",
-   "script": "rotation_check.js"
+   "tag": "after",
+   "engine": "data-pass-oct28",
+   "script": "dps_refresh.js"
   }
  ]
 }
