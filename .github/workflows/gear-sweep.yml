@@ -1,5 +1,6 @@
 name: Gear sweep
-# Runs runner/gear_screen.js for every build and play mode in runner/job.json, on the engine from master.
+# Runs runner/gear_screen.js (or the job's own script, e.g. rotation_check.js) for every build and play mode in
+# runner/job.json, on the engine from master.
 on:
   push:
     branches: [sweeps]
@@ -27,7 +28,7 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJSON(needs.plan.outputs.matrix) }}
-    name: ${{ matrix.build }} (${{ matrix.mode }})
+    name: ${{ matrix.build }} (${{ matrix.mode }}) ${{ matrix.tag }}
     steps:
       - name: Runner files
         uses: actions/checkout@v4
@@ -57,9 +58,13 @@ jobs:
           ENGINE_DIR: ${{ github.workspace }}/engine
           HUNTER_TEST: ${{ github.workspace }}/hunter_test
           EXCLUDE: ${{ join(matrix.exclude, ',') }}
-        run: node sweeps/runner/gear_screen.js ${{ matrix.build }} ${{ matrix.mode }} "results/${{ matrix.build }}_${{ matrix.mode }}.json"
+          WEAPONS: ${{ join(matrix.weapons, ',') }}
+          RESET: ${{ matrix.reset && '1' || '' }}
+          ROTATION: ${{ matrix.rotation }}
+          GEAR: ${{ matrix.gear }}
+        run: node sweeps/runner/${{ matrix.script || 'gear_screen.js' }} ${{ matrix.build }} ${{ matrix.mode }} "results/${{ matrix.build }}_${{ matrix.mode }}_${{ matrix.tag }}.json"
       - uses: actions/upload-artifact@v4
         with:
-          name: sweep-${{ matrix.build }}-${{ matrix.mode }}
+          name: sweep-${{ matrix.build }}-${{ matrix.mode }}-${{ matrix.tag }}
           path: results/
           retention-days: 1

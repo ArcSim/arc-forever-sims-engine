@@ -4,7 +4,8 @@
 // Repeats from the new set until a round confirms nothing.
 // usage: node gear_screen.js <build> <God|Pro|Regular> <out.json>
 // env: ENGINE_DIR (engine checkout), HUNTER_TEST (built test binary), SCREEN_ITERS, CONFIRM_ITERS, PER_SLOT, WORKERS, ROUNDS,
-// EXCLUDE (comma-separated item ids the build may not use, e.g. Teebu's for the No Teebu builds)
+// EXCLUDE (comma-separated item ids the build may not use, e.g. Teebu's for the No Teebu builds; a worn one is replaced
+// first), RESET, ROTATION, GEAR (see below)
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -28,6 +29,10 @@ const byId = new Map(db.items.map((i) => [i.id, i]));
 const name = (id) => (byId.get(id) || {}).name || (id ? String(id) : '(empty)');
 let settings = JSON.parse(fs.readFileSync(path.join(ENGINE, 'builds', `ship_${build}.json`), 'utf8'));
 settings.player.hunter.options.weavePlay = PLAY[mode];
+// RESET=1: melee swings reset Auto Shot; ROTATION and GEAR (files in rotations/ and gear/) replace the shipped ones
+if (process.env.RESET) settings.player.hunter.options.meleeResetsAutoShot = true;
+if (process.env.ROTATION) settings.player.rotation = JSON.parse(fs.readFileSync(path.join(__dirname, 'rotations', process.env.ROTATION), 'utf8'));
+if (process.env.GEAR) settings.player.equipment = JSON.parse(fs.readFileSync(path.join(__dirname, 'gear', process.env.GEAR), 'utf8'));
 const race = settings.player.race;
 
 const S = { str: 0, agi: 1, int: 3, ap: 17, hit: 18, crit: 19, rap: 27 };
@@ -147,6 +152,20 @@ function shortlist(slot, w, s) {
 	const w = await weights(settings);
 	report.weights = w;
 	report.shippedDps = await sim(shipped, CONFIRM);
+	// a worn item the build may not use comes off first: every shortlisted item for its slot at CONFIRM iterations, the
+	// best one worn; the rounds below then screen the rest of the set around it
+	report.forced = [];
+	for (let slot = 0; slot < SLOTS.length; slot++) {
+		const worn = (settings.player.equipment.items[slot] || {}).id;
+		if (!worn || !EXCLUDE.has(worn)) continue;
+		const tries = shortlist(slot, w, settings).map((c) => ({ id: c.id, s: equip(settings, slot, c.id) })).filter((t) => legal(t.s));
+		const d = await pool(tries.map((t) => () => sim(t.s, CONFIRM)));
+		tries.forEach((t, i) => (t.dps = d[i]));
+		tries.sort((a, b) => b.dps - a.dps);
+		report.forced.push({ slot: SLOTS[slot], from: name(worn), to: tries.map((t) => ({ item: name(t.id), dps: +t.dps.toFixed(1), summonedBy: summonedBy(t.id) })) });
+		settings = tries[0].s;
+	}
+	if (report.forced.length) report.forcedDps = await sim(settings, CONFIRM);
 	for (let round = 1; round <= ROUNDS; round++) {
 		const tries = [];
 		for (let slot = 0; slot < SLOTS.length; slot++)

@@ -1,83 +1,280 @@
 {
- "note": "Shipped builds of site 1.31; Pro and Regular for the visible weave builds; Teebu's kept out of the No Teebu builds; Highlander's rewards filtered.",
+ "note": "Site 1.31 builds. no-helm-chest: without Black Dragonscale Helm and Dawn Armor (their patterns may not be pre-raid). reset-gear: melee swings resetting Auto Shot, from the reset rotations and Arcanite Reaper gear. reset-rotations: those rotations as Pro and Regular Player.",
  "jobs": [
   {
    "build": "2h_auto_weave",
-   "mode": "God"
+   "mode": "God",
+   "tag": "no-helm-chest",
+   "exclude": [
+    252605,
+    252483
+   ]
   },
   {
    "build": "dw_auto_weave",
-   "mode": "God"
+   "mode": "God",
+   "tag": "no-helm-chest",
+   "exclude": [
+    252605,
+    252483
+   ]
   },
   {
    "build": "2h_ability_weave",
-   "mode": "God"
+   "mode": "God",
+   "tag": "no-helm-chest",
+   "exclude": [
+    252605,
+    252483
+   ]
   },
   {
    "build": "dw_ability_weave",
-   "mode": "God"
+   "mode": "God",
+   "tag": "no-helm-chest",
+   "exclude": [
+    252605,
+    252483
+   ]
   },
   {
    "build": "dw_auto_weave_no_teebu",
    "mode": "God",
+   "tag": "no-helm-chest",
    "exclude": [
+    252605,
+    252483,
     1728
    ]
   },
   {
    "build": "hawk_weave",
-   "mode": "God"
+   "mode": "God",
+   "tag": "no-helm-chest",
+   "exclude": [
+    252605,
+    252483
+   ]
   },
   {
    "build": "dw_pure_melee_hawk",
-   "mode": "God"
+   "mode": "God",
+   "tag": "no-helm-chest",
+   "exclude": [
+    252605,
+    252483
+   ]
   },
   {
    "build": "dw_pure_melee",
-   "mode": "God"
+   "mode": "God",
+   "tag": "no-helm-chest",
+   "exclude": [
+    252605,
+    252483
+   ]
   },
   {
    "build": "dw_pure_melee_no_teebu",
    "mode": "God",
+   "tag": "no-helm-chest",
+   "exclude": [
+    252605,
+    252483,
+    1728
+   ]
+  },
+  {
+   "build": "dw_kick_weave",
+   "mode": "God",
+   "tag": "no-helm-chest",
+   "exclude": [
+    252605,
+    252483
+   ]
+  },
+  {
+   "build": "bm_weave",
+   "mode": "God",
+   "tag": "no-helm-chest",
+   "exclude": [
+    252605,
+    252483
+   ]
+  },
+  {
+   "build": "bm_ranged",
+   "mode": "God",
+   "tag": "no-helm-chest",
+   "exclude": [
+    252605,
+    252483
+   ]
+  },
+  {
+   "build": "2h_auto_weave",
+   "mode": "Pro",
+   "tag": "no-helm-chest",
+   "exclude": [
+    252605,
+    252483
+   ]
+  },
+  {
+   "build": "2h_auto_weave",
+   "mode": "Regular",
+   "tag": "no-helm-chest",
+   "exclude": [
+    252605,
+    252483
+   ]
+  },
+  {
+   "build": "dw_auto_weave",
+   "mode": "Pro",
+   "tag": "no-helm-chest",
+   "exclude": [
+    252605,
+    252483
+   ]
+  },
+  {
+   "build": "dw_auto_weave",
+   "mode": "Regular",
+   "tag": "no-helm-chest",
+   "exclude": [
+    252605,
+    252483
+   ]
+  },
+  {
+   "build": "dw_kick_weave",
+   "mode": "Pro",
+   "tag": "no-helm-chest",
+   "exclude": [
+    252605,
+    252483
+   ]
+  },
+  {
+   "build": "dw_kick_weave",
+   "mode": "Regular",
+   "tag": "no-helm-chest",
+   "exclude": [
+    252605,
+    252483
+   ]
+  },
+  {
+   "build": "2h_auto_weave",
+   "mode": "God",
+   "tag": "reset-gear",
+   "reset": true,
+   "gear": "2h_weave_reaper_reset.gear.json"
+  },
+  {
+   "build": "hawk_weave",
+   "mode": "God",
+   "tag": "reset-gear",
+   "reset": true,
+   "rotation": "arc_reset_weave.apl.json",
+   "gear": "2h_weave_reaper_reset.gear.json"
+  },
+  {
+   "build": "bm_weave",
+   "mode": "God",
+   "tag": "reset-gear",
+   "reset": true,
+   "rotation": "arc_reset_weave.apl.json",
+   "gear": "bm_weave_reaper_reset.gear.json"
+  },
+  {
+   "build": "dw_auto_weave",
+   "mode": "God",
+   "tag": "reset-gear",
+   "reset": true,
+   "rotation": "arc_reset_weave.apl.json"
+  },
+  {
+   "build": "dw_auto_weave_no_teebu",
+   "mode": "God",
+   "tag": "reset-gear",
+   "reset": true,
+   "rotation": "arc_reset_weave.apl.json",
    "exclude": [
     1728
    ]
   },
   {
    "build": "dw_kick_weave",
-   "mode": "God"
-  },
-  {
-   "build": "bm_weave",
-   "mode": "God"
-  },
-  {
-   "build": "bm_ranged",
-   "mode": "God"
+   "mode": "God",
+   "tag": "reset-gear",
+   "reset": true,
+   "rotation": "arc_kick_weave_reset.apl.json"
   },
   {
    "build": "2h_auto_weave",
-   "mode": "Pro"
+   "mode": "Pro",
+   "tag": "reset-rotations",
+   "script": "rotation_check.js",
+   "gear": "2h_weave_reaper_reset.gear.json"
   },
   {
    "build": "2h_auto_weave",
-   "mode": "Regular"
+   "mode": "Regular",
+   "tag": "reset-rotations",
+   "script": "rotation_check.js",
+   "gear": "2h_weave_reaper_reset.gear.json"
+  },
+  {
+   "build": "hawk_weave",
+   "mode": "Pro",
+   "tag": "reset-rotations",
+   "script": "rotation_check.js",
+   "gear": "2h_weave_reaper_reset.gear.json"
+  },
+  {
+   "build": "hawk_weave",
+   "mode": "Regular",
+   "tag": "reset-rotations",
+   "script": "rotation_check.js",
+   "gear": "2h_weave_reaper_reset.gear.json"
   },
   {
    "build": "dw_auto_weave",
-   "mode": "Pro"
+   "mode": "Pro",
+   "tag": "reset-rotations",
+   "script": "rotation_check.js"
   },
   {
    "build": "dw_auto_weave",
-   "mode": "Regular"
+   "mode": "Regular",
+   "tag": "reset-rotations",
+   "script": "rotation_check.js"
+  },
+  {
+   "build": "dw_auto_weave_no_teebu",
+   "mode": "Pro",
+   "tag": "reset-rotations",
+   "script": "rotation_check.js"
+  },
+  {
+   "build": "dw_auto_weave_no_teebu",
+   "mode": "Regular",
+   "tag": "reset-rotations",
+   "script": "rotation_check.js"
   },
   {
    "build": "dw_kick_weave",
-   "mode": "Pro"
+   "mode": "Pro",
+   "tag": "reset-rotations",
+   "script": "rotation_check.js"
   },
   {
    "build": "dw_kick_weave",
-   "mode": "Regular"
+   "mode": "Regular",
+   "tag": "reset-rotations",
+   "script": "rotation_check.js"
   }
  ]
 }
