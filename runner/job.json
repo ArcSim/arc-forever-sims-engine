@@ -1,53 +1,260 @@
 {
- "note": "Data pass of 28 October, part 3: the three ranged Mythic builds as they ship (Human), before (master) and after (data-pass-oct28), 20k.",
+ "note": "Reset builds (melee swings reset Auto Shot): DPS for every play mode the site lists and stat weights, 20k, on the 1.32 engine; canary 2H Auto Weave (site 1326).",
  "jobs": [
   {
-   "build": "mythic_2h_weave",
+   "build": "2h_auto_weave_reset",
    "mode": "God",
-   "tag": "human-before",
+   "tag": "dps",
    "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "mythic_2h_weave_human_before.json"
+   "settings": "reset_2h_auto_weave.json"
   },
   {
-   "build": "mythic_2h_weave",
-   "mode": "God",
-   "tag": "human-after",
-   "engine": "data-pass-oct28",
-   "script": "dps_refresh.js",
-   "settings": "mythic_2h_weave_human_after.json"
-  },
-  {
-   "build": "mythic_2h_light",
-   "mode": "God",
-   "tag": "human-before",
+   "build": "2h_auto_weave_reset",
+   "mode": "Pro",
+   "tag": "dps",
    "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "mythic_2h_light_human_before.json"
+   "settings": "reset_2h_auto_weave.json"
   },
   {
-   "build": "mythic_2h_light",
-   "mode": "God",
-   "tag": "human-after",
-   "engine": "data-pass-oct28",
-   "script": "dps_refresh.js",
-   "settings": "mythic_2h_light_human_after.json"
-  },
-  {
-   "build": "mythic_survival",
-   "mode": "God",
-   "tag": "human-before",
+   "build": "2h_auto_weave_reset",
+   "mode": "Regular",
+   "tag": "dps",
    "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "mythic_survival_human_before.json"
+   "settings": "reset_2h_auto_weave.json"
   },
   {
-   "build": "mythic_survival",
+   "build": "2h_auto_weave_reset",
    "mode": "God",
-   "tag": "human-after",
-   "engine": "data-pass-oct28",
+   "tag": "ep",
+   "engine": "master",
    "script": "dps_refresh.js",
-   "settings": "mythic_survival_human_after.json"
+   "settings": "reset_2h_auto_weave.json",
+   "ep": true
+  },
+  {
+   "build": "dw_auto_weave_reset",
+   "mode": "God",
+   "tag": "dps",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_dw_auto_weave.json"
+  },
+  {
+   "build": "dw_auto_weave_reset",
+   "mode": "Pro",
+   "tag": "dps",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_dw_auto_weave.json"
+  },
+  {
+   "build": "dw_auto_weave_reset",
+   "mode": "Regular",
+   "tag": "dps",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_dw_auto_weave.json"
+  },
+  {
+   "build": "dw_auto_weave_reset",
+   "mode": "God",
+   "tag": "ep",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_dw_auto_weave.json",
+   "ep": true
+  },
+  {
+   "build": "2h_ability_weave_reset",
+   "mode": "God",
+   "tag": "dps",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_2h_ability_weave.json"
+  },
+  {
+   "build": "2h_ability_weave_reset",
+   "mode": "Pro",
+   "tag": "dps",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_2h_ability_weave.json"
+  },
+  {
+   "build": "2h_ability_weave_reset",
+   "mode": "Regular",
+   "tag": "dps",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_2h_ability_weave.json"
+  },
+  {
+   "build": "2h_ability_weave_reset",
+   "mode": "God",
+   "tag": "ep",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_2h_ability_weave.json",
+   "ep": true
+  },
+  {
+   "build": "dw_ability_weave_reset",
+   "mode": "God",
+   "tag": "dps",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_dw_ability_weave.json"
+  },
+  {
+   "build": "dw_ability_weave_reset",
+   "mode": "Pro",
+   "tag": "dps",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_dw_ability_weave.json"
+  },
+  {
+   "build": "dw_ability_weave_reset",
+   "mode": "Regular",
+   "tag": "dps",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_dw_ability_weave.json"
+  },
+  {
+   "build": "dw_ability_weave_reset",
+   "mode": "God",
+   "tag": "ep",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_dw_ability_weave.json",
+   "ep": true
+  },
+  {
+   "build": "dw_auto_weave_no_teebu_reset",
+   "mode": "God",
+   "tag": "dps",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_dw_auto_weave_no_teebu.json"
+  },
+  {
+   "build": "dw_auto_weave_no_teebu_reset",
+   "mode": "God",
+   "tag": "ep",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_dw_auto_weave_no_teebu.json",
+   "ep": true
+  },
+  {
+   "build": "hawk_weave_reset",
+   "mode": "God",
+   "tag": "dps",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_hawk_weave.json"
+  },
+  {
+   "build": "hawk_weave_reset",
+   "mode": "God",
+   "tag": "ep",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_hawk_weave.json",
+   "ep": true
+  },
+  {
+   "build": "dw_pure_melee_hawk_reset",
+   "mode": "God",
+   "tag": "dps",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_dw_pure_melee_hawk.json"
+  },
+  {
+   "build": "dw_pure_melee_reset",
+   "mode": "God",
+   "tag": "dps",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_dw_pure_melee.json"
+  },
+  {
+   "build": "dw_pure_melee_no_teebu_reset",
+   "mode": "God",
+   "tag": "dps",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_dw_pure_melee_no_teebu.json"
+  },
+  {
+   "build": "dw_kick_weave_reset",
+   "mode": "God",
+   "tag": "dps",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_dw_kick_weave.json"
+  },
+  {
+   "build": "dw_kick_weave_reset",
+   "mode": "Pro",
+   "tag": "dps",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_dw_kick_weave.json"
+  },
+  {
+   "build": "dw_kick_weave_reset",
+   "mode": "Regular",
+   "tag": "dps",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_dw_kick_weave.json"
+  },
+  {
+   "build": "dw_kick_weave_reset",
+   "mode": "God",
+   "tag": "ep",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_dw_kick_weave.json",
+   "ep": true
+  },
+  {
+   "build": "bm_weave_reset",
+   "mode": "God",
+   "tag": "dps",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_bm_weave.json"
+  },
+  {
+   "build": "bm_weave_reset",
+   "mode": "God",
+   "tag": "ep",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_bm_weave.json",
+   "ep": true
+  },
+  {
+   "build": "bm_ranged_reset",
+   "mode": "God",
+   "tag": "dps",
+   "engine": "master",
+   "script": "dps_refresh.js",
+   "settings": "reset_bm_ranged.json"
+  },
+  {
+   "build": "2h_auto_weave",
+   "mode": "God",
+   "tag": "canary",
+   "engine": "master",
+   "script": "dps_refresh.js"
   }
  ]
 }
