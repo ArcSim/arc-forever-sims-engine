@@ -71,7 +71,7 @@ func TestWeavePlayReactions(t *testing.T) {
 // God Mode stops exactly where asked, 11.6 yd included.
 func TestFractionalWalkStops(t *testing.T) {
 	speed := 7.0
-	yard := float64(time.Millisecond * time.Duration(1000/speed)) // the engine's time per yard at 7 yd/s, whole ms
+	yard := float64(time.Second) / speed // the engine's time per yard at 7 yd/s
 	near := func(got time.Duration, yards float64) bool { return math.Abs(float64(got)-yards*yard) < float64(2*time.Millisecond) }
 
 	sim, hunter := weavePlayHunter(t, proto.Hunter_Options_WeavePerfectPlay, 5)

@@ -421,7 +421,7 @@ func (unit *Unit) moveToNow(moveRange float64, sim *Simulation) {
 		if out := envFloat("AB_MOVE_OUT_SPEED"); out > 0 && moveDistance > 0 {
 			speed = out * mh.MoveSpeed / mh.baseSpeed
 		}
-		return time.Millisecond * time.Duration(1000/speed)
+		return time.Duration(float64(time.Second) / speed)
 	}
 
 	// a walk into melee turns the melee attack on now: the timeline draws the off hand's wait from here
