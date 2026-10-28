@@ -63,6 +63,8 @@ jobs:
           ROTATION: ${{ matrix.rotation }}
           GEAR: ${{ matrix.gear }}
           ENGINE_REF: ${{ matrix.engine || 'master' }}
+          SETTINGS: ${{ matrix.settings }}
+          EP: ${{ matrix.ep && '1' || '' }}
         run: node sweeps/runner/${{ matrix.script || 'gear_screen.js' }} ${{ matrix.build }} ${{ matrix.mode }} "results/${{ matrix.build }}_${{ matrix.mode }}_${{ matrix.tag }}.json"
       - uses: actions/upload-artifact@v4
         with:
