@@ -10,6 +10,8 @@ Pre-raid gear checks for the builds of Arc's Forever Sims, run on GitHub's machi
   `runner/gear/`.
 - `runner/rotation_check.js` (jobs with `"script": "rotation_check.js"`) sims the build with melee swings resetting Auto
   Shot: the shipped rotation with the reset off and on, every rotation in `runner/rotations/`, and the job's `weapons`.
+- `runner/trap_ap_check.js` (jobs with `"script": "trap_ap_check.js"`) sims the build twice on one seed: trap attack power
+  at the engine's 0.132 x AP, and at the line fitted to the beta's Immolation Trap logs (0.1052 x AP + 11.1 a trap).
 - `runner/preraid_items.js` decides what counts as pre-raid gear.
 
 Each run's results are attached to it for a day.
